@@ -120,6 +120,32 @@
           "title": "Right Terms Hash",
           "type": "string"
         },
+        "left_definition_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Left Definition Hash"
+        },
+        "right_definition_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Right Definition Hash"
+        },
         "status": {
           "enum": [
             "verified",

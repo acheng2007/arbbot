@@ -112,3 +112,5 @@ docs/             Operations, API, and review documentation
 
 Runtime and development dependencies are pinned separately in `backend/requirements.lock` and `backend/requirements-dev.lock`.
 The backend is one Python package with separate runtime processes, preserving a modular monolith architecture.
+
+See [structured contract matching](docs/contract-matching.md) for evidence-backed event definitions, settlement comparisons, and the live review workflow.

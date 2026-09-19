@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "ContractDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "market_id": {
+          "title": "Market Id",
+          "type": "string"
+        },
+        "terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Terms Hash",
+          "type": "string"
+        },
+        "extractor": {
+          "minLength": 1,
+          "title": "Extractor",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Fact"
+          },
+          "propertyNames": {
+            "enum": [
+              "event_type",
+              "entity",
+              "metric",
+              "reference_period",
+              "measurement",
+              "source",
+              "value_version",
+              "operator",
+              "threshold",
+              "units",
+              "observation_window",
+              "timezone",
+              "outcome_orientation",
+              "payout",
+              "cancellation",
+              "exceptions"
+            ]
+          },
+          "title": "Facts",
+          "type": "object"
+        }
+      },
+      "required": [
+        "market_id",
+        "terms_hash",
+        "extractor",
+        "facts"
+      ],
+      "title": "ContractDefinition",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "title",
+            "rules",
+            "settlement_details"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "source_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Key"
+        },
+        "quote": {
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "source",
+        "quote"
+      ],
+      "title": "Fact",
+      "type": "object"
+    }
+  },
+  "items": {
+    "$ref": "#/$defs/ContractDefinition"
+  },
+  "type": "array"
+}

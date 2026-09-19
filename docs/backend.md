@@ -165,3 +165,9 @@ Adapters were checked against official documentation and small live read-only re
 - [Polymarket market discovery](https://docs.polymarket.com/market-data/discover-markets)
 - [Polymarket order books](https://docs.polymarket.com/market-data/prices-order-books)
 - [Polymarket fees](https://docs.polymarket.com/trading/fees)
+
+## Structured contract interpretations
+
+Live pair approval additionally requires evidence-backed definitions and review hashes binding those definitions.
+See [the contract matching workflow](contract-matching.md) for authoring, comparison fields, configuration, and migration of existing reviews.
+Comparisons and evidence are exposed on matches and retained on opportunities.
