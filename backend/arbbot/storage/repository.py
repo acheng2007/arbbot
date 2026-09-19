@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from sqlalchemy import select, update
 
-from arbbot.domain import Book, Market, Match, Opportunity, digest, restore, utcnow
+from arbbot.domain import Book, Market, MarketHealth, Match, Opportunity, digest, restore, utcnow
 from arbbot.storage.models import (
     EvaluationRecord,
     HealthRecord,
@@ -115,12 +115,50 @@ class Repository:
                 await session.scalars(select(HealthRecord).where(HealthRecord.mode == mode))
             ).all()
         results = []
+        now = utcnow()
         for row in rows:
-            stale = utcnow() - aware(row.checked_at) > timedelta(seconds=health_max_age)
-            results.append({**row.payload, "status": "stale" if stale else row.status})
+            heartbeat_stale = now - aware(row.checked_at) > timedelta(seconds=health_max_age)
+            feeds = []
+            for payload in row.payload.get("market_health", []):
+                feed = MarketHealth.model_validate(payload)
+                if feed.status == "healthy":
+                    if heartbeat_stale:
+                        feed = feed.model_copy(update={"status": "stale", "error": "worker_stale"})
+                    elif feed.valid_until is None or not feed.book_id:
+                        feed = feed.model_copy(update={"status": "error", "error": "book_missing"})
+                    elif now >= feed.valid_until:
+                        feed = feed.model_copy(update={"status": "stale", "error": "book_stale"})
+                feeds.append(feed)
+            status = row.status
+            errors = {feed.error for feed in feeds if feed.error}
+            if row.payload.get("error"):
+                errors.update(row.payload["error"].split(","))
+            if not row.payload.get("discovery_ok", False):
+                status = "degraded"
+            elif any(feed.status in {"stale", "error"} for feed in feeds):
+                status = "degraded"
+            results.append(
+                {
+                    **row.payload,
+                    "status": "stale" if heartbeat_stale else status,
+                    "fresh_book_count": sum(feed.status == "healthy" for feed in feeds),
+                    "market_health": [feed.model_dump(mode="json") for feed in feeds],
+                    "error": ",".join(sorted(errors)) if errors else None,
+                }
+            )
         return sorted(results, key=lambda row: row["venue"])
 
-    async def set_health(self, mode, venue, status, market_count=0, book_count=0, error=None):
+    async def set_health(
+        self,
+        mode,
+        venue,
+        status,
+        market_count=0,
+        book_count=0,
+        error=None,
+        *,
+        market_health: list[MarketHealth] | None = None,
+    ):
         now = utcnow()
         async with self.database.sessions.begin() as session:
             await session.merge(
@@ -138,10 +176,16 @@ class Repository:
                         "market_count": market_count,
                         "book_count": book_count,
                         "error": error,
+                        "discovery_ok": market_health is not None,
+                        "market_health": [
+                            feed.model_dump(mode="json") for feed in market_health or []
+                        ],
                     },
                 )
             )
-            if status != "healthy":
+            # Without a complete catalog, no pair using this venue is trustworthy.
+            # Partial book failures are filtered per leg by opportunities() instead.
+            if market_health is None:
                 await session.execute(
                     update(OpportunityRecord)
                     .where(OpportunityRecord.mode == mode)
@@ -203,15 +247,31 @@ class Repository:
             return [Match.model_validate(row.payload) for row in rows]
 
     async def opportunities(self, mode, health_max_age, limit=100, offset=0, history=False):
+        eligible_books = []
         if not history:
             health = await self.health(mode, health_max_age)
-            if {h["venue"] for h in health if h["status"] == "healthy"} != {"kalshi", "polymarket"}:
+            available = [h for h in health if h["status"] != "stale" and h.get("discovery_ok")]
+            if {h["venue"] for h in available} != {"kalshi", "polymarket"}:
                 return []
+            eligible_books = [
+                feed["book_id"]
+                for venue in available
+                for feed in venue["market_health"]
+                if feed["status"] == "healthy" and feed["book_id"]
+            ]
         query = select(OpportunityRecord).where(OpportunityRecord.mode == mode)
         if not history:
             query = query.where(
                 OpportunityRecord.active.is_(True), OpportunityRecord.valid_until > utcnow()
             )
+            # Apply eligibility before pagination and sorting. Matching exact snapshots
+            # also prevents replaying a previous opportunity after a failed market recovers.
+            for leg in (0, 1):
+                query = query.where(
+                    OpportunityRecord.payload["legs"][leg]["book_id"]
+                    .as_string()
+                    .in_(eligible_books)
+                )
         query = (
             query.order_by(
                 OpportunityRecord.evaluated_at.desc(),

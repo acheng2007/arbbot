@@ -94,6 +94,16 @@ class Book(Model):
         return digest(self.model_dump(mode="json"))
 
 
+class MarketHealth(Model):
+    market_id: str
+    status: Literal["healthy", "stale", "error", "closed"]
+    checked_at: AwareDatetime
+    book_id: str | None = None
+    quote_at: AwareDatetime | None = None
+    valid_until: AwareDatetime | None = None
+    error: str | None = None
+
+
 class CostPolicy(Model):
     # Reviewed conservative fee envelope, not a hard-coded exchange fee schedule.
     fee_per_contract: NonNegative

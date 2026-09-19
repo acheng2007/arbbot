@@ -3,6 +3,7 @@ from decimal import ROUND_CEILING, Decimal
 
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Leg, Market, Match, Opportunity, digest
+from arbbot.quality import book_issue
 
 ZERO = Decimal(0)
 ONE = Decimal(1)
@@ -44,17 +45,9 @@ def evaluate(
     for market in (left, right):
         if market.status != "open" or market.closes_at <= now:
             reasons.append(f"market_closed:{market.id}")
-        book = books.get(market.id)
-        if not book:
-            reasons.append(f"book_missing:{market.id}")
-        elif book.mode != market.mode:
-            reasons.append(f"book_mode_mismatch:{market.id}")
-        elif (now - book.effective_at).total_seconds() > settings.max_quote_age_seconds:
-            reasons.append(f"book_stale:{market.id}")
-        elif book.received_at > now + timedelta(seconds=2) or (
-            book.source_at and book.source_at > now + timedelta(seconds=2)
-        ):
-            reasons.append(f"book_from_future:{market.id}")
+        issue = book_issue(market, books.get(market.id), now, settings.max_quote_age_seconds)
+        if issue:
+            reasons.append(f"{issue}:{market.id}")
     if not reasons:
         skew = abs((books[left.id].effective_at - books[right.id].effective_at).total_seconds())
         if skew > settings.max_quote_skew_seconds:

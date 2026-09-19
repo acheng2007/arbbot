@@ -1,4 +1,9 @@
+import os
+from uuid import uuid4
+
 import pytest
+from sqlalchemy.engine import make_url
+from sqlalchemy.schema import CreateSchema, DropSchema
 
 from arbbot.config import Settings
 from arbbot.exchanges.simulation import SimulationAdapter, simulation_reviews
@@ -23,9 +28,32 @@ async def fixture_market():
 
 @pytest.fixture
 async def database(tmp_path):
-    settings = Settings(database_url=f"sqlite+aiosqlite:///{tmp_path}/test.db", _env_file=None)
+    postgres_url = os.environ.get("ARBBOT_TEST_DATABASE_URL")
+    admin = None
+    schema = "arbbot_test_" + uuid4().hex
+    if postgres_url:
+        url = make_url(postgres_url)
+        if url.drivername != "postgresql+psycopg":
+            raise ValueError("ARBBOT_TEST_DATABASE_URL must use postgresql+psycopg")
+        admin = Database(Settings(database_url=postgres_url, _env_file=None))
+        async with admin.engine.begin() as connection:
+            await connection.execute(CreateSchema(schema))
+        database_url = url.update_query_dict(
+            {"options": f"-csearch_path={schema}"}
+        ).render_as_string(hide_password=False)
+    else:
+        database_url = f"sqlite+aiosqlite:///{tmp_path}/test.db"
+    settings = Settings(database_url=database_url, _env_file=None)
     db = Database(settings)
-    async with db.engine.begin() as connection:
-        await connection.run_sync(Base.metadata.create_all)
-    yield settings, db, Repository(db)
-    await db.close()
+    try:
+        async with db.engine.begin() as connection:
+            await connection.run_sync(Base.metadata.create_all)
+        yield settings, db, Repository(db)
+    finally:
+        await db.close()
+        if admin:
+            try:
+                async with admin.engine.begin() as connection:
+                    await connection.execute(DropSchema(schema, cascade=True))
+            finally:
+                await admin.close()

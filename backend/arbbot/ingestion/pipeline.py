@@ -1,14 +1,16 @@
 import asyncio
 import json
 import logging
+from datetime import timedelta
 
 import httpx
 from pydantic import TypeAdapter
 
 from arbbot.arbitrage.engine import evaluate
-from arbbot.domain import Review, utcnow
+from arbbot.domain import MarketHealth, Review, utcnow
 from arbbot.exchanges.simulation import simulation_reviews
 from arbbot.matching.service import match_markets
+from arbbot.quality import book_issue
 
 logger = logging.getLogger(__name__)
 
@@ -50,18 +52,46 @@ class Pipeline:
                     raise ValueError("Adapter emitted data for the wrong mode or venue")
                 await self.repository.save_market(market)
             results = await asyncio.gather(*(fetch(market) for market in markets))
-            books, errors = {}, []
+            books, errors, market_health = {}, [], []
             for market, result in zip(markets, results, strict=True):
-                if result is None:
-                    continue
-                if isinstance(result, Exception):
-                    errors.append(safe_error(result))
-                elif result.market_id != market.id or result.mode != mode:
-                    errors.append("book_identity_mismatch")
-                elif await self.repository.save_book(result):
-                    books[market.id] = result
+                now = utcnow()
+                issue = None
+                details = {}
+                if market.status != "open" or market.closes_at <= now:
+                    feed_status = "closed"
+                elif isinstance(result, Exception):
+                    issue = safe_error(result)
+                    feed_status = "error"
                 else:
-                    errors.append("out_of_order_snapshot")
+                    issue = book_issue(market, result, now, self.settings.max_quote_age_seconds)
+                    # Keep old snapshots for audit, but never persist a wrong-identity or
+                    # future-dated book as the latest snapshot for an otherwise valid market.
+                    if result is not None and issue in (None, "book_stale"):
+                        if not await self.repository.save_book(result):
+                            issue = "out_of_order_snapshot"
+                        else:
+                            details = {
+                                "book_id": result.id,
+                                "quote_at": result.effective_at,
+                                "valid_until": result.effective_at
+                                + timedelta(seconds=self.settings.max_quote_age_seconds),
+                            }
+                    feed_status = (
+                        "stale" if issue == "book_stale" else "error" if issue else "healthy"
+                    )
+                    if not issue:
+                        books[market.id] = result
+                if issue:
+                    errors.append(issue)
+                market_health.append(
+                    MarketHealth(
+                        market_id=market.id,
+                        status=feed_status,
+                        checked_at=now,
+                        error=issue,
+                        **details,
+                    )
+                )
             status = "degraded" if errors else "healthy"
             await self.repository.set_health(
                 mode,
@@ -70,6 +100,7 @@ class Pipeline:
                 len(markets),
                 len(books),
                 ",".join(sorted(set(errors))) if errors else None,
+                market_health=market_health,
             )
             logger.info(
                 "ingestion_cycle",
@@ -80,8 +111,8 @@ class Pipeline:
                     "book_count": len(books),
                 },
             )
-            # Conservative venue-level suppression until a complete healthy cycle.
-            return markets, {} if errors else books
+            # Failed markets remain visible in health, without discarding unrelated books.
+            return markets, books
         except Exception as exc:
             error = safe_error(exc)
             logger.warning("ingestion_failed", extra={"venue": adapter.venue, "error": error})

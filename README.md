@@ -81,6 +81,13 @@ See [backend operations](docs/backend.md) for live configuration and current bou
 ```
 
 Unit and integration tests use isolated temporary SQLite databases and mocked exchange HTTP responses.
+To exercise the same persistence and API tests against local PostgreSQL, run:
+
+```sh
+ARBBOT_TEST_DATABASE_URL=postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot .venv/bin/pytest -q backend/tests
+```
+
+Each PostgreSQL test creates and removes its own uniquely named schema without modifying application tables.
 The Docker smoke test exercises real PostgreSQL, the independent worker, REST endpoints, historical source records, and SSE over HTTP.
 Live exchange reads are separate from deterministic tests.
 

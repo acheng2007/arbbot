@@ -98,8 +98,13 @@ Minimum scenario payout minus estimated outlay determines estimated net profit.
 Slippage reserves are cost allowances and do not guarantee fills.
 
 Closed markets, missing or stale books, future timestamps, mixed modes, excessive quote skew, and invalid reviews block evaluation.
-Partial exchange failures suppress affected opportunities until a complete healthy cycle succeeds.
-The API separately filters expired opportunities and requires healthy worker heartbeats.
+Individual book failures suppress only opportunities using the affected market.
+Fresh books from other markets remain eligible even when the exchange's aggregate health is degraded.
+Discovery failures, missing catalogs, and stale worker heartbeats still suppress opportunities using that venue.
+The API filters current results against the exact healthy book snapshots before pagination, so recovery requires a new evaluation and cannot revive an old opportunity.
+Ingestion and evaluation share the same quote identity, mode, freshness, and future-timestamp checks.
+Old snapshots may be retained for audit, but future-dated or wrong-identity books cannot replace a valid latest snapshot.
+The API independently expires per-market health as quote deadlines pass, even when no new ingestion cycle runs.
 History intentionally retains expired calculations.
 
 Live results are `quote_supported_estimate`, conditional on balances, venue access, account limits, and complete fills.
@@ -137,6 +142,10 @@ Export the schema for the future TypeScript client with:
 
 `/health/live` checks the process and `/health/ready` checks database access and the initial schema.
 Ingestion health is reported separately at `/api/v1/status`.
+Each exchange includes `discovery_ok`, `fresh_book_count`, and a `market_health` list containing per-market status, safe error codes, snapshot IDs, quote timestamps, and freshness deadlines.
+`book_count` describes usable books at the last ingestion check; `fresh_book_count` is recalculated at request time.
+The same health information appears in SSE snapshots.
+After deploying this change, older health records without per-market details remain ineligible until the upgraded worker completes its next cycle.
 Workers emit JSON logs and the API exposes Prometheus HTTP metrics at `/metrics`.
 OpenTelemetry tracing, worker metrics, dashboards, and alerts remain to be integrated.
 
