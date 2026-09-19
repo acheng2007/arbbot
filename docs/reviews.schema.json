@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "CostPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "fee_per_contract": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Fee Per Contract"
+        },
+        "fixed_fee": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Fixed Fee"
+        },
+        "min_order_size": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Min Order Size"
+        },
+        "min_notional": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Min Notional"
+        },
+        "cost_fx": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Cost Fx"
+        },
+        "payout_fx": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Payout Fx"
+        },
+        "evidence": {
+          "minLength": 10,
+          "title": "Evidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fee_per_contract",
+        "fixed_fee",
+        "min_order_size",
+        "min_notional",
+        "cost_fx",
+        "payout_fx",
+        "evidence"
+      ],
+      "title": "CostPolicy",
+      "type": "object"
+    },
+    "Review": {
+      "additionalProperties": false,
+      "properties": {
+        "left_id": {
+          "title": "Left Id",
+          "type": "string"
+        },
+        "right_id": {
+          "title": "Right Id",
+          "type": "string"
+        },
+        "left_terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Left Terms Hash",
+          "type": "string"
+        },
+        "right_terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Right Terms Hash",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reviewer": {
+          "minLength": 1,
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 10,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "resolution_sources": {
+          "minLength": 10,
+          "title": "Resolution Sources",
+          "type": "string"
+        },
+        "deadlines_and_timezones": {
+          "minLength": 10,
+          "title": "Deadlines And Timezones",
+          "type": "string"
+        },
+        "cancellation_and_exceptions": {
+          "minLength": 10,
+          "title": "Cancellation And Exceptions",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        },
+        "scenarios": {
+          "items": {
+            "$ref": "#/$defs/Scenario"
+          },
+          "minItems": 2,
+          "title": "Scenarios",
+          "type": "array"
+        },
+        "left_costs": {
+          "$ref": "#/$defs/CostPolicy"
+        },
+        "right_costs": {
+          "$ref": "#/$defs/CostPolicy"
+        }
+      },
+      "required": [
+        "left_id",
+        "right_id",
+        "left_terms_hash",
+        "right_terms_hash",
+        "status",
+        "reviewer",
+        "rationale",
+        "resolution_sources",
+        "deadlines_and_timezones",
+        "cancellation_and_exceptions",
+        "expires_at",
+        "scenarios",
+        "left_costs",
+        "right_costs"
+      ],
+      "title": "Review",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "left_yes": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Left Yes"
+        },
+        "right_yes": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Right Yes"
+        }
+      },
+      "required": [
+        "name",
+        "left_yes",
+        "right_yes"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    }
+  },
+  "items": {
+    "$ref": "#/$defs/Review"
+  },
+  "type": "array"
+}
