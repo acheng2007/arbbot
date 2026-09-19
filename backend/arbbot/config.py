@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     max_capital: Decimal = Field(default=Decimal("1000"), gt=0)
     slippage_bps: Decimal = Field(default=Decimal("10"), ge=0, le=10000)
     min_profit: Decimal = Field(default=Decimal("0.01"), gt=0)
+    definitions_file: Path | None = None
     reviews_file: Path | None = None
     kalshi_tickers: list[str] = []
     polymarket_market_ids: list[str] = []

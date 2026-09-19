@@ -8,6 +8,8 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field, model_validator
 
+from arbbot.matching.contracts import Comparison
+
 NonNegative = Annotated[Decimal, Field(ge=0, allow_inf_nan=False)]
 Positive = Annotated[Decimal, Field(gt=0, allow_inf_nan=False)]
 Probability = Annotated[Decimal, Field(ge=0, le=1, allow_inf_nan=False)]
@@ -132,6 +134,8 @@ class Review(Model):
     right_id: str
     left_terms_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     right_terms_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    left_definition_hash: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    right_definition_hash: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     status: Literal["verified", "rejected"]
     reviewer: str = Field(min_length=1)
     rationale: str = Field(min_length=10)
@@ -164,6 +168,7 @@ class Match(Model):
     similarity: float
     reason: str
     review: Review | None = None
+    comparison: Comparison | None = None
 
 
 class Leg(Model):
@@ -197,6 +202,7 @@ class Opportunity(Model):
     return_on_capital: Positive
     scenario_payouts: dict[str, Decimal]
     review: Review
+    comparison: Comparison | None = None
     assumptions: tuple[str, ...]
 
 

@@ -3,9 +3,17 @@ from difflib import SequenceMatcher
 from itertools import combinations
 
 from arbbot.domain import Market, Match, Review, digest, utcnow
+from arbbot.matching.contracts import ContractDefinition, compare_contracts
 
 
-def match_markets(markets: list[Market], reviews: list[Review]) -> list[Match]:
+def match_markets(
+    markets: list[Market],
+    reviews: list[Review],
+    definitions: list[ContractDefinition] | None = None,
+) -> list[Match]:
+    contracts = {d.market_id: d for d in definitions or []}
+    if len(contracts) != len(definitions or []):
+        raise ValueError("Duplicate contract definitions for a market")
     indexed = {frozenset((r.left_id, r.right_id)): r for r in reviews}
     if len(indexed) != len(reviews):
         raise ValueError("Duplicate reviews for a market pair")
@@ -22,10 +30,17 @@ def match_markets(markets: list[Market], reviews: list[Review]) -> list[Match]:
             return " ".join(re.findall(r"\w+", text.casefold()))
 
         similarity = SequenceMatcher(None, normalize(a.title), normalize(b.title)).ratio()
-        if not review and (similarity < 0.65 or abs((a.closes_at - b.closes_at).days) > 7):
+        comparison = compare_contracts(a, b, contracts.get(a.id), contracts.get(b.id))
+        if (
+            not review
+            and not comparison.same_event
+            and (similarity < 0.65 or abs((a.closes_at - b.closes_at).total_seconds()) > 7 * 86400)
+        ):
             continue
         status = "candidate"
         reason = "Title similarity only; settlement terms and costs require review."
+        if comparison.same_event:
+            reason = "Shared structured event; settlement terms and costs require review."
         if review:
             if (review.left_terms_hash, review.right_terms_hash) != (a.terms_hash, b.terms_hash):
                 reason = "Settlement terms changed; previous review is invalid."
@@ -33,6 +48,14 @@ def match_markets(markets: list[Market], reviews: list[Review]) -> list[Match]:
                 reason = "Settlement and cost review expired."
             else:
                 status, reason = review.status, review.rationale
+        if status == "verified" and a.mode == "live":
+            if comparison.status != "compatible":
+                status, reason = "candidate", "Structured settlement comparison is not compatible."
+            elif (review.left_definition_hash, review.right_definition_hash) != (
+                comparison.left_hash,
+                comparison.right_hash,
+            ):
+                status, reason = "candidate", "Review does not approve the current definitions."
         matches.append(
             Match(
                 id=digest([a.mode, *sorted((a.id, b.id))]),
@@ -43,6 +66,7 @@ def match_markets(markets: list[Market], reviews: list[Review]) -> list[Match]:
                 similarity=round(similarity, 4),
                 reason=reason,
                 review=review,
+                comparison=comparison,
             )
         )
     return matches

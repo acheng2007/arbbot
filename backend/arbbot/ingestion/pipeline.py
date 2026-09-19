@@ -9,6 +9,7 @@ from pydantic import TypeAdapter
 from arbbot.arbitrage.engine import evaluate
 from arbbot.domain import MarketHealth, Review, utcnow
 from arbbot.exchanges.simulation import simulation_reviews
+from arbbot.matching.contracts import ContractDefinition
 from arbbot.matching.service import match_markets
 from arbbot.quality import book_issue
 
@@ -130,7 +131,11 @@ class Pipeline:
             reviews = TypeAdapter(list[Review]).validate_python(json.loads(content))
         else:
             reviews = []
-        matches = match_markets(markets, reviews)
+        definitions = []
+        if self.settings.definitions_file:
+            content = await asyncio.to_thread(self.settings.definitions_file.read_text)
+            definitions = TypeAdapter(list[ContractDefinition]).validate_json(content)
+        matches = match_markets(markets, reviews, definitions)
         indexed = {market.id: market for market in markets}
         now = utcnow()
         # Calculation work must not block the event loop as the monitored set grows.

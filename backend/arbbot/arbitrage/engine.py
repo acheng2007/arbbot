@@ -3,6 +3,7 @@ from decimal import ROUND_CEILING, Decimal
 
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Leg, Market, Match, Opportunity, digest
+from arbbot.matching.contracts import compare_contracts
 from arbbot.quality import book_issue
 
 ZERO = Decimal(0)
@@ -40,6 +41,20 @@ def evaluate(
         or review.right_terms_hash != right.terms_hash
     ):
         reasons.append("review_invalid_or_expired")
+    if match.mode == "live":
+        comparison = compare_contracts(
+            left,
+            right,
+            match.comparison.left if match.comparison else None,
+            match.comparison.right if match.comparison else None,
+        )
+        if (
+            comparison.status != "compatible"
+            or review is None
+            or (review.left_definition_hash, review.right_definition_hash)
+            != (comparison.left_hash, comparison.right_hash)
+        ):
+            reasons.append("structured_equivalence_unverified")
     if left.mode != right.mode or match.mode != left.mode:
         reasons.append("mixed_data_modes")
     for market in (left, right):
@@ -172,6 +187,7 @@ def evaluate(
                 return_on_capital=profit / capital,
                 scenario_payouts=payouts,
                 review=review,
+                comparison=match.comparison,
                 assumptions=(
                     "Both legs fill in full; execution is not atomic.",
                     "Venue access, prefunded balances, and account limits are unverified.",
