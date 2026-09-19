@@ -1,0 +1,1 @@
+"""Pure, conservative arbitrage calculations."""
