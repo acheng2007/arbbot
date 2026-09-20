@@ -4,6 +4,7 @@ The full backend production goal remains active.
 This increment implements issue #11 only; exchange policies and engine integration are still required.
 Workspace: `/private/tmp/arbbot-backend-fees`.
 Branch: `backend/11-fee-contract`, from `origin/main` at `d065906`.
+Published draft PR: https://github.com/acheng2007/arbbot/pull/46.
 
 ## Completed
 
@@ -30,7 +31,9 @@ Draft PR #44 is canonical settlement definitions on `backend/1-contract-vocabula
 Draft PR #45 is source evidence storage on `backend/2-source-artifacts` in `/private/tmp/arbbot-backend-production`.
 Both original hosted runs failed because cross-test imports required a test package declaration that local PYTHONPATH masked.
 CI logs reproduced the failure; both branches now include `backend/tests/__init__.py` and pass their documented pytest command locally without PYTHONPATH.
-Fix commits are `b3a0fff` and `fa24676`; hosted runs 35522827821 and 35522831646 were observed in progress and still require final verification.
+Fix commits are `b3a0fff` and `fa24676`; hosted runs [35522827821](https://github.com/acheng2007/arbbot/actions/runs/35522827821) and [35522831646](https://github.com/acheng2007/arbbot/actions/runs/35522831646) completed successfully.
+The connector confirmed every substantive job step passed: lint/format, SQLite, PostgreSQL, migrations, recorded corpus, and published schema drift.
+These are direct hosted CI evidence for PRs #44 and #45; fee PR #46 still requires hosted verification.
 Do not infer hosted success from local checks.
 
 Source enrichment, discovery, real-pair validation, expanded extraction, settlement cases, venue fees/slippage, review persistence/auth/API integration, filtering, streaming/recovery, revalidation, observability, deployment, and backup recovery remain unfinished.
@@ -39,5 +42,5 @@ Do not merge unreviewed branches or implement dependency-blocked issues as if th
 
 ## Next action
 
-Publish this issue as a separate draft PR, verify the corrected hosted CI runs, then implement dependency-free backend market/match filtering (#20) on a new branch.
+Implement dependency-free backend market/match filtering (#20) on a new branch from current remote main, and verify fee PR #46 hosted CI.
 Venue fee policies (#12/#13) require review/merge of #11 and current exchange documentation before implementation.
