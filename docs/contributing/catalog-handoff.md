@@ -3,6 +3,7 @@
 The full backend production goal remains active; this increment implements issue #20.
 Workspace: `/private/tmp/arbbot-backend-catalog`.
 Branch: `backend/20-catalog-filtering`, based on `origin/main` at `d065906`.
+Published draft PR: https://github.com/acheng2007/arbbot/pull/47.
 
 ## Completed and validation
 
@@ -38,5 +39,5 @@ Automatic trading, custody, transfers, and private-account access remain out of 
 
 ## Next action
 
-Publish this focused catalog PR, verify its hosted checks and fee follow-up checks, then implement dependency-free authentication and reviewer authorization (#17) on a new issue branch.
+Verify catalog PR #47 and fee follow-up hosted checks, then implement dependency-free authentication and reviewer authorization (#17) on a new issue branch.
 Use `docs/contributing/README.md` for the complete production dependency map.
