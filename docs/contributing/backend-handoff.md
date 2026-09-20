@@ -29,6 +29,8 @@ Original baseline: 75 backend tests passed.
 Updated full suite: 87 tests passed with SQLite and independently 87 with PostgreSQL.
 New coverage includes concurrent retries, changed document versions, explicit failed retrievals, mode isolation, invalid/oversized evidence, migration upgrades/downgrades, schema drift, and database mutation rejection.
 Ruff lint and format checks passed.
+Hosted run 35522586936 failed importing `tests.test_source_artifacts` during collection; the local PYTHONPATH override had masked the missing package declaration.
+Added `backend/tests/__init__.py` to make test-helper imports work with the documented command; hosted revalidation is pending.
 Docker Compose rebuilt and started API, worker, migration service, and PostgreSQL from this worktree.
 The running simulation smoke test passed before and after the increment: PostgreSQL, worker, REST, audit records, and SSE.
 `docker compose exec -T api alembic check` reports no new upgrade operations.
