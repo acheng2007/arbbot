@@ -10,6 +10,7 @@ from arbbot.arbitrage.engine import evaluate
 from arbbot.domain import MarketHealth, Review, utcnow
 from arbbot.exchanges.simulation import simulation_reviews
 from arbbot.matching.contracts import ContractDefinition
+from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
 from arbbot.quality import book_issue
 
@@ -135,6 +136,15 @@ class Pipeline:
         if self.settings.definitions_file:
             content = await asyncio.to_thread(self.settings.definitions_file.read_text)
             definitions = TypeAdapter(list[ContractDefinition]).validate_json(content)
+        if len({d.market_id for d in definitions}) != len(definitions):
+            raise ValueError("Duplicate contract definitions for a market")
+        supplied = {d.market_id: d for d in definitions}
+        # Manual definitions replace the entire draft, including stale definitions.
+        # Never silently fill missing reviewed fields from an automatic interpretation.
+        definitions = [
+            supplied[market.id] if market.id in supplied else extract_contract(market).definition
+            for market in markets
+        ]
         matches = match_markets(markets, reviews, definitions)
         indexed = {market.id: market for market in markets}
         now = utcnow()

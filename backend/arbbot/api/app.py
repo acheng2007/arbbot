@@ -19,6 +19,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Market, Match, Opportunity, Venue, utcnow
+from arbbot.matching.extraction import Extraction, extract_contract
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
 
@@ -111,6 +112,13 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         if result is None:
             raise HTTPException(404, "Market not found")
         return result
+
+    @app.get("/api/v1/markets/{market_id}/extraction", response_model=Extraction)
+    async def extraction(market_id: str):
+        result = await repository.market(settings.mode, market_id)
+        if result is None:
+            raise HTTPException(404, "Market not found")
+        return extract_contract(result)
 
     @app.get("/api/v1/markets/{market_id}/book", response_model=Book)
     async def book(market_id: str):
