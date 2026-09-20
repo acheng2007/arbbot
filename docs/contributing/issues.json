@@ -1,0 +1,168 @@
+{
+  "tracker": {
+    "number": 41,
+    "url": "https://github.com/acheng2007/arbbot/issues/41"
+  },
+  "issues": {
+    "C01": {
+      "number": 1,
+      "url": "https://github.com/acheng2007/arbbot/issues/1"
+    },
+    "D01": {
+      "number": 2,
+      "url": "https://github.com/acheng2007/arbbot/issues/2"
+    },
+    "D02": {
+      "number": 3,
+      "url": "https://github.com/acheng2007/arbbot/issues/3"
+    },
+    "D03": {
+      "number": 4,
+      "url": "https://github.com/acheng2007/arbbot/issues/4"
+    },
+    "D04": {
+      "number": 5,
+      "url": "https://github.com/acheng2007/arbbot/issues/5"
+    },
+    "D05": {
+      "number": 6,
+      "url": "https://github.com/acheng2007/arbbot/issues/6"
+    },
+    "M01": {
+      "number": 7,
+      "url": "https://github.com/acheng2007/arbbot/issues/7"
+    },
+    "M02": {
+      "number": 8,
+      "url": "https://github.com/acheng2007/arbbot/issues/8"
+    },
+    "M03": {
+      "number": 9,
+      "url": "https://github.com/acheng2007/arbbot/issues/9"
+    },
+    "A01": {
+      "number": 10,
+      "url": "https://github.com/acheng2007/arbbot/issues/10"
+    },
+    "F01": {
+      "number": 11,
+      "url": "https://github.com/acheng2007/arbbot/issues/11"
+    },
+    "F02": {
+      "number": 12,
+      "url": "https://github.com/acheng2007/arbbot/issues/12"
+    },
+    "F03": {
+      "number": 13,
+      "url": "https://github.com/acheng2007/arbbot/issues/13"
+    },
+    "F04": {
+      "number": 14,
+      "url": "https://github.com/acheng2007/arbbot/issues/14"
+    },
+    "F05": {
+      "number": 15,
+      "url": "https://github.com/acheng2007/arbbot/issues/15"
+    },
+    "R01": {
+      "number": 16,
+      "url": "https://github.com/acheng2007/arbbot/issues/16"
+    },
+    "R02": {
+      "number": 17,
+      "url": "https://github.com/acheng2007/arbbot/issues/17"
+    },
+    "R03": {
+      "number": 18,
+      "url": "https://github.com/acheng2007/arbbot/issues/18"
+    },
+    "R04": {
+      "number": 19,
+      "url": "https://github.com/acheng2007/arbbot/issues/19"
+    },
+    "B01": {
+      "number": 20,
+      "url": "https://github.com/acheng2007/arbbot/issues/20"
+    },
+    "W01": {
+      "number": 21,
+      "url": "https://github.com/acheng2007/arbbot/issues/21"
+    },
+    "W02": {
+      "number": 22,
+      "url": "https://github.com/acheng2007/arbbot/issues/22"
+    },
+    "W03": {
+      "number": 23,
+      "url": "https://github.com/acheng2007/arbbot/issues/23"
+    },
+    "W04": {
+      "number": 24,
+      "url": "https://github.com/acheng2007/arbbot/issues/24"
+    },
+    "W05": {
+      "number": 25,
+      "url": "https://github.com/acheng2007/arbbot/issues/25"
+    },
+    "W06": {
+      "number": 26,
+      "url": "https://github.com/acheng2007/arbbot/issues/26"
+    },
+    "L01": {
+      "number": 27,
+      "url": "https://github.com/acheng2007/arbbot/issues/27"
+    },
+    "L02": {
+      "number": 28,
+      "url": "https://github.com/acheng2007/arbbot/issues/28"
+    },
+    "L03": {
+      "number": 29,
+      "url": "https://github.com/acheng2007/arbbot/issues/29"
+    },
+    "L04": {
+      "number": 30,
+      "url": "https://github.com/acheng2007/arbbot/issues/30"
+    },
+    "L05": {
+      "number": 31,
+      "url": "https://github.com/acheng2007/arbbot/issues/31"
+    },
+    "Q01": {
+      "number": 32,
+      "url": "https://github.com/acheng2007/arbbot/issues/32"
+    },
+    "Q02": {
+      "number": 33,
+      "url": "https://github.com/acheng2007/arbbot/issues/33"
+    },
+    "O01": {
+      "number": 34,
+      "url": "https://github.com/acheng2007/arbbot/issues/34"
+    },
+    "O02": {
+      "number": 35,
+      "url": "https://github.com/acheng2007/arbbot/issues/35"
+    },
+    "O03": {
+      "number": 36,
+      "url": "https://github.com/acheng2007/arbbot/issues/36"
+    },
+    "P01": {
+      "number": 37,
+      "url": "https://github.com/acheng2007/arbbot/issues/37"
+    },
+    "P02": {
+      "number": 38,
+      "url": "https://github.com/acheng2007/arbbot/issues/38"
+    },
+    "X01": {
+      "number": 39,
+      "url": "https://github.com/acheng2007/arbbot/issues/39"
+    },
+    "X02": {
+      "number": 40,
+      "url": "https://github.com/acheng2007/arbbot/issues/40"
+    }
+  }
+}

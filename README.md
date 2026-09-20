@@ -120,3 +120,5 @@ Unsupported and missing terms remain explicit; live approval still requires a hu
 
 Track completed work and upcoming dependencies in the [implementation roadmap](docs/implementation-roadmap.md).
 See [recorded contract validation](docs/recorded-contracts.md) for real metadata fixtures and extraction coverage.
+
+Contributors: start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [modular issue index](docs/contributing/README.md).

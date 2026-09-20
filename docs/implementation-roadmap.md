@@ -1,5 +1,8 @@
 # Implementation roadmap
 
+Remaining work is split into [modular contributor issues](contributing/README.md), with a [GitHub master tracker](https://github.com/acheng2007/arbbot/issues/41).
+Each issue specifies one PR, file ownership, dependencies, acceptance criteria and validation.
+
 This checklist tracks one integrated product, organized by workstream.
 Checked items are implemented and locally validated; unchecked items remain work to do.
 A narrow implementation is marked complete only at its stated scope.

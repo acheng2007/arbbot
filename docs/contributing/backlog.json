@@ -1,0 +1,869 @@
+[
+  {
+    "key": "C01",
+    "area": "Matching",
+    "title": "Version canonical measurement and settlement definitions",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/matching/contracts.py",
+      "backend/tests/test_contract_vocabulary.py"
+    ],
+    "integration": "domain.py, schema exports, and matching comparison only where the versioned contract requires it.",
+    "contract": "Publish a versioned Pydantic definition contract for adjustment, precision, revision policy, observation bounds and timezone; retain unknown values explicitly.",
+    "acceptance": [
+      "Monthly/annual, adjusted/unadjusted, strict/inclusive and initial/revised differences remain distinguishable.",
+      "Document migration and invalidation for existing definitions and reviews.",
+      "No missing field can increase approval confidence."
+    ],
+    "tests": "Backward compatibility and conflicting-field tests; regenerate affected JSON schemas.",
+    "excluded": "No venue parsers, LLM integration, frontend, or broad repository refactor."
+  },
+  {
+    "key": "D01",
+    "area": "Data",
+    "title": "Persist immutable settlement source artifacts",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/sources/models.py",
+      "backend/arbbot/sources/repository.py",
+      "backend/tests/test_source_artifacts.py"
+    ],
+    "integration": "One new Alembic revision; model registration in storage/models.py if needed.",
+    "contract": "Source artifact includes venue, URL, retrieval time, content digest, content/type and market association; retrieval failures are explicit.",
+    "acceptance": [
+      "Repeated identical captures are idempotent.",
+      "Source changes preserve previous artifacts for audit.",
+      "Bound document sizes and record retrieval failures without marking evidence complete."
+    ],
+    "tests": "PostgreSQL persistence, source versioning and migration checks.",
+    "excluded": "No exchange fetchers, parser behavior, browser or arbitrary URL crawler."
+  },
+  {
+    "key": "D02",
+    "area": "Data",
+    "title": "Enrich Kalshi contracts with series and resolution-source evidence",
+    "depends_on": [
+      "D01"
+    ],
+    "files": [
+      "backend/arbbot/exchanges/kalshi_sources.py",
+      "backend/tests/test_kalshi_sources.py",
+      "backend/tests/fixtures/kalshi_sources/"
+    ],
+    "integration": "Kalshi adapter hook and source repository calls only; coordinate terms-hash changes with C01.",
+    "contract": "Enrichment returns source artifacts and referenced settlement evidence for a market; use official documentation and recorded responses.",
+    "acceptance": [
+      "Capture series source and contract references for recorded CPI markets.",
+      "Terms changes invalidate affected evidence/reviews.",
+      "Missing source or failed retrieval remains visible and never invents jurisdiction."
+    ],
+    "tests": "Recorded HTTP fixtures, retries/cache behavior and changed-source invalidation.",
+    "excluded": "No Polymarket changes, fee calculation or negative-risk support."
+  },
+  {
+    "key": "D03",
+    "area": "Data",
+    "title": "Capture Polymarket resolution-source and supplemental rule evidence",
+    "depends_on": [
+      "D01"
+    ],
+    "files": [
+      "backend/arbbot/exchanges/polymarket_sources.py",
+      "backend/tests/test_polymarket_sources.py",
+      "backend/tests/fixtures/polymarket_sources/"
+    ],
+    "integration": "Polymarket adapter hook and source repository calls only.",
+    "contract": "Preserve resolution-source references and documented supplemental terms with versioned provenance; verify current official API support.",
+    "acceptance": [
+      "Original descriptions and supported supplemental terms remain auditable.",
+      "Unavailable external evidence is labeled incomplete.",
+      "External fetches use bounded allowlisted sources, timeouts and size limits."
+    ],
+    "tests": "Recorded responses including missing evidence, changes and malformed documents.",
+    "excluded": "No Kalshi code, general web scraping, fee calculation or changes to negative-risk eligibility."
+  },
+  {
+    "key": "D04",
+    "area": "Data",
+    "title": "Discover overlapping supported event families",
+    "depends_on": [
+      "D02",
+      "D03"
+    ],
+    "files": [
+      "backend/arbbot/discovery/service.py",
+      "backend/arbbot/discovery/models.py",
+      "backend/tests/test_targeted_discovery.py"
+    ],
+    "integration": "Adapter filter parameters, config and a worker catalog hook only where needed.",
+    "contract": "Produce a bounded catalog with inclusion/exclusion reasons, independent of hot order-book polling; explicit watchlists retain precedence.",
+    "acceptance": [
+      "Search configured event families on both venues rather than arbitrary first results.",
+      "Report unsupported outcomes, missing source evidence and scan limits.",
+      "Catalog scheduling does not block quote ingestion."
+    ],
+    "tests": "Recorded pagination, duplicate markets, unrelated categories, watchlist precedence and exhausted scans.",
+    "excluded": "No semantics approval, WebSockets or frontend."
+  },
+  {
+    "key": "D05",
+    "area": "Data",
+    "title": "Add labeled supported cross-exchange contract pairs",
+    "depends_on": [
+      "D04",
+      "C01"
+    ],
+    "files": [
+      "backend/tests/fixtures/cross_exchange/",
+      "backend/tests/test_cross_exchange_corpus.py",
+      "docs/corpus-cross-exchange.md"
+    ],
+    "integration": "Corpus loader extension only if required for additive fixture directories.",
+    "contract": "Independent labels and source provenance for supported positive candidates and hard negatives; no fabricated equivalence.",
+    "acceptance": [
+      "Include jurisdiction, source, measurement, period and exception differences.",
+      "Demonstrate at least one supported same-event pair, or document evidence that the chosen family lacks one and keep the milestone open.",
+      "Human settlement review is distinct from extraction gold labels."
+    ],
+    "tests": "Offline adapter-to-comparison replay, payload digests, false-match assertions and per-family coverage.",
+    "excluded": "No silent expansion of supported instruments or extractor-authored gold labels."
+  },
+  {
+    "key": "M01",
+    "area": "Matching",
+    "title": "Extract Kalshi definitions from enriched real rules",
+    "depends_on": [
+      "C01",
+      "D02"
+    ],
+    "files": [
+      "backend/arbbot/matching/parsers/kalshi.py",
+      "backend/tests/test_kalshi_extraction.py"
+    ],
+    "integration": "One explicit extraction dispatcher hook; preserve existing extraction API.",
+    "contract": "Convert enriched evidence into partial ContractDefinition proposals with exact citations and parser version.",
+    "acceptance": [
+      "Extract only facts supported by source artifacts.",
+      "Increase measured recorded coverage without incorrect fields.",
+      "Conflicts and missing exception terms remain unverified."
+    ],
+    "tests": "Recorded positive and negative grammar cases, reporting-vs-release dates, evidence version changes.",
+    "excluded": "No approval automation, fee rules, LLM, or Polymarket parser."
+  },
+  {
+    "key": "M02",
+    "area": "Matching",
+    "title": "Extract Polymarket definitions from enriched real rules",
+    "depends_on": [
+      "C01",
+      "D03"
+    ],
+    "files": [
+      "backend/arbbot/matching/parsers/polymarket.py",
+      "backend/tests/test_polymarket_extraction.py"
+    ],
+    "integration": "One extraction dispatcher hook; coordinate that small shared edit with M01.",
+    "contract": "Produce evidence-backed partial definitions, distinguish event-wide descriptions from outcome-specific conditions.",
+    "acceptance": [
+      "Keep core/headline, CPI/PCE, annual/monthly and country differences explicit.",
+      "Do not apply one outcome threshold to sibling markets.",
+      "No eligibility or negative-risk rule is relaxed by extraction."
+    ],
+    "tests": "Recorded shared descriptions, outcome labels, exclusions and conflicting supplemental terms.",
+    "excluded": "No automatic approvals, Kalshi parser or live LLM integration."
+  },
+  {
+    "key": "M03",
+    "area": "Matching",
+    "title": "Evaluate structured LLM extraction offline",
+    "depends_on": [
+      "D05",
+      "M01",
+      "M02"
+    ],
+    "files": [
+      "backend/arbbot/matching/llm_eval/",
+      "backend/tests/test_llm_output_validation.py",
+      "docs/llm-extraction-evaluation.md"
+    ],
+    "integration": "Optional isolated dependency/config only with documented need; no worker hook in this PR.",
+    "contract": "An offline evaluator validates structured model proposals against the same definitions and source evidence; default tests do not call paid APIs.",
+    "acceptance": [
+      "Compare coverage, incorrect facts, abstention and reproducibility with deterministic baseline.",
+      "Reject unsupported citations, schema errors and source-text instructions.",
+      "Document model/prompt version and a go/no-go decision; model output never grants approval."
+    ],
+    "tests": "Mocked responses, prompt-injection fixtures and labeled evaluation report.",
+    "excluded": "No production model calls, credentials in fixtures, or autonomous approval."
+  },
+  {
+    "key": "A01",
+    "area": "Arbitrage",
+    "title": "Validate exceptional settlement scenarios and review completeness",
+    "depends_on": [
+      "C01",
+      "D05"
+    ],
+    "files": [
+      "backend/arbbot/arbitrage/settlement.py",
+      "backend/tests/test_settlement_scenarios.py"
+    ],
+    "integration": "Review validator and evaluate() hook only; regenerate schema if payoff representation changes.",
+    "contract": "Validate supported payout mappings across ordinary, cancellation, fallback and ambiguous outcomes; explicitly reject unmodeled behavior.",
+    "acceptance": [
+      "Reviewed exception policies map to named testable scenarios.",
+      "Noncomplementary or unsupported refunds fail closed.",
+      "Known counterexamples with both purchased legs losing are rejected."
+    ],
+    "tests": "Truth tables and regression tests from recorded rules, including divergent resolution.",
+    "excluded": "No generalized portfolio optimizer, automatic trading or invented proof of scenario completeness."
+  },
+  {
+    "key": "F01",
+    "area": "Arbitrage",
+    "title": "Define a versioned fee quote interface",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/fees/models.py",
+      "backend/arbbot/fees/base.py",
+      "backend/tests/test_fee_contract.py"
+    ],
+    "integration": "No engine integration; keep existing reviewed CostPolicy working.",
+    "contract": "Decimal fee quote takes venue, market, side, quantity and fill prices and returns a conservative charge with source/version/expiry.",
+    "acceptance": [
+      "Represent fixed, quantity- and price-dependent charges and rounding.",
+      "Unsupported or stale fee information returns an explicit unavailable result.",
+      "No default zero fee on errors."
+    ],
+    "tests": "Contract validation, decimal serialization and unsupported policy cases.",
+    "excluded": "No exchange-specific formulas or API calls."
+  },
+  {
+    "key": "F02",
+    "area": "Arbitrage",
+    "title": "Implement Kalshi fee metadata and calculations",
+    "depends_on": [
+      "F01"
+    ],
+    "files": [
+      "backend/arbbot/fees/kalshi.py",
+      "backend/tests/test_kalshi_fees.py",
+      "backend/tests/fixtures/kalshi_fees/"
+    ],
+    "integration": "Reuse source enrichment if available; do not edit Polymarket or engine.",
+    "contract": "Implement F01 against current official Kalshi fee rules with versioned evidence and market-specific overrides.",
+    "acceptance": [
+      "Honor relevant series/market fee rules.",
+      "Round conservatively at the documented charge boundary.",
+      "Unsupported schedules produce unavailable results."
+    ],
+    "tests": "Official worked examples, boundary prices, size changes, stale sources and overrides.",
+    "excluded": "No order placement or hard-coded universal fee assumption."
+  },
+  {
+    "key": "F03",
+    "area": "Arbitrage",
+    "title": "Implement Polymarket fee metadata and calculations",
+    "depends_on": [
+      "F01"
+    ],
+    "files": [
+      "backend/arbbot/fees/polymarket.py",
+      "backend/tests/test_polymarket_fees.py",
+      "backend/tests/fixtures/polymarket_fees/"
+    ],
+    "integration": "Use exchange HTTP/source helpers; do not edit Kalshi or engine.",
+    "contract": "Implement F01 using current official market-specific Polymarket fee inputs and versioned evidence.",
+    "acceptance": [
+      "Distinguish supported fee-enabled and fee-free cases using authoritative data.",
+      "Handle documented price dependence and rounding.",
+      "Unknown schedules cannot silently become fee-free."
+    ],
+    "tests": "Official examples, quantity/price boundaries and missing or stale metadata.",
+    "excluded": "No negative-risk trading, execution or shared engine refactor."
+  },
+  {
+    "key": "F04",
+    "area": "Arbitrage",
+    "title": "Integrate automatic fee quotes into opportunity sizing",
+    "depends_on": [
+      "F02",
+      "F03"
+    ],
+    "files": [
+      "backend/arbbot/arbitrage/engine.py",
+      "backend/tests/test_fee_evaluation.py"
+    ],
+    "integration": "Pipeline fee-provider wiring, opportunity audit fields and generated schemas as necessary.",
+    "contract": "Evaluation uses fresh supported fee quotes and retains reviewed conservative fallback only when explicitly configured and evidenced.",
+    "acceptance": [
+      "Recalculate fees at each tested size and actual price ladder.",
+      "Persist the fee policy/version used in every opportunity.",
+      "Unavailable costs suppress the opportunity with a clear reason."
+    ],
+    "tests": "Depth transitions, minimums, capital constraints, fee expiry and fallback provenance.",
+    "excluded": "No review persistence changes, exchange transport or frontend."
+  },
+  {
+    "key": "F05",
+    "area": "Arbitrage",
+    "title": "Model depth impact and configurable execution slippage conservatively",
+    "depends_on": [
+      "F04"
+    ],
+    "files": [
+      "backend/arbbot/arbitrage/slippage.py",
+      "backend/tests/test_slippage_evaluation.py"
+    ],
+    "integration": "Sizing engine and settings hooks plus opportunity audit fields and schemas as necessary; merge after F04 to avoid competing engine edits.",
+    "contract": "Walk executable ask depth for price impact, then apply an explicit configurable adverse-price allowance for quote-to-fill movement; combine with market-specific fees and capital requirements using Decimal.",
+    "acceptance": [
+      "Net profit subtracts actual depth cost, market-specific fees, and the execution-slippage allowance before any opportunity is eligible.",
+      "Do not double-count spread or depth impact as an additional fee; distinguish estimated outlay from funds reserved at limit prices.",
+      "Recompute size-dependent fees at conservative prices when applicable and reject sizes whose worst supported outlay removes the edge.",
+      "Expose fee, depth cost, slippage allowance, limit-price assumptions and residual non-atomic fill risk separately; a reserve is not a guarantee."
+    ],
+    "tests": "Regression examples where headline prices imply profit but fees, deeper levels, rounding or adverse price movement individually and jointly eliminate it; quantity, capital and strict minimum-profit boundaries.",
+    "excluded": "No order placement, guaranteed-fill claims, market-impact model presented as certainty, UI or transport changes."
+  },
+  {
+    "key": "R01",
+    "area": "Backend",
+    "title": "Persist versioned definition drafts and human reviews",
+    "depends_on": [
+      "C01",
+      "D01"
+    ],
+    "files": [
+      "backend/arbbot/reviews/models.py",
+      "backend/arbbot/reviews/repository.py",
+      "backend/tests/test_review_repository.py"
+    ],
+    "integration": "One new migration and model registration; coordinate migration head with D01.",
+    "contract": "Immutable review revisions, mutable draft revisions and compare-and-swap updates bind terms, definitions, actor and timestamps.",
+    "acceptance": [
+      "Concurrent edits cannot overwrite silently.",
+      "Historical approvals and rejections remain auditable.",
+      "A changed source or draft invalidates prior approval."
+    ],
+    "tests": "PostgreSQL transactions, conflict detection, migration and audit reconstruction.",
+    "excluded": "No authentication provider, HTTP mutation endpoints, UI or worker switch."
+  },
+  {
+    "key": "R02",
+    "area": "Backend",
+    "title": "Add authentication and reviewer authorization",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/auth/",
+      "backend/tests/test_auth.py",
+      "docs/authentication.md"
+    ],
+    "integration": "Settings and narrow API dependency registration only.",
+    "contract": "Expose a verified principal and role checks usable by review routes; select and document a standard identity integration, not custom password crypto.",
+    "acceptance": [
+      "Reject missing, expired and invalid credentials for protected mutations.",
+      "Separate viewer/reviewer roles and derive audit identity server-side.",
+      "Document local development setup, CORS and session/CSRF requirements."
+    ],
+    "tests": "Unauthorized, forbidden, expired credentials and cross-origin mutation tests.",
+    "excluded": "No review storage, trading permissions or frontend screens."
+  },
+  {
+    "key": "R03",
+    "area": "Backend",
+    "title": "Expose authenticated review and draft APIs",
+    "depends_on": [
+      "R01",
+      "R02",
+      "A01"
+    ],
+    "files": [
+      "backend/arbbot/api/routes/reviews.py",
+      "backend/tests/test_review_api.py"
+    ],
+    "integration": "Router registration in api/app.py and OpenAPI regeneration only.",
+    "contract": "List drafts/reviews and create new revisions using expected revision IDs; return conflicts and field-level validation failures.",
+    "acceptance": [
+      "Actor identity comes from authentication.",
+      "Approval requires current terms, complete evidence and scenario validation available at merge.",
+      "Concurrent/stale submissions return an actionable conflict without data loss."
+    ],
+    "tests": "HTTP authorization, validation, concurrency and audit-history integration tests.",
+    "excluded": "No browser, automatic approval or worker selection policy."
+  },
+  {
+    "key": "R04",
+    "area": "Backend",
+    "title": "Use database approvals in the ingestion and evaluation pipeline",
+    "depends_on": [
+      "R03",
+      "A01"
+    ],
+    "files": [
+      "backend/arbbot/reviews/provider.py",
+      "backend/tests/test_review_pipeline.py"
+    ],
+    "integration": "Pipeline review loading and worker configuration only; retain documented file import compatibility.",
+    "contract": "Load one coherent set of current approved revisions per cycle; define explicit precedence and migration from review files.",
+    "acceptance": [
+      "Revocation and changed terms stop opportunities promptly.",
+      "Store the exact review revision used for audit.",
+      "Database/provider failures fail closed and expose health status."
+    ],
+    "tests": "Ingestion-to-API approval/rejection/revocation tests, stale source and provider failure.",
+    "excluded": "No review UI, transport changes or fee algorithm edits."
+  },
+  {
+    "key": "B01",
+    "area": "Backend",
+    "title": "Add market and match search and filtering",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/api/routes/catalog.py",
+      "backend/arbbot/storage/catalog_queries.py",
+      "backend/tests/test_catalog_queries.py"
+    ],
+    "integration": "Move only affected read routes from app.py, preserve current response contracts, add indexes via one migration if justified.",
+    "contract": "Bounded stable pagination and filters for venue, status, family, text, match status and evidence completeness.",
+    "acceptance": [
+      "Filters are applied before pagination.",
+      "Queries remain mode-isolated and parameterized.",
+      "Existing clients retain documented defaults."
+    ],
+    "tests": "Combined filters, empty results, stable ordering, SQLite/PostgreSQL and query-plan checks for added indexes.",
+    "excluded": "No review mutations, arbitrary SQL search or broad repository reorganization."
+  },
+  {
+    "key": "W01",
+    "area": "Frontend",
+    "title": "Scaffold the Next.js application and shared UI foundation",
+    "depends_on": [],
+    "files": [
+      "apps/web/package.json",
+      "apps/web/",
+      "apps/web/package-lock.json"
+    ],
+    "integration": "Root ignore rules and a local startup documentation section only; this issue initially owns web bootstrap/config files.",
+    "contract": "Create the agreed Next.js/TypeScript/Tailwind/shadcn foundation, navigation, providers and test configuration with pinned dependencies.",
+    "acceptance": [
+      "App builds and runs against configurable backend URL.",
+      "Accessible navigation and shared error/loading primitives exist.",
+      "No fake opportunity is presented as live data."
+    ],
+    "tests": "Typecheck, production build and initial Vitest component checks.",
+    "excluded": "No feature screens, backend changes, auth backend or fee logic."
+  },
+  {
+    "key": "W02",
+    "area": "Frontend",
+    "title": "Generate the typed API client and shared data access layer",
+    "depends_on": [
+      "W01"
+    ],
+    "files": [
+      "apps/web/src/lib/api/",
+      "apps/web/src/lib/query/",
+      "apps/web/scripts/generate-api.*"
+    ],
+    "integration": "Web package scripts/lockfile and CI generation command only with W01 owner coordination.",
+    "contract": "Generate types from docs/openapi.json; centralize base URL, errors, cancellation and TanStack Query keys; retain Decimal strings.",
+    "acceptance": [
+      "Generation is reproducible and drift-detectable.",
+      "Simulation mode and API errors are represented explicitly.",
+      "No binary floating-point conversion for financial values."
+    ],
+    "tests": "Mocked API responses, exact decimal strings, cancellation and generated-client drift.",
+    "excluded": "No feature pages or backend schema redesign."
+  },
+  {
+    "key": "W03",
+    "area": "Frontend",
+    "title": "Build the market browser and source detail screen",
+    "depends_on": [
+      "W02",
+      "B01"
+    ],
+    "files": [
+      "apps/web/src/features/markets/",
+      "apps/web/src/app/markets/",
+      "apps/web/tests/markets/"
+    ],
+    "integration": "Navigation entry and shared API types only if required; no shared layout redesign.",
+    "contract": "Browse and filter markets, inspect original terms, source versions and quote health using existing endpoints.",
+    "acceptance": [
+      "Pagination and URL filters are usable.",
+      "Show simulation/live labels and stale/missing data clearly.",
+      "Accessible empty, loading and failure states are included."
+    ],
+    "tests": "Component tests and focused Playwright flow with visual inspection at desktop and mobile widths.",
+    "excluded": "No draft editing, approvals or opportunity calculations in JavaScript."
+  },
+  {
+    "key": "W04",
+    "area": "Frontend",
+    "title": "Build the read-only contract comparison screen",
+    "depends_on": [
+      "W02"
+    ],
+    "files": [
+      "apps/web/src/features/comparisons/",
+      "apps/web/src/app/matches/",
+      "apps/web/tests/comparisons/"
+    ],
+    "integration": "Navigation entry and generated API refresh only if required.",
+    "contract": "Render proposed pairs, side-by-side source terms, exact quotations, field differences and unresolved assumptions.",
+    "acceptance": [
+      "Shared event is never labeled verified solely by similarity.",
+      "Unknown/conflicting terms and stale approval are prominent.",
+      "Source text is safely rendered and evidence is inspectable."
+    ],
+    "tests": "Component and focused browser tests for candidate, conflict, incomplete and verified states; visual QA.",
+    "excluded": "No mutation APIs, auth implementation or review form."
+  },
+  {
+    "key": "W05",
+    "area": "Frontend",
+    "title": "Build authenticated draft editing and review actions",
+    "depends_on": [
+      "W04",
+      "R03",
+      "R04"
+    ],
+    "files": [
+      "apps/web/src/features/reviews/",
+      "apps/web/src/app/reviews/",
+      "apps/web/tests/reviews/"
+    ],
+    "integration": "Client session adapter and navigation only; reuse backend authorization contract.",
+    "contract": "Edit versioned drafts and approve/reject pairs using authenticated APIs and explicit revision preconditions.",
+    "acceptance": [
+      "Expired sessions and forbidden actions are handled.",
+      "Conflicting edits preserve user input and require refresh/reconciliation.",
+      "Approval shows source evidence, costs, scenarios and consequences before submission."
+    ],
+    "tests": "Browser tests for edit/approve/reject, stale terms, concurrent edits and session expiry; visual QA.",
+    "excluded": "No browser-only security enforcement, trading controls or backend rule changes."
+  },
+  {
+    "key": "W06",
+    "area": "Frontend",
+    "title": "Build the opportunity dashboard with live status",
+    "depends_on": [
+      "W02",
+      "F05"
+    ],
+    "files": [
+      "apps/web/src/features/opportunities/",
+      "apps/web/src/app/opportunities/",
+      "apps/web/tests/opportunities/"
+    ],
+    "integration": "One reusable SSE client under the feature; route/nav wiring only.",
+    "contract": "Render backend-calculated prices, quantities, costs, payout scenarios, expiry and audit links; reconnect SSE without stale success state.",
+    "acceptance": [
+      "Clearly identify quote-supported estimates and simulation.",
+      "Show partial-fill assumptions and stale/disconnected/empty states.",
+      "Financial formatting preserves exact supplied decimals.",
+      "Show fees, depth cost and slippage allowance separately and show net profit after all costs."
+    ],
+    "tests": "Component tests and browser reconnect/expiry scenarios with visual inspection.",
+    "excluded": "No frontend arbitrage math, orders, balances or execution UI."
+  },
+  {
+    "key": "L01",
+    "area": "Live data",
+    "title": "Define order-book stream and resynchronization contracts",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/streams/models.py",
+      "backend/arbbot/streams/base.py",
+      "backend/tests/test_stream_contract.py"
+    ],
+    "integration": "No live worker integration; preserve current Book consumers.",
+    "contract": "Exchange-neutral snapshot/delta events, sequence state, receipt/source timestamps, bounded buffers and resync requirements.",
+    "acceptance": [
+      "Gap, duplicate and out-of-order behavior is explicit.",
+      "Disconnected/unsynchronized books cannot be eligible.",
+      "Snapshots reconstruct the existing normalized Book model exactly."
+    ],
+    "tests": "Deterministic state-machine tests for gaps, duplication, overflow and snapshot replacement.",
+    "excluded": "No venue sockets or worker scheduling changes."
+  },
+  {
+    "key": "L02",
+    "area": "Live data",
+    "title": "Implement Kalshi order-book streaming",
+    "depends_on": [
+      "L01"
+    ],
+    "files": [
+      "backend/arbbot/streams/kalshi.py",
+      "backend/tests/test_kalshi_stream.py",
+      "backend/tests/fixtures/kalshi_stream/"
+    ],
+    "integration": "Reuse Kalshi auth helpers; move only signing code if needed, with adapter regression tests.",
+    "contract": "Implement L01 from documented Kalshi messages with authentication, subscriptions and reconnect/resync.",
+    "acceptance": [
+      "Validate sequence/order-book integrity before publishing.",
+      "Refresh required auth and restore subscriptions after disconnect.",
+      "Bound reconnect backoff and buffers."
+    ],
+    "tests": "Recorded snapshot/delta transcripts, sequence gaps, invalid messages and reconnect tests.",
+    "excluded": "No Polymarket stream, worker rollout or order placement."
+  },
+  {
+    "key": "L03",
+    "area": "Live data",
+    "title": "Implement Polymarket order-book streaming",
+    "depends_on": [
+      "L01"
+    ],
+    "files": [
+      "backend/arbbot/streams/polymarket.py",
+      "backend/tests/test_polymarket_stream.py",
+      "backend/tests/fixtures/polymarket_stream/"
+    ],
+    "integration": "Reuse token mapping and HTTP snapshot helpers only as necessary.",
+    "contract": "Implement L01 from documented Polymarket channels; do not invent sequence guarantees where the protocol has none.",
+    "acceptance": [
+      "YES/NO token mapping and timestamps remain correct.",
+      "Resubscribe and reconcile with full snapshots on uncertainty.",
+      "Maintain current unsupported-instrument exclusions."
+    ],
+    "tests": "Recorded messages, token mismatches, reconnects and authoritative snapshot reconciliation.",
+    "excluded": "No Kalshi stream, negative-risk support or worker rollout."
+  },
+  {
+    "key": "L04",
+    "area": "Live data",
+    "title": "Integrate streams with worker lifecycle and health",
+    "depends_on": [
+      "L02",
+      "L03"
+    ],
+    "files": [
+      "backend/arbbot/ingestion/live_books.py",
+      "backend/tests/test_live_book_pipeline.py"
+    ],
+    "integration": "Worker/main.py, pipeline.py, settings and health hooks only; coordinate shared integration edits with R04/F04.",
+    "contract": "Run catalog refresh and hot book updates independently with REST fallback and graceful shutdown.",
+    "acceptance": [
+      "Feed interruption invalidates affected opportunities promptly.",
+      "Resync is required before renewed eligibility.",
+      "Backpressure and cancellation do not leak tasks or block catalog refresh."
+    ],
+    "tests": "Worker-level disconnect/gap/recovery, REST fallback and shutdown integration tests.",
+    "excluded": "No UI, fee algorithms or review policy changes."
+  },
+  {
+    "key": "L05",
+    "area": "Arbitrage",
+    "title": "Revalidate opportunity quotes before actionable presentation",
+    "depends_on": [
+      "L04",
+      "F05",
+      "R04"
+    ],
+    "files": [
+      "backend/arbbot/arbitrage/revalidation.py",
+      "backend/tests/test_opportunity_revalidation.py"
+    ],
+    "integration": "One read-only revalidation route, schema export and opportunity provenance fields as needed.",
+    "contract": "Recheck both legs, fees and approval revision against fresh snapshots; return refreshed evidence or explicit invalidation.",
+    "acceptance": [
+      "Changed prices, size, source terms, fees or review status can invalidate the estimate.",
+      "Audit exact snapshots used for revalidation.",
+      "Never describe cross-exchange fills as atomic or guaranteed."
+    ],
+    "tests": "Race, stale snapshot, disappearing depth and revoked review tests.",
+    "excluded": "No trades, fund transfers, balance integrations or execution guarantees."
+  },
+  {
+    "key": "Q01",
+    "area": "Infrastructure",
+    "title": "Verify the first hosted backend CI run",
+    "depends_on": [],
+    "files": [
+      ".github/workflows/backend.yml",
+      "docs/ci.md"
+    ],
+    "integration": "Only minimal environment/dependency corrections needed for a green run; preserve test coverage.",
+    "contract": "Publish current backend foundation commits and run existing workflow on GitHub, linking an actual hosted result.",
+    "acceptance": [
+      "Lint, both databases, migration checks, recorded report and schema drift checks run.",
+      "Failures are fixed without removing assertions or masking errors.",
+      "Document branch-check setup for a maintainer without changing protections unilaterally."
+    ],
+    "tests": "Hosted workflow URL and job output; rerun locally only when fixes require it.",
+    "excluded": "No frontend CI, infrastructure deployment or broad dependency upgrades."
+  },
+  {
+    "key": "Q02",
+    "area": "QA",
+    "title": "Add frontend CI and the full review-to-opportunity browser test",
+    "depends_on": [
+      "W03",
+      "W05",
+      "W06",
+      "Q01"
+    ],
+    "files": [
+      ".github/workflows/frontend.yml",
+      "apps/web/e2e/",
+      "infra/test/"
+    ],
+    "integration": "Web test scripts and dedicated deterministic API seed harness only.",
+    "contract": "Run generated-client checks, Vitest, production build and Playwright against a seeded backend; test discovery/comparison/review/opportunity flow.",
+    "acceptance": [
+      "No external exchange credentials or live prices required.",
+      "Exercise rejection, revocation, stale feeds and simulation labels.",
+      "Record accessible desktop/mobile visual inspection and retain failure artifacts."
+    ],
+    "tests": "Full browser workflow against PostgreSQL plus frontend CI run.",
+    "excluded": "No production seed data, backend semantics changes or visual redesign."
+  },
+  {
+    "key": "O01",
+    "area": "Observability",
+    "title": "Expose worker health and ingestion metrics",
+    "depends_on": [
+      "L04"
+    ],
+    "files": [
+      "backend/arbbot/observability/worker_metrics.py",
+      "backend/tests/test_worker_metrics.py"
+    ],
+    "integration": "Worker instrumentation hooks and metrics serving configuration only.",
+    "contract": "Measure catalog duration, quote age, reconnects, retries, resyncs, evaluation blocks and worker heartbeat without unbounded labels.",
+    "acceptance": [
+      "Metrics distinguish simulation/live and venue.",
+      "No secrets or raw rules in metric labels.",
+      "Metric endpoint and stopped-worker behavior are documented."
+    ],
+    "tests": "Deterministic counter/gauge tests and endpoint integration checks.",
+    "excluded": "No dashboard deployment or general tracing rollout."
+  },
+  {
+    "key": "O02",
+    "area": "Observability",
+    "title": "Add dashboards and alert rules for feed and worker failures",
+    "depends_on": [
+      "O01"
+    ],
+    "files": [
+      "infra/observability/",
+      "docs/observability.md"
+    ],
+    "integration": "Optional local compose profile only; application code changes require separate justification.",
+    "contract": "Provision dashboards and alerts from O01 and existing API metrics; document severity and response steps.",
+    "acceptance": [
+      "Alerts cover stale worker, quote gaps, reconnect loops and repeated evaluation failures.",
+      "Include duration thresholds to avoid transient noise.",
+      "Validate rules against recorded metric scenarios."
+    ],
+    "tests": "Prometheus rule validation and dashboard import/render checks.",
+    "excluded": "No production provider provisioning or application instrumentation."
+  },
+  {
+    "key": "O03",
+    "area": "Observability",
+    "title": "Add tracing across ingestion evaluation and API requests",
+    "depends_on": [],
+    "files": [
+      "backend/arbbot/observability/tracing.py",
+      "backend/tests/test_tracing.py"
+    ],
+    "integration": "Narrow startup and span hooks in worker/pipeline/API, pinned dependencies and config only.",
+    "contract": "Opt-in OpenTelemetry spans correlate catalog, book ingestion, matching and evaluation; exporter failures do not break discovery.",
+    "acceptance": [
+      "Redact secrets and avoid full source payloads.",
+      "Sampling and disabled mode are documented.",
+      "Propagate useful correlation without unbounded attributes."
+    ],
+    "tests": "In-memory exporter tests and disabled/failing exporter checks.",
+    "excluded": "No metrics redesign, vendor-specific deployment or frontend changes."
+  },
+  {
+    "key": "P01",
+    "area": "Deployment",
+    "title": "Add a reproducible staging deployment and secret configuration",
+    "depends_on": [
+      "R02",
+      "R04",
+      "L04",
+      "Q02",
+      "O02"
+    ],
+    "files": [
+      "infra/deploy/",
+      "docs/deployment.md"
+    ],
+    "integration": "Container health/startup configuration only when necessary; provider choice must be documented before provisioning.",
+    "contract": "Deploy API, web, one worker and managed PostgreSQL with migrations, TLS, least-privilege secrets and rollback procedures.",
+    "acceptance": [
+      "Simulation staging passes the end-to-end smoke workflow.",
+      "Worker exclusivity, health probes and migration ordering are verified.",
+      "Production credentials are never committed; spending/provisioning requires owner authorization."
+    ],
+    "tests": "Staging deployment smoke, rollback rehearsal and documented configuration validation.",
+    "excluded": "No automatic trading or production capital; this issue does not authorize purchasing infrastructure."
+  },
+  {
+    "key": "P02",
+    "area": "Operations",
+    "title": "Document and rehearse database backup and recovery",
+    "depends_on": [
+      "P01"
+    ],
+    "files": [
+      "infra/recovery/",
+      "docs/recovery.md"
+    ],
+    "integration": "Deployment backup configuration only; do not modify application data retention opportunistically.",
+    "contract": "Define recovery objectives and rehearse restore into an isolated environment with audit-history checks.",
+    "acceptance": [
+      "Backup encryption/access and retention are documented.",
+      "Restore preserves source versions, snapshots and review/evaluation audit links.",
+      "Document measured recovery time and safe failover steps."
+    ],
+    "tests": "Isolated restore drill and post-restore integrity/smoke checks.",
+    "excluded": "No destructive tests against production or unrelated schema changes."
+  },
+  {
+    "key": "X01",
+    "area": "Research",
+    "title": "Assess negative-risk market support without enabling it",
+    "depends_on": [],
+    "files": [
+      "docs/decisions/negative-risk.md",
+      "backend/tests/fixtures/negative_risk/"
+    ],
+    "integration": "None; adapter support flags remain unchanged.",
+    "contract": "Use current official mechanics and recorded examples to determine whether the unit binary model can represent these contracts safely.",
+    "acceptance": [
+      "Document conversion, collateral, payout and exceptional-settlement differences.",
+      "Provide concrete counterexamples and required model changes.",
+      "Recommend support or continued exclusion; any implementation needs a separate reviewed issue."
+    ],
+    "tests": "Offline evidence and payoff examples checked against sources.",
+    "excluded": "No relaxing supported() checks, trading or new execution scope."
+  },
+  {
+    "key": "X02",
+    "area": "Deferred",
+    "title": "Specify venue access and balance checks if execution is authorized",
+    "depends_on": [],
+    "files": [
+      "docs/decisions/execution-readiness.md"
+    ],
+    "integration": "None. Deferred and not ready for implementation without explicit product authorization.",
+    "contract": "Document the boundary between discovery and future read-only account readiness checks; identify permissions and outstanding owner decisions.",
+    "acceptance": [
+      "Current discovery remains credential-minimal.",
+      "No private account integration is enabled by this issue.",
+      "A future implementation issue must separately authorize its exact account scope."
+    ],
+    "tests": "Document review only; no calls to private account endpoints.",
+    "excluded": "No orders, custody, transfers, credential collection or account API implementation."
+  }
+]
