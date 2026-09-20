@@ -1,0 +1,67 @@
+{
+  "polymarket:606422": {
+    "payload_sha256": "5f81bc1a31c049c5f67f6c88256c1ee878218edd335b2cd6c1db339f2ba07014",
+    "mechanism": "polymarket_negative_risk",
+    "group_id": "0x09ac0b2770dbcad3f2e4f5356a68af57cb8ca7502b02645a07b0290d46026a00",
+    "augmented": false,
+    "question_count": 5,
+    "explicit_other": false,
+    "placeholder_questions": [],
+    "residual_coverage": "rounding_rule",
+    "protocol_allows_all_false": true,
+    "supported_by_adapter": false,
+    "exclusion_reason": "negRisk",
+    "excluded_only_by_group_flag": true,
+    "notes": "Standard negative risk over a bounded Fed decision ladder. Every question is a unit binary YES/NO market with two CLOB tokens, so the group flag is the only reason discovery rejects it. Bracket rules round any change up to the nearest 25 basis points."
+  },
+  "KXFEDDECISION-26OCT": {
+    "payload_sha256": "ba0e0f9b7a827faa1a7c4388e3ec97f09be1d83bd8d45131179fe74388c346bb",
+    "mechanism": "kalshi_mutually_exclusive",
+    "mutually_exclusive": true,
+    "collateral_return_type": "MECNET",
+    "question_count": 5,
+    "explicit_other": false,
+    "residual_coverage": "none",
+    "protocol_allows_all_false": true,
+    "supported_by_adapter": true,
+    "exclusion_reason": null,
+    "notes": "Kalshi mutually exclusive events are not multivariate events, so mve_filter=exclude does not remove them and every market passes the binary unit-notional filter. Secondary rules state that at most one bucket can resolve Yes, which permits an all-No settlement. Bucket rules name exact basis-point values instead of rounding."
+  },
+  "polymarket:81557": {
+    "payload_sha256": "66e320b072947ab1d1f5fe555377c9b7e32adaa7035260bad31c1c95d19a4b50",
+    "mechanism": "polymarket_negative_risk",
+    "group_id": "0x03c9c6d9f7b20aaa1f33f99bd24bd16e4e0e00cfa892dde097b800655490b200",
+    "augmented": true,
+    "question_count": 28,
+    "explicit_other": true,
+    "placeholder_questions": [
+      "Person H",
+      "Person I",
+      "Person J",
+      "Person K",
+      "Person L",
+      "Person M",
+      "Person N",
+      "Person O"
+    ],
+    "residual_coverage": "explicit_other",
+    "protocol_allows_all_false": true,
+    "supported_by_adapter": false,
+    "exclusion_reason": "negRisk",
+    "excluded_only_by_group_flag": true,
+    "notes": "Augmented negative risk with nineteen named candidates, eight unnamed placeholders and an explicit Other bucket. Clarifying a placeholder narrows the meaning of Other without editing the Other payload, so no per-market field records the change."
+  },
+  "KXNEXTISRAELPM-45JAN01": {
+    "payload_sha256": "c8c4bcbd7f884d7913c6c29200ff084ad5d4509064507aa052aed960ca2f1644",
+    "mechanism": "kalshi_mutually_exclusive",
+    "mutually_exclusive": true,
+    "collateral_return_type": "MECNET",
+    "question_count": 12,
+    "explicit_other": false,
+    "residual_coverage": "none",
+    "protocol_allows_all_false": true,
+    "supported_by_adapter": true,
+    "exclusion_reason": null,
+    "notes": "Twelve named successors with no residual bucket, so an unnamed successor settles every market to No. The named set differs from the Polymarket group and the horizon runs to 2045 rather than the 2026 election."
+  }
+}
