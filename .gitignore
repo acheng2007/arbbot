@@ -13,3 +13,10 @@ htmlcov/
 build/
 dist/
 .DS_Store
+node_modules/
+.next/
+*.tsbuildinfo
+.env.local
+.env.*.local
+playwright-report/
+test-results/

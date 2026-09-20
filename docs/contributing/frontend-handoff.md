@@ -2,7 +2,7 @@
 
 The user requested that all frontend issues be picked up on a separate branch and continued in a new chat.
 Issues #21 through #26 and frontend QA issue #33 are assigned to `acheng2007`.
-No frontend implementation has started in this handoff.
+Issue #21 is implemented on `frontend/21-web-foundation`; see the current delivery section below.
 
 ## Workspace and branch
 
@@ -58,3 +58,25 @@ Show fees, executable depth costs and slippage allowance separately, with net pr
 A quote-supported estimate is not a guaranteed profit or an atomic cross-exchange fill.
 No trade execution, custody or transfers are in scope.
 Validate responsive layouts, keyboard accessibility, and browser behavior; visually inspect the rendered screens.
+
+## Current delivery: issue #21
+
+Implemented the Next.js foundation with pinned dependencies, responsive navigation, Query provider, shadcn-compatible UI configuration/button, shared loading/error/empty/stale states, and Vitest/Playwright configuration.
+The overview is explicitly a preview with no market data or fabricated opportunities.
+The connection route reads server-side `BACKEND_URL` and validates the existing `/health/live` response, including simulation/live mode.
+No backend or feature-screen implementation is included.
+
+Issue branch: `frontend/21-web-foundation`.
+PR base: `frontend/workstream`, including the existing handoff and committed session-handoff instruction baseline at `01ace35`.
+Keep this issue as its own PR; do not merge it without review.
+Root `.gitignore` and `README.md` changes are the issue-authorized integration changes.
+This handoff update is required by the current `AGENTS.md` session instructions.
+
+Validation: lint, typecheck, production build, 10 Vitest checks, and desktop/mobile Chromium navigation checks pass.
+Desktop/mobile overview screenshots and the real-backend connection screen were visually inspected.
+The real FastAPI service on port 8011 was verified through the browser using a nondefault `BACKEND_URL`.
+Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
+No hosted frontend CI claim is made; CI remains issue #33.
+
+Next action: review and merge the focused #21 PR into the workstream baseline, then begin #22 on a new issue branch from that merged baseline.
+Do not start the typed API client against unmerged #21 implementation.
