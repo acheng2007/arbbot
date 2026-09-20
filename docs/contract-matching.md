@@ -101,7 +101,7 @@ Scenario completeness remains a human responsibility, and differently modeled ex
 
 ## Automatic drafts
 
-The worker invokes the local `us-cpi-rules/v1` parser for markets without a supplied definition.
+The worker invokes the local `us-cpi-rules/v2` parser for markets without a supplied definition.
 A manually supplied definition replaces the complete automatic draft, including when the manual definition is stale or incomplete.
 The worker never silently merges new automatic facts into reviewed interpretations.
 Duplicate manual definitions fail validation.
@@ -128,10 +128,14 @@ Automatic drafts always omit payout, cancellation, exceptions, publication versi
 Consequently they cannot independently pass the live approval gate.
 A draft may identify a shared event and produce a candidate without claiming settlement compatibility.
 Manual completion and human review remain necessary.
-The current tests use synthetic rule fixtures and do not establish coverage of real exchange wording.
+Tests include synthetic rules and an initial recorded contract corpus.
+See [recorded contract validation](recorded-contracts.md) for measured coverage and remaining gaps.
 
 The extraction endpoint returns the proposed `definition`, `missing_fields`, `issues`, and `partial`, `ambiguous`, or `unsupported` status.
 It computes a draft from the latest stored market and current parser version, regardless of any manual override.
 It is read-only and does not save or approve edits.
 The effective worker definitions remain visible in match comparisons, which are persisted with evaluations and opportunities through the existing workflow.
 No database migration is required.
+
+Version 2 additionally recognizes the exact Kalshi CPI primary-rule pattern covered by the recorded corpus.
+It extracts the reporting period and threshold condition, while leaving jurisdiction, measurement details, and source publisher unknown.

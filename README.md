@@ -117,3 +117,6 @@ See [structured contract matching](docs/contract-matching.md) for evidence-backe
 
 Automatic partial US CPI definitions are available at `GET /api/v1/markets/{market_id}/extraction` and feed candidate matching.
 Unsupported and missing terms remain explicit; live approval still requires a human-reviewed complete definition.
+
+Track completed work and upcoming dependencies in the [implementation roadmap](docs/implementation-roadmap.md).
+See [recorded contract validation](docs/recorded-contracts.md) for real metadata fixtures and extraction coverage.
