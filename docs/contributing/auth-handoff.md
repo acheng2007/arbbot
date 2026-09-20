@@ -4,6 +4,7 @@ The complete backend production goal remains active.
 This increment implements issue #17 only; review persistence/mutations and real provider deployment remain unfinished.
 Workspace: `/private/tmp/arbbot-backend-auth`.
 Branch: `backend/17-reviewer-auth`, from `origin/main` at `d065906`.
+Published draft PR: https://github.com/acheng2007/arbbot/pull/48.
 
 ## Completed
 
@@ -27,6 +28,7 @@ Full backend suite: 108 passed independently on SQLite and PostgreSQL.
 Coverage includes signed requests through the FastAPI dependency chain, viewer/reviewer separation, server-derived identity, expired/missing/invalid claims, algorithm/signature errors, duplicate Authorization headers, cookie rejection, browser preflights/origins, malformed or oversized JWKS, cache refresh/rotation, and outage recovery.
 No live provider was contacted; tests use ephemeral RSA keys and mocked JWKS HTTP.
 An intentionally invalid HMAC fixture initially emitted a short-key warning; its key was lengthened while retaining the algorithm-confusion rejection test.
+All 33 focused authentication tests then passed without warnings.
 Ruff lint/format and OpenAPI regeneration passed.
 Hosted CI for this new branch and actual tenant configuration are not yet verified.
 
@@ -48,5 +50,5 @@ The user was asked asynchronously which production host and identity provider to
 Continue independent implementation while that deployment choice is pending.
 Do not mark production readiness from fixture tests or from isolated PRs.
 
-Next action: publish this focused authentication PR and verify hosted CI, then implement dependency-free stream/resynchronization contracts (#27) on a new branch from current main.
+Next action: verify PR #48 hosted CI, then implement dependency-free stream/resynchronization contracts (#27) on a new branch from current main.
 Use `docs/contributing/README.md` for dependencies and keep one issue per PR.
