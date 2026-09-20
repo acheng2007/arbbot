@@ -9,6 +9,8 @@ Neither of the two completed local increments establishes production readiness.
 - `/private/tmp/arbbot-backend-production`, branch `backend/2-source-artifacts`: immutable source documents, idempotent captures, explicit retrieval failures, size bounds, database immutability triggers, and additive migration.
 
 Both are focused issue branches; neither is merged into main.
+Published draft PRs: [#44](https://github.com/acheng2007/arbbot/pull/44) for definitions and [#45](https://github.com/acheng2007/arbbot/pull/45) for source evidence.
+Both branches were rebased onto current remote main before publication; upstream changes were frontend/documentation only.
 Remote main was fetched at `d065906`, including merged frontend PR #43.
 GitHub issues #1, #2, and #11 were verified open and unassigned using the GitHub connector.
 The CLI is unavailable, but the connector provides repository access.
@@ -45,5 +47,5 @@ Do not mark the goal complete until all applicable requirements have direct evid
 
 ## Next action
 
-Publish the two completed increments as separate draft PRs against current main, then implement the dependency-free fee quote interface (#11) on its own branch.
+Implement the dependency-free fee quote interface (#11) on its own branch from `origin/main`, and inspect hosted CI on the two published PRs.
 Keep dependent source enrichment and parser work gated on reviewed foundation changes, following CONTRIBUTING.md.
