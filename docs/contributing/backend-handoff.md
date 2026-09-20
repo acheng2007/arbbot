@@ -7,8 +7,10 @@ The goal remains active and is not satisfied by the source-storage increment bel
 Use `/private/tmp/arbbot-backend-production` for this workstream.
 The original workspace remains on `frontend/21-web-foundation` with user changes intact.
 Current issue branch: `backend/2-source-artifacts`, based on local `main` at `03b91c2`.
-No PR has been created, no issue has been claimed externally, and no branch has been merged.
-The GitHub CLI is unavailable; publication and remote issue/CI status are unverified.
+Published draft PR: https://github.com/acheng2007/arbbot/pull/45.
+The branch was rebased onto remote main at `d065906` before publication.
+No issue has been claimed by comment and no backend branch has been merged.
+The GitHub CLI is unavailable, but the GitHub connector works; hosted CI is not yet verified.
 Maintain the one-issue-per-PR workflow and do not merge unreviewed branches.
 
 ## Completed increment
@@ -63,6 +65,8 @@ Frontend implementation remains a separate workstream; backend API and end-to-en
 
 ## Next action
 
-Implement and test issue #1 canonical measurement and settlement definitions on a separate branch from `main`, while issue #2 awaits publication/review.
-This dependency-free work advances matching and review requirements without relying on an unmerged source-storage branch.
-Inspect remote issue ownership through an available authenticated GitHub interface before publishing or overlapping remote work.
+Issue #1 is now implemented separately in `/private/tmp/arbbot-backend-contracts`, branch `backend/1-contract-vocabulary`, draft PR https://github.com/acheng2007/arbbot/pull/44.
+That branch passes 153 tests on SQLite and PostgreSQL and documents the versioned vocabulary and review invalidation.
+The next action is issue #11, the independent fee quote interface, on a branch from `origin/main`; also inspect hosted CI for both drafts.
+Issues #1, #2, and #11 were verified open and unassigned through the connector.
+Use the contracts worktree handoff for the latest combined progress.
