@@ -1,7 +1,18 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Numeric, String
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    Numeric,
+    String,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -78,3 +89,37 @@ class HealthRecord(Base):
     status: Mapped[str] = mapped_column(String)
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class SourceArtifactRecord(Base):
+    __tablename__ = "source_artifacts"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    venue: Mapped[str] = mapped_column(String)
+    url: Mapped[str] = mapped_column(String)
+    content_type: Mapped[str] = mapped_column(String(255))
+    content_digest: Mapped[str] = mapped_column(String(64))
+    content: Mapped[bytes] = mapped_column(LargeBinary)
+    __table_args__ = (
+        CheckConstraint("length(content) > 0 AND length(content) <= 2097152", name="source_size"),
+    )
+
+
+class SourceCaptureRecord(Base):
+    __tablename__ = "source_captures"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    artifact_id: Mapped[str | None] = mapped_column(ForeignKey("source_artifacts.id"))
+    venue: Mapped[str] = mapped_column(String)
+    url: Mapped[str] = mapped_column(String)
+    retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    content_type: Mapped[str | None] = mapped_column(String(255))
+    failure: Mapped[str | None] = mapped_column(String)
+    http_status: Mapped[int | None] = mapped_column(Integer)
+    __table_args__ = (
+        CheckConstraint(
+            "(artifact_id IS NOT NULL AND failure IS NULL) OR "
+            "(artifact_id IS NULL AND failure IS NOT NULL)",
+            name="source_result",
+        ),
+    )
