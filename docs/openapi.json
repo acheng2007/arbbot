@@ -171,6 +171,45 @@
         }
       }
     },
+    "/api/v1/markets/{market_id}/extraction": {
+      "get": {
+        "summary": "Extraction",
+        "operationId": "extraction_api_v1_markets__market_id__extraction_get",
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Market Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extraction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/markets/{market_id}/book": {
       "get": {
         "summary": "Book",
@@ -612,6 +651,163 @@
         ],
         "title": "Book"
       },
+      "Comparison": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "compatible",
+              "conflict",
+              "incomplete"
+            ],
+            "title": "Status"
+          },
+          "same_event": {
+            "type": "boolean",
+            "title": "Same Event"
+          },
+          "event_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Key"
+          },
+          "left": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContractDefinition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "right": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContractDefinition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "left_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Hash"
+          },
+          "right_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Hash"
+          },
+          "differences": {
+            "items": {
+              "$ref": "#/components/schemas/Difference"
+            },
+            "type": "array",
+            "title": "Differences"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issues"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "same_event",
+          "left",
+          "right",
+          "left_hash",
+          "right_hash",
+          "differences",
+          "issues"
+        ],
+        "title": "Comparison"
+      },
+      "ContractDefinition": {
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "title": "Market Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "extractor": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Extractor"
+          },
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "facts": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Fact"
+            },
+            "propertyNames": {
+              "enum": [
+                "event_type",
+                "entity",
+                "metric",
+                "reference_period",
+                "measurement",
+                "source",
+                "value_version",
+                "operator",
+                "threshold",
+                "units",
+                "observation_window",
+                "timezone",
+                "outcome_orientation",
+                "payout",
+                "cancellation",
+                "exceptions"
+              ]
+            },
+            "type": "object",
+            "title": "Facts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "terms_hash",
+          "extractor",
+          "facts"
+        ],
+        "title": "ContractDefinition"
+      },
       "CostPolicy": {
         "properties": {
           "fee_per_contract": {
@@ -663,6 +859,54 @@
         ],
         "title": "CostPolicy"
       },
+      "Difference": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "equal",
+              "different",
+              "unknown"
+            ],
+            "title": "Status"
+          },
+          "left": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left"
+          },
+          "right": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field",
+          "status",
+          "left",
+          "right"
+        ],
+        "title": "Difference"
+      },
       "Evaluation": {
         "properties": {
           "match_id": {
@@ -707,6 +951,105 @@
           "opportunities"
         ],
         "title": "Evaluation"
+      },
+      "Extraction": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "partial",
+              "unsupported",
+              "ambiguous"
+            ],
+            "title": "Status"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/ContractDefinition"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "event_type",
+                "entity",
+                "metric",
+                "reference_period",
+                "measurement",
+                "source",
+                "value_version",
+                "operator",
+                "threshold",
+                "units",
+                "observation_window",
+                "timezone",
+                "outcome_orientation",
+                "payout",
+                "cancellation",
+                "exceptions"
+              ]
+            },
+            "type": "array",
+            "title": "Missing Fields"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issues"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "definition",
+          "missing_fields",
+          "issues"
+        ],
+        "title": "Extraction"
+      },
+      "Fact": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Value"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "title",
+              "rules",
+              "settlement_details"
+            ],
+            "title": "Source"
+          },
+          "source_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Key"
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Quote"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "source",
+          "quote"
+        ],
+        "title": "Fact"
       },
       "HTTPValidationError": {
         "properties": {
@@ -965,6 +1308,16 @@
                 "type": "null"
               }
             ]
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Comparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -1088,6 +1441,16 @@
           "review": {
             "$ref": "#/components/schemas/Review"
           },
+          "comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Comparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "assumptions": {
             "items": {
               "type": "string"
@@ -1138,6 +1501,30 @@
             "type": "string",
             "pattern": "^[a-f0-9]{64}$",
             "title": "Right Terms Hash"
+          },
+          "left_definition_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Definition Hash"
+          },
+          "right_definition_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Definition Hash"
           },
           "status": {
             "type": "string",
