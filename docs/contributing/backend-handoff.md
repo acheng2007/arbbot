@@ -22,6 +22,8 @@ Canonical-definition branch: 153 tests passed independently on SQLite and Postgr
 Every required field is tested both omitted and explicitly unknown; neither case can establish compatible settlement.
 Legacy hashes remain stable, while upgraded definitions require fresh review hashes.
 Ruff lint and formatting passed.
+Hosted run 35522583045 failed collecting `tests.test_contracts` because tests lacked a package declaration; local PYTHONPATH had masked this.
+Added `backend/tests/__init__.py` so the documented pytest command discovers shared helpers without that environment override; hosted revalidation is pending.
 OpenAPI and definition schemas were regenerated; the review schema was regenerated and unchanged.
 Recorded corpus replay remains 14 correct fields, zero incorrect, across nine fixtures and 63 labels.
 No live-equivalence claim follows from the synthetic integration tests.
