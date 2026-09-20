@@ -3,12 +3,14 @@
 The worker loads evidence-backed contract interpretations from `ARBBOT_DEFINITIONS_FILE` on each cycle.
 This is a JSON array validated against [definitions.schema.json](definitions.schema.json).
 An interpretation is a proposal, not an equivalence approval.
-Automated parsers and LLM extraction are not implemented yet.
+A narrow deterministic US CPI parser now generates partial drafts automatically.
+LLM extraction is not implemented.
 The current authoring workflow is a local JSON file and the existing read-only API.
 
 ## Authoring and review
 
-1. Fetch each market from `GET /api/v1/markets/{market_id}` and retain its `id` and `terms_hash`.
+1. Fetch each market from `GET /api/v1/markets/{market_id}` and inspect its draft at `GET /api/v1/markets/{market_id}/extraction`.
+   Retain the market `id` and `terms_hash`.
 2. Write a definition containing `market_id`, `terms_hash`, an `extractor` identity or version, and `facts`.
 3. Each fact contains a canonical `value`, a `source`, and an exact supporting `quote`.
 4. Configure the definitions file in the worker and inspect `GET /api/v1/matches` after a cycle.
@@ -92,6 +94,44 @@ The evaluator independently repeats the structured approval check.
 Published opportunities retain the full comparison, definitions, and quotations for audit.
 Current matches expose those details through the existing API and OpenAPI models without a database migration.
 
-The remaining extraction work is category-specific parsers and an evaluated LLM extractor using this schema.
+The remaining extraction work is broader category and language coverage, validation against recorded live contracts, and an evaluated LLM extractor using this schema.
 The remaining review interface is a web comparison screen; approval currently uses files.
 Scenario completeness remains a human responsibility, and differently modeled exceptional outcomes are conservatively blocked even when a more general portfolio solver might support them.
+
+
+## Automatic drafts
+
+The worker invokes the local `us-cpi-rules/v1` parser for markets without a supplied definition.
+A manually supplied definition replaces the complete automatic draft, including when the manual definition is stale or incomplete.
+The worker never silently merges new automatic facts into reviewed interpretations.
+Duplicate manual definitions fail validation.
+No credentials, network calls, or additional dependencies are required for extraction.
+
+The parser recognizes explicit `US CPI`, `U.S. CPI`, and corresponding `Consumer Price Index` phrases, with optional `core`.
+It recognizes a reporting period only from `for <full month name> <four-digit year>` associated with a document containing that subject.
+Release dates and trading close times are not used as reporting periods.
+For example, this synthetic rule supports a partial definition:
+
+```text
+This market resolves to YES if the US CPI year-over-year change for August 2026 is above 3.0%.
+Source: Bureau of Labor Statistics.
+```
+
+The supported affirmative condition grammar extracts year-over-year or month-over-month measurement, comparison operator, signed decimal threshold, percent units, and YES orientation.
+Incidental percentages and title-only thresholds are not extracted as payout conditions.
+Conflicting values across supported title and rule patterns are omitted and reported as ambiguous.
+Unsupported language remains unknown; the parser does not claim general natural-language understanding.
+Only explicit long-form Bureau of Labor Statistics mentions propose that source.
+Publisher mentions still require reviewer confirmation that they govern resolution.
+
+Automatic drafts always omit payout, cancellation, exceptions, publication version, timezone, and observation bounds.
+Consequently they cannot independently pass the live approval gate.
+A draft may identify a shared event and produce a candidate without claiming settlement compatibility.
+Manual completion and human review remain necessary.
+The current tests use synthetic rule fixtures and do not establish coverage of real exchange wording.
+
+The extraction endpoint returns the proposed `definition`, `missing_fields`, `issues`, and `partial`, `ambiguous`, or `unsupported` status.
+It computes a draft from the latest stored market and current parser version, regardless of any manual override.
+It is read-only and does not save or approve edits.
+The effective worker definitions remain visible in match comparisons, which are persisted with evaluations and opportunities through the existing workflow.
+No database migration is required.

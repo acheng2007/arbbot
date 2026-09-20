@@ -114,3 +114,6 @@ Runtime and development dependencies are pinned separately in `backend/requireme
 The backend is one Python package with separate runtime processes, preserving a modular monolith architecture.
 
 See [structured contract matching](docs/contract-matching.md) for evidence-backed event definitions, settlement comparisons, and the live review workflow.
+
+Automatic partial US CPI definitions are available at `GET /api/v1/markets/{market_id}/extraction` and feed candidate matching.
+Unsupported and missing terms remain explicit; live approval still requires a human-reviewed complete definition.
