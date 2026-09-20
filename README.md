@@ -122,3 +122,38 @@ Track completed work and upcoming dependencies in the [implementation roadmap](d
 See [recorded contract validation](docs/recorded-contracts.md) for real metadata fixtures and extraction coverage.
 
 Contributors: start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [modular issue index](docs/contributing/README.md).
+
+## Frontend development
+
+The Next.js foundation lives in `apps/web` and requires Node.js 22.12 or newer.
+Install the pinned dependencies and start it locally:
+
+```bash
+cd apps/web
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+Open http://localhost:3000.
+Set `BACKEND_URL` in `apps/web/.env.local` to the backend HTTP(S) base URL, defaulting to `http://localhost:8000`, and restart Next.js after changing it.
+The server reads this value at runtime for the connection check; it is not included in browser bundles.
+Start the backend using the Docker Compose instructions above to verify the connection.
+The overview is explicitly a foundation preview and displays no market or opportunity data.
+The connection page reports backend liveness and its reported simulation/live mode, not exchange readiness.
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright runs desktop and mobile Chromium checks against a local web server on port 3100.
+Its connection responses are mocked and do not call exchanges.
+Use `npm run build` followed by `npm start` to run the production application.
+Shared shadcn-style button primitives and theme tokens live in `src/components/ui` and `src/app/globals.css`; `components.json` configures future shadcn additions.
+TanStack Query is provided at the app boundary; TanStack Table is pinned for subsequent feature work.
+The generated API client and feature screens belong to subsequent issues.

@@ -129,6 +129,14 @@ Use the reproduction to identify the actual root cause and verify the completed 
 During end-to-end testing, scrutinize the UI and aim for pixel-perfect results.
 Fix clear quality problems outside the immediate task when the fix is safe and reasonably scoped, and mention the additional change.
 
+# Session Handoff
+
+Whenever you finish a task, update the relevant handoff file with the concrete next step before ending the session.
+Use `docs/contributing/frontend-handoff.md` for frontend workstreams, or create or update a matching handoff under `docs/contributing/` for other workstreams.
+Record what was completed, the current branch or PR if any, blockers, and the single clearest next action for the following agent or chat.
+Commit the handoff update (along with the finished work when applicable) before stopping.
+Do not leave unfinished work without a committed next-step handoff.
+
 # Writing and Git
 
 Never use em dashes; use standard hyphens instead.
