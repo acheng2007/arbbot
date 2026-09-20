@@ -4,6 +4,7 @@ from uuid import uuid4
 from sqlalchemy import select, update
 
 from arbbot.domain import Book, Market, MarketHealth, Match, Opportunity, digest, restore, utcnow
+from arbbot.matching.extraction import extract_contract
 from arbbot.storage.models import (
     EvaluationRecord,
     HealthRecord,
@@ -34,6 +35,8 @@ class Repository:
                 session.add(row)
             row.payload = market.model_dump(mode="json")
             row.observed_at = market.observed_at
+            metric = extract_contract(market).definition.facts.get("metric")
+            row.family = metric.value if metric and metric.value != "unknown" else None
             await session.flush()
             version_id = digest([market.mode, market.id, market.terms_hash])
             if not await session.get(MarketVersionRecord, version_id):
@@ -204,7 +207,18 @@ class Repository:
             for match in matches:
                 await session.merge(
                     MatchRecord(
-                        id=match.id, mode=mode, current=True, payload=match.model_dump(mode="json")
+                        id=match.id,
+                        mode=mode,
+                        current=True,
+                        payload=match.model_dump(mode="json"),
+                        evidence_complete=bool(
+                            match.comparison
+                            and match.comparison.left
+                            and match.comparison.right
+                            and not match.comparison.issues
+                            and match.comparison.differences
+                            and all(d.status != "unknown" for d in match.comparison.differences)
+                        ),
                     )
                 )
             await session.flush()

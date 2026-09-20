@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Numeric, String
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Numeric, String, false
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -21,6 +21,8 @@ class MarketRecord(Base):
     payload: Mapped[dict] = mapped_column(Document)
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     latest_book_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    family: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    __table_args__ = (Index("ix_market_family_page", "mode", "family", "id"),)
 
 
 class SnapshotRecord(Base):
@@ -45,6 +47,7 @@ class MatchRecord(Base):
     mode: Mapped[str] = mapped_column(String, index=True)
     current: Mapped[bool] = mapped_column(Boolean, index=True)
     payload: Mapped[dict] = mapped_column(Document)
+    evidence_complete: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class EvaluationRecord(Base):
