@@ -230,3 +230,17 @@ async def test_discarded_untrusted_update_requires_new_subscription(fixture_mark
     assert state.status == "disconnected"
     state.connect("second")
     assert state.accept(Snapshot(epoch="second", sequence=0, book=book)) == "synchronized"
+
+
+async def test_rejected_snapshot_cannot_roll_back_to_older_state(fixture_market):
+    markets, books, *_ = fixture_market
+    book = books[markets[0].id]
+    state = BookState(markets[0], max_levels=1)
+    state.connect("first")
+    small = book.model_copy(update={"yes_asks": (), "no_asks": ()})
+    old = Snapshot(epoch="first", sequence=1, book=small)
+    assert state.accept(old) == "synchronized"
+    assert state.accept(Snapshot(epoch="first", sequence=3, book=book)) == "resync_required"
+    assert state.accept(old) == "out_of_order"
+    assert state.eligible_book(book.received_at, 30) is None
+    assert state.accept(Snapshot(epoch="first", sequence=3, book=small)) == "synchronized"

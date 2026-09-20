@@ -190,6 +190,8 @@ class BookState:
         if isinstance(event, Snapshot):
             if event.sequence < self._snapshot_floor:
                 return "out_of_order"
+            # Even a rejected snapshot proves that this subscription has advanced.
+            self._snapshot_floor = max(self._snapshot_floor, event.sequence)
             if (self._last_received and event.book.received_at < self._last_received) or (
                 self._last_source
                 and event.book.source_at
