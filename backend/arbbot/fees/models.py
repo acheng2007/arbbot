@@ -51,7 +51,7 @@ class FeeRequest(FeeModel):
     outcome: Outcome
     side: Literal["buy", "sell"]
     liquidity: Literal["maker", "taker"]
-    settlement_asset: str = Field(pattern=r"^[A-Z][A-Z0-9]{1,15}$")
+    settlement_asset: str = Field(pattern=r"^[A-Za-z][A-Za-z0-9]{1,15}$")
     quantity: PositiveAmount
     fills: tuple[Fill, ...] = Field(min_length=1, max_length=1000)
 

@@ -21,6 +21,10 @@ See `docs/fee-contract.md` for usage and limitations.
 
 Full SQLite suite: 98 passed.
 Full PostgreSQL suite: 98 passed using isolated test schemas.
+Hosted fee run 35522949867 succeeded at `dae27c3`.
+Subsequent adapter-contract inspection found that the fee asset pattern rejected the existing `pUSD` identifier.
+Reproduced the validation failure directly through FeeRequest, then allowed case-preserving alphanumeric asset identifiers and added a regression test.
+This follow-up requires hosted CI revalidation.
 Ruff lint and formatting passed.
 Tests cover exact serialization and roundtrip, fixed/quantity/price-dependent components, per-fill rounding, malformed inputs, zero policy requirements, expiry, wrong-request quotes, provider failure, and cancellation.
 This interface has no live exchange policy or engine path yet, so its tests do not establish live fee accuracy.

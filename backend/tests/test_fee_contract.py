@@ -73,6 +73,11 @@ def test_exact_rounding_components_and_serialization():
     assert TypeAdapter(FeeResult).validate_json(result.model_dump_json(round_trip=True)) == result
 
 
+def test_existing_polymarket_asset_identifier_preserves_case():
+    result = request(venue="polymarket", market_id="polymarket:test", settlement_asset="pUSD")
+    assert quote(result).request.settlement_asset == "pUSD"
+
+
 def test_per_fill_rounding_differs_from_order_rounding():
     assert quote(charges=[charge(scope="fill", fill_index=i) for i in (0, 1)]).total == Decimal(
         "0.04"
