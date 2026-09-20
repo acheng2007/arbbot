@@ -1,0 +1,128 @@
+{
+  "kalshi:KXCPI-26OCT-T1.0": {
+    "payload_sha256": "6b642aab433e4faa867dea4092edd62e792cf239c1c42fcf8efc60bbe66efe83",
+    "supported_by_adapter": true,
+    "facts": {
+      "event_type": "economic_release",
+      "metric": "cpi",
+      "reference_period": "2026-10",
+      "operator": ">",
+      "threshold": "1.0",
+      "units": "percent",
+      "outcome_orientation": "yes_if_true"
+    },
+    "notes": "Primary rule explicitly states CPI, October 2026, strict threshold and Yes. Jurisdiction, measurement adjustment, and source publisher are not established by this response; do not infer them from the ticker."
+  },
+  "kalshi:KXCPI-26OCT-T0.9": {
+    "payload_sha256": "3f1e514d756ea337efab4a78d20b757c73a2ce7d92ba3c7fe76ab3346b150730",
+    "supported_by_adapter": true,
+    "facts": {
+      "event_type": "economic_release",
+      "metric": "cpi",
+      "reference_period": "2026-10",
+      "operator": ">",
+      "threshold": "0.9",
+      "units": "percent",
+      "outcome_orientation": "yes_if_true"
+    },
+    "notes": "Primary rule explicitly states CPI, October 2026, strict threshold and Yes. Jurisdiction, measurement adjustment, and source publisher are not established by this response; do not infer them from the ticker."
+  },
+  "polymarket:4469383": {
+    "payload_sha256": "39472d16f65573f63defbf6f2349071d9decaf5832880f3dff4b5456b76111f4",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "US",
+      "metric": "cpi",
+      "reference_period": "2026-09",
+      "measurement": "year-over-year",
+      "source": "US_BLS",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:4469455": {
+    "payload_sha256": "c99d953acfcad489f09f7cd86e2d21c5b6abdd72ef37272c00eb83245af3888f",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "US",
+      "metric": "cpi",
+      "reference_period": "2026-09",
+      "measurement": "month-over-month",
+      "source": "US_BLS",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:3539685": {
+    "payload_sha256": "50e0a724eafe751f54a62c49de27c27cf2934baab9a87763843376a459ddb6aa",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "US",
+      "metric": "core_cpi",
+      "reference_period": "2026-08",
+      "measurement": "month-over-month",
+      "source": "US_BLS",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:3586722": {
+    "payload_sha256": "6b3d13947fa2623b43457bc55a07e29cad2042806ee19e65d404b19afdd38a5f",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "Argentina",
+      "metric": "cpi",
+      "reference_period": "2026-08",
+      "measurement": "month-over-month",
+      "source": "AR_INDEC",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:3499774": {
+    "payload_sha256": "88289e38b5a0293b6c57b76fcf728fa89f955ca32c755997e96cdaba5da47d86",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "China",
+      "metric": "cpi",
+      "reference_period": "2026-08",
+      "measurement": "year-over-year",
+      "source": "CN_NBS",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:3938028": {
+    "payload_sha256": "bcf539190abd838fd492e75cc4a38701ff57e2965293a3a433d78f52ab44c8a1",
+    "supported_by_adapter": false,
+    "facts": {
+      "event_type": "economic_release",
+      "entity": "US",
+      "metric": "core_pce",
+      "reference_period": "2026-08",
+      "measurement": "year-over-year",
+      "source": "US_BEA",
+      "units": "percent"
+    },
+    "notes": "Read from the resolution description and named national source. Adjustment, precision, fallback month, and exceptional payout semantics require separate review. Threshold is stated in the question rather than the common event description. Negative-risk metadata excludes this fixture from current live discovery."
+  },
+  "polymarket:4178704": {
+    "payload_sha256": "c8a067bd9afc69bc0c0bc92540e64df0efcb21173933276228e8c152b534423d",
+    "supported_by_adapter": true,
+    "facts": {
+      "event_type": "economic_indicator",
+      "entity": "US",
+      "metric": "treasury_10y_yield",
+      "operator": ">=",
+      "threshold": "4.82",
+      "units": "percent",
+      "outcome_orientation": "yes_if_true"
+    },
+    "notes": "Treasury yield path event, not a CPI release. Threshold comes from the question plus the rule referring to the listed value. Included as an unrelated supported binary market."
+  }
+}

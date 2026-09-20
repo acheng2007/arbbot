@@ -17,7 +17,7 @@ from arbbot.matching.contracts import (
     StrictModel,
 )
 
-VERSION = "us-cpi-rules/v1"
+VERSION = "us-cpi-rules/v2"
 MONTHS = (
     "January February March April May June July August September October November December"
 ).split()
@@ -44,6 +44,17 @@ CONDITION = re.compile(
 )
 
 
+# Recorded Kalshi primary-rule grammar. Jurisdiction and measurement remain unknown
+# until the source agency and series contract are ingested; ticker names are not evidence.
+KALSHI_CONDITION = re.compile(
+    r"^If the Consumer Price Index \(CPI\) increases by more than "
+    r"(?P<threshold>-?\d+(?:\.\d+)?)% \(single-decimal\) in "
+    rf"(?P<month>{MONTH_PATTERN}) (?P<year>20\d{{2}}), "
+    r"then the market resolves to Yes\.",
+    re.IGNORECASE,
+)
+
+
 class Extraction(StrictModel):
     status: Literal["partial", "unsupported", "ambiguous"]
     definition: ContractDefinition
@@ -57,6 +68,23 @@ def extract_contract(market: Market) -> Extraction:
 
     def propose(field, value, source, quote):
         candidates[field].append(Fact(value=value, source=source, quote=quote))
+
+    if market.venue == "kalshi":
+        condition = KALSHI_CONDITION.match(market.rules)
+        if condition:
+            month = next(
+                i for i, name in enumerate(MONTHS, 1) if name.lower() == condition["month"].lower()
+            )
+            for field, value in {
+                "event_type": "economic_release",
+                "metric": "cpi",
+                "reference_period": f"{condition['year']}-{month:02}",
+                "operator": ">",
+                "threshold": condition["threshold"],
+                "units": "percent",
+                "outcome_orientation": "yes_if_true",
+            }.items():
+                propose(field, value, "rules", condition.group())
 
     for source in ("rules", "title"):
         text = getattr(market, source)
