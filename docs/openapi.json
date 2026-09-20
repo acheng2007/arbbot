@@ -22,6 +22,29 @@
         }
       }
     },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Identity",
+        "operationId": "identity_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Principal"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health/ready": {
       "get": {
         "summary": "Readiness",
@@ -1482,6 +1505,49 @@
         ],
         "title": "Opportunity"
       },
+      "Principal": {
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "roles": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "viewer",
+                "reviewer"
+              ]
+            },
+            "type": "array",
+            "uniqueItems": true,
+            "title": "Roles"
+          },
+          "audit_id": {
+            "type": "string",
+            "title": "Audit Id",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "issuer",
+          "subject",
+          "client_id",
+          "roles",
+          "audit_id"
+        ],
+        "title": "Principal"
+      },
       "Review": {
         "properties": {
           "left_id": {
@@ -1665,6 +1731,13 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "description": "RFC 9068 access token for the Arbbot API",
+        "scheme": "bearer"
       }
     }
   }

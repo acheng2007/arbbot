@@ -1,8 +1,9 @@
 from decimal import Decimal
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,3 +29,35 @@ class Settings(BaseSettings):
     kalshi_private_key_path: Path | None = None
     cors_origins: list[str] = ["http://localhost:3000"]
     sse_seconds: float = Field(default=2, ge=0.1, le=60)
+    auth_issuer: str | None = None
+    auth_audience: str | None = Field(default=None, min_length=1, max_length=512)
+    auth_jwks_url: str | None = None
+    auth_jwks_ttl_seconds: int = Field(default=300, ge=30, le=3600)
+    auth_refresh_seconds: int = Field(default=30, ge=1, le=300)
+    auth_clock_skew_seconds: int = Field(default=0, ge=0, le=30)
+    auth_max_token_seconds: int = Field(default=900, ge=60, le=3600)
+
+    @model_validator(mode="after")
+    def validate_auth(self):
+        configured = (self.auth_issuer, self.auth_audience, self.auth_jwks_url)
+        if any(v is not None for v in configured) and not all(configured):
+            raise ValueError("Configure issuer, audience and JWKS URL together")
+        for value in (self.auth_issuer, self.auth_jwks_url):
+            if value:
+                url = urlsplit(value)
+                if (
+                    url.scheme != "https"
+                    or not url.hostname
+                    or url.username
+                    or url.password
+                    or url.query
+                    or url.fragment
+                ):
+                    raise ValueError(
+                        "Identity URLs require HTTPS without credentials/query/fragment"
+                    )
+        if "*" in self.cors_origins or "null" in self.cors_origins:
+            raise ValueError("CORS requires explicit trusted origins")
+        if self.auth_refresh_seconds > self.auth_jwks_ttl_seconds:
+            raise ValueError("Auth refresh cooldown must not exceed key cache TTL")
+        return self

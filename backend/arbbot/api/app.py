@@ -4,7 +4,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from prometheus_client import (
@@ -17,6 +17,8 @@ from prometheus_client import (
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from arbbot.auth.dependencies import require_viewer
+from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Market, Match, Opportunity, Venue, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
@@ -31,6 +33,7 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     settings = settings or Settings()
     db = database or Database(settings)
     repository = Repository(db)
+    authenticator = Authenticator(settings)
     registry = CollectorRegistry()
     requests = Counter(
         "arbbot_http_requests_total", "HTTP responses", ["route", "status"], registry=registry
@@ -41,9 +44,12 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
 
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        if database is None:
-            await db.close()
+        try:
+            yield
+        finally:
+            await authenticator.close()
+            if database is None:
+                await db.close()
 
     app = FastAPI(
         title="Arbbot API",
@@ -53,11 +59,13 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         "Live opportunities are conditional estimates, not execution guarantees.",
     )
     app.state.repository = repository
+    app.state.authenticator = authenticator
+    app.state.auth_origins = frozenset(settings.cors_origins)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_methods=["GET"],
-        allow_headers=["Accept", "Last-Event-ID"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allow_headers=["Accept", "Last-Event-ID", "Authorization", "Content-Type", "If-Match"],
     )
 
     @app.middleware("http")
@@ -79,6 +87,10 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     @app.get("/health/live")
     async def liveness():
         return {"status": "ok", "mode": settings.mode}
+
+    @app.get("/api/v1/auth/me", response_model=Principal)
+    async def identity(principal: Annotated[Principal, Depends(require_viewer)]):
+        return principal
 
     @app.get("/health/ready")
     async def readiness():
