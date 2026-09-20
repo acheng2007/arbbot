@@ -5,9 +5,39 @@ Each implementation issue is scoped to one PR; the tracker itself is not a singl
 GitHub is authoritative for current status and assignees.
 This index records dependency and file boundaries at publication time.
 
-## Ready to claim
+## Work on Data and Matching first
 
-These tasks have no backlog dependencies; check the issue for current ownership before starting.
+**Start with [#2](https://github.com/acheng2007/arbbot/issues/2): persist settlement source artifacts.**
+In parallel, complete [#1](https://github.com/acheng2007/arbbot/issues/1) to define the canonical measurement and settlement fields.
+These are the foundation for deciding whether real contracts describe compatible payouts.
+
+Recommended order within this first section:
+
+1. [#2](https://github.com/acheng2007/arbbot/issues/2) and [#1](https://github.com/acheng2007/arbbot/issues/1): establish source storage and canonical definitions in separate PRs.
+2. [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4): enrich Kalshi and Polymarket evidence after [#2](https://github.com/acheng2007/arbbot/issues/2); the venue-specific work can run in parallel.
+3. [#5](https://github.com/acheng2007/arbbot/issues/5): discover supported overlapping events after both enrichment issues.
+4. [#6](https://github.com/acheng2007/arbbot/issues/6): label and validate cross-exchange pairs after [#5](https://github.com/acheng2007/arbbot/issues/5) and [#1](https://github.com/acheng2007/arbbot/issues/1).
+5. [#7](https://github.com/acheng2007/arbbot/issues/7) and [#8](https://github.com/acheng2007/arbbot/issues/8): expand venue extraction once each issue's own schema and enrichment dependencies are merged; these can overlap steps 3 and 4.
+
+The first milestone is a supported, evidence-backed same-event pair with explicitly reviewed settlement differences.
+It does not require a profitable price discrepancy, and it must not manufacture equivalence to satisfy the milestone.
+
+## Parallel work and later priorities
+
+- Verify hosted CI with [#32](https://github.com/acheng2007/arbbot/issues/32) alongside the first foundation PRs.
+- Frontend contributors can start [#21](https://github.com/acheng2007/arbbot/issues/21), then [#22](https://github.com/acheng2007/arbbot/issues/22), then the read-only comparison screen [#24](https://github.com/acheng2007/arbbot/issues/24); market browsing [#23](https://github.com/acheng2007/arbbot/issues/23) also needs [#20](https://github.com/acheng2007/arbbot/issues/20).
+- Arbitrage contributors can start [#11](https://github.com/acheng2007/arbbot/issues/11), then [#12](https://github.com/acheng2007/arbbot/issues/12) and [#13](https://github.com/acheng2007/arbbot/issues/13) in parallel, followed by [#14](https://github.com/acheng2007/arbbot/issues/14) and [#15](https://github.com/acheng2007/arbbot/issues/15) for fees and slippage.
+- After the data foundation, prioritize review persistence/authentication/APIs and review UI, following each issue's dependencies.
+- Then complete the opportunity dashboard, live streams and revalidation, followed by observability, end-to-end QA, staging and recovery.
+
+Dependency-free does not mean equally urgent.
+Prioritize Data and Matching when contributor capacity is limited.
+Keep one issue per PR throughout.
+
+## Other dependency-free tasks
+
+These tasks have no backlog dependencies, but are not all first-priority work.
+Follow the order above and check the issue for current ownership before starting.
 
 | Issue | Workstream | Task |
 | --- | --- | --- |
