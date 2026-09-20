@@ -4,6 +4,7 @@
 
 Branch: `backend/36-tracing`, based on `origin/main` at `d065906343a3dde228a9068e115c3ff74fa381de`.
 Issue: [#36](https://github.com/acheng2007/arbbot/issues/36).
+Draft PR: [#50](https://github.com/acheng2007/arbbot/pull/50).
 Added opt-in process-owned OpenTelemetry providers and OTLP/HTTP export with pinned dependencies.
 Added narrow span hooks for catalog/book ingestion, matching, threaded evaluation, publication, and API requests.
 Worker JSON logs include active trace identifiers.
@@ -13,7 +14,7 @@ Validation: 11 tracing tests passed; the full suite passed 86 tests on SQLite an
 Ruff lint/format and dependency consistency passed; generated OpenAPI matches the committed schema.
 Collector transport is mocked, but tests decode the actual OTLP serialized protobuf.
 No real staging collector or production identity provider has been exercised.
-PR publication and hosted CI are next.
+The implementation is committed and published; hosted CI is pending.
 
 ## Other workstreams
 
@@ -27,4 +28,4 @@ Preserve the original frontend worktree's modified `apps/web/next-env.d.ts` and 
 
 ## Next action
 
-Publish the focused tracing draft PR and verify its hosted backend checks, then advance independent hosted-CI evidence issue #32 while prerequisite PRs await review.
+Verify hosted backend checks for PR #50's latest commit; independent hosted-CI evidence issue #32 is being documented in `/private/tmp/arbbot-backend-ci` on `backend/32-hosted-ci-evidence`.
