@@ -78,5 +78,10 @@ The real FastAPI service on port 8011 was verified through the browser using a n
 Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
 No hosted frontend CI claim is made; CI remains issue #33.
 
-Next action: review and merge the focused #21 PR into the workstream baseline, then begin #22 on a new issue branch from that merged baseline.
+Publication status: branch pushed successfully; no PR has been created.
+Automatic approval review rejected PR creation because it did not recognize trusted authorization for external publication to GitHub.
+The review explicitly requires user approval before retrying; do not bypass it through another tool.
+
+Next action: obtain user approval to open the prepared #21 PR from `frontend/21-web-foundation` into `frontend/workstream` in `acheng2007/arbbot`, then create that focused PR.
+After review and merge, begin #22 on a new issue branch from the merged baseline.
 Do not start the typed API client against unmerged #21 implementation.
