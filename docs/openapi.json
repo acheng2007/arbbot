@@ -919,7 +919,10 @@
           },
           "schema_version": {
             "type": "integer",
-            "const": 1,
+            "enum": [
+              1,
+              2
+            ],
             "title": "Schema Version",
             "default": 1
           },
@@ -944,7 +947,15 @@
                 "outcome_orientation",
                 "payout",
                 "cancellation",
-                "exceptions"
+                "exceptions",
+                "seasonal_adjustment",
+                "rounding_increment",
+                "rounding_mode",
+                "revision_policy",
+                "observation_start",
+                "observation_end",
+                "observation_start_inclusive",
+                "observation_end_inclusive"
               ]
             },
             "type": "object",
@@ -1138,7 +1149,15 @@
                 "outcome_orientation",
                 "payout",
                 "cancellation",
-                "exceptions"
+                "exceptions",
+                "seasonal_adjustment",
+                "rounding_increment",
+                "rounding_mode",
+                "revision_policy",
+                "observation_start",
+                "observation_end",
+                "observation_start_inclusive",
+                "observation_end_inclusive"
               ]
             },
             "type": "array",
