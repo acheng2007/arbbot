@@ -8,6 +8,9 @@ Reviewed comparison and validation paths for missing fields, legacy loading, exa
 All 185 backend tests passed on SQLite and isolated PostgreSQL 17, including worker/database/API invalidation when settlement semantics change.
 Ruff lint/format passed; regenerated OpenAPI and definition schemas match committed files.
 Hosted validation is required for this new integration commit.
+The catalog hosted run exposed a shared future-quote test using an import-time timestamp.
+An 11-second collection delay reproduced its failure; the same delay passes after deriving timestamp offsets from a single explicit evaluation instant.
+Applied that shared test-only correction here as well; all 16 engine tests pass and financial behavior is unchanged.
 Synthetic tests do not establish real cross-exchange equivalence.
 
 Main's source implementation is commit `c07ebb6`, migration `d0cc5e73c848`; use its interface.
