@@ -8,6 +8,10 @@ Reviewed comparison and validation paths for missing fields, legacy loading, exa
 All 185 backend tests passed on SQLite and isolated PostgreSQL 17, including worker/database/API invalidation when settlement semantics change.
 Ruff lint/format passed; regenerated OpenAPI and definition schemas match committed files.
 Hosted validation is required for this new integration commit.
+Update: corrected commit `9c181823589aef609512bf575e8ee7fcb2f69a0f` passed all hosted gates in run 35561085871, including both 185-test database suites, migrations, corpus replay, and schema drift checks.
+PR #44 is marked ready for review; there are no submitted reviews.
+Catalog commit `6fbcabe4843ed425e0202e344fd27f72f8da0b8f` also passed all hosted gates in run 35561081075 and PR #47 is ready for review.
+Merge authorization for completed foundation PRs #44 and #46 through #51 has been requested and remains pending; #45 is explicitly excluded.
 The catalog hosted run exposed a shared future-quote test using an import-time timestamp.
 An 11-second collection delay reproduced its failure; the same delay passes after deriving timestamp offsets from a single explicit evaluation instant.
 Applied that shared test-only correction here as well; all 16 engine tests pass and financial behavior is unchanged.
@@ -21,6 +25,8 @@ Fee contracts #46, authentication #48, streams #49, tracing #50 and CI documenta
 The temporary PostgreSQL instance used port 55433; the old service on 55432 is stopped.
 
 Next action: verify hosted checks on the integrated PR #44, then complete its review/merge prerequisite before implementing durable reviews (#16) against version 2 and the landed source interface.
+Once merge authorization is received, finish reviewing and merge passing prerequisites, then implement #16 with compare-and-swap draft revisions, immutable review history, and bindings to exact terms, definition hashes, source versions, actor and timestamps.
+Test concurrent edits, changed-source/draft invalidation, PostgreSQL transaction behavior, migration preservation, and audit reconstruction before adding HTTP mutations in a later issue.
 The full backend goal remains incomplete, including real contract evidence, fee integration, reviews, actual streams, operational monitoring, staging and recovery validation.
 
 ## Historical foundation handoff
