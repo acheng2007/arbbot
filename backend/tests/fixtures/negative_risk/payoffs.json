@@ -1,0 +1,199 @@
+{
+  "conversion": {
+    "source": "https://github.com/Polymarket/neg-risk-ctf-adapter/blob/main/docs/NegRiskAdapter.md",
+    "rule": "Converting amount of m NO tokens in a group of n questions burns those NO tokens and returns amount of each of the n-m complementary YES tokens plus amount*(m-1) collateral. An optional fee rate reduces the YES output.",
+    "cases": [
+      {
+        "name": "no_fee",
+        "questions": 5,
+        "converted": 2,
+        "amount": "1",
+        "fee_bips": 0,
+        "states": {
+          "winner_inside_converted_set": {
+            "held_no": "1",
+            "after_conversion": "1"
+          },
+          "winner_outside_converted_set": {
+            "held_no": "2",
+            "after_conversion": "2"
+          },
+          "no_winner": {
+            "held_no": "2",
+            "after_conversion": "1"
+          }
+        }
+      },
+      {
+        "name": "one_percent_conversion_fee",
+        "questions": 5,
+        "converted": 2,
+        "amount": "1",
+        "fee_bips": 100,
+        "states": {
+          "winner_inside_converted_set": {
+            "held_no": "1",
+            "after_conversion": "1"
+          },
+          "winner_outside_converted_set": {
+            "held_no": "2",
+            "after_conversion": "1.99"
+          },
+          "no_winner": {
+            "held_no": "2",
+            "after_conversion": "1"
+          }
+        }
+      },
+      {
+        "name": "three_of_seven_no_fee",
+        "questions": 7,
+        "converted": 3,
+        "amount": "4",
+        "fee_bips": 0,
+        "states": {
+          "winner_inside_converted_set": {
+            "held_no": "8",
+            "after_conversion": "8"
+          },
+          "winner_outside_converted_set": {
+            "held_no": "12",
+            "after_conversion": "12"
+          },
+          "no_winner": {
+            "held_no": "12",
+            "after_conversion": "8"
+          }
+        }
+      }
+    ]
+  },
+  "pairs": [
+    {
+      "name": "fed_october_25bps_bucket",
+      "left_id": "kalshi:KXFEDDECISION-26OCT-C25",
+      "right_id": "polymarket:2589811",
+      "left_title": "Cut 25bps",
+      "right_title": "25 bps decrease",
+      "why_it_looks_equivalent": "Both name a 25 basis point cut at the October 28, 2026 FOMC decision, with the same decision date and the Federal Reserve as the settlement source.",
+      "states": [
+        {
+          "name": "cut_of_exactly_25_bps",
+          "ordinary": true,
+          "left_yes": "1",
+          "right_yes": "1",
+          "evidence": "Kalshi resolves Yes on a cut of 25bps; Polymarket resolves the 25 bps decrease bracket."
+        },
+        {
+          "name": "no_change",
+          "ordinary": true,
+          "left_yes": "0",
+          "right_yes": "0",
+          "evidence": "Kalshi resolves the Hike of 0bps bucket; Polymarket resolves the No change bracket."
+        },
+        {
+          "name": "cut_of_12_point_5_bps",
+          "ordinary": false,
+          "left_yes": "0",
+          "right_yes": "1",
+          "evidence": "Kalshi rules require a cut of exactly 25bps, so every bucket resolves No. Polymarket rounds a change up to the nearest 25 and explicitly cites a 12.5 bps move resolving the 25 bps bracket."
+        }
+      ],
+      "complementary_under_ordinary_states": true,
+      "directions": {
+        "left_yes_right_no": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "0"
+        },
+        "left_no_right_yes": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "1"
+        }
+      }
+    },
+    {
+      "name": "israel_named_successor",
+      "left_id": "kalshi:KXNEXTISRAELPM-45JAN01-IKAT",
+      "right_id": "polymarket:682719",
+      "left_title": "Israel Katz",
+      "right_title": "Israel Katz",
+      "why_it_looks_equivalent": "Both name Israel Katz as a future Prime Minister of Israel and both are unit binary contracts.",
+      "states": [
+        {
+          "name": "katz_sworn_in_after_the_2026_election",
+          "ordinary": true,
+          "left_yes": "1",
+          "right_yes": "1",
+          "evidence": "Katz succeeds Netanyahu before 2045 and is the Prime Minister sworn in after the 2026 parliamentary election."
+        },
+        {
+          "name": "another_named_candidate_is_sworn_in_and_keeps_the_office",
+          "ordinary": true,
+          "left_yes": "0",
+          "right_yes": "0",
+          "evidence": "A different named candidate takes office after the 2026 election and remains the only successor, so both Katz contracts resolve No."
+        },
+        {
+          "name": "netanyahu_returned_in_2026_then_katz_succeeds_him_in_2031",
+          "ordinary": false,
+          "left_yes": "1",
+          "right_yes": "0",
+          "evidence": "Netanyahu is returned to office after the 2026 election, so the Polymarket question resolves No and ends on 31 December 2026. The Kalshi event runs until 1 January 2045 and resolves Yes when Katz later succeeds him."
+        }
+      ],
+      "complementary_under_ordinary_states": true,
+      "directions": {
+        "left_yes_right_no": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "1"
+        },
+        "left_no_right_yes": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "0"
+        }
+      }
+    },
+    {
+      "name": "israel_residual_bucket",
+      "left_id": "kalshi:KXNEXTISRAELPM-45JAN01-BSMO",
+      "right_id": "polymarket:682732",
+      "left_title": "Bezalel Smotrich",
+      "right_title": "Other",
+      "why_it_looks_equivalent": "Bezalel Smotrich is not a named Polymarket outcome, so the Polymarket Other bucket is the only question that can pay when he takes office.",
+      "states": [
+        {
+          "name": "smotrich_sworn_in_after_the_2026_election",
+          "ordinary": true,
+          "left_yes": "1",
+          "right_yes": "1",
+          "evidence": "Smotrich is named on Kalshi and is absent from the Polymarket named set, so Other resolves Yes."
+        },
+        {
+          "name": "netanyahu_stays_prime_minister_after_the_2026_election",
+          "ordinary": true,
+          "left_yes": "0",
+          "right_yes": "0",
+          "evidence": "Netanyahu is a named Polymarket outcome, so Other resolves No and the Smotrich market resolves No."
+        },
+        {
+          "name": "gallant_sworn_in_after_the_2026_election",
+          "ordinary": false,
+          "left_yes": "0",
+          "right_yes": "1",
+          "evidence": "Yoav Gallant is named on Kalshi but absent from the Polymarket named set, so Polymarket Other resolves Yes while the Kalshi Smotrich market resolves No."
+        }
+      ],
+      "complementary_under_ordinary_states": true,
+      "directions": {
+        "left_yes_right_no": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "0"
+        },
+        "left_no_right_yes": {
+          "ordinary_only_worst_payout": "1",
+          "worst_payout": "1"
+        }
+      }
+    }
+  ]
+}

@@ -48,6 +48,7 @@ A narrow implementation is marked complete only at its stated scope.
 ## Backend API and storage
 
 - [x] PostgreSQL models, migrations, source versions, snapshots, and evaluation history.
+- [x] Immutable settlement source artifacts with explicit retrieval failures, bounded documents, and audit history.
 - [x] Read-only market, matching, extraction, opportunity, health, and audit APIs.
 - [x] Pagination, SSE updates, and published OpenAPI schemas.
 - [x] Per-market feed health and suppression of affected opportunities.
@@ -98,6 +99,7 @@ The original parser extracted zero of 63 labeled fields.
 The updated parser extracts 14 correct fields with no incorrect fields in this small sample.
 This is a coverage baseline, not proof of general extraction accuracy or an actionable arbitrage pair.
 
+Settlement source artifacts are now persisted with immutable content, explicit retrieval failures, and audit history, but nothing fetches evidence into that store yet.
 The next backend task is source and series enrichment plus targeted discovery of supported overlapping contracts.
 Kalshi market-level rules in the sample do not independently establish jurisdiction or the source publisher.
 Those fields must remain unknown until the relevant source evidence is ingested.

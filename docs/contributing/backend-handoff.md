@@ -1,5 +1,29 @@
 # Backend production workstream
 
+## Current integration update, 2026-09-21
+
+PR #44 on `backend/1-contract-vocabulary` now integrates main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including landed source storage and the negative-risk assessment.
+The integration had no conflicts and changes no source-storage behavior.
+Reviewed comparison and validation paths for missing fields, legacy loading, exact numeric/instant comparison, and stale review invalidation.
+All 185 backend tests passed on SQLite and isolated PostgreSQL 17, including worker/database/API invalidation when settlement semantics change.
+Ruff lint/format passed; regenerated OpenAPI and definition schemas match committed files.
+Hosted validation is required for this new integration commit.
+Synthetic tests do not establish real cross-exchange equivalence.
+
+Main's source implementation is commit `c07ebb6`, migration `d0cc5e73c848`; use its interface.
+PR #45 is now a competing source implementation and must not be merged blindly.
+Source enrichment is underway on remote branch `data/3-4-source-enrichment`; issue #39 is completed in main.
+Catalog PR #47 integrated the landed source migration and passed 122 tests on each database; hosted run 35560695182 at `b3e83aadd0dfd354237683dbc824c36a8b58e82b` was last observed in progress.
+Fee contracts #46, authentication #48, streams #49, tracing #50 and CI documentation #51 are separate prerequisite PRs.
+The temporary PostgreSQL instance used port 55433; the old service on 55432 is stopped.
+
+Next action: verify hosted checks on the integrated PR #44, then complete its review/merge prerequisite before implementing durable reviews (#16) against version 2 and the landed source interface.
+The full backend goal remains incomplete, including real contract evidence, fee integration, reviews, actual streams, operational monitoring, staging and recovery validation.
+
+## Historical foundation handoff
+
+The following records the initial publication state; the current update above supersedes its next action and dependency status.
+
 The full objective remains active: complete the entire backend end to end for production, testing every increment.
 Neither of the two completed local increments establishes production readiness.
 
