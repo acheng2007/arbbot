@@ -19,6 +19,11 @@ Full PostgreSQL suite after main integration: 122 tests passed in isolated schem
 Both include migration round trips/schema drift, combined filters, literal search escaping, mode isolation, same-leg matching, stale update rejection, API bounds, and family index query-plan checks.
 Ruff lint and formatting pass.
 Hosted CI needs verification for this integration commit.
+Hosted run 35560695182 failed the pre-existing future-quote test because its timestamp was evaluated at module import and ceased to be future-dated on a slow runner.
+Reproduced this with an 11-second collection delay: one failure and two passes.
+The test now derives timestamp offsets from the same explicit evaluation instant; all three delayed cases and all 16 engine tests pass.
+No production quote freshness rules or assertions were weakened.
+This small shared test correction is necessary to verify the integration reliably and is also applied to canonical PR #44.
 No frontend implementation or live contract equivalence is claimed.
 
 Reproduced the combined deployment failure through the migration test: `alembic upgrade head` rejected two heads after main's source migration landed.
