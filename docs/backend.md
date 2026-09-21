@@ -47,6 +47,22 @@ For live containers, use a local Compose override setting both API and worker to
 Do not put secrets in images or source control.
 No adapter places orders or accesses account balances.
 
+## Settlement source evidence
+
+Settlement rules often depend on documents published outside the exchanges, so every retrieval attempt is persisted as an immutable source artifact.
+An artifact records the venue, market, document URL, evidence label, media type, exact bytes, SHA-256 content digest, source timestamp, and receipt timestamp.
+Artifact identifiers are derived from the captured content, so repeating an identical capture records another observation of the same artifact instead of a duplicate row.
+A changed document therefore produces a new artifact and leaves the earlier bytes readable for audit.
+Each artifact also stores the market terms hash that was current when the evidence was captured, so later terms changes can invalidate the reviews that relied on it.
+
+Failed retrievals are stored with the same provenance and an explicit reason, keeping missing evidence visible instead of silently absent.
+`SourceRepository.missing_evidence` reports labels that were never captured, whose most recent observation failed, or whose evidence predates a supplied terms hash.
+Stored documents are bounded by `ARBBOT_SOURCE_MAX_BYTES`, which defaults to 1 MB and cannot exceed the 5 MB ceiling in `arbbot.sources.models`.
+An oversized document is recorded as a `too_large` failure rather than truncated or dropped.
+
+This storage layer does not fetch anything.
+Venue-specific evidence collection and any API exposure are separate tasks.
+
 ## Settlement review
 
 Normalized title similarity and nearby closing dates produce candidates only.
