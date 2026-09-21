@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Numeric, String
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, LargeBinary, Numeric, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -78,3 +78,14 @@ class HealthRecord(Base):
     status: Mapped[str] = mapped_column(String)
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class SourceArtifactRecord(Base):
+    __tablename__ = "source_artifacts"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"))
+    retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    content_digest: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    payload: Mapped[dict] = mapped_column(Document)
+    __table_args__ = (Index("ix_source_history", "market_key", "retrieved_at"),)

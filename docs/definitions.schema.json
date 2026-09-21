@@ -18,8 +18,11 @@
           "type": "string"
         },
         "schema_version": {
-          "const": 1,
           "default": 1,
+          "enum": [
+            1,
+            2
+          ],
           "title": "Schema Version",
           "type": "integer"
         },
@@ -44,7 +47,15 @@
               "outcome_orientation",
               "payout",
               "cancellation",
-              "exceptions"
+              "exceptions",
+              "adjustment",
+              "precision",
+              "rounding",
+              "revision_policy",
+              "observation_start",
+              "observation_end",
+              "observation_start_inclusive",
+              "observation_end_inclusive"
             ]
           },
           "title": "Facts",

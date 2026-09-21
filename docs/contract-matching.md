@@ -139,3 +139,8 @@ No database migration is required.
 
 Version 2 additionally recognizes the exact Kalshi CPI primary-rule pattern covered by the recorded corpus.
 It extracts the reporting period and threshold condition, while leaving jurisdiction, measurement details, and source publisher unknown.
+
+## Version 2 measurement and settlement definitions
+
+See [canonical settlement vocabulary](contract-vocabulary.md) for the new required evidence fields, legacy compatibility, and review invalidation procedure.
+Version 1 definitions remain readable but need an explicit upgrade and a new review before live equivalence can be verified.

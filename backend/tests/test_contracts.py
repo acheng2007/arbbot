@@ -23,11 +23,24 @@ from arbbot.matching.service import match_markets
 def definition(market, **changes):
     values = dict.fromkeys(REQUIRED_FIELDS, "explicit_fixture_condition")
     values.update(operator=">", threshold="3.0", outcome_orientation="yes_if_true")
+    values.update(
+        measurement="year-over-year",
+        adjustment="unadjusted",
+        precision="1",
+        rounding="half_up",
+        revision_policy="initial",
+        timezone="UTC",
+        observation_start="2026-01-01T00:00:00+00:00",
+        observation_end="2026-02-01T00:00:00+00:00",
+        observation_start_inclusive="true",
+        observation_end_inclusive="false",
+    )
     values.update(changes)
     return ContractDefinition(
         market_id=market.id,
         terms_hash=market.terms_hash,
         extractor="test-reviewer",
+        schema_version=2,
         facts={
             name: Fact(value=value, source="rules", quote=market.rules)
             for name, value in values.items()
@@ -69,7 +82,7 @@ async def test_structured_event_retrieves_unrelated_titles(fixture_market):
         ("reference_period", "different_month"),
         ("source", "different_publisher"),
         ("value_version", "revised"),
-        ("timezone", "different_zone"),
+        ("timezone", "America/New_York"),
         ("cancellation", "different_refund"),
         ("outcome_orientation", "yes_if_false"),
     ],

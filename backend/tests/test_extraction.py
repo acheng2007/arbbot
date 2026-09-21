@@ -49,6 +49,14 @@ async def test_partial_definition_has_verbatim_evidence(fixture_market):
         "payout",
         "timezone",
         "observation_window",
+        "adjustment",
+        "precision",
+        "rounding",
+        "revision_policy",
+        "observation_start",
+        "observation_end",
+        "observation_start_inclusive",
+        "observation_end_inclusive",
     } == set(result.missing_fields)
 
 

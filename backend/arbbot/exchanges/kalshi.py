@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from arbbot.config import Settings
 from arbbot.domain import Book, Level, Market, utcnow
 from arbbot.exchanges.base import ExchangeHTTP
+from arbbot.exchanges.kalshi_sources import enrich_kalshi
+from arbbot.sources.fetch import SourceFetcher
 
 BASE = "https://external-api.kalshi.com/trade-api/v2"
 
@@ -19,6 +21,7 @@ class KalshiAdapter:
 
     def __init__(self, http: ExchangeHTTP, settings: Settings):
         self.http = http
+        self.source_fetcher = SourceFetcher()
         self.key_id = settings.kalshi_key_id
         self.tickers = settings.kalshi_tickers
         self.private_key = None
@@ -114,6 +117,9 @@ class KalshiAdapter:
                 )
             },
         )
+
+    async def enrich_sources(self, market, repository):
+        return await enrich_kalshi(market, repository, self.source_fetcher)
 
     async def fetch_book(self, market: Market) -> Book:
         path = f"/markets/{quote(market.external_id, safe='')}/orderbook"

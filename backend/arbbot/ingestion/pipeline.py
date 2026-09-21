@@ -13,6 +13,7 @@ from arbbot.matching.contracts import ContractDefinition
 from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
 from arbbot.quality import book_issue
+from arbbot.sources.repository import SourceRepository
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,28 @@ class Pipeline:
                     except Exception as exc:
                         return exc
 
-            for market in markets:
+            for index, market in enumerate(markets):
                 if market.mode != mode or market.venue != adapter.venue:
                     raise ValueError("Adapter emitted data for the wrong mode or venue")
                 await self.repository.save_market(market)
+                if mode == "live" and hasattr(adapter, "enrich_sources"):
+                    try:
+                        async with asyncio.timeout(30):
+                            market = await adapter.enrich_sources(
+                                market, SourceRepository(self.repository.database)
+                            )
+                    except TimeoutError:
+                        market = market.model_copy(
+                            update={
+                                "settlement_details": {
+                                    **market.settlement_details,
+                                    "source_status": "incomplete",
+                                    "source_issues": ["source_enrichment_timeout"],
+                                }
+                            }
+                        )
+                    markets[index] = market
+                    await self.repository.save_market(market)
             results = await asyncio.gather(*(fetch(market) for market in markets))
             books, errors, market_health = {}, [], []
             for market, result in zip(markets, results, strict=True):

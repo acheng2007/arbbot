@@ -1,0 +1,9 @@
+[
+  {
+    "file": "market.json",
+    "url": "https://gamma-api.polymarket.com/markets/4469383",
+    "saved_at": "2026-09-21T02:56:36.555883+00:00",
+    "sha256": "f6f239c96b713cc43d3ec1c9944c8d142afc8310a213c2c1ac9803cfdf445669",
+    "kind": "recorded_public_http_response"
+  }
+]
