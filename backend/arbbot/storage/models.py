@@ -1,7 +1,18 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Numeric, String, false
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    Numeric,
+    String,
+    false,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -39,6 +50,36 @@ class MarketVersionRecord(Base):
     market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
     terms_hash: Mapped[str] = mapped_column(String, index=True)
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class SourceArtifactRecord(Base):
+    """One immutable retrieval attempt for settlement source evidence.
+
+    Content never changes for a given id; a changed document is stored as an
+    additional row so earlier evidence remains auditable.
+    """
+
+    __tablename__ = "source_artifacts"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    venue: Mapped[str] = mapped_column(String, index=True)
+    url: Mapped[str] = mapped_column(String, index=True)
+    label: Mapped[str] = mapped_column(String, index=True)
+    status: Mapped[str] = mapped_column(String, index=True)
+    content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    content_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    content_digest: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
+    byte_size: Mapped[int] = mapped_column(Integer)
+    source_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    detail: Mapped[str | None] = mapped_column(String, nullable=True)
+    status_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    market_terms_hash: Mapped[str] = mapped_column(String, index=True)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    observations: Mapped[int] = mapped_column(Integer)
+    details: Mapped[dict] = mapped_column(Document)
+    __table_args__ = (Index("ix_source_evidence", "market_key", "label", "last_seen_at"),)
 
 
 class MatchRecord(Base):

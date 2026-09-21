@@ -2,7 +2,7 @@
 
 The full backend production goal remains active; this increment implements issue #20.
 Workspace: `/private/tmp/arbbot-backend-catalog`.
-Branch: `backend/20-catalog-filtering`, based on `origin/main` at `d065906`.
+Branch: `backend/20-catalog-filtering`, integrating `origin/main` at `98f2791`.
 Published draft PR: https://github.com/acheng2007/arbbot/pull/47.
 
 ## Completed and validation
@@ -14,24 +14,28 @@ Necessary integration edits are repository projection writes, storage model regi
 `docs/catalog-api.md` explains filtering semantics, migration refresh behavior, and limitations.
 The test package declaration supports helper imports under the documented pytest invocation, as learned from hosted CI on the earlier PRs.
 
-Full SQLite suite: 90 tests passed.
-Full PostgreSQL suite: 90 tests passed in isolated schemas.
+Full SQLite suite after main integration: 122 tests passed.
+Full PostgreSQL suite after main integration: 122 tests passed in isolated schemas on a disposable PostgreSQL 17 instance.
 Both include migration round trips/schema drift, combined filters, literal search escaping, mode isolation, same-leg matching, stale update rejection, API bounds, and family index query-plan checks.
 Ruff lint and formatting pass.
-Hosted CI for this branch has not yet been verified.
+Hosted CI needs verification for this integration commit.
 No frontend implementation or live contract equivalence is claimed.
+
+Reproduced the combined deployment failure through the migration test: `alembic upgrade head` rejected two heads after main's source migration landed.
+Resolved the storage import conflict by retaining both source and catalog declarations.
+Reparented the unmerged catalog migration onto main's `d0cc5e73c848`; did not modify the landed source migration.
+The migration regression now captures source evidence and proves it survives catalog downgrade to the source revision and re-upgrade.
+Alembic reports one head, and generated OpenAPI remains unchanged.
+The old database service on port 55432 was stopped; the first PostgreSQL attempt failed at connection setup, so validation used a separate temporary database on port 55433.
 
 ## Related backend progress
 
-Draft PR #44 contains canonical definitions; draft PR #45 contains source evidence storage.
-Both passed hosted CI after adding missing test package declarations.
-Draft PR #46 contains fee contracts and passed hosted run 35522949867 at `dae27c3`.
-An additional fee bug was reproduced through FeeRequest: the existing adapter's `pUSD` asset was rejected by an uppercase-only pattern.
-Commit `ca90c78` preserves mixed-case identifiers, includes a regression test, and passed all 24 focused fee tests; its hosted follow-up still needs verification.
-The fee worktree is `/private/tmp/arbbot-backend-fees`.
-
-The source and catalog migrations currently both descend from `a2a3099f82df` because they are independent unmerged PRs.
-Before merging the second schema PR, rebase its migration parent onto the reviewed merged revision and recheck the combined migration graph.
+Main contains source storage from a separate implementation and the completed negative-risk assessment (#39).
+Use main's source interfaces; PR #45 competes with that implementation and must not be merged blindly.
+Source enrichment is in progress on remote branch `data/3-4-source-enrichment`.
+Canonical definitions #44, fees #46, authentication #48, streams #49, tracing #50, and CI documentation #51 remain separate PRs.
+Tracing hosted run 35540033344 passed at `f94f205ad0b66f41b3472d1aec5df149ffd8f257`.
+CI documentation hosted run 35540098757 passed at `e5a64cd0fb252893f06803bd058b640a43cb5bda` before its handoff-only update.
 Do not merge unreviewed branches.
 
 Source enrichment, supported pair discovery/corpus, expanded extraction, exceptional settlements, exchange fee policies/slippage, reviews/authentication, streams/recovery/revalidation, observability, deployment, and backup rehearsal remain.
@@ -39,5 +43,5 @@ Automatic trading, custody, transfers, and private-account access remain out of 
 
 ## Next action
 
-Verify catalog PR #47 and fee follow-up hosted checks, then implement dependency-free authentication and reviewer authorization (#17) on a new issue branch.
+Verify the integrated catalog PR #47's hosted checks, then review and reconcile remaining prerequisite branches against current main without duplicating the source-enrichment workstream.
 Use `docs/contributing/README.md` for the complete production dependency map.
