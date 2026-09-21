@@ -1,5 +1,21 @@
 # Backend fee workstream handoff
 
+## Current integration review, 2026-09-21
+
+Integrated main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including the landed source-storage interface and completed negative-risk assessment.
+No integration conflicts or new product behavior were introduced.
+Applied the shared future-quote test correction already reproduced with delayed collection in PRs #44/#47.
+All 131 tests passed on SQLite and 131 on isolated PostgreSQL 17; Ruff lint and format checks passed.
+These results include the existing foundation tests together with main's source and negative-risk coverage.
+Hosted checks must verify the new integration commit before merge.
+The previous PostgreSQL service remains stopped; tests used a disposable instance on port 55433.
+
+Merge authorization for foundation PRs #44 and #46 through #51 remains pending.
+Source PR #45 is excluded because a separate source implementation already landed in main.
+Next action: verify #46's new hosted checks, finish its review, and merge only after authorization; then advance venue-specific fee policies #12/#13.
+The full backend production goal remains active and incomplete.
+The historical details below are superseded where this update gives a newer base, validation result, or next action.
+
 The full backend production goal remains active.
 This increment implements issue #11 only; exchange policies and engine integration are still required.
 Workspace: `/private/tmp/arbbot-backend-fees`.
