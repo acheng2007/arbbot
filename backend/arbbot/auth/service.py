@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, computed_field
 
 from arbbot.domain import digest
 
+JWKS_FETCH_TIMEOUT_SECONDS = 5.0
+
 
 class InvalidCredentials(Exception):
     pass
@@ -62,7 +64,10 @@ class Authenticator:
                     limits=httpx.Limits(max_connections=5, max_keepalive_connections=2),
                 )
             try:
-                async with self.client.stream("GET", self.settings.auth_jwks_url) as response:
+                async with (
+                    asyncio.timeout(JWKS_FETCH_TIMEOUT_SECONDS),
+                    self.client.stream("GET", self.settings.auth_jwks_url) as response,
+                ):
                     response.raise_for_status()
                     body = bytearray()
                     async for chunk in response.aiter_bytes():
@@ -99,7 +104,14 @@ class Authenticator:
                     keys[name] = key
                 if not keys:
                     raise ValueError("No supported signing keys")
-            except (httpx.HTTPError, ValueError, KeyError, TypeError, jwt.PyJWTError) as exc:
+            except (
+                httpx.HTTPError,
+                TimeoutError,
+                ValueError,
+                KeyError,
+                TypeError,
+                jwt.PyJWTError,
+            ) as exc:
                 raise IdentityUnavailable from exc
             self.keys = keys
             self.expires = self.clock() + self.settings.auth_jwks_ttl_seconds

@@ -48,7 +48,10 @@ Responses do not disclose raw provider errors or token content.
 
 The asynchronous JWKS cache defaults to 300 seconds (`ARBBOT_AUTH_JWKS_TTL_SECONDS`, 30 to 3600).
 Unknown keys can cause a refresh at most once per 30 seconds (`ARBBOT_AUTH_REFRESH_SECONDS`, 1 to 300 and never above the TTL).
-Concurrent refreshes share a lock; JWKS retrieval has a five-second timeout, 256 KiB body limit, and at most 64 keys.
+Concurrent refreshes share a lock; JWKS retrieval has a five-second total network deadline, 256 KiB body limit, and at most 64 keys.
+The total deadline covers connection establishment and the entire response stream in addition to HTTPX's individual timeouts.
+HTTPX's [read timeout limits waiting for each chunk](https://www.python-httpx.org/advanced/timeouts/), so it alone cannot bound a response that continuously sends small chunks.
+On total timeout, callers receive the existing identity-unavailable response, the refresh lock is released, and retry throttling remains in effect before recovery.
 Only RSA signing/verification keys from 2048 through 8192 bits are accepted; duplicate identifiers and private-key material invalidate the key set.
 A provider should publish replacement keys before using them and overlap old keys through outstanding token lifetimes.
 An unknown new key can be rejected until the refresh cooldown ends.

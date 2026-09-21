@@ -1,5 +1,26 @@
 # Backend authentication handoff
 
+## Current integration and review update, 2026-09-21
+
+Integrated main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including landed source storage and the negative-risk assessment.
+Reproduced a slow JWKS response through the API: continuously arriving chunks kept concurrent authentication calls waiting beyond the intended timeout.
+Added a five-second total retrieval deadline alongside HTTPX timeouts; timeout becomes 503, closes the response, releases the refresh lock, and permits later recovery after cooldown.
+The regression exercises concurrent callers and successful authentication after the provider recovers.
+All 141 tests passed on SQLite and isolated PostgreSQL 17; all 34 focused authentication tests passed.
+Ruff lint/format passed.
+Also applied the already reproduced shared future-quote test correction from PRs #44/#47, keeping quote timestamps relative to one explicit evaluation instant.
+This changes test determinism only, not quote eligibility behavior.
+Hosted CI must verify this updated commit before merge.
+
+Canonical PR #44's latest handoff commit `6b708bef3fe2bc5a86f18a6c8a8b176ee23f9778` passed hosted run 35561251633.
+PRs #44 and #47 are ready for review; merge authorization for foundation PRs #44 and #46 through #51 remains pending.
+PR #45 is excluded because source storage already landed through a separate implementation.
+Next action: verify this auth PR's latest hosted run, then finish reviewing/merging authorized prerequisites and implement durable review storage #16 once #44 lands.
+
+## Historical implementation record
+
+The current update above supersedes earlier base, test-count and next-step details below.
+
 The complete backend production goal remains active.
 This increment implements issue #17 only; review persistence/mutations and real provider deployment remain unfinished.
 Workspace: `/private/tmp/arbbot-backend-auth`.

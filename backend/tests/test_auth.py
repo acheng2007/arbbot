@@ -20,6 +20,44 @@ ISSUER = "https://identity.example.test/"
 AUDIENCE = "arbbot-api"
 
 
+async def test_slow_jwks_has_total_deadline_and_releases_waiters(
+    protected_app, signing_keys, monkeypatch
+):
+    app, client = protected_app
+    closed = asyncio.Event()
+
+    class SlowKeys(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            while True:
+                yield b" "
+                await asyncio.sleep(0.005)
+
+        async def aclose(self):
+            closed.set()
+
+    await app.state.authenticator.client.aclose()
+    app.state.authenticator.client = httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(200, stream=SlowKeys()))
+    )
+    monkeypatch.setattr("arbbot.auth.service.JWKS_FETCH_TIMEOUT_SECONDS", 0.03, raising=False)
+    headers = {"Authorization": "Bearer " + access_token(signing_keys[0])}
+    async with asyncio.timeout(0.5):
+        responses = await asyncio.gather(
+            *(client.get("/api/v1/auth/me", headers=headers) for _ in range(2))
+        )
+    assert [r.status_code for r in responses] == [503, 503]
+    assert closed.is_set()
+    assert not app.state.authenticator.lock.locked()
+    await app.state.authenticator.client.aclose()
+    app.state.authenticator.clock = lambda: time.monotonic() + 60
+    app.state.authenticator.client = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, json={"keys": [public_key(signing_keys[0])]})
+        )
+    )
+    assert (await client.get("/api/v1/auth/me", headers=headers)).status_code == 200
+
+
 @pytest.fixture(scope="module")
 def signing_keys():
     return [rsa.generate_private_key(public_exponent=65537, key_size=2048) for _ in range(2)]

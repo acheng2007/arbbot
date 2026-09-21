@@ -7,13 +7,15 @@ This index records dependency and file boundaries at publication time.
 
 ## Work on Data and Matching first
 
-**Start with [#2](https://github.com/acheng2007/arbbot/issues/2): persist settlement source artifacts.**
+[#2](https://github.com/acheng2007/arbbot/issues/2) is implemented: settlement source artifacts persist with immutable content, explicit retrieval failures, and audit history.
+**Start with [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4), which capture real evidence into that store.**
 In parallel, complete [#1](https://github.com/acheng2007/arbbot/issues/1) to define the canonical measurement and settlement fields.
 These are the foundation for deciding whether real contracts describe compatible payouts.
+The [data workstream handoff](data-handoff.md) records what source storage already provides and how the enrichment issues should use it.
 
 Recommended order within this first section:
 
-1. [#2](https://github.com/acheng2007/arbbot/issues/2) and [#1](https://github.com/acheng2007/arbbot/issues/1): establish source storage and canonical definitions in separate PRs.
+1. [#2](https://github.com/acheng2007/arbbot/issues/2) established source storage; complete [#1](https://github.com/acheng2007/arbbot/issues/1) for canonical definitions in its own PR.
 2. [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4): enrich Kalshi and Polymarket evidence after [#2](https://github.com/acheng2007/arbbot/issues/2); the venue-specific work can run in parallel.
 3. [#5](https://github.com/acheng2007/arbbot/issues/5): discover supported overlapping events after both enrichment issues.
 4. [#6](https://github.com/acheng2007/arbbot/issues/6): label and validate cross-exchange pairs after [#5](https://github.com/acheng2007/arbbot/issues/5) and [#1](https://github.com/acheng2007/arbbot/issues/1).
@@ -42,7 +44,6 @@ Follow the order above and check the issue for current ownership before starting
 | Issue | Workstream | Task |
 | --- | --- | --- |
 | [#1](https://github.com/acheng2007/arbbot/issues/1) | Matching | Version canonical measurement and settlement definitions |
-| [#2](https://github.com/acheng2007/arbbot/issues/2) | Data | Persist immutable settlement source artifacts |
 | [#11](https://github.com/acheng2007/arbbot/issues/11) | Arbitrage | Define a versioned fee quote interface |
 | [#17](https://github.com/acheng2007/arbbot/issues/17) | Backend | Add authentication and reviewer authorization |
 | [#20](https://github.com/acheng2007/arbbot/issues/20) | Backend | Add market and match search and filtering |
