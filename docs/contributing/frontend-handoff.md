@@ -78,15 +78,11 @@ The real FastAPI service on port 8011 was verified through the browser using a n
 Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
 No hosted frontend CI claim is made; CI remains issue #33.
 
-Publication status: branch pushed successfully; no PR has been created.
-Automatic approval review rejected PR creation because it did not recognize trusted authorization for external publication to GitHub.
-The review explicitly requires user approval before retrying; do not bypass it through another tool.
-
-The #21 PR has still not been opened; that branch remains the review baseline for everything below.
+Publication status: [PR #43](https://github.com/acheng2007/arbbot/pull/43) is merged into `main`, and issue #21 is closed.
 
 ## Current delivery: issues #22, #23, #24, #26
 
-Branch: `frontend/read-only-screens`, stacked on `frontend/21-web-foundation` because #21 is unmerged.
+Branch: `frontend/read-only-screens`, targeting `main` now that #21 is merged.
 The user asked for as much backend-free frontend as possible and explicitly allowed several issues in one pull request.
 
 Issue #22, generated client and data access.
@@ -133,11 +129,11 @@ No hosted CI claim is made.
 Issue #25, authenticated draft editing and review actions, is not started.
 It depends on backend review mutations and authorization (#18, #19) that do not exist, and mock approvals must not be presented as real approvals.
 
-Issue #33, frontend CI and the seeded full-workflow browser test, is not started.
-It depends on #25 and on hosted backend CI (#32), and its contract requires Playwright against a seeded backend rather than fixtures.
+Issue #33 has partial backend-independent work on `frontend/33-ci-fixtures`.
+Hosted backend CI dependency #32 is closed, but the full contract still depends on #25 and requires authenticated review actions against a seeded backend rather than fixtures.
 
 Publication status: `frontend/read-only-screens` is pushed to `origin`.
-The GitHub CLI was installed, but `gh auth status` reports that no GitHub host is authenticated, so no pull request was opened and no issues were closed.
+The GitHub CLI is authenticated as `acheng2007`.
 
-Next action: authenticate `gh` for `github.com`, open the pending #21 pull request from `frontend/21-web-foundation` into `frontend/workstream`, then open `frontend/read-only-screens` into `frontend/21-web-foundation` with `Closes #22`, `Closes #23`, `Closes #24`, and `Closes #26` in the body.
-After that, #25 remains blocked on backend #18 and #19, and #33 remains blocked on #25 and #32.
+Next action: open `frontend/read-only-screens` into `main` with `Closes #22`, `Closes #23`, `Closes #24`, and `Closes #26` in the body, then open `frontend/33-ci-fixtures` into `frontend/read-only-screens` as partial #33 work without closing the issue.
+Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
