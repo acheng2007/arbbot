@@ -78,15 +78,11 @@ The real FastAPI service on port 8011 was verified through the browser using a n
 Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
 No hosted frontend CI claim is made; CI remains issue #33.
 
-Publication status: branch pushed successfully; no PR has been created.
-Automatic approval review rejected PR creation because it did not recognize trusted authorization for external publication to GitHub.
-The review explicitly requires user approval before retrying; do not bypass it through another tool.
-
-The #21 PR has still not been opened; that branch remains the review baseline for everything below.
+Publication status: [PR #43](https://github.com/acheng2007/arbbot/pull/43) is merged into `main`, and issue #21 is closed.
 
 ## Current delivery: issues #22, #23, #24, #26
 
-Branch: `frontend/read-only-screens`, stacked on `frontend/21-web-foundation` because #21 is unmerged.
+Branch: `frontend/read-only-screens`, targeting `main` now that #21 is merged.
 The user asked for as much backend-free frontend as possible and explicitly allowed several issues in one pull request.
 
 Issue #22, generated client and data access.
@@ -134,17 +130,17 @@ Issue #25, authenticated draft editing and review actions, is not started.
 It depends on backend review mutations and authorization (#18, #19) that do not exist, and mock approvals must not be presented as real approvals.
 
 Issue #33, frontend CI and the seeded full-workflow browser test, is only partially implemented.
-Its complete contract depends on #25 and hosted backend CI (#32), and requires Playwright against a seeded backend rather than fixtures.
+Hosted backend CI dependency #32 is closed, but the full contract still depends on #25 and requires authenticated review actions against a seeded backend rather than fixtures.
 
-Publication status: `frontend/read-only-screens` is pushed to `origin`.
-The GitHub CLI was installed, but `gh auth status` reports that no GitHub host is authenticated, so no pull request was opened and no issues were closed.
+Publication status: `frontend/read-only-screens` is published as [PR #53](https://github.com/acheng2007/arbbot/pull/53) into `main`.
+The GitHub CLI is authenticated as `acheng2007`.
 
 Partial issue #33 work is on `frontend/33-ci-fixtures`, stacked on `frontend/read-only-screens`.
 `.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks in parallel jobs.
 The browser job installs Chromium with its system dependencies, uses recorded fixtures without credentials or a backend, and uploads `apps/web/test-results` for 14 days on failure.
 Playwright retains traces, screenshots, and video for failed checks.
 `apps/web/e2e/workspace.spec.ts` covers the integrated backend-free journey from market source evidence through the recorded comparison review to an opportunity's cost, payout, and execution assumptions on desktop and mobile Chromium.
-This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25 and #32.
+This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25.
 
-Next action: authenticate `gh` for `github.com`, open the pending #21 pull request from `frontend/21-web-foundation` into `frontend/workstream`, open `frontend/read-only-screens` into `frontend/21-web-foundation` with `Closes #22`, `Closes #23`, `Closes #24`, and `Closes #26` in the body, then open `frontend/33-ci-fixtures` into `frontend/read-only-screens` as a partial #33 PR that does not close the issue.
-After that, #25 remains blocked on backend #18 and #19, and #33 remains blocked on #25 and #32.
+Next action: open `frontend/33-ci-fixtures` into `frontend/read-only-screens` as partial #33 work without closing the issue.
+Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
