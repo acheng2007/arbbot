@@ -1,5 +1,21 @@
 # Backend stream handoff
 
+## Current integration review, 2026-09-21
+
+Integrated main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including the landed source-storage interface and completed negative-risk assessment.
+No integration conflicts or new product behavior were introduced.
+Applied the shared future-quote test correction already reproduced with delayed collection in PRs #44/#47.
+All 121 tests passed on SQLite and 121 on isolated PostgreSQL 17; Ruff lint and format checks passed.
+These results include the existing foundation tests together with main's source and negative-risk coverage.
+Hosted checks must verify the new integration commit before merge.
+The previous PostgreSQL service remains stopped; tests used a disposable instance on port 55433.
+
+The user explicitly authorized reviewing and merging passing foundation PRs #44 and #46 through #51.
+Source PR #45 is excluded because a separate source implementation already landed in main.
+Next action: verify #49's new hosted checks, finish its review, and merge only after authorization; then advance venue stream adapters #28/#29.
+The full backend production goal remains active and incomplete.
+The historical details below are superseded where this update gives a newer base, validation result, or next action.
+
 ## Completed
 
 Branch: `backend/27-stream-contract`, based on `origin/main` at `d065906343a3dde228a9068e115c3ff74fa381de`.
