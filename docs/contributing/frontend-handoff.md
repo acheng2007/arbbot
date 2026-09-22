@@ -142,6 +142,7 @@ The GitHub CLI was installed, but `gh auth status` reports that no GitHub host i
 Partial issue #33 work is on `frontend/33-ci-fixtures`, stacked on `frontend/read-only-screens`.
 `.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks in parallel jobs.
 The browser job installs Chromium with its system dependencies, uses recorded fixtures without credentials or a backend, and uploads `apps/web/test-results` for 14 days on failure.
+`apps/web/e2e/workspace.spec.ts` covers the integrated backend-free journey from market source evidence through the recorded comparison review to an opportunity's cost, payout, and execution assumptions on desktop and mobile Chromium.
 This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25 and #32.
 
 Next action: authenticate `gh` for `github.com`, open the pending #21 pull request from `frontend/21-web-foundation` into `frontend/workstream`, open `frontend/read-only-screens` into `frontend/21-web-foundation` with `Closes #22`, `Closes #23`, `Closes #24`, and `Closes #26` in the body, then open `frontend/33-ci-fixtures` into `frontend/read-only-screens` as a partial #33 PR that does not close the issue.
