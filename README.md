@@ -181,6 +181,11 @@ Use `npm run build` followed by `npm start` to run the production application.
 Shared shadcn-style primitives and theme tokens live in `src/components/ui` and `src/app/globals.css`; `components.json` configures future shadcn additions.
 Feature screens live under `src/features`, with routes in `src/app`.
 
+The frontend workflow in `.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks.
+It retains Playwright traces and screenshots when a browser job fails.
+These checks use recorded fixtures and require no exchange credentials.
+The fixture-backed workflow does not replace the future seeded-backend review-to-opportunity test.
+
 | Route | Purpose |
 | --- | --- |
 | `/opportunities` | Backend-calculated estimates with costs, payout scenarios, expiry, and live connection status |
