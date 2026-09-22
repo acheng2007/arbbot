@@ -38,15 +38,19 @@ async def test_capital_bound_sizes_down(fixture_market):
 @pytest.mark.parametrize(
     "change,expected",
     [
-        ({"received_at": utcnow() - timedelta(minutes=2), "source_at": None}, "book_stale"),
-        ({"source_at": utcnow() + timedelta(seconds=10)}, "book_from_future"),
+        ({"received_at": -timedelta(minutes=2), "source_at": None}, "book_stale"),
+        ({"source_at": timedelta(seconds=10)}, "book_from_future"),
         ({"mode": "live"}, "book_mode_mismatch"),
     ],
 )
 async def test_bad_quotes_block_evaluation(fixture_market, change, expected):
-    markets, books, _, _ = fixture_market
+    markets, books, _, match = fixture_market
+    now = utcnow()
+    change = {
+        key: now + value if isinstance(value, timedelta) else value for key, value in change.items()
+    }
     books[markets[0].id] = books[markets[0].id].model_copy(update=change)
-    result = calculate(fixture_market)
+    result = evaluate(match, *markets, books, Settings(_env_file=None), now)
     assert not result.opportunities
     assert any(expected in reason for reason in result.blocked_reasons)
 
