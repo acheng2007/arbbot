@@ -13,7 +13,9 @@ Use the landed source interfaces.
 
 Workspace: `/private/tmp/arbbot-backend-integration`, initially detached from main for the authorized merge sequence.
 All new local merge commits use the configured user's author and committer identity, verified after each commit.
-The current commit is prepared for a normal fast-forward push to main; do not force-push over concurrent changes.
+The integration was published with a normal fast-forward push to main at `8ef8453b25b121040fee73db5e36187ff0a33330`.
+GitHub confirms all authorized foundation PRs are merged.
+The combined main push passed hosted backend checks in run [35679932708](https://github.com/acheng2007/arbbot/actions/runs/35679932708).
 No orders, custody, fund transfers, or private account access are authorized.
 
 ## Review and validation
@@ -39,7 +41,7 @@ The earlier disposable `arbbot-foundation-tests` container may still exist becau
 
 ## Next action
 
-Verify the main push's hosted checks, then implement durable definition drafts and review revisions in issue #16 on a focused branch from current main.
+Implement durable definition drafts and review revisions in issue #16 on a focused branch from current main.
 Its prerequisites #1 and #2 are now landed.
 Bind immutable review history to exact terms, definition hashes, source versions, actors and timestamps; use compare-and-swap updates for editable draft heads.
 Test concurrent edits, stale source/draft invalidation, PostgreSQL transactions, migration preservation, and audit reconstruction.
