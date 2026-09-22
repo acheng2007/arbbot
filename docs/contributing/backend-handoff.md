@@ -1,86 +1,55 @@
-# Backend production workstream
+# Backend production handoff
 
-## Current integration update, 2026-09-21
+The active goal is to complete the backend end to end for production, testing when necessary.
+The goal remains incomplete.
 
-PR #44 on `backend/1-contract-vocabulary` now integrates main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including landed source storage and the negative-risk assessment.
-The integration had no conflicts and changes no source-storage behavior.
-Reviewed comparison and validation paths for missing fields, legacy loading, exact numeric/instant comparison, and stale review invalidation.
-All 185 backend tests passed on SQLite and isolated PostgreSQL 17, including worker/database/API invalidation when settlement semantics change.
-Ruff lint/format passed; regenerated OpenAPI and definition schemas match committed files.
-Hosted validation is required for this new integration commit.
-Update: corrected commit `9c181823589aef609512bf575e8ee7fcb2f69a0f` passed all hosted gates in run 35561085871, including both 185-test database suites, migrations, corpus replay, and schema drift checks.
-PR #44 is marked ready for review; there are no submitted reviews.
-Catalog commit `6fbcabe4843ed425e0202e344fd27f72f8da0b8f` also passed all hosted gates in run 35561081075 and PR #47 is ready for review.
-Merge authorization for completed foundation PRs #44 and #46 through #51 has been requested and remains pending; #45 is explicitly excluded.
-The catalog hosted run exposed a shared future-quote test using an import-time timestamp.
-An 11-second collection delay reproduced its failure; the same delay passes after deriving timestamp offsets from a single explicit evaluation instant.
-Applied that shared test-only correction here as well; all 16 engine tests pass and financial behavior is unchanged.
-Synthetic tests do not establish real cross-exchange equivalence.
+## Integrated foundations
 
-Main's source implementation is commit `c07ebb6`, migration `d0cc5e73c848`; use its interface.
-PR #45 is now a competing source implementation and must not be merged blindly.
-Source enrichment is underway on remote branch `data/3-4-source-enrichment`; issue #39 is completed in main.
-Catalog PR #47 integrated the landed source migration and passed 122 tests on each database; hosted run 35560695182 at `b3e83aadd0dfd354237683dbc824c36a8b58e82b` was last observed in progress.
-Fee contracts #46, authentication #48, streams #49, tracing #50 and CI documentation #51 are separate prerequisite PRs.
-The temporary PostgreSQL instance used port 55433; the old service on 55432 is stopped.
+The user explicitly authorized reviewing and merging passing PRs #44 and #46 through #51.
+PRs #44 (canonical definitions) and #47 (catalog filtering) landed externally in main at `f91a639a809db8c6562b1793028aa693d7e97f3f`.
+This integration adds #46 (fee contracts), #48 (authentication), #49 (stream contracts), #50 (tracing), and #51 (hosted CI evidence).
+PR #45 is excluded because main already contains a separate source-storage implementation at `c07ebb6`, migration `d0cc5e73c848`.
+Use the landed source interfaces.
 
-Next action: verify hosted checks on the integrated PR #44, then complete its review/merge prerequisite before implementing durable reviews (#16) against version 2 and the landed source interface.
-Once merge authorization is received, finish reviewing and merge passing prerequisites, then implement #16 with compare-and-swap draft revisions, immutable review history, and bindings to exact terms, definition hashes, source versions, actor and timestamps.
-Test concurrent edits, changed-source/draft invalidation, PostgreSQL transaction behavior, migration preservation, and audit reconstruction before adding HTTP mutations in a later issue.
-The full backend goal remains incomplete, including real contract evidence, fee integration, reviews, actual streams, operational monitoring, staging and recovery validation.
+Workspace: `/private/tmp/arbbot-backend-integration`, initially detached from main for the authorized merge sequence.
+All new local merge commits use the configured user's author and committer identity, verified after each commit.
+The current commit is prepared for a normal fast-forward push to main; do not force-push over concurrent changes.
+No orders, custody, fund transfers, or private account access are authorized.
 
-## Historical foundation handoff
+## Review and validation
 
-The following records the initial publication state; the current update above supersedes its next action and dependency status.
+Every merged feature head passed hosted backend checks before publication:
+- Fees: `52cdafb34bb207509a46b6533bffc1f79dc27c07`, run 35679642080.
+- Authentication: `ce0d0fa613ab9851ecb0680c417be3a40f926cb2`, run 35679646371.
+- Streams: `20b3421ddfceda98a2d3bced55a6da3eeedc463a`, run 35679650092.
+- Tracing: `4055684c15be26fc8522e234ac9da939a5decf53`, run 35679653623.
+- CI documentation: `2ceacedc5ea759d84b572b61f0f2411ac829f5be`, run 35679660358.
 
-The full objective remains active: complete the entire backend end to end for production, testing every increment.
-Neither of the two completed local increments establishes production readiness.
+Hosted checks include SQLite, PostgreSQL, migrations, recorded corpus output, and generated-schema drift.
+The combined local tree passes all 284 SQLite tests, Ruff lint/format, and OpenAPI comparison.
+Authentication/tracing merge conflicts were resolved by retaining both configurations, dependencies, API state and cleanup.
+A regression proves tracing shutdown flushes its pending request even if authenticator cleanup raises.
+The API returns the expected unauthenticated response with trace correlation when tracing is enabled.
 
-## Workspaces and completed work
-
-- `/private/tmp/arbbot-backend-contracts`, branch `backend/1-contract-vocabulary`: version 2 canonical measurement and settlement vocabulary, conservative unknown handling, legacy-definition loading, review invalidation, regenerated schemas, and migration documentation.
-- `/private/tmp/arbbot-backend-production`, branch `backend/2-source-artifacts`: immutable source documents, idempotent captures, explicit retrieval failures, size bounds, database immutability triggers, and additive migration.
-
-Both are focused issue branches; neither is merged into main.
-Published draft PRs: [#44](https://github.com/acheng2007/arbbot/pull/44) for definitions and [#45](https://github.com/acheng2007/arbbot/pull/45) for source evidence.
-Both branches were rebased onto current remote main before publication; upstream changes were frontend/documentation only.
-Remote main was fetched at `d065906`, including merged frontend PR #43.
-GitHub issues #1, #2, and #11 were verified open and unassigned using the GitHub connector.
-The CLI is unavailable, but the connector provides repository access.
-The frontend worktree and its user changes remain intact.
-
-## Validation evidence
-
-Canonical-definition branch: 153 tests passed independently on SQLite and PostgreSQL, including worker-to-database-to-API invalidation after seasonal adjustment changes.
-Every required field is tested both omitted and explicitly unknown; neither case can establish compatible settlement.
-Legacy hashes remain stable, while upgraded definitions require fresh review hashes.
-Ruff lint and formatting passed.
-Hosted run 35522583045 failed collecting `tests.test_contracts` because tests lacked a package declaration; local PYTHONPATH had masked this.
-Added `backend/tests/__init__.py` so the documented pytest command discovers shared helpers without that environment override; hosted revalidation is pending.
-OpenAPI and definition schemas were regenerated; the review schema was regenerated and unchanged.
-Recorded corpus replay remains 14 correct fields, zero incorrect, across nine fixtures and 63 labels.
-No live-equivalence claim follows from the synthetic integration tests.
-
-Source branch: 87 tests passed on SQLite and PostgreSQL, including migration round trips, drift checks, concurrent retries, and database mutation rejection.
-The rebuilt source branch passed the running Docker simulation smoke test through PostgreSQL, worker, REST, audit history, and SSE.
-Docker Compose currently runs the source-storage branch, not the canonical-definition branch.
-
-Use `PYTHONPATH=backend` with `/Users/adam/Project/arbbot/.venv/bin/pytest -q backend/tests` in the appropriate worktree.
-For PostgreSQL add `ARBBOT_TEST_DATABASE_URL=postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot`; tests create isolated schemas.
-
-## Remaining gates
-
-Source enrichment (#3/#4), supported overlapping discovery (#5), labeled cross-exchange pairs (#6), venue extraction (#7/#8), and offline extraction evaluation (#9) remain.
-Exceptional settlements (#10), fee contracts and policies (#11-#14), and slippage (#15) remain.
-Persistent reviews (#16), authentication/authorization (#17), review APIs (#18), approval integration (#19), and filtering (#20) remain.
-Streams and recovery (#27-#30), immediate revalidation (#31), hosted CI evidence (#32), and integrated workflow QA (#33) remain.
-Worker metrics, dashboards, alerts, and tracing (#34-#36), staging/secrets/deployment (#37), and backup/recovery rehearsal (#38) remain.
-Negative-risk assessment (#39) must not enable unsupported instruments without validation.
-Automatic trading, custody, transfers, and private account access remain out of scope; #40 is deferred.
-Actual production environment selection and deployment verification are not yet established.
-Do not mark the goal complete until all applicable requirements have direct evidence.
+Previous review reproduced and fixed two stream rollback cases, a slow-stream JWKS lock hang, and the import-time timestamp race in quote tests.
+JWKS fetching now has a five-second total network deadline, closes timed-out responses, releases concurrent callers, and recovers after the retry cooldown.
+No financial or eligibility assertions were weakened.
+Docker Desktop is manually paused; do not claim a fresh combined local PostgreSQL run.
+The earlier disposable `arbbot-foundation-tests` container may still exist because cleanup was interrupted and Docker is paused.
 
 ## Next action
 
-Implement the dependency-free fee quote interface (#11) on its own branch from `origin/main`, and inspect hosted CI on the two published PRs.
-Keep dependent source enrichment and parser work gated on reviewed foundation changes, following CONTRIBUTING.md.
+Verify the main push's hosted checks, then implement durable definition drafts and review revisions in issue #16 on a focused branch from current main.
+Its prerequisites #1 and #2 are now landed.
+Bind immutable review history to exact terms, definition hashes, source versions, actors and timestamps; use compare-and-swap updates for editable draft heads.
+Test concurrent edits, stale source/draft invalidation, PostgreSQL transactions, migration preservation, and audit reconstruction.
+HTTP review mutations and worker approval consumption remain later issues #18 and #19.
+
+## Remaining production scope
+
+Source enrichment is underway on remote branch `data/3-4-source-enrichment`; inspect its latest state and ownership before overlapping.
+Real overlapping-event discovery, labeled supported pairs, expanded extraction, exceptional settlements, venue fee policies and engine/slippage integration remain.
+Live venue streams, worker lifecycle integration, opportunity revalidation, health metrics/dashboards/alerts, staging deployment and recovery rehearsal remain.
+The negative-risk assessment is completed in main and continues to exclude unsupported instruments.
+Render and Auth0 were recommended; provider configuration, real identity and collector behavior, deployment and restoration are not verified.
+Preserve the original worktree's user changes, including untracked `.specstory/`.
