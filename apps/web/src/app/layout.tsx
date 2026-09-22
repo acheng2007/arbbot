@@ -53,7 +53,7 @@ export default function RootLayout({
                   Prediction-market research
                 </span>
                 <span className="rounded-full border border-border px-3 py-1 text-xs font-medium">
-                  Foundation preview
+                  Estimates only, no execution
                 </span>
               </header>
               <main

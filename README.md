@@ -137,10 +137,34 @@ npm run dev
 
 Open http://localhost:3000.
 Set `BACKEND_URL` in `apps/web/.env.local` to the backend HTTP(S) base URL, defaulting to `http://localhost:8000`, and restart Next.js after changing it.
-The server reads this value at runtime for the connection check; it is not included in browser bundles.
+The server reads this value at runtime; it is never included in browser bundles.
+The browser talks only to same-origin routes under `/api`, which proxy the backend server-side.
 Start the backend using the Docker Compose instructions above to verify the connection.
-The overview is explicitly a foundation preview and displays no market or opportunity data.
 The connection page reports backend liveness and its reported simulation/live mode, not exchange readiness.
+
+### Working without a backend
+
+Set `ARBBOT_WEB_DATA_SOURCE=fixtures` to serve every screen from the recorded dataset in `src/lib/api/fixtures.ts`:
+
+```bash
+ARBBOT_WEB_DATA_SOURCE=fixtures npm run dev
+```
+
+Fixture mode is opt-in, and any other value reads the real backend, so recorded data can never stand in for live data by accident.
+Every screen served this way carries a `Recorded fixture data` banner stating that no exchange or backend was contacted.
+Browser tests always run in this mode, so they need no database, backend, or exchange credentials.
+
+### Generated API client
+
+`src/lib/api/schema.ts` is generated from the committed `docs/openapi.json` and must not be edited by hand:
+
+```bash
+npm run generate:api
+npm run generate:api:check
+```
+
+The check fails if the committed client has drifted from the OpenAPI document, and `npm test` runs it.
+Monetary and quantity fields are generated as `DecimalString` and stay exact strings from the API through to the rendered page; nothing converts them to a JavaScript number.
 
 ```bash
 npm run lint
@@ -151,9 +175,16 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright runs desktop and mobile Chromium checks against a local web server on port 3100.
-Its connection responses are mocked and do not call exchanges.
+Playwright runs desktop and mobile Chromium checks against a local web server on port 3100 backed by recorded fixtures.
+No exchange, backend, or database is contacted.
 Use `npm run build` followed by `npm start` to run the production application.
-Shared shadcn-style button primitives and theme tokens live in `src/components/ui` and `src/app/globals.css`; `components.json` configures future shadcn additions.
-TanStack Query is provided at the app boundary; TanStack Table is pinned for subsequent feature work.
-The generated API client and feature screens belong to subsequent issues.
+Shared shadcn-style primitives and theme tokens live in `src/components/ui` and `src/app/globals.css`; `components.json` configures future shadcn additions.
+Feature screens live under `src/features`, with routes in `src/app`.
+
+| Route | Purpose |
+| --- | --- |
+| `/opportunities` | Backend-calculated estimates with costs, payout scenarios, expiry, and live connection status |
+| `/matches` | Proposed contract pairs with side-by-side settlement terms and source quotations |
+| `/markets` | Discovered markets with original terms, extracted facts, and quote health |
+
+Authenticated draft editing and review actions are not implemented; those depend on the backend review APIs.

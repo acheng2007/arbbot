@@ -14,5 +14,8 @@ export default defineConfig({
     command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
+    // Browser tests run against the recorded fixture dataset so they never
+    // depend on a backend, a database, or exchange connectivity.
+    env: { ARBBOT_WEB_DATA_SOURCE: "fixtures" },
   },
 });

@@ -82,6 +82,60 @@ Publication status: branch pushed successfully; no PR has been created.
 Automatic approval review rejected PR creation because it did not recognize trusted authorization for external publication to GitHub.
 The review explicitly requires user approval before retrying; do not bypass it through another tool.
 
-Next action: obtain user approval to open the prepared #21 PR from `frontend/21-web-foundation` into `frontend/workstream` in `acheng2007/arbbot`, then create that focused PR.
-After review and merge, begin #22 on a new issue branch from the merged baseline.
-Do not start the typed API client against unmerged #21 implementation.
+The #21 PR has still not been opened; that branch remains the review baseline for everything below.
+
+## Current delivery: issues #22, #23, #24, #26
+
+Branch: `frontend/read-only-screens`, stacked on `frontend/21-web-foundation` because #21 is unmerged.
+The user asked for as much backend-free frontend as possible and explicitly allowed several issues in one pull request.
+
+Issue #22, generated client and data access.
+`apps/web/scripts/generate-api.mjs` generates `src/lib/api/schema.ts` from the committed `docs/openapi.json`.
+`openapi-typescript` was rejected because its peer range is TypeScript 5 and this package pins TypeScript 6; the generator has no runtime dependency and fails loudly on any OpenAPI construct it does not model.
+`npm run generate:api:check` detects drift and runs inside `npm test`.
+Monetary and quantity fields are generated as `DecimalString` and never converted to a number.
+The browser calls same-origin routes under `/api/data/[operation]`, which validate the operation against the generated registry and proxy server-side, so `BACKEND_URL` never reaches a browser bundle.
+`ApiError` models unreachable, timeout, cancelled, not-found, invalid-request, backend-error and invalid-response cases; TanStack Query supplies the abort signal and cancelled requests are not retried.
+
+Issue #24, read-only comparison screen at `/matches` and `/matches/[matchId]`.
+Similarity is labeled a discovery signal everywhere it appears and never a verification state.
+Differing and unknown fields sort above agreeing ones, each with the exact source quotation behind both sides.
+`same_event: false` shows an explicit statement that a price difference between the two is not arbitrage.
+The review panel flags an expired approval and flags reviewed terms hashes that no longer match the published ones.
+
+Issue #23, market browser at `/markets` and source detail at `/markets/[marketId]`.
+Venue and pagination are sent to the API; status and text search narrow the loaded page only, and the interface says so, because catalog-wide filtering is backend issue #20.
+Filters round-trip through the address bar.
+Source detail shows the original rules text, extracted facts with quotations, undetermined fields, and order-book health with source and receipt timestamps kept separate.
+
+Issue #26, opportunity dashboard at `/opportunities` and `/opportunities/[opportunityId]`.
+Fees, executable depth cost and slippage allowance are listed separately, with net profit stated as being after all costs.
+Payout is shown for every reviewed settlement outcome, alongside execution assumptions and a statement that no order is placed.
+`/api/stream` proxies backend Server-Sent Events and serves a fixture stream in fixture mode; a dropped connection states that the figures are no longer confirmed rather than leaving a stale success view.
+Evaluations with `blocked_reasons` and expired history entries are both surfaced.
+
+Backend-free development: `ARBBOT_WEB_DATA_SOURCE=fixtures` serves every screen from a recorded dataset typed against the generated schema.
+Fixture mode is opt-in and any other value reads the real backend.
+Every fixture-served screen carries a banner stating that no exchange or backend was contacted.
+
+Two defects found and fixed during browser testing.
+Next 16 returns dynamic route segments still percent-encoded, so market identifiers containing ":" were double-encoded and every market detail page reported "record does not exist"; `src/lib/routing.ts` decodes at the route boundary.
+`Intl.DateTimeFormat` threw at module scope because `timeZoneName` cannot combine with `dateStyle`/`timeStyle`.
+
+Out-of-scope fixes, both mentioned as required: the overview page and header no longer describe a disconnected preview and now link to the real screens, and the sidebar navigation scrolls horizontally at mobile widths.
+
+Validation run on this branch: `npm run lint`, `npm run typecheck`, `npm run generate:api:check`, `npm run build`, 55 Vitest checks, and 36 Playwright checks across desktop and mobile Chromium, all passing.
+Desktop and mobile screenshots of all ten routes were inspected with no horizontal overflow and no console errors; `e2e/inspect.mjs` reproduces that sweep.
+No hosted CI claim is made.
+
+## Not delivered
+
+Issue #25, authenticated draft editing and review actions, is not started.
+It depends on backend review mutations and authorization (#18, #19) that do not exist, and mock approvals must not be presented as real approvals.
+
+Issue #33, frontend CI and the seeded full-workflow browser test, is not started.
+It depends on #25 and on hosted backend CI (#32), and its contract requires Playwright against a seeded backend rather than fixtures.
+
+Next action: open a pull request from `frontend/read-only-screens` into `frontend/21-web-foundation` closing #22, #23, #24 and #26, after the #21 PR is opened so the stack is reviewable in order.
+External publication to GitHub still requires explicit user approval; do not bypass the approval review.
+After that, #25 remains blocked on backend #18 and #19, and #33 remains blocked on #25 and #32.
