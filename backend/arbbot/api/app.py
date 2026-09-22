@@ -17,8 +17,9 @@ from prometheus_client import (
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from arbbot.api.routes.catalog import catalog_router
 from arbbot.config import Settings
-from arbbot.domain import Book, Evaluation, Market, Match, Opportunity, Venue, utcnow
+from arbbot.domain import Book, Evaluation, Market, Opportunity, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
@@ -53,6 +54,7 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         "Live opportunities are conditional estimates, not execution guarantees.",
     )
     app.state.repository = repository
+    app.include_router(catalog_router(db, settings.mode))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -102,10 +104,6 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
             "max_quote_age_seconds": settings.max_quote_age_seconds,
         }
 
-    @app.get("/api/v1/markets", response_model=list[Market])
-    async def markets(limit: PageSize = 100, offset: Offset = 0, venue: Venue | None = None):
-        return await repository.markets(settings.mode, limit=limit, offset=offset, venue=venue)
-
     @app.get("/api/v1/markets/{market_id}", response_model=Market)
     async def market(market_id: str):
         result = await repository.market(settings.mode, market_id)
@@ -126,10 +124,6 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         if result is None:
             raise HTTPException(404, "Order book not available")
         return result
-
-    @app.get("/api/v1/matches", response_model=list[Match])
-    async def matches(limit: PageSize = 100, offset: Offset = 0):
-        return await repository.matches(settings.mode, limit, offset)
 
     @app.get("/api/v1/markets/{market_id}/versions/{terms_hash}", response_model=Market)
     async def market_version(market_id: str, terms_hash: str):

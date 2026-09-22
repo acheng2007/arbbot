@@ -1,5 +1,16 @@
 # Backend fee workstream handoff
 
+## Latest main reconciliation
+
+The user authorized reviewing and merging passing foundation PRs #44 and #46 through #51.
+PRs #44 and #47 have landed; this branch now integrates main `f91a639a809db8c6562b1793028aa693d7e97f3f`.
+All 224 SQLite tests and Ruff lint/format checks passed with the newly landed canonical definitions and catalog filtering.
+Authentication and tracing API conflicts were resolved additively in their respective branches, and authentication's OpenAPI was regenerated from code.
+Docker Desktop is manually paused, so no new local PostgreSQL result is claimed for this reconciliation.
+Earlier database results remain recorded below; the new head requires hosted PostgreSQL, migration and schema checks.
+Next action: verify the new hosted run, then perform the authorized merge without duplicating externally completed merges.
+The backend production goal remains incomplete; durable reviews, venue policies and streams, and production validation follow the foundation merges.
+
 ## Current integration review, 2026-09-21
 
 Integrated main at `98f2791632389523cbf93bfb591e69267fd82b3e`, including the landed source-storage interface and completed negative-risk assessment.
