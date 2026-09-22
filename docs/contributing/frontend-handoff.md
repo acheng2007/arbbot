@@ -136,6 +136,8 @@ It depends on backend review mutations and authorization (#18, #19) that do not 
 Issue #33, frontend CI and the seeded full-workflow browser test, is not started.
 It depends on #25 and on hosted backend CI (#32), and its contract requires Playwright against a seeded backend rather than fixtures.
 
-Next action: open a pull request from `frontend/read-only-screens` into `frontend/21-web-foundation` closing #22, #23, #24 and #26, after the #21 PR is opened so the stack is reviewable in order.
-External publication to GitHub still requires explicit user approval; do not bypass the approval review.
+Publication status: `frontend/read-only-screens` is pushed to `origin`.
+The GitHub CLI was installed, but `gh auth status` reports that no GitHub host is authenticated, so no pull request was opened and no issues were closed.
+
+Next action: authenticate `gh` for `github.com`, open the pending #21 pull request from `frontend/21-web-foundation` into `frontend/workstream`, then open `frontend/read-only-screens` into `frontend/21-web-foundation` with `Closes #22`, `Closes #23`, `Closes #24`, and `Closes #26` in the body.
 After that, #25 remains blocked on backend #18 and #19, and #33 remains blocked on #25 and #32.
