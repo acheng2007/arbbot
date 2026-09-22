@@ -136,11 +136,12 @@ Publication status: `frontend/read-only-screens` is published as [PR #53](https:
 The GitHub CLI is authenticated as `acheng2007`.
 
 Partial issue #33 work is on `frontend/33-ci-fixtures`, stacked on `frontend/read-only-screens`.
+It is published as [PR #54](https://github.com/acheng2007/arbbot/pull/54) and intentionally leaves #33 open.
 `.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks in parallel jobs.
 The browser job installs Chromium with its system dependencies, uses recorded fixtures without credentials or a backend, and uploads `apps/web/test-results` for 14 days on failure.
 Playwright retains traces, screenshots, and video for failed checks.
 `apps/web/e2e/workspace.spec.ts` covers the integrated backend-free journey from market source evidence through the recorded comparison review to an opportunity's cost, payout, and execution assumptions on desktop and mobile Chromium.
 This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25.
 
-Next action: open `frontend/33-ci-fixtures` into `frontend/read-only-screens` as partial #33 work without closing the issue.
+Next action: review and merge PR #53 first, then retarget PR #54 from `frontend/read-only-screens` to `main` before merging it.
 Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
