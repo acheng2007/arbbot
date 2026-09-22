@@ -125,7 +125,8 @@ Contributors: start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [modular iss
 
 ## Frontend development
 
-The Next.js foundation lives in `apps/web` and requires Node.js 22.12 or newer.
+The Next.js foundation lives in `apps/web` and requires Node.js 22.13 or newer.
+Use the npm version pinned in `apps/web/package.json` so clean installs reproduce the committed lockfile.
 Install the pinned dependencies and start it locally:
 
 ```bash
