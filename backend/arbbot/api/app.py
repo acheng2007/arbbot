@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
+from opentelemetry.trace import SpanKind, Status, StatusCode
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -23,6 +24,7 @@ from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Market, Opportunity, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
+from arbbot.observability.tracing import Tracing, correlation_fields, create_tracing
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
 
@@ -30,7 +32,11 @@ PageSize = Annotated[int, Query(ge=1, le=200)]
 Offset = Annotated[int, Query(ge=0, le=100000)]
 
 
-def create_app(settings: Settings | None = None, database: Database | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    database: Database | None = None,
+    tracing: Tracing | None = None,
+) -> FastAPI:
     settings = settings or Settings()
     db = database or Database(settings)
     repository = Repository(db)
@@ -45,12 +51,19 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
 
     @asynccontextmanager
     async def lifespan(app):
+        app.state.tracing = tracing or create_tracing(settings, "arbbot-api")
         try:
             yield
         finally:
-            await authenticator.close()
-            if database is None:
-                await db.close()
+            try:
+                try:
+                    await authenticator.close()
+                finally:
+                    if database is None:
+                        await db.close()
+            finally:
+                if tracing is None:
+                    await asyncio.to_thread(app.state.tracing.shutdown)
 
     app = FastAPI(
         title="Arbbot API",
@@ -62,6 +75,7 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     app.state.repository = repository
     app.state.authenticator = authenticator
     app.state.auth_origins = frozenset(settings.cors_origins)
+    app.state.tracing = tracing or Tracing()
     app.include_router(catalog_router(db, settings.mode))
     app.add_middleware(
         CORSMiddleware,
@@ -73,7 +87,22 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     @app.middleware("http")
     async def metrics(request, call_next):
         start = time.monotonic()
-        response = await call_next(request)
+        with app.state.tracing.span("api.request", root=True, kind=SpanKind.SERVER) as span:
+            method = (
+                request.method
+                if request.method in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
+                else "OTHER"
+            )
+            span.set_attribute("http.request.method", method)
+            response = await call_next(request)
+            route = getattr(request.scope.get("route"), "path", "unmatched")
+            span.set_attribute("http.route", route)
+            span.set_attribute("http.response.status_code", response.status_code)
+            if response.status_code >= 500:
+                span.set_status(Status(StatusCode.ERROR))
+            correlation = correlation_fields()
+            if correlation:
+                response.headers["X-Arbbot-Trace-Id"] = correlation["trace_id"]
         route = getattr(request.scope.get("route"), "path", "unmatched")
         requests.labels(route, str(response.status_code)).inc()
         latency.labels(route).observe(time.monotonic() - start)

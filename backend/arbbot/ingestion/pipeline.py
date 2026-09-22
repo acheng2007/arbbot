@@ -12,6 +12,7 @@ from arbbot.exchanges.simulation import simulation_reviews
 from arbbot.matching.contracts import ContractDefinition
 from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
+from arbbot.observability.tracing import Tracing
 from arbbot.quality import book_issue
 
 logger = logging.getLogger(__name__)
@@ -25,13 +26,16 @@ def safe_error(exc: Exception) -> str:
 
 
 class Pipeline:
-    def __init__(self, settings, repository, adapters):
+    def __init__(self, settings, repository, adapters, tracing=None):
         self.settings, self.repository, self.adapters = settings, repository, adapters
+        self.tracing = tracing or Tracing()
 
     async def ingest_venue(self, adapter):
         mode = self.settings.mode
         try:
-            markets = await adapter.discover(self.settings.discovery_limit)
+            with self.tracing.span("ingestion.catalog", venue=adapter.venue) as span:
+                markets = await adapter.discover(self.settings.discovery_limit)
+                span.set_attribute("market_count", len(markets))
             markets = list({market.id: market for market in markets}.values())
             if not markets:
                 await self.repository.set_health(
@@ -45,7 +49,8 @@ class Pipeline:
                     return None
                 async with semaphore:
                     try:
-                        return await adapter.fetch_book(market)
+                        with self.tracing.span("ingestion.book", venue=adapter.venue):
+                            return await adapter.fetch_book(market)
                     except Exception as exc:
                         return exc
 
@@ -122,6 +127,13 @@ class Pipeline:
             return [], {}
 
     async def cycle(self):
+        with self.tracing.span("ingestion.cycle", root=True, mode=self.settings.mode) as span:
+            result = await self._cycle()
+            for key in ("markets", "books", "matches", "opportunities"):
+                span.set_attribute(key, result[key])
+            return result
+
+    async def _cycle(self):
         ingested = await asyncio.gather(*(self.ingest_venue(adapter) for adapter in self.adapters))
         markets = [market for discovered, _ in ingested for market in discovered]
         books = {key: value for _, snapshots in ingested for key, value in snapshots.items()}
@@ -145,24 +157,29 @@ class Pipeline:
             supplied[market.id] if market.id in supplied else extract_contract(market).definition
             for market in markets
         ]
-        matches = match_markets(markets, reviews, definitions)
+        with self.tracing.span("matching", market_count=len(markets)):
+            matches = match_markets(markets, reviews, definitions)
         indexed = {market.id: market for market in markets}
         now = utcnow()
+
         # Calculation work must not block the event loop as the monitored set grows.
-        evaluations = await asyncio.to_thread(
-            lambda: [
-                evaluate(
-                    match,
-                    indexed[match.left_id],
-                    indexed[match.right_id],
-                    books,
-                    self.settings,
-                    now,
-                )
-                for match in matches
-            ]
-        )
-        await self.repository.publish(self.settings.mode, matches, evaluations)
+        def calculate():
+            with self.tracing.span("evaluation", match_count=len(matches)):
+                return [
+                    evaluate(
+                        match,
+                        indexed[match.left_id],
+                        indexed[match.right_id],
+                        books,
+                        self.settings,
+                        now,
+                    )
+                    for match in matches
+                ]
+
+        evaluations = await asyncio.to_thread(calculate)
+        with self.tracing.span("publication", evaluation_count=len(evaluations)):
+            await self.repository.publish(self.settings.mode, matches, evaluations)
         return {
             "mode": self.settings.mode,
             "markets": len(markets),

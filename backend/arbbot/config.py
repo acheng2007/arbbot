@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from arbbot.sources.models import MAX_CONTENT_BYTES
@@ -64,3 +64,28 @@ class Settings(BaseSettings):
         if self.auth_refresh_seconds > self.auth_jwks_ttl_seconds:
             raise ValueError("Auth refresh cooldown must not exceed key cache TTL")
         return self
+
+    tracing_enabled: bool = False
+    tracing_endpoint: str = "http://localhost:4318/v1/traces"
+    tracing_headers: dict[str, SecretStr] = {}
+    tracing_sample_ratio: float = Field(default=0.1, ge=0, le=1)
+    tracing_export_timeout_seconds: float = Field(default=2, gt=0, le=10)
+    tracing_queue_size: int = Field(default=512, ge=64, le=8192)
+
+    @field_validator("tracing_endpoint")
+    @classmethod
+    def validate_tracing_endpoint(cls, value):
+        url = urlsplit(value)
+        if (
+            not url.hostname
+            or url.username is not None
+            or url.password is not None
+            or url.query
+            or url.fragment
+            or not (
+                url.scheme == "https"
+                or (url.scheme == "http" and url.hostname in ("localhost", "127.0.0.1", "::1"))
+            )
+        ):
+            raise ValueError("Tracing requires HTTPS or loopback HTTP, without URL credentials")
+        return value
