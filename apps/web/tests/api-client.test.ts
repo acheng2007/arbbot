@@ -128,9 +128,9 @@ describe("browser API client", () => {
   });
 
   it("passes path parameters through to the proxy", async () => {
-    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
-      respond({}),
-    );
+    const fetchMock = vi.fn<
+      (url: string, init?: RequestInit) => Promise<Response>
+    >(async () => respond({}));
     vi.stubGlobal("fetch", fetchMock);
     await requestOperation("book", { params: { market_id: "kalshi:X" } });
     expect(fetchMock.mock.calls[0][0]).toBe(
