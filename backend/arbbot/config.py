@@ -5,6 +5,8 @@ from typing import Literal
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from arbbot.sources.models import MAX_CONTENT_BYTES
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="ARBBOT_", env_file=".env", extra="ignore")
@@ -17,6 +19,7 @@ class Settings(BaseSettings):
     health_timeout_seconds: int = Field(default=120, ge=10)
     discovery_limit: int = Field(default=50, ge=1, le=1000)
     max_contracts: int = Field(default=1000, ge=1, le=10000)
+    source_max_bytes: int = Field(default=1_000_000, ge=1024, le=MAX_CONTENT_BYTES)
     max_capital: Decimal = Field(default=Decimal("1000"), gt=0)
     slippage_bps: Decimal = Field(default=Decimal("10"), ge=0, le=10000)
     min_profit: Decimal = Field(default=Decimal("0.01"), gt=0)

@@ -1,5 +1,16 @@
 # Hosted backend CI handoff
 
+## Latest main reconciliation
+
+The user authorized reviewing and merging passing foundation PRs #44 and #46 through #51.
+PRs #44 and #47 have landed; this branch now integrates main `f91a639a809db8c6562b1793028aa693d7e97f3f`.
+This remains a documentation-only PR; no behavior changed during main integration.
+Authentication and tracing API conflicts were resolved additively in their respective branches, and authentication's OpenAPI was regenerated from code.
+Docker Desktop is manually paused, so no new local PostgreSQL result is claimed for this reconciliation.
+Earlier database results remain recorded below; the new head requires hosted PostgreSQL, migration and schema checks.
+Next action: verify the new hosted run, then perform the authorized merge without duplicating externally completed merges.
+The backend production goal remains incomplete; durable reviews, venue policies and streams, and production validation follow the foundation merges.
+
 ## Completed
 
 Branch: `backend/32-hosted-ci-evidence`, based on `origin/main` at `d065906343a3dde228a9068e115c3ff74fa381de`.
