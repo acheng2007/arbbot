@@ -103,12 +103,13 @@ export function QuoteAge({ sourceAt, receivedAt, label = "Quote" }: Props) {
     );
 
   const seconds = (now - parsed) / 1000;
-  const tone = freshnessTone(seconds);
+  const tone = seconds < 0 ? "critical" : freshnessTone(seconds);
   const source = sourceAt ? "exchange timestamp" : "receipt time only";
 
   return (
     <Badge tone={tone} title={`${new Date(parsed).toISOString()} (${source})`}>
-      {label} {describeAge(seconds)}
+      {seconds > QUOTE_WINDOW_SECONDS ? `Stale ${label.toLowerCase()}` : label}{" "}
+      {describeAge(seconds)}
       <span className="font-normal opacity-80">({source})</span>
     </Badge>
   );

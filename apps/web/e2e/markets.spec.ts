@@ -1,5 +1,43 @@
 import { expect, test } from "@playwright/test";
 
+test("quotes refresh without navigation and recover after a failed refresh", async ({
+  page,
+}) => {
+  let phase = "initial";
+  await page.route("**/api/data/book?*", async (route) => {
+    if (phase === "failed") {
+      await route.fulfill({ status: 503, json: { failure: "backend_error" } });
+      return;
+    }
+    const response = await route.fetch();
+    const book = await response.json();
+    book.yes_asks = [
+      { price: phase === "initial" ? "0.1234" : "0.2345", size: "17" },
+    ];
+    await route.fulfill({ response, json: book });
+  });
+  await page.goto("/markets/kalshi%3ACPIYOY-26SEP-T3.0");
+  await expect(
+    page.getByRole("cell", { name: "12.34¢", exact: true }),
+  ).toBeVisible();
+  phase = "updated";
+  await expect(
+    page.getByRole("cell", { name: "23.45¢", exact: true }),
+  ).toBeVisible({ timeout: 12000 });
+  phase = "failed";
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "This view could not be loaded",
+    { timeout: 15000 },
+  );
+  await expect(
+    page.getByRole("cell", { name: "23.45¢", exact: true }),
+  ).toHaveCount(0);
+  phase = "recovered";
+  await expect(
+    page.getByRole("cell", { name: "23.45¢", exact: true }),
+  ).toBeVisible({ timeout: 12000 });
+});
+
 test("filters are shareable through the address bar", async ({ page }) => {
   await page.goto("/markets");
   await expect(

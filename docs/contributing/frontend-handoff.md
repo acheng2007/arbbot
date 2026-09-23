@@ -1,5 +1,42 @@
 # Frontend workstream handoff
 
+## Current delivery: functioning live-price demo, September 23, 2026
+
+Branch: `demo/live-prices`, based on the existing frontend workstream at `aa01ac1`.
+No PR was opened or merged in this session.
+The user's current request was to finish enough of the integrated product for a functioning demo with live prices.
+
+The demo is running at <http://localhost:3000/markets> in persistent Docker containers under project `arbbot-demo`.
+Start or rebuild with `docker compose -p arbbot-demo --env-file infra/demo.env up --build -d`.
+The demo has its own PostgreSQL volume and localhost port 55433; web/API bind to localhost ports 3000/8000.
+The existing development database on port 55432 had a migration revision absent from this frontend branch, so the final demo uses a separate volume without resetting that database.
+An intermediate `arbbot_live_demo` database was also created on port 55432 during diagnosis; it is retained and unused by the final stack.
+Temporary host API, web, and worker processes were stopped.
+
+Added a standalone Next.js production image and Compose web service, explicit live demo configuration, setup instructions, and an opt-in real-browser smoke script.
+Market cards now show best YES/NO asks and available size, and both cards and detail pages refresh books every five seconds while visible.
+The original browser reproduction showed only the initial successful book load with no refresh during the observation window.
+Detail pages now prioritize quotes above source terms, include loading/error/retry states, and constrain long live order books to keyboard-scrollable tables.
+Quote age explicitly says stale after the default 30-second quote window.
+This additional layout improvement was needed because real Polymarket books contain hundreds of depth levels.
+
+Validation: production Docker build and fresh-volume migrations/startup passed.
+Lint, TypeScript, generated-client drift checks, 55 frontend unit tests, and 75 backend tests passed.
+The browser suite passed 38 existing checks; both new refresh/outage/recovery checks passed on targeted rerun after correcting a test selector that matched Next.js's route announcement instead of the application alert.
+`node scripts/smoke-live.mjs` passed against the production containers on desktop and mobile for both exchanges, proving at least two distinct worker snapshots reached each detail screen without navigation.
+The opportunity page also connected to the real SSE stream and displayed the expected empty state.
+Desktop/mobile screenshots were visually inspected, with no horizontal overflow in the live detail checks.
+
+The sample continuously discovers up to 20 markets per venue and retains exact quote strings, source terms, and timestamps.
+Polymarket sometimes reports `book_stale` for individual books; fresh books continue updating and stale ones remain labeled.
+No live pairs have been reviewed in the demo configuration, so no live arbitrage opportunity is claimed.
+This completes the requested live-price demo, not the remaining production roadmap or authenticated review workflow.
+
+Next action: integrate the reviewed backend foundation from current `origin/main` into this demo workstream and configure evidence-backed overlapping event watchlists for settlement review.
+Preserve the live demo's database isolation when integrating migrations.
+
+The sections below retain the earlier issue and PR history.
+
 The user requested that all frontend issues be picked up on a separate branch and continued in a new chat.
 Issues #21 through #26 and frontend QA issue #33 are assigned to `acheng2007`.
 Issue #21 is implemented on `frontend/21-web-foundation`; see the current delivery section below.

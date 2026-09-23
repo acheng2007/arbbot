@@ -15,34 +15,40 @@ function LevelTable({ title, levels }: { title: string; levels: Level[] }) {
           No resting offers at any price.
         </p>
       ) : (
-        <table className="mt-2 w-full text-sm">
-          <caption className="sr-only">{title} by price level</caption>
-          <thead>
-            <tr className="border-b border-border text-left text-muted-foreground">
-              <th scope="col" className="py-2 font-medium">
-                Price
-              </th>
-              <th scope="col" className="py-2 text-right font-medium">
-                Size
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {levels.map((level) => (
-              <tr
-                key={`${level.price}-${level.size}`}
-                className="border-b border-border/60"
-              >
-                <td className="py-2 tabular-nums">
-                  {formatPrice(level.price)}
-                </td>
-                <td className="py-2 text-right tabular-nums">
-                  {formatQuantity(level.size)}
-                </td>
+        <div
+          className="mt-2 max-h-80 overflow-y-auto rounded-md border border-border px-3"
+          tabIndex={0}
+          aria-label={`${title} depth`}
+        >
+          <table className="w-full text-sm">
+            <caption className="sr-only">{title} by price level</caption>
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th scope="col" className="py-2 font-medium">
+                  Price
+                </th>
+                <th scope="col" className="py-2 text-right font-medium">
+                  Size
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {levels.map((level) => (
+                <tr
+                  key={`${level.price}-${level.size}`}
+                  className="border-b border-border/60"
+                >
+                  <td className="py-2 tabular-nums">
+                    {formatPrice(level.price)}
+                  </td>
+                  <td className="py-2 text-right tabular-nums">
+                    {formatQuantity(level.size)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
@@ -64,6 +70,11 @@ export function QuoteHealth({ book }: { book: Book }) {
         </Badge>
         <QuoteAge sourceAt={book.source_at} receivedAt={book.received_at} />
       </div>
+
+      <p className="mt-3 text-sm text-muted-foreground">
+        Refreshes every 5 seconds while this page is visible. Prices are resting
+        offers per contract before fees; fills are not guaranteed.
+      </p>
 
       {!book.source_at && (
         <p

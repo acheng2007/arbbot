@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: arbbot
       POSTGRES_DB: arbbot
     ports:
-      - "127.0.0.1:55432:5432"
+      - "127.0.0.1:${ARBBOT_DB_PORT:-55432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,6 +23,7 @@ services:
     environment: &backend_environment
       ARBBOT_DATABASE_URL: postgresql+psycopg://arbbot:arbbot@db:5432/arbbot
       ARBBOT_MODE: ${ARBBOT_MODE:-simulation}
+      ARBBOT_DISCOVERY_LIMIT: ${ARBBOT_DISCOVERY_LIMIT:-50}
     depends_on:
       db:
         condition: service_healthy
@@ -49,5 +50,18 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
     stop_grace_period: 60s
+  web:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.web
+    environment:
+      BACKEND_URL: http://api:8000
+      ARBBOT_WEB_DATA_SOURCE: backend
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
 volumes:
   postgres_data:

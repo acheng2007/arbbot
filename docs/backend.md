@@ -43,7 +43,9 @@ Keys stay in local files and are never returned through the API.
 Kalshi's public tutorial and authenticated endpoint reference differ on authentication requirements; configure a key if public reads are rejected.
 Authentication failures appear in exchange health rather than triggering a simulation fallback.
 
-For live containers, use a local Compose override setting both API and worker to live mode, pass worker configuration explicitly, and mount credentials and review files read-only.
+For the public live-price demo, run `docker compose -p arbbot-demo --env-file infra/demo.env up --build -d`.
+This starts the web app, live API, worker, and an isolated PostgreSQL volume, with database port 55433.
+For custom watchlists or reviewed pairs, use a local Compose override, pass worker configuration explicitly, and mount credentials and review files read-only.
 Do not put secrets in images or source control.
 No adapter places orders or accesses account balances.
 

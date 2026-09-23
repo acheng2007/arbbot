@@ -2,7 +2,44 @@
 
 Arbbot is a fullstack prediction-market arbitrage discovery platform.
 The backend provides continuous read-only Kalshi and Polymarket ingestion, candidate matching, reviewed settlement equivalence, conservative opportunity evaluation, durable audit history, and a web-ready API.
-The frontend has not been implemented yet.
+The web interface includes live market prices, order-book depth, contract comparisons, and conditional opportunity estimates.
+
+## Live-price demo
+
+Start Docker Desktop, then run this from the repository root:
+
+```sh
+docker compose -p arbbot-demo --env-file infra/demo.env up --build -d
+```
+
+Open <http://localhost:3000/markets> and allow the first ingestion cycle to finish.
+Choose a venue, inspect the best YES/NO asks, and open a market for full depth and original settlement terms.
+Prices refresh every five seconds while the page is visible; the worker independently polls public Kalshi and Polymarket APIs continuously.
+This is real exchange data, with no credentials required for the public endpoints tested, and never falls back to simulation.
+The demo monitors up to 20 supported markets per venue, not the entire exchange.
+Some books can be stale, empty, or unavailable; timestamps and unavailable states remain explicit.
+No live settlement pairs are approved by this demo configuration, so an empty opportunity dashboard is expected.
+Automatic trading is not implemented.
+
+The demo uses its own `arbbot-demo` Compose project and PostgreSQL volume, with PostgreSQL on localhost port 55433.
+Web and API use ports 3000 and 8000; stop other local web/API processes on those ports first.
+Do not run the default simulation stack and demo stack on these same ports simultaneously.
+
+```sh
+docker compose -p arbbot-demo --env-file infra/demo.env logs --tail=50 worker
+docker compose -p arbbot-demo --env-file infra/demo.env down
+```
+
+Stopping preserves the database volume.
+After installing frontend development dependencies and Playwright Chromium, verify real quotes through the browser with:
+
+```sh
+cd apps/web
+node scripts/smoke-live.mjs
+```
+
+This opt-in check requires fresh live depth from both venues and verifies that distinct worker snapshots reach desktop and mobile screens without navigation.
+Screenshots are saved under `apps/web/test-results/live-*.png`.
 
 ## Run the backend
 
@@ -12,7 +49,7 @@ Install Docker with Compose, then run from this directory:
 docker compose up --build -d
 ```
 
-This starts PostgreSQL, applies migrations, and launches separate API and worker containers.
+This starts PostgreSQL, applies migrations, and launches separate web, API, and worker containers.
 The default is **simulation mode**, with two synthetic contracts and a reproducible opportunity.
 Simulation data is labeled in API responses and isolated from live data.
 

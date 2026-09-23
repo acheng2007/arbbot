@@ -11,6 +11,7 @@ import { Age } from "@/components/freshness";
 import { useApi } from "@/lib/query/hooks";
 import { QueryState } from "@/features/shared/query-state";
 import { venueLabel } from "@/features/shared/status";
+import { MarketPrices } from "./market-prices";
 import {
   applyLocalFilters,
   PAGE_SIZE,
@@ -125,9 +126,11 @@ export function MarketBrowser() {
       </form>
 
       <p className="text-sm leading-6 text-muted-foreground">
-        Venue and page position are applied by the API. Status and text search
-        narrow the {loaded.length} markets on this page only, because
-        catalog-wide filtering is not yet available from the backend.
+        Best asks refresh every 5 seconds while this page is visible, before
+        fees. Open a market to inspect depth and source terms. Venue and page
+        position are applied by the API. Status and text search narrow the{" "}
+        {loaded.length} markets on this page only, because catalog-wide
+        filtering is not yet available from the backend.
       </p>
 
       <QueryState
@@ -175,6 +178,7 @@ export function MarketBrowser() {
                   <p className="mt-2 font-mono text-xs break-all text-muted-foreground">
                     {market.external_id}
                   </p>
+                  <MarketPrices marketId={market.id} />
                 </Link>
               </li>
             ))}

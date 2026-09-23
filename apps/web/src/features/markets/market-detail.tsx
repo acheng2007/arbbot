@@ -80,7 +80,13 @@ function ExtractedTerms({ extraction }: { extraction: Extraction }) {
 export function MarketDetail({ marketId }: { marketId: string }) {
   const market = useApi("market", { params: { market_id: marketId } });
   const extraction = useApi("extraction", { params: { market_id: marketId } });
-  const book = useApi("book", { params: { market_id: marketId } });
+  const book = useApi(
+    "book",
+    { params: { market_id: marketId } },
+    {
+      refetchInterval: 5000,
+    },
+  );
 
   return (
     <div className="space-y-7">
@@ -130,16 +136,16 @@ export function MarketDetail({ marketId }: { marketId: string }) {
               </h1>
             </header>
 
-            <SourceTerms market={market.data.data} />
+            <QueryState
+              isPending={book.isPending}
+              error={book.error}
+              loadingLabel="Loading order book"
+              onRetry={() => void book.refetch()}
+            >
+              {book.data && <QuoteHealth book={book.data.data} />}
+            </QueryState>
 
-            {book.isError ? (
-              <EmptyState
-                title="No order book available"
-                description={describeFailure(book.error)}
-              />
-            ) : (
-              book.data && <QuoteHealth book={book.data.data} />
-            )}
+            <SourceTerms market={market.data.data} />
 
             {extraction.isError ? (
               <EmptyState
