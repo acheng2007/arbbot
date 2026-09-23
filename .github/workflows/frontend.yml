@@ -1,0 +1,87 @@
+name: Frontend checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/web/**
+      - docs/openapi.json
+      - .github/workflows/frontend.yml
+  pull_request:
+    paths:
+      - apps/web/**
+      - docs/openapi.json
+      - .github/workflows/frontend.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Generated client, lint, types, unit tests, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install pinned npm
+        run: npm install --global npm@11.6.2
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Verify generated API client
+        run: npm run generate:api:check
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and component tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+
+  browser:
+    name: Desktop and mobile browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install pinned npm
+        run: npm install --global npm@11.6.2
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Run fixture-backed browser tests
+        run: npm run test:e2e
+      - name: Retain browser failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-failure-artifacts
+          path: apps/web/test-results
+          if-no-files-found: warn
+          retention-days: 14

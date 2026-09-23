@@ -1,0 +1,78 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { QuoteHealth } from "@/features/markets/quote-health";
+import {
+  applyLocalFilters,
+  parseFilters,
+  serializeFilters,
+} from "@/features/markets/filters";
+import { recordedDataset } from "@/lib/api/fixtures";
+
+const dataset = recordedDataset(new Date("2026-09-21T06:00:00Z"));
+
+describe("market filters", () => {
+  it("round-trips through the address bar", () => {
+    const filters = {
+      venue: "kalshi" as const,
+      status: "open" as const,
+      search: "cpi",
+      offset: 50,
+    };
+    expect(
+      parseFilters(new URLSearchParams(serializeFilters(filters))),
+    ).toEqual(filters);
+  });
+
+  it("drops values the API would reject", () => {
+    const parsed = parseFilters(
+      new URLSearchParams("venue=nasdaq&status=pending&offset=-3"),
+    );
+    expect(parsed).toEqual({ venue: "", status: "", search: "", offset: 0 });
+  });
+
+  it("matches on title and on the venue identifier", () => {
+    expect(
+      applyLocalFilters(dataset.markets, {
+        venue: "",
+        status: "",
+        search: "0x8f21a4c7",
+        offset: 0,
+      }).map((market) => market.id),
+    ).toEqual(["polymarket:0x8f21"]);
+  });
+
+  it("narrows by status", () => {
+    const closed = applyLocalFilters(dataset.markets, {
+      venue: "",
+      status: "closed",
+      search: "",
+      offset: 0,
+    });
+    expect(closed).toHaveLength(1);
+    expect(closed[0].status).toBe("closed");
+  });
+});
+
+describe("quote health", () => {
+  it("shows both sides of the book with exact prices and sizes", () => {
+    render(<QuoteHealth book={dataset.books["kalshi:CPIYOY-26SEP-T3.0"]} />);
+    expect(screen.getByText("Yes asks")).toBeVisible();
+    expect(screen.getByText("No asks")).toBeVisible();
+    expect(screen.getByText("43\u00A2")).toBeVisible();
+    expect(screen.getByText("1,200")).toBeVisible();
+  });
+
+  it("warns when the venue supplied no exchange timestamp", () => {
+    render(<QuoteHealth book={dataset.books["polymarket:0x8f21"]} />);
+    expect(
+      screen.getByText(/did not supply an exchange-side timestamp/),
+    ).toBeVisible();
+    expect(screen.getByText("not supplied")).toBeVisible();
+  });
+
+  it("says there is no executable depth rather than showing an empty table", () => {
+    render(<QuoteHealth book={dataset.books["kalshi:PAYROLLS-26OCT-T150"]} />);
+    expect(screen.getByText("No executable depth")).toBeVisible();
+    expect(screen.queryByText("Yes asks")).toBeNull();
+  });
+});

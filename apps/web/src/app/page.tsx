@@ -27,67 +27,70 @@ export default function Home() {
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Workspace status
+              Start here
             </span>
             <h2 className="mt-3 text-xl font-semibold">
-              Your foundation is ready
+              Opportunities, with their evidence attached
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              Market data and opportunity views are not connected in this
-              preview. No live quotes, matches, or profit estimates are
-              displayed.
+              Every estimate links back to the contract comparison and the
+              source terms it rests on. Nothing on this site places an order.
             </p>
           </div>
-          <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium">
-            No market data
-          </span>
         </div>
-        <Button asChild className="mt-6">
-          <Link href="/connection">
-            Check API connection
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
-        </Button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/opportunities">
+              View opportunities
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/connection">Check API connection</Link>
+          </Button>
+        </div>
       </section>
       <section aria-labelledby="workflow-heading">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="workflow-heading" className="text-lg font-semibold">
-            From source to signal
-          </h2>
-          <span className="text-xs text-muted-foreground">Coming next</span>
-        </div>
+        <h2 id="workflow-heading" className="mb-4 text-lg font-semibold">
+          From source to signal
+        </h2>
         <div className="grid gap-4 md:grid-cols-3">
           {[
             {
               icon: Files,
+              href: "/markets",
               title: "Inspect markets",
-              body: "Read original terms, resolution sources, and evidence.",
+              body: "Read original terms, resolution sources, and quote health.",
             },
             {
               icon: GitCompareArrows,
+              href: "/matches",
               title: "Compare contracts",
               body: "Understand settlement differences before trusting a match.",
             },
             {
               icon: ChartNoAxesCombined,
+              href: "/opportunities",
               title: "Evaluate opportunities",
               body: "Review depth, fees, freshness, and execution assumptions.",
             },
-          ].map(({ icon: Icon, title, body }, i) => (
-            <article
-              key={title}
-              className="rounded-lg border border-border bg-card p-6"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <Icon aria-hidden="true" className="size-5 text-primary" />
-                <span className="text-xs tabular-nums text-muted-foreground">
-                  0{i + 1}
-                </span>
-              </div>
-              <h3 className="font-semibold">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {body}
-              </p>
+          ].map(({ icon: Icon, href, title, body }, i) => (
+            <article key={title}>
+              <Link
+                href={href}
+                className="block h-full rounded-lg border border-border bg-card p-6 transition-colors hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                <div className="mb-6 flex items-center justify-between">
+                  <Icon aria-hidden="true" className="size-5 text-primary" />
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    0{i + 1}
+                  </span>
+                </div>
+                <h3 className="font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {body}
+                </p>
+              </Link>
             </article>
           ))}
         </div>

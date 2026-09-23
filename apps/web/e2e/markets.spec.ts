@@ -1,0 +1,78 @@
+import { expect, test } from "@playwright/test";
+
+test("filters are shareable through the address bar", async ({ page }) => {
+  await page.goto("/markets");
+  await expect(
+    page.getByRole("link", { name: /NYC high temperature/ }),
+  ).toBeVisible();
+
+  await page.getByLabel("Venue").selectOption("kalshi");
+  await expect(page).toHaveURL(/venue=kalshi/);
+  await expect(page.getByRole("link", { name: /Will US CPI YoY/ })).toHaveCount(
+    0,
+  );
+
+  await page.getByLabel("Search the loaded page").fill("payrolls");
+  await expect(page).toHaveURL(/q=payrolls/);
+  await expect(
+    page.getByRole("link", { name: /nonfarm payrolls/ }),
+  ).toBeVisible();
+
+  // Reloading the shared address must reproduce the same view.
+  await page.reload();
+  await expect(page.getByLabel("Venue")).toHaveValue("kalshi");
+  await expect(page.getByLabel("Search the loaded page")).toHaveValue(
+    "payrolls",
+  );
+
+  await page.getByRole("button", { name: "Clear filters" }).click();
+  await expect(page).toHaveURL(/\/markets$/);
+});
+
+test("a search with no matches explains itself", async ({ page }) => {
+  await page.goto("/markets?q=nothing-matches-this");
+  await expect(page.getByText("No markets match these filters")).toBeVisible();
+});
+
+test("source detail shows original terms, extraction gaps, and quote health", async ({
+  page,
+}) => {
+  await page.goto("/markets");
+  await page
+    .getByRole("link", { name: /US CPI year-over-year above 3\.0%/ })
+    .click();
+
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "US CPI year-over-year above 3.0%",
+  );
+  await expect(page.getByText("Kalshi original terms")).toBeVisible();
+  await expect(
+    page.getByText(/If the BLS does not publish the September 2026 release/),
+  ).toBeVisible();
+
+  await expect(page.getByText("Quote health")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Yes asks" })).toBeVisible();
+
+  await expect(page.getByText("Partially extracted")).toBeVisible();
+  await expect(page.getByText("Fields not determined")).toBeVisible();
+  await expect(
+    page.getByText(/A missing field never counts toward equivalence/),
+  ).toBeVisible();
+});
+
+test("a market without depth says so rather than showing a blank book", async ({
+  page,
+}) => {
+  await page.goto("/markets/kalshi%3APAYROLLS-26OCT-T150");
+  await expect(page.getByText("No executable depth")).toBeVisible();
+  await expect(page.getByText("Not supported")).toBeVisible();
+});
+
+test("a market that does not exist reports a clean failure", async ({
+  page,
+}) => {
+  await page.goto("/markets/kalshi%3ANOPE");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "That record does not exist",
+  );
+});

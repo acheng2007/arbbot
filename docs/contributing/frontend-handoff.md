@@ -78,10 +78,76 @@ The real FastAPI service on port 8011 was verified through the browser using a n
 Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
 No hosted frontend CI claim is made; CI remains issue #33.
 
-Publication status: branch pushed successfully; no PR has been created.
-Automatic approval review rejected PR creation because it did not recognize trusted authorization for external publication to GitHub.
-The review explicitly requires user approval before retrying; do not bypass it through another tool.
+Publication status: [PR #43](https://github.com/acheng2007/arbbot/pull/43) is merged into `main`, and issue #21 is closed.
 
-Next action: obtain user approval to open the prepared #21 PR from `frontend/21-web-foundation` into `frontend/workstream` in `acheng2007/arbbot`, then create that focused PR.
-After review and merge, begin #22 on a new issue branch from the merged baseline.
-Do not start the typed API client against unmerged #21 implementation.
+## Current delivery: issues #22, #23, #24, #26
+
+Branch: `frontend/read-only-screens`, targeting `main` now that #21 is merged.
+The user asked for as much backend-free frontend as possible and explicitly allowed several issues in one pull request.
+
+Issue #22, generated client and data access.
+`apps/web/scripts/generate-api.mjs` generates `src/lib/api/schema.ts` from the committed `docs/openapi.json`.
+`openapi-typescript` was rejected because its peer range is TypeScript 5 and this package pins TypeScript 6; the generator has no runtime dependency and fails loudly on any OpenAPI construct it does not model.
+`npm run generate:api:check` detects drift and runs inside `npm test`.
+Monetary and quantity fields are generated as `DecimalString` and never converted to a number.
+The browser calls same-origin routes under `/api/data/[operation]`, which validate the operation against the generated registry and proxy server-side, so `BACKEND_URL` never reaches a browser bundle.
+`ApiError` models unreachable, timeout, cancelled, not-found, invalid-request, backend-error and invalid-response cases; TanStack Query supplies the abort signal and cancelled requests are not retried.
+
+Issue #24, read-only comparison screen at `/matches` and `/matches/[matchId]`.
+Similarity is labeled a discovery signal everywhere it appears and never a verification state.
+Differing and unknown fields sort above agreeing ones, each with the exact source quotation behind both sides.
+`same_event: false` shows an explicit statement that a price difference between the two is not arbitrage.
+The review panel flags an expired approval and flags reviewed terms hashes that no longer match the published ones.
+
+Issue #23, market browser at `/markets` and source detail at `/markets/[marketId]`.
+Venue and pagination are sent to the API; status and text search narrow the loaded page only, and the interface says so, because catalog-wide filtering is backend issue #20.
+Filters round-trip through the address bar.
+Source detail shows the original rules text, extracted facts with quotations, undetermined fields, and order-book health with source and receipt timestamps kept separate.
+
+Issue #26, opportunity dashboard at `/opportunities` and `/opportunities/[opportunityId]`.
+Fees, executable depth cost and slippage allowance are listed separately, with net profit stated as being after all costs.
+Payout is shown for every reviewed settlement outcome, alongside execution assumptions and a statement that no order is placed.
+`/api/stream` proxies backend Server-Sent Events and serves a fixture stream in fixture mode; a dropped connection states that the figures are no longer confirmed rather than leaving a stale success view.
+Evaluations with `blocked_reasons` and expired history entries are both surfaced.
+
+Backend-free development: `ARBBOT_WEB_DATA_SOURCE=fixtures` serves every screen from a recorded dataset typed against the generated schema.
+Fixture mode is opt-in and any other value reads the real backend.
+Every fixture-served screen carries a banner stating that no exchange or backend was contacted.
+
+Two defects found and fixed during browser testing.
+Next 16 returns dynamic route segments still percent-encoded, so market identifiers containing ":" were double-encoded and every market detail page reported "record does not exist"; `src/lib/routing.ts` decodes at the route boundary.
+`Intl.DateTimeFormat` threw at module scope because `timeZoneName` cannot combine with `dateStyle`/`timeStyle`.
+
+Out-of-scope fixes, both mentioned as required: the overview page and header no longer describe a disconnected preview and now link to the real screens, and the sidebar navigation scrolls horizontally at mobile widths.
+
+Validation run on this branch: `npm run lint`, `npm run typecheck`, `npm run generate:api:check`, `npm run build`, 55 Vitest checks, and 36 Playwright checks across desktop and mobile Chromium, all passing.
+Desktop and mobile screenshots of all ten routes were inspected with no horizontal overflow and no console errors; `e2e/inspect.mjs` reproduces that sweep.
+No hosted CI claim is made.
+
+## Not delivered
+
+Issue #25, authenticated draft editing and review actions, is not started.
+It depends on backend review mutations and authorization (#18, #19) that do not exist, and mock approvals must not be presented as real approvals.
+
+Issue #33, frontend CI and the seeded full-workflow browser test, is only partially implemented.
+Hosted backend CI dependency #32 is closed, but the full contract still depends on #25 and requires authenticated review actions against a seeded backend rather than fixtures.
+
+Publication status: `frontend/read-only-screens` is published as [PR #53](https://github.com/acheng2007/arbbot/pull/53) into `main`.
+The GitHub CLI is authenticated as `acheng2007`.
+
+Partial issue #33 work is on `frontend/33-ci-fixtures`, stacked on `frontend/read-only-screens`.
+It is published as [PR #54](https://github.com/acheng2007/arbbot/pull/54) and intentionally leaves #33 open.
+`.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks in parallel jobs.
+The browser job installs Chromium with its system dependencies, uses recorded fixtures without credentials or a backend, and uploads `apps/web/test-results` for 14 days on failure.
+Playwright retains traces, screenshots, and video for failed checks.
+`apps/web/e2e/workspace.spec.ts` covers the integrated backend-free journey from market source evidence through the recorded comparison review to an opportunity's cost, payout, and execution assumptions on desktop and mobile Chromium.
+This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25.
+
+The first hosted PR #54 run failed during `npm ci` before tests because the runner used npm 10 against a lockfile generated by npm 11, and Node 22.12 was below the minimum required by pinned `jsdom`.
+The package now declares Node 22.13 or newer and npm 11.6.2, the workflow installs those exact versions, and the lockfile was regenerated.
+Local `npm ci` plus the full generated-client, lint, typecheck, Vitest and production-build sequence passes after the correction.
+The corrected hosted run `35695384493` passes both frontend jobs: generated client/lint/types/unit/build in 1m23s and desktop/mobile browser tests in 3m8s.
+The backend check on the same PR head also passes.
+
+Next action: review and merge PR #53 first, then retarget PR #54 from `frontend/read-only-screens` to `main` before merging it.
+Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
