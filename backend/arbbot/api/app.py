@@ -98,7 +98,11 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
             "exchanges": health,
             "ingestion_healthy": len(health) == 2 and all(h["status"] == "healthy" for h in health),
             "discovery_limit_per_exchange": settings.discovery_limit,
-            "ingestion_transport": "REST full snapshots",
+            "ingestion_transport": (
+                "Kalshi REST; Polymarket WebSocket book + price_change"
+                if settings.mode == "live" and settings.polymarket_websocket
+                else "REST full snapshots"
+            ),
             "max_quote_age_seconds": settings.max_quote_age_seconds,
         }
 

@@ -2,10 +2,39 @@
 
 ## Ingestion
 
-The worker discovers a bounded set of markets, retrieves full REST order-book snapshots, persists normalized results, discovers candidates, evaluates verified pairs, and publishes a coherent opportunity view.
+The worker discovers a bounded set of markets, polls Kalshi REST order books, consumes Polymarket WebSocket books, persists normalized results, discovers candidates, evaluates verified pairs, and publishes a coherent opportunity view.
 Exchange requests use bounded concurrency, pacing, timeouts, and retries for transport errors, rate limits, and selected server failures.
-Every cycle reads complete snapshots, so recovery does not depend on replaying deltas.
-Exchange WebSocket ingestion and sequence reconciliation are not implemented yet.
+Kalshi reads complete REST snapshots each cycle.
+Polymarket keeps full snapshots plus absolute price-level changes in memory and publishes the latest complete state each cycle.
+Kalshi WebSocket ingestion is not implemented yet.
+
+### Polymarket WebSocket
+
+Continuous live workers connect to `wss://ws-subscriptions-clob.polymarket.com/ws/market` by default.
+Gamma REST discovery supplies condition IDs, YES/NO token IDs, and minimum order sizes.
+The public subscription is `{"assets_ids":["TOKEN_ID"],"type":"market"}` and requires no credentials.
+The listener consumes initial `book` snapshots and `price_change` batches, replacing the specified price level with its new absolute size or removing it when size is zero.
+BUY updates affect bids, SELL updates affect asks, and last-trade events never substitute for executable depth.
+
+Text `PING` frames are sent every ten seconds, and missing `PONG` replies terminate the connection after thirty seconds.
+Disconnects, malformed frames, identity mismatches, out-of-order timestamps, crossed books, and inconsistent best prices discard the in-memory books and trigger reconnection with capped exponential backoff and jitter.
+Subscription changes also clear the old generation.
+New deltas cannot be applied until a full snapshot for their token arrives.
+Full resubscription every five minutes bounds drift; the documented feed has no sequence number, so detecting every lost update is not guaranteed and the venue hash is retained as provenance rather than treated as a verified checksum.
+
+The existing worker cycle persists and evaluates the latest stream state, so this is continuous exchange ingestion with cycle-based publication, not per-event database writes.
+Stored snapshots retain reconstructed depth, per-outcome source/receipt times, and each outcome's latest raw event under `raw`, with `transport: websocket`.
+Intermediate deltas between worker cycles are not individually journaled.
+The 30-second default quote age and 10-second outcome skew checks still apply; heartbeats do not make old prices fresh.
+An unavailable stream yields `StreamNotReady` in ingestion health on the next cycle and blocks affected evaluations.
+Previously persisted books remain accessible for inspection with their original timestamps.
+
+Set `ARBBOT_POLYMARKET_WEBSOCKET=false` explicitly to use REST polling instead.
+The `--once` worker always uses REST snapshots because a one-cycle process cannot maintain a persistent stream.
+API status describes the configured continuous-worker transport.
+The browser still refreshes price queries every five seconds; opportunity updates use the existing SSE connection.
+
+Protocol verified against [Polymarket's official real-time data documentation](https://docs.polymarket.com/market-data/realtime-data) and live public messages on September 23, 2026.
 
 The default discovery limit is 50 supported markets per exchange, with at most 20 discovery pages per cycle.
 This is a monitored sample, not exhaustive exchange coverage.

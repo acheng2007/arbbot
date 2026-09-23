@@ -30,6 +30,13 @@ try {
         );
         if (!reply.ok()) continue;
         const book = await reply.json();
+        if (venue === "polymarket") {
+          assert.equal(
+            book.raw.transport,
+            "websocket",
+            "Polymarket must use the market stream",
+          );
+        }
         if (
           (book.yes_asks.length || book.no_asks.length) &&
           Date.now() - Date.parse(book.source_at ?? book.received_at) < 30000

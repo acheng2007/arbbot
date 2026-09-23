@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import signal
+from contextlib import AsyncExitStack
 
 import httpx
 from sqlalchemy import text
@@ -15,6 +16,7 @@ from arbbot.exchanges.simulation import SimulationAdapter
 from arbbot.ingestion.pipeline import Pipeline, safe_error
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
+from arbbot.streams.polymarket import StreamingPolymarketAdapter
 
 
 class JSONFormatter(logging.Formatter):
@@ -42,15 +44,26 @@ async def run(once=False):
                 if not locked:
                     raise RuntimeError("Another ingestion worker holds the database lock")
             try:
-                async with httpx.AsyncClient(
-                    timeout=httpx.Timeout(15), follow_redirects=False
-                ) as client:
+                async with (
+                    AsyncExitStack() as resources,
+                    httpx.AsyncClient(timeout=httpx.Timeout(15), follow_redirects=False) as client,
+                ):
                     if settings.mode == "simulation":
                         adapters = [SimulationAdapter(venue) for venue in ("kalshi", "polymarket")]
                     else:
+                        poly_class = (
+                            StreamingPolymarketAdapter
+                            if settings.polymarket_websocket and not once
+                            else PolymarketAdapter
+                        )
+                        polymarket = poly_class(
+                            ExchangeHTTP(client), settings.polymarket_market_ids
+                        )
+                        if isinstance(polymarket, StreamingPolymarketAdapter):
+                            resources.push_async_callback(polymarket.aclose)
                         adapters = [
                             KalshiAdapter(ExchangeHTTP(client), settings),
-                            PolymarketAdapter(ExchangeHTTP(client), settings.polymarket_market_ids),
+                            polymarket,
                         ]
                     pipeline = Pipeline(settings, repository, adapters)
                     while not stop.is_set():

@@ -14,7 +14,9 @@ docker compose -p arbbot-demo --env-file infra/demo.env up --build -d
 
 Open <http://localhost:3000/markets> and allow the first ingestion cycle to finish.
 Choose a venue, inspect the best YES/NO asks, and open a market for full depth and original settlement terms.
-Prices refresh every five seconds while the page is visible; the worker independently polls public Kalshi and Polymarket APIs continuously.
+Prices refresh every five seconds while the page is visible.
+The worker independently polls Kalshi and subscribes to Polymarket's public WebSocket `book` and `price_change` events for the discovered YES/NO tokens.
+Polymarket stream state is persisted and evaluated on each worker cycle; the browser does not connect directly to the exchange.
 This is real exchange data, with no credentials required for the public endpoints tested, and never falls back to simulation.
 The demo monitors up to 20 supported markets per venue, not the entire exchange.
 Some books can be stale, empty, or unavailable; timestamps and unavailable states remain explicit.
@@ -38,7 +40,7 @@ cd apps/web
 node scripts/smoke-live.mjs
 ```
 
-This opt-in check requires fresh live depth from both venues and verifies that distinct worker snapshots reach desktop and mobile screens without navigation.
+This opt-in check requires fresh live depth from both venues, Polymarket WebSocket provenance, and distinct worker snapshots reaching desktop and mobile screens without navigation.
 Screenshots are saved under `apps/web/test-results/live-*.png`.
 
 ## Run the backend

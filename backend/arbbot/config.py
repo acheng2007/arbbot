@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     reviews_file: Path | None = None
     kalshi_tickers: list[str] = []
     polymarket_market_ids: list[str] = []
+    polymarket_websocket: bool = True
     kalshi_key_id: SecretStr | None = None
     kalshi_private_key_path: Path | None = None
     cors_origins: list[str] = ["http://localhost:3000"]

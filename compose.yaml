@@ -24,6 +24,7 @@ services:
       ARBBOT_DATABASE_URL: postgresql+psycopg://arbbot:arbbot@db:5432/arbbot
       ARBBOT_MODE: ${ARBBOT_MODE:-simulation}
       ARBBOT_DISCOVERY_LIMIT: ${ARBBOT_DISCOVERY_LIMIT:-50}
+      ARBBOT_POLYMARKET_WEBSOCKET: ${ARBBOT_POLYMARKET_WEBSOCKET:-true}
     depends_on:
       db:
         condition: service_healthy
