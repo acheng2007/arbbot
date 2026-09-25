@@ -14,6 +14,21 @@ export type Book = {
   raw: Partial<Record<string, unknown>>;
 };
 
+export type CatalogReport = {
+  mode: "simulation" | "live";
+  venue: "kalshi" | "polymarket";
+  status: "ready" | "degraded" | "failed" | "stale";
+  started_at: string;
+  completed_at: string;
+  valid_until: string;
+  selected_market_ids: Array<string>;
+  decisions: Array<DiscoveryDecision>;
+  pages_scanned: number;
+  truncated: boolean;
+  missing_source_market_ids?: Array<string>;
+  error?: string | null;
+};
+
 export type Comparison = {
   status: "compatible" | "conflict" | "incomplete";
   same_event: boolean;
@@ -77,6 +92,13 @@ export type Difference = {
   status: "equal" | "different" | "unknown";
   left: string | null;
   right: string | null;
+};
+
+export type DiscoveryDecision = {
+  external_id: string;
+  family: string;
+  included: boolean;
+  reason: string;
 };
 
 export type Evaluation = {
@@ -341,6 +363,12 @@ export interface ApiOperations {
     query: Record<string, never>;
     response: unknown;
   };
+  discovery: {
+    route: "/api/v1/discovery";
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Array<CatalogReport>;
+  };
   market: {
     route: "/api/v1/markets/{market_id}";
     params: {
@@ -458,6 +486,11 @@ export const API_OPERATIONS = {
   },
   status: {
     route: "/api/v1/status",
+    params: [],
+    query: [],
+  },
+  discovery: {
+    route: "/api/v1/discovery",
     params: [],
     query: [],
   },

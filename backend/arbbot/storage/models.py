@@ -122,3 +122,11 @@ class HealthRecord(Base):
     status: Mapped[str] = mapped_column(String)
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class CatalogRecord(Base):
+    __tablename__ = "discovery_catalogs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    venue: Mapped[str] = mapped_column(String)
+    payload: Mapped[dict] = mapped_column(Document)

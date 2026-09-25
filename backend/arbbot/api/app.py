@@ -23,6 +23,8 @@ from arbbot.api.routes.sources import sources_router
 from arbbot.auth.dependencies import require_viewer
 from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
+from arbbot.discovery.models import CatalogReport
+from arbbot.discovery.service import catalog_reports
 from arbbot.domain import Book, Evaluation, Market, Opportunity, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
 from arbbot.observability.tracing import Tracing, correlation_fields, create_tracing
@@ -150,6 +152,10 @@ def create_app(
             ),
             "max_quote_age_seconds": settings.max_quote_age_seconds,
         }
+
+    @app.get("/api/v1/discovery", response_model=list[CatalogReport])
+    async def discovery():
+        return await catalog_reports(db, settings.mode)
 
     @app.get("/api/v1/markets/{market_id}", response_model=Market)
     async def market(market_id: str):

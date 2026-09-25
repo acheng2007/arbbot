@@ -17,9 +17,15 @@ Adapted source enrichment to the landed immutable repository, retaining recorded
 Live ingestion now captures source evidence, semantic source changes invalidate definitions, and incomplete sources block settlement compatibility without hiding known event identities.
 Added mode-isolated, paginated source metadata and attachment-download APIs and regenerated the client.
 Validation: 319 tests pass on both SQLite and PostgreSQL (isolated schemas on port 55433); Ruff and frontend typechecking pass.
-The running containers still use the previous image until the discovery scheduling integration is ready; source enrichment currently runs within the catalog path.
+Added independently scheduled event-family discovery and enrichment with durable mode-isolated reports at `/api/v1/discovery`.
+Watchlists retain precedence; bounded scans report excluded instruments, unrelated categories, missing sources and coverage limits.
+Stalled catalog refreshes do not block quotes, and failed refreshes cannot extend catalog expiration.
+The additive catalog migration and discovery checks bring the suite to 329 tests, passing on both SQLite and PostgreSQL; all 55 frontend tests pass after updating the generated-client expectation for the already-landed search parameters.
+The local Docker stack rebuilt and migrated successfully on September 25.
+Live inspection verified source download metadata and catalog reports and caught incidental CPI citations in grocery-price descriptions; the relevance filter now requires a matching headline.
+The final filter change is covered by the targeted regression and awaits a worker image refresh.
 
-Next action: implement targeted overlapping-event discovery and move catalog/enrichment scheduling off the hot quote path, then rebuild and verify the live stack.
+Next action: refresh the worker image with the headline relevance fix, then implement durable definition drafts and review revisions (#16) as the foundation for authenticated review APIs and worker approval consumption.
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

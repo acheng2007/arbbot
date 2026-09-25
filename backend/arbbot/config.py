@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from arbbot.discovery.models import DEFAULT_FAMILIES, EventFamily
 from arbbot.sources.models import MAX_CONTENT_BYTES
 
 
@@ -19,6 +20,13 @@ class Settings(BaseSettings):
     max_quote_skew_seconds: int = Field(default=10, ge=0, le=60)
     health_timeout_seconds: int = Field(default=120, ge=10)
     discovery_limit: int = Field(default=50, ge=1, le=1000)
+    discovery_families: tuple[EventFamily, ...] = Field(
+        default=DEFAULT_FAMILIES, min_length=1, max_length=8
+    )
+    discovery_scan_pages: int = Field(default=8, ge=1, le=50)
+    catalog_refresh_seconds: float = Field(default=300, ge=10, le=3600)
+    catalog_max_age_seconds: int = Field(default=900, ge=30, le=86400)
+    catalog_timeout_seconds: float = Field(default=120, ge=1, le=600)
     max_contracts: int = Field(default=1000, ge=1, le=10000)
     source_max_bytes: int = Field(default=1_000_000, ge=1024, le=MAX_CONTENT_BYTES)
     max_capital: Decimal = Field(default=Decimal("1000"), gt=0)
@@ -40,6 +48,17 @@ class Settings(BaseSettings):
     auth_refresh_seconds: int = Field(default=30, ge=1, le=300)
     auth_clock_skew_seconds: int = Field(default=0, ge=0, le=30)
     auth_max_token_seconds: int = Field(default=900, ge=60, le=3600)
+
+    @model_validator(mode="after")
+    def validate_catalog(self):
+        if (
+            self.catalog_max_age_seconds
+            <= self.catalog_refresh_seconds + self.catalog_timeout_seconds
+        ):
+            raise ValueError("Catalog age limit must exceed refresh interval plus refresh timeout")
+        if len({family.name for family in self.discovery_families}) != len(self.discovery_families):
+            raise ValueError("Discovery family names must be unique")
+        return self
 
     @model_validator(mode="after")
     def validate_auth(self):

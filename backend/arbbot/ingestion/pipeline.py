@@ -28,17 +28,24 @@ def safe_error(exc: Exception) -> str:
 
 
 class Pipeline:
-    def __init__(self, settings, repository, adapters, tracing=None, source_fetcher=None):
+    def __init__(
+        self, settings, repository, adapters, tracing=None, source_fetcher=None, catalog=None
+    ):
         self.settings, self.repository, self.adapters = settings, repository, adapters
         self.tracing = tracing or Tracing()
         self.sources = SourceRepository(repository.database, settings.source_max_bytes)
         self.source_fetcher = source_fetcher or SourceFetcher(max_bytes=settings.source_max_bytes)
+        self.catalog = catalog
 
     async def ingest_venue(self, adapter):
         mode = self.settings.mode
         try:
             with self.tracing.span("ingestion.catalog", venue=adapter.venue) as span:
-                markets = await adapter.discover(self.settings.discovery_limit)
+                markets = (
+                    self.catalog.current(adapter.venue)
+                    if self.catalog is not None
+                    else await adapter.discover(self.settings.discovery_limit)
+                )
                 span.set_attribute("market_count", len(markets))
             markets = list({market.id: market for market in markets}.values())
             if not markets:
@@ -61,8 +68,9 @@ class Pipeline:
             for market in markets:
                 if market.mode != mode or market.venue != adapter.venue:
                     raise ValueError("Adapter emitted data for the wrong mode or venue")
-                await self.repository.save_market(market)
-            if mode == "live" and hasattr(adapter, "enrich_sources"):
+                if self.catalog is None:
+                    await self.repository.save_market(market)
+            if self.catalog is None and mode == "live" and hasattr(adapter, "enrich_sources"):
 
                 async def enrich(market):
                     async with semaphore:

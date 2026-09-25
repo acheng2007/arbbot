@@ -9,6 +9,7 @@ import httpx
 from sqlalchemy import text
 
 from arbbot.config import Settings
+from arbbot.discovery.service import CatalogService
 from arbbot.exchanges.base import ExchangeHTTP
 from arbbot.exchanges.kalshi import KalshiAdapter
 from arbbot.exchanges.polymarket import PolymarketAdapter
@@ -68,7 +69,19 @@ async def run(once=False):
                             KalshiAdapter(ExchangeHTTP(client), settings),
                             polymarket,
                         ]
-                    pipeline = Pipeline(settings, repository, adapters, tracing=tracing)
+                    catalog = None
+                    if settings.mode == "live":
+                        catalog = CatalogService(settings, repository, adapters)
+                        resources.push_async_callback(catalog.aclose)
+                        if once:
+                            await asyncio.gather(
+                                *(catalog.refresh(adapter) for adapter in adapters)
+                            )
+                        else:
+                            catalog.start()
+                    pipeline = Pipeline(
+                        settings, repository, adapters, tracing=tracing, catalog=catalog
+                    )
                     while not stop.is_set():
                         try:
                             result = await pipeline.cycle()

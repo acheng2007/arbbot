@@ -465,6 +465,28 @@
         }
       }
     },
+    "/api/v1/discovery": {
+      "get": {
+        "summary": "Discovery",
+        "operationId": "discovery_api_v1_discovery_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogReport"
+                  },
+                  "type": "array",
+                  "title": "Response Discovery Api V1 Discovery Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/markets/{market_id}": {
       "get": {
         "summary": "Market",
@@ -926,6 +948,108 @@
         ],
         "title": "Book"
       },
+      "CatalogReport": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket"
+            ],
+            "title": "Venue"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "degraded",
+              "failed",
+              "stale"
+            ],
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Completed At"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid Until"
+          },
+          "selected_market_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Selected Market Ids"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryDecision"
+            },
+            "type": "array",
+            "title": "Decisions"
+          },
+          "pages_scanned": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pages Scanned"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          },
+          "missing_source_market_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Source Market Ids",
+            "default": []
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "venue",
+          "status",
+          "started_at",
+          "completed_at",
+          "valid_until",
+          "selected_market_ids",
+          "decisions",
+          "pages_scanned",
+          "truncated"
+        ],
+        "title": "CatalogReport"
+      },
       "Comparison": {
         "properties": {
           "status": {
@@ -1192,6 +1316,35 @@
           "right"
         ],
         "title": "Difference"
+      },
+      "DiscoveryDecision": {
+        "properties": {
+          "external_id": {
+            "type": "string",
+            "title": "External Id"
+          },
+          "family": {
+            "type": "string",
+            "title": "Family"
+          },
+          "included": {
+            "type": "boolean",
+            "title": "Included"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "external_id",
+          "family",
+          "included",
+          "reason"
+        ],
+        "title": "DiscoveryDecision"
       },
       "Evaluation": {
         "properties": {
