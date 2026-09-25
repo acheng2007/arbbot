@@ -46,9 +46,9 @@ test("filters are shareable through the address bar", async ({ page }) => {
 
   await page.getByLabel("Venue").selectOption("kalshi");
   await expect(page).toHaveURL(/venue=kalshi/);
-  await expect(page.getByRole("link", { name: /Will US CPI YoY/ })).toHaveCount(
-    0,
-  );
+  await expect(
+    page.getByRole("link", { name: /Will US CPI YoY/ }),
+  ).toBeVisible();
 
   await page.getByLabel("Search the loaded page").fill("payrolls");
   await expect(page).toHaveURL(/q=payrolls/);
@@ -113,4 +113,29 @@ test("a market that does not exist reports a clean failure", async ({
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "That record does not exist",
   );
+});
+
+test("prediction cards show both venue prices together", async ({ page }) => {
+  await page.goto("/markets");
+  const prediction = page.getByRole("article", {
+    name: /US CPI year-over-year above/,
+  });
+  await expect(
+    prediction.getByRole("heading", { name: "Polymarket", exact: true }),
+  ).toBeVisible();
+  await expect(
+    prediction.getByRole("heading", { name: "Kalshi", exact: true }),
+  ).toBeVisible();
+  await expect(prediction.getByText("Yes ask", { exact: true })).toHaveCount(2);
+  await expect(prediction.getByText("No ask", { exact: true })).toHaveCount(2);
+  await expect(prediction.getByText("Loading prices...")).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/predictions-${test.info().project.name}.png`,
+    fullPage: true,
+  });
 });

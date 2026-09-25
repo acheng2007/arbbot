@@ -17,8 +17,8 @@ export default function MarketsPage() {
           Markets
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
-          Every discovered contract, with the terms exactly as the venue
-          published them and the freshness of the quotes behind them.
+          One prediction, both exchanges. Compare Polymarket and Kalshi
+          prices together, then inspect each contract’s depth and source terms.
         </p>
       </header>
       {/* useSearchParams needs a boundary so the shell can render before filters resolve. */}

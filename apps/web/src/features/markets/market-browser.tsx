@@ -1,17 +1,13 @@
 "use client";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/states";
 import { OriginBanner } from "@/components/data-origin";
-import { Age } from "@/components/freshness";
 import { useApi } from "@/lib/query/hooks";
 import { QueryState } from "@/features/shared/query-state";
-import { venueLabel } from "@/features/shared/status";
-import { MarketPrices } from "./market-prices";
+import { PredictionCard } from "./prediction-card";
 import {
   applyLocalFilters,
   PAGE_SIZE,
@@ -46,8 +42,38 @@ export function MarketBrowser() {
     },
   });
 
+  const matches = useApi("matches", { query: { limit: 200 } });
+  const pairedIds = new Set<string>();
+  const pairs = (matches.isError ? [] : (matches.data?.data ?? [])).filter(
+    (match) => {
+      if (
+        match.status === "rejected" ||
+        match.comparison?.same_event !== true ||
+        pairedIds.has(match.left_id) ||
+        pairedIds.has(match.right_id)
+      )
+        return false;
+      pairedIds.add(match.left_id);
+      pairedIds.add(match.right_id);
+      return true;
+    },
+  );
+
   const loaded = markets.data?.data ?? [];
   const visible = applyLocalFilters(loaded, filters);
+  const cards = visible.filter(
+    (market, index) =>
+      !pairs.some(
+        (pair) =>
+          (pair.left_id === market.id || pair.right_id === market.id) &&
+          visible
+            .slice(0, index)
+            .some(
+              (earlier) =>
+                earlier.id === pair.left_id || earlier.id === pair.right_id,
+            ),
+      ),
+  );
   const narrowed = Boolean(filters.status || filters.search.trim());
   const page = Math.floor(filters.offset / PAGE_SIZE) + 1;
 
@@ -127,10 +153,12 @@ export function MarketBrowser() {
 
       <p className="text-sm leading-6 text-muted-foreground">
         Best asks refresh every 5 seconds while this page is visible, before
-        fees. Open a market to inspect depth and source terms. Venue and page
-        position are applied by the API. Status and text search narrow the{" "}
-        {loaded.length} markets on this page only, because catalog-wide
-        filtering is not yet available from the backend.
+        fees. Predictions with a recorded same-event comparison show both venues
+        together. Pairing uses the first 200 comparison records; unpaired
+        contracts remain visible. Open a market to inspect depth and source
+        terms. Venue and page position are applied by the API. Status and text
+        search narrow the {loaded.length} markets on this page only, because
+        catalog-wide filtering is not yet available from the backend.
       </p>
 
       <QueryState
@@ -154,32 +182,22 @@ export function MarketBrowser() {
           />
         ) : (
           <ul className="space-y-3">
-            {visible.map((market) => (
+            {cards.map((market) => (
               <li key={market.id}>
-                <Link
-                  href={`/markets/${encodeURIComponent(market.id)}`}
-                  className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="neutral">{venueLabel(market.venue)}</Badge>
-                    <Badge
-                      tone={market.status === "open" ? "positive" : "neutral"}
-                    >
-                      {market.status === "open" ? "Open" : "Closed"}
-                    </Badge>
-                    <Badge
-                      tone={market.mode === "live" ? "positive" : "caution"}
-                    >
-                      {market.mode === "live" ? "Live feed" : "Simulation"}
-                    </Badge>
-                    <Age at={market.observed_at} label="Observed" />
-                  </div>
-                  <p className="mt-3 font-medium leading-6">{market.title}</p>
-                  <p className="mt-2 font-mono text-xs break-all text-muted-foreground">
-                    {market.external_id}
-                  </p>
-                  <MarketPrices marketId={market.id} />
-                </Link>
+                <PredictionCard
+                  market={market}
+                  match={pairs.find(
+                    (pair) =>
+                      pair.left_id === market.id || pair.right_id === market.id,
+                  )}
+                  pairingState={
+                    matches.isPending
+                      ? "loading"
+                      : matches.isError
+                        ? "error"
+                        : "ready"
+                  }
+                />
               </li>
             ))}
           </ul>
@@ -191,7 +209,8 @@ export function MarketBrowser() {
         className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5"
       >
         <span className="text-sm text-muted-foreground">
-          Page {page}, showing {visible.length} of {loaded.length} loaded
+          Page {page}, {cards.length} predictions from {visible.length} of{" "}
+          {loaded.length} loaded contracts
         </span>
         <div className="flex gap-2">
           <Button

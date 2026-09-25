@@ -1,5 +1,22 @@
 # Frontend workstream handoff
 
+## Current delivery: prediction price layout, September 24, 2026
+
+Branch: `demo/live-prices`.
+The Markets tab now displays a prediction heading above Polymarket and Kalshi price panels, side by side on desktop and stacked on mobile.
+Recorded non-rejected same-event comparisons pair contracts without relying on title similarity; counterpart details load independently of the market page and venue filter.
+Each contract appears in at most one pair on the loaded page.
+Missing counterparts, comparison failures, quote loading, and stale prices remain explicit.
+Pair discovery currently reads the first 200 comparison records, as stated in the interface.
+No backend data or settlement verification was changed.
+
+Validation: lint, TypeScript, 55 unit tests, and 14 desktop/mobile market browser checks passed.
+Screenshots at both sizes were inspected and the browser checks found no horizontal overflow.
+The live demo was unavailable on localhost:3000, so browser validation used labeled recorded fixtures.
+No PR was opened.
+
+Next action: rebuild the live demo web container and validate this layout against evidence-backed same-event pairs once the demo backend is running.
+
 ## Current delivery: functioning live-price demo, September 23, 2026
 
 Branch: `demo/live-prices`, based on the existing frontend workstream at `aa01ac1`.
