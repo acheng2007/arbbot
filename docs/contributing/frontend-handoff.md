@@ -149,5 +149,14 @@ Local `npm ci` plus the full generated-client, lint, typecheck, Vitest and produ
 The corrected hosted run `35695384493` passes both frontend jobs: generated client/lint/types/unit/build in 1m23s and desktop/mobile browser tests in 3m8s.
 The backend check on the same PR head also passes.
 
-Next action: review and merge PR #53 first, then retarget PR #54 from `frontend/read-only-screens` to `main` before merging it.
-Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
+## Generated client drift follow-up
+
+Branch: `frontend/regenerate-api-client`, based on `origin/main` at `aacc456`.
+The frontend push workflow failed because `docs/openapi.json` changed after `apps/web/src/lib/api/schema.ts` was generated, and the merge had no textual conflict.
+The generated client now includes the `Principal` model, the identity operation, expanded market and match filters, and the version 2 contract extraction fields.
+The generated-client test now expects the complete market query parameter list.
+No fixture was added for the identity operation because it is not exposed through the browser data route or used by the current fixture-backed interface.
+
+Blockers: none.
+
+Next action: merge the generated-client drift fix after its hosted frontend checks pass.

@@ -19,6 +19,13 @@ describe("generated API client", () => {
   it("exposes the routes the proxy relies on", () => {
     expect(API_OPERATIONS.market.route).toBe("/api/v1/markets/{market_id}");
     expect(API_OPERATIONS.market.params).toEqual(["market_id"]);
-    expect(API_OPERATIONS.markets.query).toEqual(["limit", "offset", "venue"]);
+    expect(API_OPERATIONS.markets.query).toEqual([
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "family",
+      "q",
+    ]);
   });
 });
