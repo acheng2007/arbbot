@@ -4,6 +4,7 @@ from itertools import combinations
 
 from arbbot.domain import Market, Match, Review, digest, utcnow
 from arbbot.matching.contracts import ContractDefinition, compare_contracts
+from arbbot.matching.settlement import payout_issues
 
 
 def match_markets(
@@ -49,7 +50,9 @@ def match_markets(
             else:
                 status, reason = review.status, review.rationale
         if status == "verified" and a.mode == "live":
-            if comparison.status != "compatible":
+            if payout_issues(review):
+                status, reason = "candidate", "Explicit settlement payouts require review."
+            elif comparison.status != "compatible":
                 status, reason = "candidate", "Structured settlement comparison is not compatible."
             elif (review.left_definition_hash, review.right_definition_hash) != (
                 comparison.left_hash,

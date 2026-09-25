@@ -73,9 +73,15 @@ def simulation_reviews(markets: list[Market]) -> list[Review]:
             left_costs=policy,
             right_costs=policy,
             scenarios=(
-                Scenario(name="yes", left_yes="1", right_yes="1"),
-                Scenario(name="no", left_yes="0", right_yes="0"),
-                Scenario(name="cancelled", left_yes="0.5", right_yes="0.5"),
+                Scenario(name="yes", left_yes="1", right_yes="1", left_no="0", right_no="0"),
+                Scenario(name="no", left_yes="0", right_yes="0", left_no="1", right_no="1"),
+                Scenario(
+                    name="cancelled",
+                    left_yes="0.5",
+                    right_yes="0.5",
+                    left_no="0.5",
+                    right_no="0.5",
+                ),
             ),
         )
     ]

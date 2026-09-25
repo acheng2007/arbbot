@@ -313,6 +313,21 @@ async def test_wrong_evidence_mode_or_hash_and_incomplete_definitions_cannot_be_
         )
 
 
+async def test_live_review_write_rejects_implicit_payouts(drafts):
+    store, _, request, _, _ = drafts
+    implicit = request.review.model_copy(
+        update={
+            "scenarios": tuple(
+                s.model_copy(update={"left_no": None, "right_no": None})
+                for s in request.review.scenarios
+            )
+        }
+    )
+    with pytest.raises(ReviewValidationError) as caught:
+        await store.save_decision("live", request.model_copy(update={"review": implicit}), ACTOR)
+    assert all("explicit_settlement_payouts_required" in issue for issue in caught.value.issues)
+
+
 async def test_review_migration_preserves_existing_sources_and_catalog(database, fixture_market):
     from arbbot.discovery.models import CatalogReport
     from arbbot.discovery.service import catalog_reports

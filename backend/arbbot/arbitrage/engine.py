@@ -4,10 +4,10 @@ from decimal import ROUND_CEILING, Decimal
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Leg, Market, Match, Opportunity, digest
 from arbbot.matching.contracts import compare_contracts
+from arbbot.matching.settlement import payout_issues
 from arbbot.quality import book_issue
 
 ZERO = Decimal(0)
-ONE = Decimal(1)
 CENT = Decimal("0.01")
 
 
@@ -42,6 +42,7 @@ def evaluate(
     ):
         reasons.append("review_invalid_or_expired")
     if match.mode == "live":
+        reasons.extend(payout_issues(review))
         comparison = compare_contracts(
             left,
             right,
@@ -123,10 +124,11 @@ def evaluate(
                 break
             payouts = {}
             for scenario in review.scenarios:
-                fractions = (scenario.left_yes, scenario.right_yes)
                 payouts[scenario.name] = quantity * sum(
-                    (fraction if side == "yes" else ONE - fraction) * policy.payout_fx
-                    for fraction, side, policy in zip(fractions, sides, policies, strict=True)
+                    scenario.payout(venue_side, side) * policy.payout_fx
+                    for venue_side, side, policy in zip(
+                        ("left", "right"), sides, policies, strict=True
+                    )
                 )
             payout = min(payouts.values())
             profit = payout - outlay

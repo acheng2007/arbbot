@@ -176,6 +176,18 @@ async def test_live_definitions_file_through_worker_database_api(
         assert match["comparison"]["left"]["facts"]["source"]["quote"] == markets[0].rules
         opportunity = (await client.get("/api/v1/opportunities")).json()[0]
         assert opportunity["comparison"]["left_hash"] == definition_hash(definitions[0])
+        legacy = review.model_dump(mode="json")
+        for scenario in legacy["scenarios"]:
+            scenario.pop("left_no")
+            scenario.pop("right_no")
+        reviews_file.write_text(json.dumps([legacy]))
+        assert (await pipeline.cycle())["opportunities"] == 0
+        assert (await client.get("/api/v1/opportunities")).json() == []
+        candidate = (await client.get("/api/v1/matches")).json()[0]
+        assert candidate["status"] == "candidate"
+        assert "Explicit settlement payouts" in candidate["reason"]
+        reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
+        assert (await pipeline.cycle())["opportunities"] == 1
         definitions_file.write_text("[]")
         assert (await pipeline.cycle())["opportunities"] == 0
         assert (await client.get("/api/v1/opportunities")).json() == []

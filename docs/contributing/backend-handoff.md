@@ -35,7 +35,16 @@ Ruff passes.
 The new review storage has not been deployed to the local running stack or connected to HTTP mutations and worker approval consumption.
 See `docs/review-storage.md` for behavior and limits.
 
-Next action: implement explicit exceptional-settlement payoff validation (#10) before connecting authenticated review mutations (#18) and database-backed worker approval consumption (#19).
+Added explicit YES/NO payouts for each venue to settlement scenarios.
+Live matching, durable approval writes and reads, and evaluation reject legacy implicit NO payouts; non-complementary payouts and variable refunds remain unsupported.
+The evaluator uses explicit payouts and tests divergent settlement where both purchased legs lose.
+The integrated worker/database/API regression proves implicit reviews suppress opportunities and explicit reviews restore eligibility.
+Regenerated OpenAPI, review JSON Schema and the TypeScript client.
+Validation: 352 backend tests pass on SQLite; all 35 targeted settlement, review storage and contract integration tests pass on PostgreSQL using isolated schemas.
+Frontend typechecking and Ruff pass.
+See `docs/settlement-validation.md`; scenario completeness is not yet proved by these arithmetic checks.
+
+Next action: finish exceptional-settlement coverage (#10) by binding each source-backed cancellation, fallback and ambiguous-resolution condition to named reviewed scenarios, then connect authenticated review mutations (#18) and database-backed worker approval consumption (#19).
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

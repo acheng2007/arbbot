@@ -127,6 +127,25 @@ class Scenario(Model):
     name: str = Field(min_length=1)
     left_yes: Probability
     right_yes: Probability
+    # Missing NO values retain legacy simulation/file readability. Live reviews
+    # must explicitly describe both purchased outcomes at each venue.
+    left_no: Probability | None = None
+    right_no: Probability | None = None
+
+    @model_validator(mode="after")
+    def complementary_payouts(self):
+        if (self.left_no is None) != (self.right_no is None):
+            raise ValueError("Explicit settlement requires NO payouts for both venues")
+        if self.left_no is not None and (
+            self.left_yes + self.left_no != Decimal(1)
+            or self.right_yes + self.right_no != Decimal(1)
+        ):
+            raise ValueError("Non-complementary payouts and variable refunds are unsupported")
+        return self
+
+    def payout(self, venue_side: Literal["left", "right"], outcome: Literal["yes", "no"]):
+        value = getattr(self, f"{venue_side}_{outcome}")
+        return value if value is not None else Decimal(1) - getattr(self, f"{venue_side}_yes")
 
 
 class Review(Model):

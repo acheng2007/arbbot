@@ -252,6 +252,8 @@ export type Scenario = {
   name: string;
   left_yes: DecimalString;
   right_yes: DecimalString;
+  left_no?: DecimalString | null;
+  right_no?: DecimalString | null;
 };
 
 export type SourceArtifactSummary = {
