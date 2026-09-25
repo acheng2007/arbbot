@@ -6,6 +6,7 @@ from urllib.parse import quote
 
 from arbbot.domain import Book, Level, Market, utcnow
 from arbbot.exchanges.base import ExchangeHTTP
+from arbbot.exchanges.polymarket_sources import enrich_polymarket
 
 GAMMA = "https://gamma-api.polymarket.com"
 CLOB = "https://clob.polymarket.com"
@@ -17,6 +18,9 @@ def array(value):
 
 class PolymarketAdapter:
     venue = "polymarket"
+
+    async def enrich_sources(self, market, repository, fetcher):
+        return await enrich_polymarket(market, repository, fetcher)
 
     def __init__(self, http: ExchangeHTTP, market_ids: list[str] | None = None):
         self.http = http

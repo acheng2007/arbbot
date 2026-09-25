@@ -243,6 +243,11 @@ def compare_contracts(left, right, a=None, b=None):
     same_event = not issues and all(
         d.status == "equal" for d in differences if d.field in EVENT_FIELDS
     )
+    # Retrieval gaps block settlement compatibility, but a documented event
+    # identity can still be displayed as a candidate comparison.
+    for side, market in (("left", left), ("right", right)):
+        if market.mode == "live" and market.settlement_details.get("source_status") == "incomplete":
+            issues.append(f"{side}:source_evidence_incomplete")
     for side, definition in (("left", a), ("right", b)):
         if definition and definition.schema_version != CURRENT_SCHEMA_VERSION:
             issues.append(f"{side}:definition_schema_upgrade_required")

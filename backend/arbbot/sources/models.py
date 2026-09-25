@@ -116,8 +116,8 @@ class SourceFailure(SourceReference):
         )
 
 
-class SourceArtifact(SourceModel):
-    """A persisted retrieval attempt with its observation history."""
+class SourceArtifactSummary(SourceModel):
+    """Metadata for a persisted retrieval attempt, without the document bytes."""
 
     id: str
     venue: Venue
@@ -126,7 +126,6 @@ class SourceArtifact(SourceModel):
     url: Url
     label: Label
     status: Literal["captured", "failed"]
-    content: bytes | None = None
     content_type: MediaType | None = None
     content_digest: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     byte_size: int = Field(ge=0)
@@ -145,6 +144,12 @@ class SourceArtifact(SourceModel):
     @property
     def complete(self) -> bool:
         return self.status == "captured"
+
+
+class SourceArtifact(SourceArtifactSummary):
+    """A persisted retrieval attempt including the original document bytes."""
+
+    content: bytes | None = None
 
 
 def bounded_capture(

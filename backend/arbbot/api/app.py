@@ -19,6 +19,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from arbbot.api.routes.catalog import catalog_router
+from arbbot.api.routes.sources import sources_router
 from arbbot.auth.dependencies import require_viewer
 from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
@@ -77,6 +78,7 @@ def create_app(
     app.state.auth_origins = frozenset(settings.cors_origins)
     app.state.tracing = tracing or Tracing()
     app.include_router(catalog_router(db, settings.mode))
+    app.include_router(sources_router(db, settings.mode))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

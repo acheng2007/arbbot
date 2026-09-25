@@ -13,7 +13,13 @@ The combined tree passes 300 SQLite backend tests, Ruff lint/format, and fronten
 The live API reproduction returned an empty matches array; the worker only samples 20 independent markets per venue.
 The existing source-enrichment branch uses a different storage contract and cannot be merged unchanged.
 
-Next action: adapt source enrichment to the landed immutable source repository, then implement targeted overlapping-event discovery with recorded integration tests.
+Adapted source enrichment to the landed immutable repository, retaining recorded venue metadata and the original source migration.
+Live ingestion now captures source evidence, semantic source changes invalidate definitions, and incomplete sources block settlement compatibility without hiding known event identities.
+Added mode-isolated, paginated source metadata and attachment-download APIs and regenerated the client.
+Validation: 319 tests pass on both SQLite and PostgreSQL (isolated schemas on port 55433); Ruff and frontend typechecking pass.
+The running containers still use the previous image until the discovery scheduling integration is ready; source enrichment currently runs within the catalog path.
+
+Next action: implement targeted overlapping-event discovery and move catalog/enrichment scheduling off the hot quote path, then rebuild and verify the live stack.
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

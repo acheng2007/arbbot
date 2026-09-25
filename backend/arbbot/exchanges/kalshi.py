@@ -10,12 +10,16 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from arbbot.config import Settings
 from arbbot.domain import Book, Level, Market, utcnow
 from arbbot.exchanges.base import ExchangeHTTP
+from arbbot.exchanges.kalshi_sources import enrich_kalshi
 
 BASE = "https://external-api.kalshi.com/trade-api/v2"
 
 
 class KalshiAdapter:
     venue = "kalshi"
+
+    async def enrich_sources(self, market, repository, fetcher):
+        return await enrich_kalshi(market, repository, fetcher)
 
     def __init__(self, http: ExchangeHTTP, settings: Settings):
         self.http = http

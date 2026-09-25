@@ -14,6 +14,8 @@ from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
 from arbbot.observability.tracing import Tracing
 from arbbot.quality import book_issue
+from arbbot.sources.fetch import SourceFetcher
+from arbbot.sources.repository import SourceRepository
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +28,11 @@ def safe_error(exc: Exception) -> str:
 
 
 class Pipeline:
-    def __init__(self, settings, repository, adapters, tracing=None):
+    def __init__(self, settings, repository, adapters, tracing=None, source_fetcher=None):
         self.settings, self.repository, self.adapters = settings, repository, adapters
         self.tracing = tracing or Tracing()
+        self.sources = SourceRepository(repository.database, settings.source_max_bytes)
+        self.source_fetcher = source_fetcher or SourceFetcher(max_bytes=settings.source_max_bytes)
 
     async def ingest_venue(self, adapter):
         mode = self.settings.mode
@@ -58,6 +62,18 @@ class Pipeline:
                 if market.mode != mode or market.venue != adapter.venue:
                     raise ValueError("Adapter emitted data for the wrong mode or venue")
                 await self.repository.save_market(market)
+            if mode == "live" and hasattr(adapter, "enrich_sources"):
+
+                async def enrich(market):
+                    async with semaphore:
+                        with self.tracing.span("ingestion.sources", venue=adapter.venue):
+                            return await adapter.enrich_sources(
+                                market, self.sources, self.source_fetcher
+                            )
+
+                markets = await asyncio.gather(*(enrich(market) for market in markets))
+                for market in markets:
+                    await self.repository.save_market(market)
             results = await asyncio.gather(*(fetch(market) for market in markets))
             books, errors, market_health = {}, [], []
             for market, result in zip(markets, results, strict=True):

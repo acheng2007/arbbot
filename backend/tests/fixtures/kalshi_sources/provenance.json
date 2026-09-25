@@ -1,0 +1,16 @@
+[
+  {
+    "file": "event.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/events/KXCPI-26OCT",
+    "saved_at": "2026-09-21T02:56:36.365731+00:00",
+    "sha256": "d887eccef62dee46c0258ea9e54103484e91b42d6d20b4e6f9b0d5a98e6947a2",
+    "kind": "recorded_public_http_response"
+  },
+  {
+    "file": "series.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/series/KXCPI",
+    "saved_at": "2026-09-21T02:56:36.059420+00:00",
+    "sha256": "5d5e60cea2f3cb6ccff928bd0e13e2fd52e80508b853089ab0cdc3fc6896aafa",
+    "kind": "recorded_public_http_response"
+  }
+]

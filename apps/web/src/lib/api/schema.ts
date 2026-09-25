@@ -232,6 +232,35 @@ export type Scenario = {
   right_yes: DecimalString;
 };
 
+export type SourceArtifactSummary = {
+  id: string;
+  venue: "kalshi" | "polymarket";
+  mode: "simulation" | "live";
+  market_id: string;
+  url: string;
+  label: string;
+  status: "captured" | "failed";
+  content_type?: string | null;
+  content_digest?: string | null;
+  byte_size: number;
+  source_at?: string | null;
+  reason?:
+    | "http_error"
+    | "timeout"
+    | "network_error"
+    | "too_large"
+    | "unsupported_content"
+    | "invalid_document"
+    | null;
+  detail?: string | null;
+  status_code?: number | null;
+  market_terms_hash: string;
+  first_seen_at: string;
+  last_seen_at: string;
+  observations: number;
+  details?: Partial<Record<string, unknown>>;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -268,6 +297,25 @@ export interface ApiOperations {
       evidence?: "complete" | "incomplete" | null;
     };
     response: Array<Match>;
+  };
+  sourceHistory: {
+    route: "/api/v1/markets/{market_id}/sources";
+    params: {
+      market_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<SourceArtifactSummary>;
+  };
+  sourceContent: {
+    route: "/api/v1/sources/{artifact_id}/content";
+    params: {
+      artifact_id: string;
+    };
+    query: Record<string, never>;
+    response: unknown;
   };
   liveness: {
     route: "/health/live";
@@ -382,6 +430,16 @@ export const API_OPERATIONS = {
     route: "/api/v1/matches",
     params: [],
     query: ["limit", "offset", "venue", "status", "family", "q", "evidence"],
+  },
+  sourceHistory: {
+    route: "/api/v1/markets/{market_id}/sources",
+    params: ["market_id"],
+    query: ["limit", "offset"],
+  },
+  sourceContent: {
+    route: "/api/v1/sources/{artifact_id}/content",
+    params: ["artifact_id"],
+    query: [],
   },
   liveness: {
     route: "/health/live",

@@ -6,7 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from arbbot.domain import Mode
-from arbbot.sources.models import MAX_CONTENT_BYTES, SourceArtifact, SourceCapture, SourceFailure
+from arbbot.sources.models import (
+    MAX_CONTENT_BYTES,
+    SourceArtifact,
+    SourceArtifactSummary,
+    SourceCapture,
+    SourceFailure,
+)
 from arbbot.storage.models import MarketRecord, SourceArtifactRecord
 from arbbot.storage.repository import aware
 
@@ -47,6 +53,43 @@ class SourceRepository:
             raise ValueError(f"Document limit must be between 1 and {MAX_CONTENT_BYTES} bytes")
         self.database = database
         self.max_content_bytes = max_content_bytes
+
+    async def get(self, mode: Mode, artifact_id: str) -> SourceArtifact | None:
+        async with self.database.sessions() as session:
+            row = await session.scalar(
+                select(SourceArtifactRecord)
+                .join(MarketRecord, MarketRecord.key == SourceArtifactRecord.market_key)
+                .where(SourceArtifactRecord.id == artifact_id, MarketRecord.mode == mode)
+            )
+            return artifact(row) if row else None
+
+    async def summaries(self, mode: Mode, market_id: str, *, limit=20, offset=0):
+        # Avoid materializing binary documents just to list provenance.
+        columns = [
+            column for column in SourceArtifactRecord.__table__.columns if column.name != "content"
+        ]
+        query = (
+            select(*columns)
+            .where(SourceArtifactRecord.market_key == market_key(mode, market_id))
+            .order_by(SourceArtifactRecord.last_seen_at.desc(), SourceArtifactRecord.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        async with self.database.sessions() as session:
+            rows = (await session.execute(query)).mappings().all()
+            return [
+                SourceArtifactSummary.model_validate(
+                    {
+                        **{k: v for k, v in row.items() if k != "market_key"},
+                        "mode": mode,
+                        "market_id": market_id,
+                        "first_seen_at": aware(row["first_seen_at"]),
+                        "last_seen_at": aware(row["last_seen_at"]),
+                        "source_at": aware(row["source_at"]) if row["source_at"] else None,
+                    }
+                )
+                for row in rows
+            ]
 
     async def record(self, event: SourceCapture | SourceFailure) -> SourceArtifact:
         """Persist one retrieval attempt.
