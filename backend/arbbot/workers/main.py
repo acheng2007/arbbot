@@ -14,6 +14,7 @@ from arbbot.exchanges.kalshi import KalshiAdapter
 from arbbot.exchanges.polymarket import PolymarketAdapter
 from arbbot.exchanges.simulation import SimulationAdapter
 from arbbot.ingestion.pipeline import Pipeline, safe_error
+from arbbot.observability.tracing import correlation_fields, create_tracing
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
 from arbbot.streams.polymarket import StreamingPolymarketAdapter
@@ -22,6 +23,7 @@ from arbbot.streams.polymarket import StreamingPolymarketAdapter
 class JSONFormatter(logging.Formatter):
     def format(self, record):
         fields = {"level": record.levelname, "message": record.getMessage(), "logger": record.name}
+        fields.update(correlation_fields())
         for key in ("venue", "status", "error", "market_count", "book_count"):
             if hasattr(record, key):
                 fields[key] = getattr(record, key)
@@ -32,6 +34,7 @@ async def run(once=False):
     settings = Settings()
     db = Database(settings)
     repository = Repository(db)
+    tracing = create_tracing(settings, "arbbot-worker")
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -65,7 +68,7 @@ async def run(once=False):
                             KalshiAdapter(ExchangeHTTP(client), settings),
                             polymarket,
                         ]
-                    pipeline = Pipeline(settings, repository, adapters)
+                    pipeline = Pipeline(settings, repository, adapters, tracing=tracing)
                     while not stop.is_set():
                         try:
                             result = await pipeline.cycle()
@@ -91,7 +94,10 @@ async def run(once=False):
                     await lock_connection.execute(text("SELECT pg_advisory_unlock(71920413)"))
                     await lock_connection.commit()
     finally:
-        await db.close()
+        try:
+            await db.close()
+        finally:
+            await asyncio.to_thread(tracing.shutdown)
 
 
 def main():

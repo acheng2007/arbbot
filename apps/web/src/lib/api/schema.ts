@@ -30,7 +30,7 @@ export type ContractDefinition = {
   market_id: string;
   terms_hash: string;
   extractor: string;
-  schema_version?: 1;
+  schema_version?: 1 | 2;
   facts: Partial<
     Record<
       | "event_type"
@@ -48,7 +48,15 @@ export type ContractDefinition = {
       | "outcome_orientation"
       | "payout"
       | "cancellation"
-      | "exceptions",
+      | "exceptions"
+      | "seasonal_adjustment"
+      | "rounding_increment"
+      | "rounding_mode"
+      | "revision_policy"
+      | "observation_start"
+      | "observation_end"
+      | "observation_start_inclusive"
+      | "observation_end_inclusive",
       Fact
     >
   >;
@@ -99,6 +107,14 @@ export type Extraction = {
     | "payout"
     | "cancellation"
     | "exceptions"
+    | "seasonal_adjustment"
+    | "rounding_increment"
+    | "rounding_mode"
+    | "revision_policy"
+    | "observation_start"
+    | "observation_end"
+    | "observation_start_inclusive"
+    | "observation_end_inclusive"
   >;
   issues: Array<string>;
 };
@@ -183,6 +199,14 @@ export type Opportunity = {
   assumptions: Array<string>;
 };
 
+export type Principal = {
+  issuer: string;
+  subject: string;
+  client_id: string;
+  roles: Array<"viewer" | "reviewer">;
+  audit_id: string;
+};
+
 export type Review = {
   left_id: string;
   right_id: string;
@@ -218,11 +242,44 @@ export type ValidationError = {
 
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
+  markets: {
+    route: "/api/v1/markets";
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: "kalshi" | "polymarket" | null;
+      status?: "open" | "closed" | null;
+      family?: string | null;
+      q?: string | null;
+    };
+    response: Array<Market>;
+  };
+  matches: {
+    route: "/api/v1/matches";
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: "kalshi" | "polymarket" | null;
+      status?: "candidate" | "verified" | "rejected" | null;
+      family?: string | null;
+      q?: string | null;
+      evidence?: "complete" | "incomplete" | null;
+    };
+    response: Array<Match>;
+  };
   liveness: {
     route: "/health/live";
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
+  };
+  identity: {
+    route: "/api/v1/auth/me";
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Principal;
   };
   readiness: {
     route: "/health/ready";
@@ -235,16 +292,6 @@ export interface ApiOperations {
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
-  };
-  markets: {
-    route: "/api/v1/markets";
-    params: Record<string, never>;
-    query: {
-      limit?: number;
-      offset?: number;
-      venue?: "kalshi" | "polymarket" | null;
-    };
-    response: Array<Market>;
   };
   market: {
     route: "/api/v1/markets/{market_id}";
@@ -269,15 +316,6 @@ export interface ApiOperations {
     };
     query: Record<string, never>;
     response: Book;
-  };
-  matches: {
-    route: "/api/v1/matches";
-    params: Record<string, never>;
-    query: {
-      limit?: number;
-      offset?: number;
-    };
-    response: Array<Match>;
   };
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}";
@@ -335,8 +373,23 @@ export type OperationId = keyof ApiOperations;
 
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
+  markets: {
+    route: "/api/v1/markets",
+    params: [],
+    query: ["limit", "offset", "venue", "status", "family", "q"],
+  },
+  matches: {
+    route: "/api/v1/matches",
+    params: [],
+    query: ["limit", "offset", "venue", "status", "family", "q", "evidence"],
+  },
   liveness: {
     route: "/health/live",
+    params: [],
+    query: [],
+  },
+  identity: {
+    route: "/api/v1/auth/me",
     params: [],
     query: [],
   },
@@ -349,11 +402,6 @@ export const API_OPERATIONS = {
     route: "/api/v1/status",
     params: [],
     query: [],
-  },
-  markets: {
-    route: "/api/v1/markets",
-    params: [],
-    query: ["limit", "offset", "venue"],
   },
   market: {
     route: "/api/v1/markets/{market_id}",
@@ -369,11 +417,6 @@ export const API_OPERATIONS = {
     route: "/api/v1/markets/{market_id}/book",
     params: ["market_id"],
     query: [],
-  },
-  matches: {
-    route: "/api/v1/matches",
-    params: [],
-    query: ["limit", "offset"],
   },
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}",

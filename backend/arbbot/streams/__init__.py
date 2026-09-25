@@ -1,1 +1,1 @@
-"""Persistent public market-data streams."""
+"""Persistent market-data streams, validated events and resynchronization state."""

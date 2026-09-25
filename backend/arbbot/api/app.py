@@ -4,9 +4,10 @@ import time
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
+from opentelemetry.trace import SpanKind, Status, StatusCode
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -17,9 +18,13 @@ from prometheus_client import (
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from arbbot.api.routes.catalog import catalog_router
+from arbbot.auth.dependencies import require_viewer
+from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
-from arbbot.domain import Book, Evaluation, Market, Match, Opportunity, Venue, utcnow
+from arbbot.domain import Book, Evaluation, Market, Opportunity, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
+from arbbot.observability.tracing import Tracing, correlation_fields, create_tracing
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
 
@@ -27,10 +32,15 @@ PageSize = Annotated[int, Query(ge=1, le=200)]
 Offset = Annotated[int, Query(ge=0, le=100000)]
 
 
-def create_app(settings: Settings | None = None, database: Database | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    database: Database | None = None,
+    tracing: Tracing | None = None,
+) -> FastAPI:
     settings = settings or Settings()
     db = database or Database(settings)
     repository = Repository(db)
+    authenticator = Authenticator(settings)
     registry = CollectorRegistry()
     requests = Counter(
         "arbbot_http_requests_total", "HTTP responses", ["route", "status"], registry=registry
@@ -41,9 +51,19 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
 
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        if database is None:
-            await db.close()
+        app.state.tracing = tracing or create_tracing(settings, "arbbot-api")
+        try:
+            yield
+        finally:
+            try:
+                try:
+                    await authenticator.close()
+                finally:
+                    if database is None:
+                        await db.close()
+            finally:
+                if tracing is None:
+                    await asyncio.to_thread(app.state.tracing.shutdown)
 
     app = FastAPI(
         title="Arbbot API",
@@ -53,17 +73,36 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         "Live opportunities are conditional estimates, not execution guarantees.",
     )
     app.state.repository = repository
+    app.state.authenticator = authenticator
+    app.state.auth_origins = frozenset(settings.cors_origins)
+    app.state.tracing = tracing or Tracing()
+    app.include_router(catalog_router(db, settings.mode))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_methods=["GET"],
-        allow_headers=["Accept", "Last-Event-ID"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allow_headers=["Accept", "Last-Event-ID", "Authorization", "Content-Type", "If-Match"],
     )
 
     @app.middleware("http")
     async def metrics(request, call_next):
         start = time.monotonic()
-        response = await call_next(request)
+        with app.state.tracing.span("api.request", root=True, kind=SpanKind.SERVER) as span:
+            method = (
+                request.method
+                if request.method in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
+                else "OTHER"
+            )
+            span.set_attribute("http.request.method", method)
+            response = await call_next(request)
+            route = getattr(request.scope.get("route"), "path", "unmatched")
+            span.set_attribute("http.route", route)
+            span.set_attribute("http.response.status_code", response.status_code)
+            if response.status_code >= 500:
+                span.set_status(Status(StatusCode.ERROR))
+            correlation = correlation_fields()
+            if correlation:
+                response.headers["X-Arbbot-Trace-Id"] = correlation["trace_id"]
         route = getattr(request.scope.get("route"), "path", "unmatched")
         requests.labels(route, str(response.status_code)).inc()
         latency.labels(route).observe(time.monotonic() - start)
@@ -79,6 +118,10 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     @app.get("/health/live")
     async def liveness():
         return {"status": "ok", "mode": settings.mode}
+
+    @app.get("/api/v1/auth/me", response_model=Principal)
+    async def identity(principal: Annotated[Principal, Depends(require_viewer)]):
+        return principal
 
     @app.get("/health/ready")
     async def readiness():
@@ -106,10 +149,6 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
             "max_quote_age_seconds": settings.max_quote_age_seconds,
         }
 
-    @app.get("/api/v1/markets", response_model=list[Market])
-    async def markets(limit: PageSize = 100, offset: Offset = 0, venue: Venue | None = None):
-        return await repository.markets(settings.mode, limit=limit, offset=offset, venue=venue)
-
     @app.get("/api/v1/markets/{market_id}", response_model=Market)
     async def market(market_id: str):
         result = await repository.market(settings.mode, market_id)
@@ -130,10 +169,6 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         if result is None:
             raise HTTPException(404, "Order book not available")
         return result
-
-    @app.get("/api/v1/matches", response_model=list[Match])
-    async def matches(limit: PageSize = 100, offset: Offset = 0):
-        return await repository.matches(settings.mode, limit, offset)
 
     @app.get("/api/v1/markets/{market_id}/versions/{terms_hash}", response_model=Market)
     async def market_version(market_id: str, terms_hash: str):
