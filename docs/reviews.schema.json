@@ -192,6 +192,15 @@
           "title": "Scenarios",
           "type": "array"
         },
+        "settlement_mappings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SettlementMapping"
+          },
+          "maxItems": 192,
+          "title": "Settlement Mappings",
+          "type": "array"
+        },
         "left_costs": {
           "$ref": "#/$defs/CostPolicy"
         },
@@ -297,6 +306,50 @@
         "right_yes"
       ],
       "title": "Scenario",
+      "type": "object"
+    },
+    "SettlementMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "side": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "title": "Side",
+          "type": "string"
+        },
+        "policy": {
+          "enum": [
+            "cancellation",
+            "fallback",
+            "ambiguous_resolution"
+          ],
+          "title": "Policy",
+          "type": "string"
+        },
+        "condition_id": {
+          "pattern": "^[a-z0-9_]{1,64}$",
+          "title": "Condition Id",
+          "type": "string"
+        },
+        "scenarios": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Scenarios",
+          "type": "array"
+        }
+      },
+      "required": [
+        "side",
+        "policy",
+        "condition_id",
+        "scenarios"
+      ],
+      "title": "SettlementMapping",
       "type": "object"
     }
   },

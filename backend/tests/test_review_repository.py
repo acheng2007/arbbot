@@ -325,7 +325,9 @@ async def test_live_review_write_rejects_implicit_payouts(drafts):
     )
     with pytest.raises(ReviewValidationError) as caught:
         await store.save_decision("live", request.model_copy(update={"review": implicit}), ACTOR)
-    assert all("explicit_settlement_payouts_required" in issue for issue in caught.value.issues)
+    assert {
+        f"explicit_settlement_payouts_required:{scenario.name}" for scenario in implicit.scenarios
+    }.issubset(caught.value.issues)
 
 
 async def test_review_migration_preserves_existing_sources_and_catalog(database, fixture_market):

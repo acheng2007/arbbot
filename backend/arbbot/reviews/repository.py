@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from arbbot.domain import Market, restore, utcnow
 from arbbot.matching.contracts import compare_contracts, definition_hash, evidence_issues
-from arbbot.matching.settlement import payout_issues
+from arbbot.matching.settlement import settlement_issues
 from arbbot.reviews.models import (
     Actor,
     DecisionRevision,
@@ -239,7 +239,9 @@ class ReviewRepository:
                         )
                     if incomplete:
                         raise ReviewValidationError(incomplete)
-                    if mode == "live" and (issues := payout_issues(review)):
+                    if mode == "live" and (
+                        issues := settlement_issues(review, left.definition, right.definition)
+                    ):
                         raise ReviewValidationError(issues)
                     comparison = compare_contracts(
                         markets[left.market.id],
@@ -332,17 +334,19 @@ class ReviewRepository:
         issues = []
         if revision.review.expires_at <= utcnow():
             issues.append("approval_expired")
-        if revision.mode == "live":
-            issues.extend(payout_issues(revision.review))
+        definitions = []
         for side, draft_id, market_id in (
             ("left", revision.left_draft_id, revision.left_id),
             ("right", revision.right_draft_id, revision.right_id),
         ):
             draft = await self._draft(session, revision.mode, draft_id)
+            definitions.append(draft.definition)
             market = await self._market(session, revision.mode, market_id)
             issues += [
                 f"{side}:{issue}" for issue in await self._draft_issues(session, draft, market)
             ]
+        if revision.mode == "live":
+            issues.extend(settlement_issues(revision.review, *definitions))
         return DecisionState(revision=revision, eligible=not issues, blocked_reasons=tuple(issues))
 
     async def current_decision(self, mode, left_id, right_id):

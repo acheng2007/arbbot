@@ -1,7 +1,16 @@
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
-from arbbot.domain import Book, CostPolicy, Level, Market, Review, Scenario, utcnow
+from arbbot.domain import (
+    Book,
+    CostPolicy,
+    Level,
+    Market,
+    Review,
+    Scenario,
+    SettlementMapping,
+    utcnow,
+)
 
 CLOSE = datetime(2099, 1, 1, tzinfo=UTC)
 
@@ -20,6 +29,8 @@ class SimulationAdapter:
                 title="SIMULATION: Will the demo index finish above 100?",
                 rules=(
                     "Synthetic binary event; YES and NO are complementary, including cancellation."
+                    " Synthetic cancellation pays 0.5 to each outcome."
+                    " No fallback or ambiguous-resolution conditions apply in this simulation."
                 ),
                 closes_at=CLOSE,
                 status="open",
@@ -72,6 +83,15 @@ def simulation_reviews(markets: list[Market]) -> list[Review]:
             expires_at=utcnow() + timedelta(days=1),
             left_costs=policy,
             right_costs=policy,
+            settlement_mappings=tuple(
+                SettlementMapping(
+                    side=side,
+                    policy="cancellation",
+                    condition_id="cancelled",
+                    scenarios=("cancelled",),
+                )
+                for side in ("left", "right")
+            ),
             scenarios=(
                 Scenario(name="yes", left_yes="1", right_yes="1", left_no="0", right_no="0"),
                 Scenario(name="no", left_yes="0", right_yes="0", left_no="1", right_no="1"),

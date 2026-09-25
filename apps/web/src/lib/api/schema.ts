@@ -75,6 +75,7 @@ export type ContractDefinition = {
       Fact
     >
   >;
+  settlement_policies?: Array<SettlementPolicy> | null;
 };
 
 export type CostPolicy = {
@@ -244,6 +245,7 @@ export type Review = {
   cancellation_and_exceptions: string;
   expires_at: string;
   scenarios: Array<Scenario>;
+  settlement_mappings?: Array<SettlementMapping>;
   left_costs: CostPolicy;
   right_costs: CostPolicy;
 };
@@ -254,6 +256,27 @@ export type Scenario = {
   right_yes: DecimalString;
   left_no?: DecimalString | null;
   right_no?: DecimalString | null;
+};
+
+export type SettlementCondition = {
+  id: string;
+  trigger: string;
+  yes_payout: DecimalString;
+  no_payout: DecimalString;
+};
+
+export type SettlementMapping = {
+  side: "left" | "right";
+  policy: "cancellation" | "fallback" | "ambiguous_resolution";
+  condition_id: string;
+  scenarios: Array<string>;
+};
+
+export type SettlementPolicy = {
+  kind: "cancellation" | "fallback" | "ambiguous_resolution";
+  status: "modeled" | "not_applicable" | "unknown";
+  evidence: Fact;
+  conditions?: Array<SettlementCondition>;
 };
 
 export type SourceArtifactSummary = {

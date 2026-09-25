@@ -60,6 +60,22 @@
           },
           "title": "Facts",
           "type": "object"
+        },
+        "settlement_policies": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/SettlementPolicy"
+              },
+              "maxItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Settlement Policies"
         }
       },
       "required": [
@@ -112,6 +128,100 @@
         "quote"
       ],
       "title": "Fact",
+      "type": "object"
+    },
+    "SettlementCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z0-9_]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "trigger": {
+          "maxLength": 2000,
+          "minLength": 10,
+          "title": "Trigger",
+          "type": "string"
+        },
+        "yes_payout": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Yes Payout"
+        },
+        "no_payout": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "No Payout"
+        }
+      },
+      "required": [
+        "id",
+        "trigger",
+        "yes_payout",
+        "no_payout"
+      ],
+      "title": "SettlementCondition",
+      "type": "object"
+    },
+    "SettlementPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "cancellation",
+            "fallback",
+            "ambiguous_resolution"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "modeled",
+            "not_applicable",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Fact"
+        },
+        "conditions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SettlementCondition"
+          },
+          "maxItems": 32,
+          "title": "Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "status",
+        "evidence"
+      ],
+      "title": "SettlementPolicy",
       "type": "object"
     }
   },

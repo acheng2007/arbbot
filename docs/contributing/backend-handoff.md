@@ -44,7 +44,16 @@ Validation: 352 backend tests pass on SQLite; all 35 targeted settlement, review
 Frontend typechecking and Ruff pass.
 See `docs/settlement-validation.md`; scenario completeness is not yet proved by these arithmetic checks.
 
-Next action: finish exceptional-settlement coverage (#10) by binding each source-backed cancellation, fallback and ambiguous-resolution condition to named reviewed scenarios, then connect authenticated review mutations (#18) and database-backed worker approval consumption (#19).
+Added source-backed cancellation, fallback and ambiguous-resolution inventories to canonical definitions, with fixed payouts per named condition.
+Live gates require each policy to be modeled or explicitly not applicable and map every declared condition to payout-consistent named scenarios.
+Missing/unknown inventories, missing conditions, duplicate mappings and mismatched scenario payouts keep pairs unverified.
+Policy evidence is checked against market rules and included in definition hashes, invalidating legacy approvals until reviewed again.
+The integrated worker/API test suppresses opportunities when condition coverage is removed.
+Validation: 360 SQLite tests pass; all 43 targeted PostgreSQL settlement, contract integration and review repository tests pass, including the final API coverage-removal regression.
+Frontend typechecking, Ruff and whitespace checks pass.
+This establishes coverage of the declared inventory, not completeness of semantic interpretation or every reachable cross-venue combination.
+
+Next action: validate exceptional-settlement inventories and cross-venue condition interactions against a recorded supported-pair corpus (#6/#10), then connect authenticated review mutations (#18) and database-backed worker approval consumption (#19).
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

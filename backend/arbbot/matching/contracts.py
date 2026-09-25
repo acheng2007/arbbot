@@ -96,6 +96,36 @@ class Fact(StrictModel):
         return self
 
 
+class SettlementCondition(StrictModel):
+    id: str = Field(pattern=r"^[a-z0-9_]{1,64}$")
+    trigger: str = Field(min_length=10, max_length=2000)
+    yes_payout: Decimal = Field(ge=0, le=1, allow_inf_nan=False)
+    no_payout: Decimal = Field(ge=0, le=1, allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def complementary(self):
+        if self.yes_payout + self.no_payout != 1:
+            raise ValueError("Non-complementary settlement conditions are unsupported")
+        return self
+
+
+class SettlementPolicy(StrictModel):
+    kind: Literal["cancellation", "fallback", "ambiguous_resolution"]
+    status: Literal["modeled", "not_applicable", "unknown"]
+    evidence: Fact
+    conditions: tuple[SettlementCondition, ...] = Field(default=(), max_length=32)
+
+    @model_validator(mode="after")
+    def conditions_match_status(self):
+        if (self.status == "modeled") != bool(self.conditions):
+            raise ValueError("Only modeled policies require settlement conditions")
+        if len({c.id for c in self.conditions}) != len(self.conditions):
+            raise ValueError("Settlement condition identifiers must be unique within a policy")
+        if self.evidence.source == "title":
+            raise ValueError("Settlement policies require rules evidence")
+        return self
+
+
 class ContractDefinition(StrictModel):
     market_id: str
     terms_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
@@ -103,9 +133,14 @@ class ContractDefinition(StrictModel):
     # Missing versions retain legacy semantics and cannot silently gain approval.
     schema_version: Literal[1, 2] = 1
     facts: dict[FieldName, Fact]
+    settlement_policies: tuple[SettlementPolicy, ...] | None = Field(default=None, max_length=3)
 
     @model_validator(mode="after")
     def validate_facts(self):
+        if self.settlement_policies is not None and len(
+            {p.kind for p in self.settlement_policies}
+        ) != len(self.settlement_policies):
+            raise ValueError("Settlement policy kinds must be unique")
         if self.schema_version == 1 and V2_FIELDS.intersection(self.facts):
             raise ValueError("Canonical measurement fields require schema_version 2")
         operator = self.facts.get("operator")
@@ -202,7 +237,12 @@ def evidence_issues(market, definition):
     issues = []
     if definition.market_id != market.id or definition.terms_hash != market.terms_hash:
         issues.append("definition_stale_or_wrong_market")
-    for name, fact in definition.facts.items():
+    facts = list(definition.facts.items())
+    facts.extend(
+        (f"settlement_policy:{policy.kind}", policy.evidence)
+        for policy in definition.settlement_policies or ()
+    )
+    for name, fact in facts:
         source = getattr(market, fact.source)
         if fact.source == "settlement_details":
             source = source.get(fact.source_key)

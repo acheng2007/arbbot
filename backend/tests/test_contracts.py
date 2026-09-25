@@ -14,6 +14,8 @@ from arbbot.matching.contracts import (
     REQUIRED_FIELDS,
     ContractDefinition,
     Fact,
+    SettlementCondition,
+    SettlementPolicy,
     compare_contracts,
     definition_hash,
 )
@@ -41,6 +43,29 @@ def definition(market, **changes):
         terms_hash=market.terms_hash,
         extractor="test-reviewer",
         schema_version=2,
+        settlement_policies=(
+            SettlementPolicy(
+                kind="cancellation",
+                status="modeled",
+                evidence=Fact(value="fixed_half", source="rules", quote=market.rules),
+                conditions=(
+                    SettlementCondition(
+                        id="cancelled",
+                        trigger="Synthetic event cancellation",
+                        yes_payout="0.5",
+                        no_payout="0.5",
+                    ),
+                ),
+            ),
+            *(
+                SettlementPolicy(
+                    kind=kind,
+                    status="not_applicable",
+                    evidence=Fact(value="not_applicable", source="rules", quote=market.rules),
+                )
+                for kind in ("fallback", "ambiguous_resolution")
+            ),
+        ),
         facts={
             name: Fact(value=value, source="rules", quote=market.rules)
             for name, value in values.items()
@@ -188,6 +213,13 @@ async def test_live_definitions_file_through_worker_database_api(
         assert "Explicit settlement payouts" in candidate["reason"]
         reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
         assert (await pipeline.cycle())["opportunities"] == 1
+        uncovered = review.model_dump(mode="json")
+        uncovered["settlement_mappings"] = []
+        reviews_file.write_text(json.dumps([uncovered]))
+        assert (await pipeline.cycle())["opportunities"] == 0
+        assert (await client.get("/api/v1/opportunities")).json() == []
+        assert (await client.get("/api/v1/matches")).json()[0]["status"] == "candidate"
+        reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
         definitions_file.write_text("[]")
         assert (await pipeline.cycle())["opportunities"] == 0
         assert (await client.get("/api/v1/opportunities")).json() == []

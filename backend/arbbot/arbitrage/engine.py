@@ -4,7 +4,7 @@ from decimal import ROUND_CEILING, Decimal
 from arbbot.config import Settings
 from arbbot.domain import Book, Evaluation, Leg, Market, Match, Opportunity, digest
 from arbbot.matching.contracts import compare_contracts
-from arbbot.matching.settlement import payout_issues
+from arbbot.matching.settlement import settlement_issues
 from arbbot.quality import book_issue
 
 ZERO = Decimal(0)
@@ -42,13 +42,13 @@ def evaluate(
     ):
         reasons.append("review_invalid_or_expired")
     if match.mode == "live":
-        reasons.extend(payout_issues(review))
         comparison = compare_contracts(
             left,
             right,
             match.comparison.left if match.comparison else None,
             match.comparison.right if match.comparison else None,
         )
+        reasons.extend(settlement_issues(review, comparison.left, comparison.right))
         if (
             comparison.status != "compatible"
             or review is None

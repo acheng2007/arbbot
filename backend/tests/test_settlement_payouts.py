@@ -6,7 +6,9 @@ from pydantic import ValidationError
 from arbbot.arbitrage.engine import evaluate
 from arbbot.config import Settings
 from arbbot.domain import Scenario, utcnow
+from arbbot.matching.contracts import evidence_issues
 from arbbot.matching.service import match_markets
+from arbbot.matching.settlement import settlement_issues
 from tests.test_contracts import live_pair
 
 
@@ -82,3 +84,59 @@ async def test_divergent_exception_leaves_both_purchased_legs_losing(fixture_mar
     )
     match = match_markets(markets, [reviewed], definitions)[0]
     assert not evaluate(match, *markets, books, Settings(_env_file=None), utcnow()).opportunities
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing_policy",
+        "unknown_policy",
+        "missing_mapping",
+        "wrong_payout",
+        "missing_scenario",
+        "unknown_condition",
+        "duplicate_mapping",
+    ],
+)
+async def test_known_exception_conditions_must_be_covered(fixture_market, mutation):
+    markets, books, review, definitions = live_pair(fixture_market)
+    assert not settlement_issues(review, *definitions)
+    if mutation == "missing_policy":
+        definitions[0] = definitions[0].model_copy(update={"settlement_policies": None})
+    elif mutation == "unknown_policy":
+        policies = list(definitions[0].settlement_policies)
+        policies[1] = policies[1].model_copy(update={"status": "unknown"})
+        definitions[0] = definitions[0].model_copy(update={"settlement_policies": tuple(policies)})
+    else:
+        mappings = list(review.settlement_mappings)
+        if mutation == "missing_mapping":
+            mappings.pop()
+        elif mutation == "wrong_payout":
+            mappings[0] = mappings[0].model_copy(update={"scenarios": ("yes",)})
+        elif mutation == "missing_scenario":
+            mappings[0] = mappings[0].model_copy(update={"scenarios": ("absent",)})
+        elif mutation == "unknown_condition":
+            mappings[0] = mappings[0].model_copy(update={"condition_id": "absent"})
+        else:
+            mappings.append(mappings[0])
+        review = review.model_copy(update={"settlement_mappings": tuple(mappings)})
+    assert settlement_issues(review, *definitions)
+    match = match_markets(markets, [review], definitions)[0]
+    assert match.status == "candidate"
+    assert not evaluate(match, *markets, books, Settings(_env_file=None), utcnow()).opportunities
+
+
+async def test_policy_evidence_must_exist_in_bound_market_rules(fixture_market):
+    markets, _, _, definitions = live_pair(fixture_market)
+    policies = list(definitions[0].settlement_policies)
+    policies[0] = policies[0].model_copy(
+        update={
+            "evidence": policies[0].evidence.model_copy(
+                update={"quote": "An invented cancellation clause not present in the rules"}
+            )
+        }
+    )
+    changed = definitions[0].model_copy(update={"settlement_policies": tuple(policies)})
+    assert "evidence_not_found:settlement_policy:cancellation" in evidence_issues(
+        markets[0], changed
+    )

@@ -148,6 +148,19 @@ class Scenario(Model):
         return value if value is not None else Decimal(1) - getattr(self, f"{venue_side}_yes")
 
 
+class SettlementMapping(Model):
+    side: Literal["left", "right"]
+    policy: Literal["cancellation", "fallback", "ambiguous_resolution"]
+    condition_id: str = Field(pattern=r"^[a-z0-9_]{1,64}$")
+    scenarios: tuple[str, ...] = Field(min_length=1, max_length=128)
+
+    @model_validator(mode="after")
+    def unique_scenarios(self):
+        if len(set(self.scenarios)) != len(self.scenarios):
+            raise ValueError("Scenario references must be unique")
+        return self
+
+
 class Review(Model):
     left_id: str
     right_id: str
@@ -163,6 +176,7 @@ class Review(Model):
     cancellation_and_exceptions: str = Field(min_length=10)
     expires_at: AwareDatetime
     scenarios: tuple[Scenario, ...] = Field(min_length=2)
+    settlement_mappings: tuple[SettlementMapping, ...] = Field(default=(), max_length=192)
     left_costs: CostPolicy
     right_costs: CostPolicy
 

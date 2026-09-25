@@ -1206,6 +1206,21 @@
             },
             "type": "object",
             "title": "Facts"
+          },
+          "settlement_policies": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SettlementPolicy"
+                },
+                "type": "array",
+                "maxItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settlement Policies"
           }
         },
         "additionalProperties": false,
@@ -2062,6 +2077,15 @@
             "minItems": 2,
             "title": "Scenarios"
           },
+          "settlement_mappings": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementMapping"
+            },
+            "type": "array",
+            "maxItems": 192,
+            "title": "Settlement Mappings",
+            "default": []
+          },
           "left_costs": {
             "$ref": "#/components/schemas/CostPolicy"
           },
@@ -2139,6 +2163,126 @@
           "right_yes"
         ],
         "title": "Scenario"
+      },
+      "SettlementCondition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$",
+            "title": "Id"
+          },
+          "trigger": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Trigger"
+          },
+          "yes_payout": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Yes Payout"
+          },
+          "no_payout": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "No Payout"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "trigger",
+          "yes_payout",
+          "no_payout"
+        ],
+        "title": "SettlementCondition"
+      },
+      "SettlementMapping": {
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "title": "Side"
+          },
+          "policy": {
+            "type": "string",
+            "enum": [
+              "cancellation",
+              "fallback",
+              "ambiguous_resolution"
+            ],
+            "title": "Policy"
+          },
+          "condition_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$",
+            "title": "Condition Id"
+          },
+          "scenarios": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 128,
+            "minItems": 1,
+            "title": "Scenarios"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "side",
+          "policy",
+          "condition_id",
+          "scenarios"
+        ],
+        "title": "SettlementMapping"
+      },
+      "SettlementPolicy": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cancellation",
+              "fallback",
+              "ambiguous_resolution"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "modeled",
+              "not_applicable",
+              "unknown"
+            ],
+            "title": "Status"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/Fact"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementCondition"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "title": "Conditions",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "evidence"
+        ],
+        "title": "SettlementPolicy"
       },
       "SourceArtifactSummary": {
         "properties": {
