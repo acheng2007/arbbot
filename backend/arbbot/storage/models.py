@@ -130,3 +130,37 @@ class CatalogRecord(Base):
     mode: Mapped[str] = mapped_column(String, index=True)
     venue: Mapped[str] = mapped_column(String)
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class DraftRevisionRecord(Base):
+    __tablename__ = "definition_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    previous_revision_id: Mapped[str | None] = mapped_column(ForeignKey("definition_revisions.id"))
+    revision: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class DraftHeadRecord(Base):
+    __tablename__ = "definition_heads"
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), primary_key=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"), unique=True)
+
+
+class DecisionRevisionRecord(Base):
+    __tablename__ = "review_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    pair_key: Mapped[str] = mapped_column(String(64), index=True)
+    previous_revision_id: Mapped[str | None] = mapped_column(ForeignKey("review_revisions.id"))
+    left_draft_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"))
+    right_draft_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"))
+    revision: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class DecisionHeadRecord(Base):
+    __tablename__ = "review_heads"
+    pair_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("review_revisions.id"), unique=True)

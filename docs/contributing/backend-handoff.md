@@ -3,7 +3,7 @@
 The active goal is to complete the backend end to end for production, testing when necessary.
 The goal remains incomplete.
 
-## Active implementation: September 24, 2026
+## Active implementation: September 25, 2026
 
 Work now continues in `/Users/adam/Project/arbbot` on `backend/completion`, based on the running `demo/live-prices` workstream.
 Integrated current `origin/main` (`aacc456`) with the demo's Polymarket stream and paired-price frontend.
@@ -23,9 +23,19 @@ Stalled catalog refreshes do not block quotes, and failed refreshes cannot exten
 The additive catalog migration and discovery checks bring the suite to 329 tests, passing on both SQLite and PostgreSQL; all 55 frontend tests pass after updating the generated-client expectation for the already-landed search parameters.
 The local Docker stack rebuilt and migrated successfully on September 25.
 Live inspection verified source download metadata and catalog reports and caught incidental CPI citations in grocery-price descriptions; the relevance filter now requires a matching headline.
-The final filter change is covered by the targeted regression and awaits a worker image refresh.
+The final filter change is covered by the targeted regression and deployed in the local worker.
+The current CPI scan selects 20 Kalshi markets and no supported Polymarket counterparts; most Polymarket candidates are excluded as unsupported negative-risk instruments.
 
-Next action: refresh the worker image with the headline relevance fix, then implement durable definition drafts and review revisions (#16) as the foundation for authenticated review APIs and worker approval consumption.
+Implemented durable definition drafts and review revisions (#16), preserving immutable evidence snapshots, actor identity, exact hashes and predecessor chains.
+Compare-and-swap writes and parent-row locks prevent concurrent edits from silently overwriting decisions.
+Changed drafts, market terms, sources, source failures and expiry invalidate eligibility without erasing audit history.
+The additive migration preserves existing markets, source artifacts and discovery reports on upgrade and downgrade.
+Validation: 340 backend tests pass on SQLite; the 11 review storage tests also pass on PostgreSQL using isolated schemas, including the strengthened migration preservation check.
+Ruff passes.
+The new review storage has not been deployed to the local running stack or connected to HTTP mutations and worker approval consumption.
+See `docs/review-storage.md` for behavior and limits.
+
+Next action: implement explicit exceptional-settlement payoff validation (#10) before connecting authenticated review mutations (#18) and database-backed worker approval consumption (#19).
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

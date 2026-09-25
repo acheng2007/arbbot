@@ -27,7 +27,7 @@ class Repository:
     async def save_market(self, market: Market):
         async with self.database.sessions.begin() as session:
             key = f"{market.mode}:{market.id}"
-            row = await session.get(MarketRecord, key)
+            row = await session.get(MarketRecord, key, with_for_update=True)
             if row and aware(row.observed_at) > market.observed_at:
                 return
             if row is None:

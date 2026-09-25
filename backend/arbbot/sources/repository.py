@@ -111,7 +111,7 @@ class SourceRepository:
     async def _record(self, event: SourceCapture | SourceFailure) -> SourceArtifact:
         key = market_key(event.mode, event.market_id)
         async with self.database.sessions.begin() as session:
-            market = await session.get(MarketRecord, key)
+            market = await session.get(MarketRecord, key, with_for_update=True)
             if market is None:
                 raise ValueError("Market must be persisted before its settlement sources")
             if market.venue != event.venue:
