@@ -1,7 +1,7 @@
 # Durable review storage
 
 `ReviewRepository` persists definition drafts and pair decisions as append-only revisions with mutable head pointers.
-The repository is a storage foundation; authenticated HTTP mutations and worker consumption are not connected yet.
+Authenticated HTTP mutations and reads are available through the [review API](review-api.md); worker consumption is not connected yet.
 Existing file-based reviews continue to govern worker behavior until that integration is completed.
 
 Each draft stores the complete market snapshot, canonical definition and hash, exact source artifact IDs, actor, timestamp and reason.
@@ -25,7 +25,7 @@ Mode isolation applies to revision lookup, history and eligibility.
 
 Eligibility reads use a consistent database snapshot.
 Workers must still revalidate immediately before publishing an executable opportunity; a previously returned eligibility result is not a permanent authorization.
-Exceptional settlement scenario validation and authenticated API integration remain required before this storage can support the complete review workflow.
+Validation of real settlement scenarios and worker integration remain required before this storage can support the complete review workflow.
 
 Migration `b016_review_revisions` adds four tables without rewriting existing markets, source artifacts or discovery catalogs.
 Downgrading removes review history and heads, so it is destructive to review data.

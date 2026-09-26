@@ -1,5 +1,17 @@
 # Frontend workstream handoff
 
+## API contract integration: September 26, 2026
+
+Branch: `backend/completion`; no PR opened.
+The backend now exposes authenticated draft and review routes, documented in `docs/review-api.md`.
+The generator supports POST bodies and 201 responses and normalizes FastAPI input/output schema names while preserving existing output type imports.
+Generated operations include their HTTP method and request body type.
+The server-side dashboard data reader is restricted to generated GET operation IDs.
+Validation: all 56 frontend tests and typechecking pass.
+No review UI or authenticated browser mutation client has been added.
+
+Next action: build the authenticated review UI against these schemas once worker database-approval consumption is integrated, preserving conflict responses and explicit evidence requirements.
+
 ## Current delivery: prediction price layout, September 24, 2026
 
 Branch: `demo/live-prices`.

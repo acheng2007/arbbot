@@ -3,7 +3,11 @@ import { backendUrl } from "@/lib/backend";
 import { ApiError, failureFromStatus } from "./errors";
 import type { DataOrigin } from "./origin";
 import { buildPath, type RequestArgs } from "./request";
-import { API_OPERATIONS, type ApiOperations, type OperationId } from "./schema";
+import {
+  API_OPERATIONS,
+  type ApiOperations,
+  type ReadOperationId as OperationId,
+} from "./schema";
 import { recordedDataset } from "./fixtures";
 
 /**

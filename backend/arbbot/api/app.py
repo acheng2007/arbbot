@@ -19,6 +19,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from arbbot.api.routes.catalog import catalog_router
+from arbbot.api.routes.reviews import reviews_router
 from arbbot.api.routes.sources import sources_router
 from arbbot.auth.dependencies import require_viewer
 from arbbot.auth.service import Authenticator, Principal
@@ -72,7 +73,8 @@ def create_app(
         title="Arbbot API",
         version="0.1.0",
         lifespan=lifespan,
-        description="Read-only discovery API. Simulation data is explicitly labeled. "
+        description="Market discovery and authenticated settlement review API. "
+        "Simulation data is explicitly labeled. "
         "Live opportunities are conditional estimates, not execution guarantees.",
     )
     app.state.repository = repository
@@ -81,6 +83,7 @@ def create_app(
     app.state.tracing = tracing or Tracing()
     app.include_router(catalog_router(db, settings.mode))
     app.include_router(sources_router(db, settings.mode))
+    app.include_router(reviews_router(db, settings.mode))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

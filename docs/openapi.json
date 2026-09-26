@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Arbbot API",
-    "description": "Read-only discovery API. Simulation data is explicitly labeled. Live opportunities are conditional estimates, not execution guarantees.",
+    "description": "Market discovery and authenticated settlement review API. Simulation data is explicitly labeled. Live opportunities are conditional estimates, not execution guarantees.",
     "version": "0.1.0"
   },
   "paths": {
@@ -392,6 +392,432 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/markets/{market_id}/draft": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Current Draft",
+        "operationId": "current_draft_api_v1_markets__market_id__draft_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Market Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/DraftRevision"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Current Draft Api V1 Markets  Market Id  Draft Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/markets/{market_id}/drafts": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Draft History",
+        "operationId": "draft_history_api_v1_markets__market_id__drafts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Market Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DraftRevision"
+                  },
+                  "title": "Response Draft History Api V1 Markets  Market Id  Drafts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Save Draft",
+        "operationId": "save_draft_api_v1_markets__market_id__drafts_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "market_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Market Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRevision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/drafts/{revision_id}": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Draft Revision",
+        "operationId": "draft_revision_api_v1_drafts__revision_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "revision_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Revision Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRevision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/current": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Current Review",
+        "operationId": "current_review_api_v1_reviews_current_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "left_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Left Id"
+            }
+          },
+          {
+            "name": "right_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Right Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/DecisionState"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Current Review Api V1 Reviews Current Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/history": {
+      "get": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Review History",
+        "operationId": "review_history_api_v1_reviews_history_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "left_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Left Id"
+            }
+          },
+          {
+            "name": "right_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Right Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DecisionRevision"
+                  },
+                  "title": "Response Review History Api V1 Reviews History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Save Review",
+        "operationId": "save_review_api_v1_reviews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionRevision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/health/live": {
@@ -879,6 +1305,36 @@
   },
   "components": {
     "schemas": {
+      "Actor": {
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Issuer"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Subject"
+          },
+          "audit_id": {
+            "type": "string",
+            "title": "Audit Id",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "issuer",
+          "subject",
+          "audit_id"
+        ],
+        "title": "Actor",
+        "description": "Server-derived identity. Never accept this object from a mutation body."
+      },
       "Book": {
         "properties": {
           "market_id": {
@@ -1079,7 +1535,7 @@
           "left": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ContractDefinition"
+                "$ref": "#/components/schemas/ContractDefinition-Output"
               },
               {
                 "type": "null"
@@ -1089,7 +1545,7 @@
           "right": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ContractDefinition"
+                "$ref": "#/components/schemas/ContractDefinition-Output"
               },
               {
                 "type": "null"
@@ -1147,7 +1603,7 @@
         ],
         "title": "Comparison"
       },
-      "ContractDefinition": {
+      "ContractDefinition-Input": {
         "properties": {
           "market_id": {
             "type": "string",
@@ -1211,7 +1667,7 @@
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/SettlementPolicy"
+                  "$ref": "#/components/schemas/SettlementPolicy-Input"
                 },
                 "type": "array",
                 "maxItems": 3
@@ -1233,7 +1689,192 @@
         ],
         "title": "ContractDefinition"
       },
-      "CostPolicy": {
+      "ContractDefinition-Output": {
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "title": "Market Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "extractor": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Extractor"
+          },
+          "schema_version": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "title": "Schema Version",
+            "default": 1
+          },
+          "facts": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Fact"
+            },
+            "propertyNames": {
+              "enum": [
+                "event_type",
+                "entity",
+                "metric",
+                "reference_period",
+                "measurement",
+                "source",
+                "value_version",
+                "operator",
+                "threshold",
+                "units",
+                "observation_window",
+                "timezone",
+                "outcome_orientation",
+                "payout",
+                "cancellation",
+                "exceptions",
+                "seasonal_adjustment",
+                "rounding_increment",
+                "rounding_mode",
+                "revision_policy",
+                "observation_start",
+                "observation_end",
+                "observation_start_inclusive",
+                "observation_end_inclusive"
+              ]
+            },
+            "type": "object",
+            "title": "Facts"
+          },
+          "settlement_policies": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SettlementPolicy-Output"
+                },
+                "type": "array",
+                "maxItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settlement Policies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "terms_hash",
+          "extractor",
+          "facts"
+        ],
+        "title": "ContractDefinition"
+      },
+      "CostPolicy-Input": {
+        "properties": {
+          "fee_per_contract": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Fee Per Contract"
+          },
+          "fixed_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Fixed Fee"
+          },
+          "min_order_size": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Min Order Size"
+          },
+          "min_notional": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Min Notional"
+          },
+          "cost_fx": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Cost Fx"
+          },
+          "payout_fx": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Payout Fx"
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fee_per_contract",
+          "fixed_fee",
+          "min_order_size",
+          "min_notional",
+          "cost_fx",
+          "payout_fx",
+          "evidence"
+        ],
+        "title": "CostPolicy"
+      },
+      "CostPolicy-Output": {
         "properties": {
           "fee_per_contract": {
             "type": "string",
@@ -1283,6 +1924,201 @@
           "evidence"
         ],
         "title": "CostPolicy"
+      },
+      "DecisionRevision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Id"
+          },
+          "previous_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Revision Id"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "pair_key": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Pair Key"
+          },
+          "left_id": {
+            "type": "string",
+            "title": "Left Id"
+          },
+          "right_id": {
+            "type": "string",
+            "title": "Right Id"
+          },
+          "left_draft_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Left Draft Id"
+          },
+          "right_draft_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Right Draft Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "rejected",
+              "revoked"
+            ],
+            "title": "Action"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Reason"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Review-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "previous_revision_id",
+          "revision",
+          "mode",
+          "pair_key",
+          "left_id",
+          "right_id",
+          "left_draft_id",
+          "right_draft_id",
+          "action",
+          "reason",
+          "review",
+          "actor",
+          "created_at"
+        ],
+        "title": "DecisionRevision"
+      },
+      "DecisionState": {
+        "properties": {
+          "revision": {
+            "$ref": "#/components/schemas/DecisionRevision"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          },
+          "blocked_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blocked Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "eligible",
+          "blocked_reasons"
+        ],
+        "title": "DecisionState"
+      },
+      "DecisionWrite": {
+        "properties": {
+          "expected_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision Id"
+          },
+          "left_draft_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Left Draft Id"
+          },
+          "right_draft_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Right Draft Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "rejected",
+              "revoked"
+            ],
+            "title": "Action"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Reason"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Review-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left_draft_id",
+          "right_draft_id",
+          "action",
+          "reason"
+        ],
+        "title": "DecisionWrite"
       },
       "Difference": {
         "properties": {
@@ -1361,6 +2197,122 @@
         ],
         "title": "DiscoveryDecision"
       },
+      "DraftRevision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Id"
+          },
+          "previous_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Revision Id"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision"
+          },
+          "market": {
+            "$ref": "#/components/schemas/Market"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/ContractDefinition-Output"
+          },
+          "definition_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Definition Hash"
+          },
+          "source_artifact_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "type": "array",
+            "title": "Source Artifact Ids"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "previous_revision_id",
+          "revision",
+          "market",
+          "definition",
+          "definition_hash",
+          "source_artifact_ids",
+          "actor",
+          "created_at",
+          "reason"
+        ],
+        "title": "DraftRevision"
+      },
+      "DraftWrite": {
+        "properties": {
+          "expected_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision Id"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/ContractDefinition-Input"
+          },
+          "source_artifact_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Source Artifact Ids",
+            "default": []
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "definition",
+          "reason"
+        ],
+        "title": "DraftWrite"
+      },
       "Evaluation": {
         "properties": {
           "match_id": {
@@ -1418,7 +2370,7 @@
             "title": "Status"
           },
           "definition": {
-            "$ref": "#/components/schemas/ContractDefinition"
+            "$ref": "#/components/schemas/ContractDefinition-Output"
           },
           "missing_fields": {
             "items": {
@@ -1764,7 +2716,7 @@
           "review": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/Review"
+                "$ref": "#/components/schemas/Review-Output"
               },
               {
                 "type": "null"
@@ -1901,7 +2853,7 @@
             "title": "Scenario Payouts"
           },
           "review": {
-            "$ref": "#/components/schemas/Review"
+            "$ref": "#/components/schemas/Review-Output"
           },
           "comparison": {
             "anyOf": [
@@ -1987,7 +2939,7 @@
         ],
         "title": "Principal"
       },
-      "Review": {
+      "Review-Input": {
         "properties": {
           "left_id": {
             "type": "string",
@@ -2071,7 +3023,7 @@
           },
           "scenarios": {
             "items": {
-              "$ref": "#/components/schemas/Scenario"
+              "$ref": "#/components/schemas/Scenario-Input"
             },
             "type": "array",
             "minItems": 2,
@@ -2087,10 +3039,10 @@
             "default": []
           },
           "left_costs": {
-            "$ref": "#/components/schemas/CostPolicy"
+            "$ref": "#/components/schemas/CostPolicy-Input"
           },
           "right_costs": {
-            "$ref": "#/components/schemas/CostPolicy"
+            "$ref": "#/components/schemas/CostPolicy-Input"
           }
         },
         "additionalProperties": false,
@@ -2113,7 +3065,212 @@
         ],
         "title": "Review"
       },
-      "Scenario": {
+      "Review-Output": {
+        "properties": {
+          "left_id": {
+            "type": "string",
+            "title": "Left Id"
+          },
+          "right_id": {
+            "type": "string",
+            "title": "Right Id"
+          },
+          "left_terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Left Terms Hash"
+          },
+          "right_terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Right Terms Hash"
+          },
+          "left_definition_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Definition Hash"
+          },
+          "right_definition_hash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Definition Hash"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "reviewer": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Reviewer"
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Rationale"
+          },
+          "resolution_sources": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Resolution Sources"
+          },
+          "deadlines_and_timezones": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Deadlines And Timezones"
+          },
+          "cancellation_and_exceptions": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Cancellation And Exceptions"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/Scenario-Output"
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Scenarios"
+          },
+          "settlement_mappings": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementMapping"
+            },
+            "type": "array",
+            "maxItems": 192,
+            "title": "Settlement Mappings",
+            "default": []
+          },
+          "left_costs": {
+            "$ref": "#/components/schemas/CostPolicy-Output"
+          },
+          "right_costs": {
+            "$ref": "#/components/schemas/CostPolicy-Output"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left_id",
+          "right_id",
+          "left_terms_hash",
+          "right_terms_hash",
+          "status",
+          "reviewer",
+          "rationale",
+          "resolution_sources",
+          "deadlines_and_timezones",
+          "cancellation_and_exceptions",
+          "expires_at",
+          "scenarios",
+          "left_costs",
+          "right_costs"
+        ],
+        "title": "Review"
+      },
+      "Scenario-Input": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "left_yes": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Left Yes"
+          },
+          "right_yes": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Right Yes"
+          },
+          "left_no": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left No"
+          },
+          "right_no": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right No"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "left_yes",
+          "right_yes"
+        ],
+        "title": "Scenario"
+      },
+      "Scenario-Output": {
         "properties": {
           "name": {
             "type": "string",
@@ -2164,7 +3321,59 @@
         ],
         "title": "Scenario"
       },
-      "SettlementCondition": {
+      "SettlementCondition-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$",
+            "title": "Id"
+          },
+          "trigger": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Trigger"
+          },
+          "yes_payout": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Yes Payout"
+          },
+          "no_payout": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "No Payout"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "trigger",
+          "yes_payout",
+          "no_payout"
+        ],
+        "title": "SettlementCondition"
+      },
+      "SettlementCondition-Output": {
         "properties": {
           "id": {
             "type": "string",
@@ -2242,7 +3451,7 @@
         ],
         "title": "SettlementMapping"
       },
-      "SettlementPolicy": {
+      "SettlementPolicy-Input": {
         "properties": {
           "kind": {
             "type": "string",
@@ -2267,7 +3476,49 @@
           },
           "conditions": {
             "items": {
-              "$ref": "#/components/schemas/SettlementCondition"
+              "$ref": "#/components/schemas/SettlementCondition-Input"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "title": "Conditions",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "evidence"
+        ],
+        "title": "SettlementPolicy"
+      },
+      "SettlementPolicy-Output": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cancellation",
+              "fallback",
+              "ambiguous_resolution"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "modeled",
+              "not_applicable",
+              "unknown"
+            ],
+            "title": "Status"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/Fact"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementCondition-Output"
             },
             "type": "array",
             "maxItems": 32,

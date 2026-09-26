@@ -3,7 +3,7 @@
 The active goal is to complete the backend end to end for production, testing when necessary.
 The goal remains incomplete.
 
-## Active implementation: September 25, 2026
+## Active implementation: September 26, 2026
 
 Work now continues in `/Users/adam/Project/arbbot` on `backend/completion`, based on the running `demo/live-prices` workstream.
 Integrated current `origin/main` (`aacc456`) with the demo's Polymarket stream and paired-price frontend.
@@ -53,7 +53,16 @@ Validation: 360 SQLite tests pass; all 43 targeted PostgreSQL settlement, contra
 Frontend typechecking, Ruff and whitespace checks pass.
 This establishes coverage of the declared inventory, not completeness of semantic interpretation or every reachable cross-venue combination.
 
-Next action: validate exceptional-settlement inventories and cross-venue condition interactions against a recorded supported-pair corpus (#6/#10), then connect authenticated review mutations (#18) and database-backed worker approval consumption (#19).
+Implemented authenticated draft and review HTTP routes (#18): current revisions, paginated history, draft writes, approval, rejection and revocation.
+The server derives audit identity from verified tokens; viewer/reviewer roles and mutation origins are enforced.
+Conflicting edits and stale terms return 409; missing mode-isolated inputs return 404; invalid evidence returns 422 without partial writes.
+Extended the TypeScript schema generator for POST request bodies, 201 responses and distinct FastAPI input/output models; existing dashboard reads remain restricted to GET operations.
+Validation: 372 SQLite backend tests, 12 review API PostgreSQL tests in isolated schemas, 56 frontend tests, frontend typechecking and Ruff pass.
+The pending public Kalshi catalog lookup completed successfully, but no supported positive counterpart was recorded or reviewed.
+The real-pair corpus and joint exception interactions remain unfinished and are not implied complete by the API tests.
+See `docs/review-api.md` for endpoint contracts and operational limits.
+
+Next action: connect database-backed draft and approval consumption to the worker (#19), ensuring revocations and evidence changes suppress persisted opportunities; continue recorded-pair and joint settlement validation (#6/#10).
 The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

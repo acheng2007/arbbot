@@ -1,6 +1,12 @@
 import { execFileSync } from "node:child_process";
-import { describe, expect, it } from "vitest";
-import { API_OPERATIONS } from "@/lib/api/schema";
+import { describe, expect, expectTypeOf, it } from "vitest";
+import {
+  API_OPERATIONS,
+  type ApiOperations,
+  type DraftWrite,
+  type DraftRevision,
+  type ReadOperationId,
+} from "@/lib/api/schema";
 
 // Vitest runs from the web package root; import.meta.url is not a file URL under jsdom.
 const webRoot = process.cwd();
@@ -20,7 +26,26 @@ describe("generated API client", () => {
     expect(API_OPERATIONS.market.route).toBe("/api/v1/markets/{market_id}");
     expect(API_OPERATIONS.market.params).toEqual(["market_id"]);
     expect(API_OPERATIONS.markets.query).toEqual([
-      "limit", "offset", "venue", "status", "family", "q",
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "family",
+      "q",
     ]);
+  });
+
+  it("distinguishes authenticated mutations from read operations", () => {
+    expect(API_OPERATIONS.saveDraft.method).toBe("POST");
+    expect(API_OPERATIONS.currentDraft.method).toBe("GET");
+    expectTypeOf<
+      ApiOperations["saveDraft"]["body"]
+    >().toEqualTypeOf<DraftWrite>();
+    expectTypeOf<
+      ApiOperations["saveDraft"]["response"]
+    >().toEqualTypeOf<DraftRevision>();
+    expectTypeOf<
+      Extract<ReadOperationId, "saveDraft" | "saveReview">
+    >().toEqualTypeOf<never>();
   });
 });

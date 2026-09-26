@@ -3,6 +3,12 @@
 
 /** Exact decimal transported as a string; never convert this to a number. */
 export type DecimalString = string;
+export type Actor = {
+  issuer: string;
+  subject: string;
+  audit_id: string;
+};
+
 export type Book = {
   market_id: string;
   mode: "simulation" | "live";
@@ -39,6 +45,43 @@ export type Comparison = {
   right_hash: string | null;
   differences: Array<Difference>;
   issues: Array<string>;
+};
+
+export type ContractDefinitionInput = {
+  market_id: string;
+  terms_hash: string;
+  extractor: string;
+  schema_version?: 1 | 2;
+  facts: Partial<
+    Record<
+      | "event_type"
+      | "entity"
+      | "metric"
+      | "reference_period"
+      | "measurement"
+      | "source"
+      | "value_version"
+      | "operator"
+      | "threshold"
+      | "units"
+      | "observation_window"
+      | "timezone"
+      | "outcome_orientation"
+      | "payout"
+      | "cancellation"
+      | "exceptions"
+      | "seasonal_adjustment"
+      | "rounding_increment"
+      | "rounding_mode"
+      | "revision_policy"
+      | "observation_start"
+      | "observation_end"
+      | "observation_start_inclusive"
+      | "observation_end_inclusive",
+      Fact
+    >
+  >;
+  settlement_policies?: Array<SettlementPolicyInput> | null;
 };
 
 export type ContractDefinition = {
@@ -78,6 +121,16 @@ export type ContractDefinition = {
   settlement_policies?: Array<SettlementPolicy> | null;
 };
 
+export type CostPolicyInput = {
+  fee_per_contract: number | DecimalString;
+  fixed_fee: number | DecimalString;
+  min_order_size: number | DecimalString;
+  min_notional: number | DecimalString;
+  cost_fx: number | DecimalString;
+  payout_fx: number | DecimalString;
+  evidence: string;
+};
+
 export type CostPolicy = {
   fee_per_contract: DecimalString;
   fixed_fee: DecimalString;
@@ -86,6 +139,38 @@ export type CostPolicy = {
   cost_fx: DecimalString;
   payout_fx: DecimalString;
   evidence: string;
+};
+
+export type DecisionRevision = {
+  id: string;
+  previous_revision_id: string | null;
+  revision: number;
+  mode: "simulation" | "live";
+  pair_key: string;
+  left_id: string;
+  right_id: string;
+  left_draft_id: string;
+  right_draft_id: string;
+  action: "verified" | "rejected" | "revoked";
+  reason: string;
+  review: Review | null;
+  actor: Actor;
+  created_at: string;
+};
+
+export type DecisionState = {
+  revision: DecisionRevision;
+  eligible: boolean;
+  blocked_reasons: Array<string>;
+};
+
+export type DecisionWrite = {
+  expected_revision_id?: string | null;
+  left_draft_id: string;
+  right_draft_id: string;
+  action: "verified" | "rejected" | "revoked";
+  reason: string;
+  review?: ReviewInput | null;
 };
 
 export type Difference = {
@@ -99,6 +184,26 @@ export type DiscoveryDecision = {
   external_id: string;
   family: string;
   included: boolean;
+  reason: string;
+};
+
+export type DraftRevision = {
+  id: string;
+  previous_revision_id: string | null;
+  revision: number;
+  market: Market;
+  definition: ContractDefinition;
+  definition_hash: string;
+  source_artifact_ids: Array<string>;
+  actor: Actor;
+  created_at: string;
+  reason: string;
+};
+
+export type DraftWrite = {
+  expected_revision_id?: string | null;
+  definition: ContractDefinitionInput;
+  source_artifact_ids?: Array<string>;
   reason: string;
 };
 
@@ -230,6 +335,26 @@ export type Principal = {
   audit_id: string;
 };
 
+export type ReviewInput = {
+  left_id: string;
+  right_id: string;
+  left_terms_hash: string;
+  right_terms_hash: string;
+  left_definition_hash?: string | null;
+  right_definition_hash?: string | null;
+  status: "verified" | "rejected";
+  reviewer: string;
+  rationale: string;
+  resolution_sources: string;
+  deadlines_and_timezones: string;
+  cancellation_and_exceptions: string;
+  expires_at: string;
+  scenarios: Array<ScenarioInput>;
+  settlement_mappings?: Array<SettlementMapping>;
+  left_costs: CostPolicyInput;
+  right_costs: CostPolicyInput;
+};
+
 export type Review = {
   left_id: string;
   right_id: string;
@@ -250,12 +375,27 @@ export type Review = {
   right_costs: CostPolicy;
 };
 
+export type ScenarioInput = {
+  name: string;
+  left_yes: number | DecimalString;
+  right_yes: number | DecimalString;
+  left_no?: number | DecimalString | null;
+  right_no?: number | DecimalString | null;
+};
+
 export type Scenario = {
   name: string;
   left_yes: DecimalString;
   right_yes: DecimalString;
   left_no?: DecimalString | null;
   right_no?: DecimalString | null;
+};
+
+export type SettlementConditionInput = {
+  id: string;
+  trigger: string;
+  yes_payout: number | DecimalString;
+  no_payout: number | DecimalString;
 };
 
 export type SettlementCondition = {
@@ -270,6 +410,13 @@ export type SettlementMapping = {
   policy: "cancellation" | "fallback" | "ambiguous_resolution";
   condition_id: string;
   scenarios: Array<string>;
+};
+
+export type SettlementPolicyInput = {
+  kind: "cancellation" | "fallback" | "ambiguous_resolution";
+  status: "modeled" | "not_applicable" | "unknown";
+  evidence: Fact;
+  conditions?: Array<SettlementConditionInput>;
 };
 
 export type SettlementPolicy = {
@@ -320,6 +467,8 @@ export type ValidationError = {
 export interface ApiOperations {
   markets: {
     route: "/api/v1/markets";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -333,6 +482,8 @@ export interface ApiOperations {
   };
   matches: {
     route: "/api/v1/matches";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -347,6 +498,8 @@ export interface ApiOperations {
   };
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -358,44 +511,133 @@ export interface ApiOperations {
   };
   sourceContent: {
     route: "/api/v1/sources/{artifact_id}/content";
+    method: "GET";
+    body: never;
     params: {
       artifact_id: string;
     };
     query: Record<string, never>;
     response: unknown;
   };
+  currentDraft: {
+    route: "/api/v1/markets/{market_id}/draft";
+    method: "GET";
+    body: never;
+    params: {
+      market_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision | null;
+  };
+  draftHistory: {
+    route: "/api/v1/markets/{market_id}/drafts";
+    method: "GET";
+    body: never;
+    params: {
+      market_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<DraftRevision>;
+  };
+  saveDraft: {
+    route: "/api/v1/markets/{market_id}/drafts";
+    method: "POST";
+    body: DraftWrite;
+    params: {
+      market_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision;
+  };
+  draftRevision: {
+    route: "/api/v1/drafts/{revision_id}";
+    method: "GET";
+    body: never;
+    params: {
+      revision_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision;
+  };
+  currentReview: {
+    route: "/api/v1/reviews/current";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      left_id: string;
+      right_id: string;
+    };
+    response: DecisionState | null;
+  };
+  reviewHistory: {
+    route: "/api/v1/reviews/history";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      left_id: string;
+      right_id: string;
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<DecisionRevision>;
+  };
+  saveReview: {
+    route: "/api/v1/reviews";
+    method: "POST";
+    body: DecisionWrite;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: DecisionRevision;
+  };
   liveness: {
     route: "/health/live";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
   };
   identity: {
     route: "/api/v1/auth/me";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: Principal;
   };
   readiness: {
     route: "/health/ready";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
   };
   status: {
     route: "/api/v1/status";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
   };
   discovery: {
     route: "/api/v1/discovery";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: Array<CatalogReport>;
   };
   market: {
     route: "/api/v1/markets/{market_id}";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -404,6 +646,8 @@ export interface ApiOperations {
   };
   extraction: {
     route: "/api/v1/markets/{market_id}/extraction";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -412,6 +656,8 @@ export interface ApiOperations {
   };
   book: {
     route: "/api/v1/markets/{market_id}/book";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -420,6 +666,8 @@ export interface ApiOperations {
   };
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
       terms_hash: string;
@@ -429,6 +677,8 @@ export interface ApiOperations {
   };
   snapshot: {
     route: "/api/v1/snapshots/{snapshot_id}";
+    method: "GET";
+    body: never;
     params: {
       snapshot_id: string;
     };
@@ -437,6 +687,8 @@ export interface ApiOperations {
   };
   opportunities: {
     route: "/api/v1/opportunities";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -446,6 +698,8 @@ export interface ApiOperations {
   };
   history: {
     route: "/api/v1/opportunities/history";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -455,6 +709,8 @@ export interface ApiOperations {
   };
   evaluations: {
     route: "/api/v1/evaluations";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -464,6 +720,8 @@ export interface ApiOperations {
   };
   stream: {
     route: "/api/v1/stream";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
@@ -472,99 +730,168 @@ export interface ApiOperations {
 
 export type OperationId = keyof ApiOperations;
 
+export type ReadOperationId = {
+  [K in OperationId]: ApiOperations[K]["method"] extends "GET" ? K : never;
+}[OperationId];
+
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
   markets: {
     route: "/api/v1/markets",
+    method: "GET",
     params: [],
     query: ["limit", "offset", "venue", "status", "family", "q"],
   },
   matches: {
     route: "/api/v1/matches",
+    method: "GET",
     params: [],
     query: ["limit", "offset", "venue", "status", "family", "q", "evidence"],
   },
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources",
+    method: "GET",
     params: ["market_id"],
     query: ["limit", "offset"],
   },
   sourceContent: {
     route: "/api/v1/sources/{artifact_id}/content",
+    method: "GET",
     params: ["artifact_id"],
+    query: [],
+  },
+  currentDraft: {
+    route: "/api/v1/markets/{market_id}/draft",
+    method: "GET",
+    params: ["market_id"],
+    query: [],
+  },
+  draftHistory: {
+    route: "/api/v1/markets/{market_id}/drafts",
+    method: "GET",
+    params: ["market_id"],
+    query: ["limit", "offset"],
+  },
+  saveDraft: {
+    route: "/api/v1/markets/{market_id}/drafts",
+    method: "POST",
+    params: ["market_id"],
+    query: [],
+  },
+  draftRevision: {
+    route: "/api/v1/drafts/{revision_id}",
+    method: "GET",
+    params: ["revision_id"],
+    query: [],
+  },
+  currentReview: {
+    route: "/api/v1/reviews/current",
+    method: "GET",
+    params: [],
+    query: ["left_id", "right_id"],
+  },
+  reviewHistory: {
+    route: "/api/v1/reviews/history",
+    method: "GET",
+    params: [],
+    query: ["left_id", "right_id", "limit", "offset"],
+  },
+  saveReview: {
+    route: "/api/v1/reviews",
+    method: "POST",
+    params: [],
     query: [],
   },
   liveness: {
     route: "/health/live",
+    method: "GET",
     params: [],
     query: [],
   },
   identity: {
     route: "/api/v1/auth/me",
+    method: "GET",
     params: [],
     query: [],
   },
   readiness: {
     route: "/health/ready",
+    method: "GET",
     params: [],
     query: [],
   },
   status: {
     route: "/api/v1/status",
+    method: "GET",
     params: [],
     query: [],
   },
   discovery: {
     route: "/api/v1/discovery",
+    method: "GET",
     params: [],
     query: [],
   },
   market: {
     route: "/api/v1/markets/{market_id}",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
   extraction: {
     route: "/api/v1/markets/{market_id}/extraction",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
   book: {
     route: "/api/v1/markets/{market_id}/book",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}",
+    method: "GET",
     params: ["market_id", "terms_hash"],
     query: [],
   },
   snapshot: {
     route: "/api/v1/snapshots/{snapshot_id}",
+    method: "GET",
     params: ["snapshot_id"],
     query: [],
   },
   opportunities: {
     route: "/api/v1/opportunities",
+    method: "GET",
     params: [],
     query: ["limit", "offset"],
   },
   history: {
     route: "/api/v1/opportunities/history",
+    method: "GET",
     params: [],
     query: ["limit", "offset"],
   },
   evaluations: {
     route: "/api/v1/evaluations",
+    method: "GET",
     params: [],
     query: ["limit", "offset"],
   },
   stream: {
     route: "/api/v1/stream",
+    method: "GET",
     params: [],
     query: [],
   },
 } as const satisfies Record<
   OperationId,
-  { route: string; params: readonly string[]; query: readonly string[] }
+  {
+    route: string;
+    method: "GET" | "POST";
+    params: readonly string[];
+    query: readonly string[];
+  }
 >;
