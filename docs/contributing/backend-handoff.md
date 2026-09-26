@@ -62,12 +62,23 @@ The pending public Kalshi catalog lookup completed successfully, but no supporte
 The real-pair corpus and joint exception interactions remain unfinished and are not implied complete by the API tests.
 See `docs/review-api.md` for endpoint contracts and operational limits.
 
-Next action: connect database-backed draft and approval consumption to the worker (#19), ensuring revocations and evidence changes suppress persisted opportunities; continue recorded-pair and joint settlement validation (#6/#10).
-The remaining scope below stays active, including durable reviews, authenticated mutation APIs, fees, settlement validation, stream lifecycle/revalidation, observability, deployment and recovery.
+Connected database drafts and approval revisions to live worker matching and evaluation (#19).
+Database mode is the default and does not fall back to review files; legacy development requires `ARBBOT_REVIEW_SOURCE=files` on API and worker.
+Publication rechecks exact approval revision and eligibility under parent-market locks, and public opportunity reads recheck eligibility in a consistent snapshot before pagination.
+Public matches also downgrade stale approvals before status filtering and pagination using bounded keyset batches.
+Reapproval requires recalculation; historical results retain the original `review_revision_id`.
+Validation: the full 380-test SQLite suite passed before the final rejection parameter case; all nine final worker-review cases pass on SQLite, and all 23 final worker-review/catalog tests pass on PostgreSQL.
+The earlier combined PostgreSQL review-provider/storage/API run passed all 30 tests.
+Ruff, generated-client drift checking and frontend typechecking pass.
+Rebuilt local API and worker with the additive review migration; health returns 200 in live mode, protected drafts return 401 without credentials, and the worker ingests 20 Kalshi books without errors.
+No supported paired market or live approval exists, so the local opportunities API correctly returns an empty list.
+
+Next action: discover and record supported cross-venue binary pairs beyond the current CPI-only scan (#6), then validate extraction and joint exceptional settlements against their source rules (#7/#8/#10).
+Fees, stream lifecycle/revalidation, observability, deployment and recovery remain active scope.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.
 
-## Integrated foundations
+## Historical integration of foundations
 
 The user explicitly authorized reviewing and merging passing PRs #44 and #46 through #51.
 PRs #44 (canonical definitions) and #47 (catalog filtering) landed externally in main at `f91a639a809db8c6562b1793028aa693d7e97f3f`.
@@ -101,13 +112,7 @@ No financial or eligibility assertions were weakened.
 Docker Desktop is manually paused; do not claim a fresh combined local PostgreSQL run.
 The earlier disposable `arbbot-foundation-tests` container may still exist because cleanup was interrupted and Docker is paused.
 
-## Next action
-
-Verify the main push's hosted checks, then implement durable definition drafts and review revisions in issue #16 on a focused branch from current main.
-Its prerequisites #1 and #2 are now landed.
-Bind immutable review history to exact terms, definition hashes, source versions, actors and timestamps; use compare-and-swap updates for editable draft heads.
-Test concurrent edits, stale source/draft invalidation, PostgreSQL transactions, migration preservation, and audit reconstruction.
-HTTP review mutations and worker approval consumption remain later issues #18 and #19.
+The earlier integration handoff is superseded by the active implementation and next action above.
 
 ## Remaining production scope
 

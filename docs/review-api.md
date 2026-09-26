@@ -35,6 +35,15 @@ Live approval requires current source artifacts, current term and definition has
 Eligibility reads recheck expiry and changes to drafts, market terms or referenced source evidence.
 Historical payloads remain available after invalidation or revocation.
 
-The database approval provider is not yet connected to ingestion and evaluation.
-Writing a review through these endpoints does not currently replace the worker's file-based review configuration.
+With the default `ARBBOT_REVIEW_SOURCE=database`, live workers use current database drafts and approvals on each cycle.
+An eligible approval permits evaluation; it does not imply that profitable executable quotes exist.
+Revocations, new draft revisions and changed evidence immediately invalidate public opportunity reads, including before the next worker cycle.
+Publication rechecks approval revision and eligibility while holding the same parent-market locks as review and evidence writes.
+Every database-backed opportunity identifies its exact `review_revision_id`, and a replacement approval requires recalculation.
+Current match reads also downgrade stale approvals before status filtering and pagination.
+Historical opportunity reads retain the original review revision for audit.
+
+Legacy file-based development requires explicit `ARBBOT_REVIEW_SOURCE=files` on both worker and API, with the corresponding file paths configured.
+Database mode never falls back to files or exposes live opportunities lacking a database revision.
+Simulation continues to use clearly labeled synthetic fixture reviews.
 The real-pair corpus and joint exceptional-outcome validation remain incomplete; no human approval has been created by this implementation.

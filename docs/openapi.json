@@ -2732,6 +2732,17 @@
                 "type": "null"
               }
             ]
+          },
+          "review_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Revision Id"
           }
         },
         "additionalProperties": false,
@@ -2854,6 +2865,17 @@
           },
           "review": {
             "$ref": "#/components/schemas/Review-Output"
+          },
+          "review_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Revision Id"
           },
           "comparison": {
             "anyOf": [

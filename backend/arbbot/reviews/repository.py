@@ -351,8 +351,49 @@ class ReviewRepository:
 
     async def current_decision(self, mode, left_id, right_id):
         async with self._read() as session:
-            head = await session.get(DecisionHeadRecord, pair_key(mode, left_id, right_id))
-            if head is None:
-                return None
-            row = await session.get(DecisionRevisionRecord, head.revision_id)
-            return await self._state(session, DecisionRevision.model_validate(row.payload))
+            return await self.decision_in_session(session, mode, left_id, right_id)
+
+    async def decision_in_session(self, session, mode, left_id, right_id):
+        head = await session.get(DecisionHeadRecord, pair_key(mode, left_id, right_id))
+        if head is None:
+            return None
+        row = await session.get(DecisionRevisionRecord, head.revision_id)
+        return await self._state(session, DecisionRevision.model_validate(row.payload))
+
+    async def snapshot(self, mode, market_ids):
+        """Read draft and decision heads from one database snapshot for a worker cycle."""
+        if not market_ids:
+            return [], []
+        async with self._read() as session:
+            drafts = (
+                await session.scalars(
+                    select(DraftRevisionRecord)
+                    .join(DraftHeadRecord, DraftHeadRecord.revision_id == DraftRevisionRecord.id)
+                    .where(
+                        DraftRevisionRecord.market_key.in_(
+                            [f"{mode}:{market_id}" for market_id in market_ids]
+                        )
+                    )
+                )
+            ).all()
+            decisions = (
+                await session.scalars(
+                    select(DecisionRevisionRecord)
+                    .join(
+                        DecisionHeadRecord,
+                        DecisionHeadRecord.revision_id == DecisionRevisionRecord.id,
+                    )
+                    .where(
+                        DecisionHeadRecord.mode == mode,
+                        DecisionRevisionRecord.payload["left_id"].as_string().in_(market_ids),
+                        DecisionRevisionRecord.payload["right_id"].as_string().in_(market_ids),
+                    )
+                )
+            ).all()
+            return (
+                [DraftRevision.model_validate(row.payload).definition for row in drafts],
+                [
+                    await self._state(session, DecisionRevision.model_validate(row.payload))
+                    for row in decisions
+                ],
+            )

@@ -178,7 +178,12 @@ async def test_live_definitions_file_through_worker_database_api(
     definitions_file.write_text(json.dumps([d.model_dump(mode="json") for d in definitions]))
     reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
     settings = settings.model_copy(
-        update={"mode": "live", "definitions_file": definitions_file, "reviews_file": reviews_file}
+        update={
+            "mode": "live",
+            "review_source": "files",
+            "definitions_file": definitions_file,
+            "reviews_file": reviews_file,
+        }
     )
 
     class Adapter:

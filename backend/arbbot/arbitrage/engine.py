@@ -166,6 +166,7 @@ def evaluate(
                     ]
                 ),
                 match_id=match.id,
+                review_revision_id=match.review_revision_id,
                 mode=match.mode,
                 classification="simulation"
                 if match.mode == "simulation"

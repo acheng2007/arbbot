@@ -43,7 +43,7 @@ def create_app(
 ) -> FastAPI:
     settings = settings or Settings()
     db = database or Database(settings)
-    repository = Repository(db)
+    repository = Repository(db, allow_file_reviews=settings.review_source == "files")
     authenticator = Authenticator(settings)
     registry = CollectorRegistry()
     requests = Counter(
@@ -81,7 +81,9 @@ def create_app(
     app.state.authenticator = authenticator
     app.state.auth_origins = frozenset(settings.cors_origins)
     app.state.tracing = tracing or Tracing()
-    app.include_router(catalog_router(db, settings.mode))
+    app.include_router(
+        catalog_router(db, settings.mode, allow_file_reviews=settings.review_source == "files")
+    )
     app.include_router(sources_router(db, settings.mode))
     app.include_router(reviews_router(db, settings.mode))
     app.add_middleware(

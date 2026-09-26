@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     min_profit: Decimal = Field(default=Decimal("0.01"), gt=0)
     definitions_file: Path | None = None
     reviews_file: Path | None = None
+    review_source: Literal["database", "files"] = "database"
     kalshi_tickers: list[str] = []
     polymarket_market_ids: list[str] = []
     polymarket_websocket: bool = True

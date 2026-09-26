@@ -10,7 +10,9 @@ The server-side dashboard data reader is restricted to generated GET operation I
 Validation: all 56 frontend tests and typechecking pass.
 No review UI or authenticated browser mutation client has been added.
 
-Next action: build the authenticated review UI against these schemas once worker database-approval consumption is integrated, preserving conflict responses and explicit evidence requirements.
+Worker database-approval consumption is now integrated.
+Generated matches and opportunities include the exact `review_revision_id`; current API reads invalidate stale or revoked approvals.
+Next action: build the authenticated review UI against these schemas, preserving conflict responses and explicit evidence requirements.
 
 ## Current delivery: prediction price layout, September 24, 2026
 

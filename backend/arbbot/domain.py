@@ -202,6 +202,7 @@ class Match(Model):
     reason: str
     review: Review | None = None
     comparison: Comparison | None = None
+    review_revision_id: str | None = None
 
 
 class Leg(Model):
@@ -235,6 +236,7 @@ class Opportunity(Model):
     return_on_capital: Positive
     scenario_payouts: dict[str, Decimal]
     review: Review
+    review_revision_id: str | None = None
     comparison: Comparison | None = None
     assumptions: tuple[str, ...]
 

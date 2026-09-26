@@ -303,6 +303,7 @@ export type Match = {
   reason: string;
   review?: Review | null;
   comparison?: Comparison | null;
+  review_revision_id?: string | null;
 };
 
 export type Opportunity = {
@@ -323,6 +324,7 @@ export type Opportunity = {
   return_on_capital: DecimalString;
   scenario_payouts: Partial<Record<string, DecimalString>>;
   review: Review;
+  review_revision_id?: string | null;
   comparison?: Comparison | null;
   assumptions: Array<string>;
 };

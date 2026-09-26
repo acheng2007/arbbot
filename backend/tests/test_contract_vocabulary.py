@@ -145,6 +145,7 @@ async def test_new_semantics_invalidate_pipeline_opportunities(database, fixture
             "mode": "live",
             "definitions_file": definitions_file,
             "reviews_file": reviews_file,
+            "review_source": "files",
         }
     )
 

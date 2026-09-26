@@ -14,6 +14,7 @@ from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
 from arbbot.observability.tracing import Tracing
 from arbbot.quality import book_issue
+from arbbot.reviews.provider import ReviewProvider
 from arbbot.sources.fetch import SourceFetcher
 from arbbot.sources.repository import SourceRepository
 
@@ -36,6 +37,7 @@ class Pipeline:
         self.sources = SourceRepository(repository.database, settings.source_max_bytes)
         self.source_fetcher = source_fetcher or SourceFetcher(max_bytes=settings.source_max_bytes)
         self.catalog = catalog
+        self.review_provider = ReviewProvider(repository.database)
 
     async def ingest_venue(self, adapter):
         mode = self.settings.mode
@@ -163,13 +165,13 @@ class Pipeline:
         books = {key: value for _, snapshots in ingested for key, value in snapshots.items()}
         if self.settings.mode == "simulation":
             reviews = simulation_reviews(markets)
-        elif self.settings.reviews_file:
+        elif self.settings.review_source == "files" and self.settings.reviews_file:
             content = await asyncio.to_thread(self.settings.reviews_file.read_text)
             reviews = TypeAdapter(list[Review]).validate_python(json.loads(content))
         else:
             reviews = []
         definitions = []
-        if self.settings.definitions_file:
+        if self.settings.review_source == "files" and self.settings.definitions_file:
             content = await asyncio.to_thread(self.settings.definitions_file.read_text)
             definitions = TypeAdapter(list[ContractDefinition]).validate_json(content)
         if len({d.market_id for d in definitions}) != len(definitions):
@@ -182,7 +184,11 @@ class Pipeline:
             for market in markets
         ]
         with self.tracing.span("matching", market_count=len(markets)):
-            matches = match_markets(markets, reviews, definitions)
+            matches = (
+                await self.review_provider.matches(self.settings.mode, markets)
+                if self.settings.mode == "live" and self.settings.review_source == "database"
+                else match_markets(markets, reviews, definitions)
+            )
         indexed = {market.id: market for market in markets}
         now = utcnow()
 
@@ -203,11 +209,11 @@ class Pipeline:
 
         evaluations = await asyncio.to_thread(calculate)
         with self.tracing.span("publication", evaluation_count=len(evaluations)):
-            await self.repository.publish(self.settings.mode, matches, evaluations)
+            published = await self.repository.publish(self.settings.mode, matches, evaluations)
         return {
             "mode": self.settings.mode,
             "markets": len(markets),
             "books": len(books),
             "matches": len(matches),
-            "opportunities": sum(len(e.opportunities) for e in evaluations),
+            "opportunities": published,
         }

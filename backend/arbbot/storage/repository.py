@@ -1,9 +1,9 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from sqlalchemy import select, update
+from sqlalchemy import false, or_, select, update
 
-from arbbot.domain import Book, Market, MarketHealth, Match, Opportunity, digest, restore, utcnow
+from arbbot.domain import Book, Market, MarketHealth, Opportunity, digest, restore, utcnow
 from arbbot.matching.extraction import extract_contract
 from arbbot.storage.models import (
     EvaluationRecord,
@@ -21,8 +21,9 @@ def aware(value: datetime) -> datetime:
 
 
 class Repository:
-    def __init__(self, database):
+    def __init__(self, database, *, allow_file_reviews=False):
         self.database = database
+        self.allow_file_reviews = allow_file_reviews
 
     async def save_market(self, market: Market):
         async with self.database.sessions.begin() as session:
@@ -196,8 +197,13 @@ class Repository:
                 )
 
     async def publish(self, mode, matches, evaluations):
+        from arbbot.reviews.provider import guard_publication
+
         # Publish a coherent cycle in one transaction; retain past calculations for audit.
         async with self.database.sessions.begin() as session:
+            matches, evaluations = await guard_publication(
+                self.database, session, mode, matches, evaluations
+            )
             await session.execute(
                 update(MatchRecord).where(MatchRecord.mode == mode).values(current=False)
             )
@@ -246,19 +252,14 @@ class Repository:
                             payload=opportunity.model_dump(mode="json"),
                         )
                     )
+        return sum(len(result.opportunities) for result in evaluations)
 
     async def matches(self, mode, limit=100, offset=0):
-        async with self.database.sessions() as session:
-            rows = (
-                await session.scalars(
-                    select(MatchRecord)
-                    .where(MatchRecord.mode == mode, MatchRecord.current.is_(True))
-                    .order_by(MatchRecord.id)
-                    .limit(limit)
-                    .offset(offset)
-                )
-            ).all()
-            return [Match.model_validate(row.payload) for row in rows]
+        from arbbot.storage.catalog_queries import CatalogQueries
+
+        return await CatalogQueries(
+            self.database, allow_file_reviews=self.allow_file_reviews
+        ).matches(mode, limit=limit, offset=offset)
 
     async def opportunities(self, mode, health_max_age, limit=100, offset=0, history=False):
         eligible_books = []
@@ -286,11 +287,44 @@ class Repository:
                     .as_string()
                     .in_(eligible_books)
                 )
+        ordering = (
+            OpportunityRecord.evaluated_at.desc(),
+            OpportunityRecord.net_profit.desc(),
+            OpportunityRecord.id,
+        )
+        if not history:
+            from arbbot.reviews.repository import ReviewRepository
+
+            reviews = ReviewRepository(self.database)
+            async with reviews._read() as session:
+                revision = OpportunityRecord.payload["review_revision_id"].as_string()
+                left_id = OpportunityRecord.payload["review"]["left_id"].as_string()
+                right_id = OpportunityRecord.payload["review"]["right_id"].as_string()
+                pairs = (
+                    await session.execute(
+                        query.with_only_columns(revision, left_id, right_id)
+                        .where(revision.is_not(None))
+                        .distinct()
+                    )
+                ).all()
+                eligible = []
+                for revision_id, left, right in pairs:
+                    state = await reviews.decision_in_session(session, mode, left, right)
+                    if state and state.eligible and state.revision.id == revision_id:
+                        eligible.append(revision_id)
+                legacy = (
+                    revision.is_(None)
+                    if mode == "simulation" or self.allow_file_reviews
+                    else false()
+                )
+                query = query.where(or_(legacy, revision.in_(eligible)))
+                rows = (
+                    await session.scalars(query.order_by(*ordering).limit(limit).offset(offset))
+                ).all()
+                return [Opportunity.model_validate(row.payload) for row in rows]
         query = (
             query.order_by(
-                OpportunityRecord.evaluated_at.desc(),
-                OpportunityRecord.net_profit.desc(),
-                OpportunityRecord.id,
+                *ordering,
             )
             .limit(limit)
             .offset(offset)
