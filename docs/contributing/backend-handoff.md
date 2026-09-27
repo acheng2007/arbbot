@@ -3,7 +3,7 @@
 The active goal is to complete the backend end to end for production, testing when necessary.
 The goal remains incomplete.
 
-## Active implementation: September 26, 2026
+## Active implementation: September 27, 2026
 
 Work now continues in `/Users/adam/Project/arbbot` on `backend/completion`, based on the running `demo/live-prices` workstream.
 Integrated current `origin/main` (`aacc456`) with the demo's Polymarket stream and paired-price frontend.
@@ -73,7 +73,18 @@ Ruff, generated-client drift checking and frontend typechecking pass.
 Rebuilt local API and worker with the additive review migration; health returns 200 in live mode, protected drafts return 401 without credentials, and the worker ingests 20 Kalshi books without errors.
 No supported paired market or live approval exists, so the local opportunities API correctly returns an empty list.
 
-Next action: discover and record supported cross-venue binary pairs beyond the current CPI-only scan (#6), then validate extraction and joint exceptional settlements against their source rules (#7/#8/#10).
+Recorded eight unchanged supported contracts across Fed rate hikes, recession and Treasury yields, with source URLs, timestamps, payload digests and separate source-reading labels (#6).
+The corpus contains a supported same-event rate-hike candidate and hard negatives for terminal year, recession trigger/source, measurement, observation window and strict/inclusive thresholds.
+Labels are not human settlement approvals; every recorded pair has material settlement differences.
+Added conservative partial Fed rate-hike extraction and a second default discovery family, retaining all instrument eligibility restrictions.
+Allowed the exact Federal Reserve source host declared by the Kalshi series.
+Validation: 389 backend tests pass, including 29 focused corpus/extraction/discovery checks; the final source-host addition passes the existing source-enrichment tests.
+Rebuilt local API and worker; live discovery selects 19 Kalshi and one Polymarket contract.
+The local matches API now returns `kalshi:KXFEDHIKE-2-26DEC31` / `polymarket:4620900` with `same_event=true`, `status=candidate` and settlement `conflict`.
+Kalshi runs through December 31 while Polymarket ends at the December FOMC decision; no approval or opportunity was fabricated.
+See `docs/corpus-cross-exchange.md` for captured rule differences and remaining evidence gaps.
+
+Next action: implement current exchange-specific fee policies and integrate them with depth-dependent evaluation (#12/#13/#14), while keeping live settlement approval blocked on source completeness and joint exception validation (#10).
 Fees, stream lifecycle/revalidation, observability, deployment and recovery remain active scope.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.

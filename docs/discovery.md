@@ -6,7 +6,10 @@ Subsequent discovery and source enrichment run while the quote loop uses the pre
 An expired catalog suppresses its venue's opportunities, and cancellation waits for catalog work before closing the exchange clients.
 Simulation continues to use explicit fixtures.
 
-The default configured family is US CPI, using Kalshi series `KXCPI` and `KXCPIYOY` and Polymarket public searches for US inflation and CPI.
+The default families are US CPI and Fed rate hikes.
+CPI uses Kalshi series `KXCPI` and `KXCPIYOY` and Polymarket public searches for US inflation and CPI.
+Rate hikes use Kalshi series `KXFEDHIKE` and a Polymarket search for Fed rate hikes.
+The rate-hike corpus establishes a supported same-event candidate with different measurement and observation-window semantics, not settlement equivalence.
 Configured families are candidate retrieval rules, not settlement definitions or approvals.
 Market headings must contain a configured family keyword; incidental mentions in descriptions or publisher citations do not qualify unrelated contracts.
 The complete original rules still govern semantic comparison.
@@ -15,7 +18,7 @@ Configuration:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `ARBBOT_DISCOVERY_FAMILIES` | US CPI | JSON array of `name`, `kalshi_series`, `polymarket_queries` and `keywords` |
+| `ARBBOT_DISCOVERY_FAMILIES` | US CPI and Fed rate hikes | JSON array of `name`, `kalshi_series`, `polymarket_queries` and `keywords` |
 | `ARBBOT_DISCOVERY_LIMIT` | 50 | Maximum selected markets per venue |
 | `ARBBOT_DISCOVERY_SCAN_PAGES` | 8 | Maximum family-search pages per refresh |
 | `ARBBOT_CATALOG_REFRESH_SECONDS` | 300 | Delay between completed refresh attempts |

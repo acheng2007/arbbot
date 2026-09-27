@@ -30,6 +30,12 @@ DEFAULT_FAMILIES = (
         polymarket_queries=("US inflation", "CPI"),
         keywords=("inflation", "CPI", "Consumer Price Index"),
     ),
+    EventFamily(
+        name="us_fed_rate_hike",
+        kalshi_series=("KXFEDHIKE",),
+        polymarket_queries=("Fed rate hike",),
+        keywords=("Fed rate hike", "Federal Reserve hike"),
+    ),
 )
 
 

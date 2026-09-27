@@ -13,8 +13,8 @@ A narrow implementation is marked complete only at its stated scope.
 - [x] Explicit market watchlists, bounded discovery, pacing, retries, and concurrent book reads.
 - [x] Source metadata preservation and explicit simulation mode.
 - [x] Initial recorded corpus of nine real contracts with capture timestamps, URLs, and labels.
-- [ ] Targeted discovery of overlapping supported event families.
-- [ ] Kalshi series metadata and linked contract/source enrichment.
+- [x] Targeted discovery of supported same-event candidates across CPI and Fed rate-hike families.
+- [x] Kalshi series metadata and linked contract/source enrichment.
 - [ ] A reviewed, supported live cross-exchange pair.
 - [ ] Market-specific fee retrieval and normalization.
 - [ ] Exchange WebSocket books, reconnects, and reconciliation.
@@ -29,7 +29,7 @@ A narrow implementation is marked complete only at its stated scope.
 - [x] Narrow deterministic CPI drafts and extraction inspection endpoint.
 - [x] Initial real-contract replay, labeled coverage report, and near-match rejection tests.
 - [x] Recorded Kalshi primary-rule grammar for threshold and reporting-period drafts.
-- [ ] Broader labeled corpus with supported positive cross-exchange pairs.
+- [x] Broader labeled corpus with supported same-event candidate pairs and material settlement negatives.
 - [ ] Canonical measurement details for seasonal adjustment, rounding, and publication versions.
 - [ ] Expand extraction across supported real contract wording.
 - [ ] Evaluate structured LLM extraction for cases deterministic parsers cannot handle.
@@ -52,10 +52,10 @@ A narrow implementation is marked complete only at its stated scope.
 - [x] Read-only market, matching, extraction, opportunity, health, and audit APIs.
 - [x] Pagination, SSE updates, and published OpenAPI schemas.
 - [x] Per-market feed health and suppression of affected opportunities.
-- [ ] Persistent editable draft and review records replacing the file-only workflow.
-- [ ] Authentication and authorization for mutations.
-- [ ] Review APIs with concurrent-edit protection and audit history.
-- [ ] Search and filtering suitable for the dashboard.
+- [x] Persistent editable draft and review records replacing the file-only workflow by default.
+- [x] Authentication and authorization for mutations.
+- [x] Review APIs with concurrent-edit protection and audit history.
+- [x] Search and filtering suitable for the dashboard.
 
 ## Frontend
 

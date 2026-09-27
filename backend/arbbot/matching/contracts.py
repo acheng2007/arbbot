@@ -50,7 +50,16 @@ V2_FIELDS = frozenset(
 )
 UNKNOWN = "unknown"
 VOCABULARY = {
-    "measurement": {"month-over-month", "year-over-year", "level", "not_applicable"},
+    "measurement": {
+        "month-over-month",
+        "year-over-year",
+        "level",
+        "not_applicable",
+        "target_range_or_level",
+        "upper_bound",
+        "point_in_time",
+        "window_max",
+    },
     "seasonal_adjustment": {"seasonally_adjusted", "not_seasonally_adjusted", "not_applicable"},
     "rounding_mode": {
         "half_even",

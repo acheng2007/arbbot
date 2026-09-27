@@ -19,6 +19,7 @@ ALLOWED_HOSTS = frozenset(
         "kalshi-public-docs.s3.us-east-1.amazonaws.com",
         "www.bls.gov",
         "bls.gov",
+        "www.federalreserve.gov",
     }
 )
 CONTENT_TYPES = {"application/json", "application/pdf", "text/plain", "text/html"}
