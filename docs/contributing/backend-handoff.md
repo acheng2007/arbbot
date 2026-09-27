@@ -84,7 +84,18 @@ The local matches API now returns `kalshi:KXFEDHIKE-2-26DEC31` / `polymarket:462
 Kalshi runs through December 31 while Polymarket ends at the December FOMC decision; no approval or opportunity was fabricated.
 See `docs/corpus-cross-exchange.md` for captured rule differences and remaining evidence gaps.
 
-Next action: implement current exchange-specific fee policies and integrate them with depth-dependent evaluation (#12/#13/#14), while keeping live settlement approval blocked on source completeness and joint exception validation (#10).
+Implemented the market-specific Polymarket fee provider (#13), using observed `feesEnabled` and `feeSchedule` inputs with the currently documented exponent-one price curve.
+Unknown, contradictory or stale metadata cannot become implicit zero fees; explicit disabled schedules and taker-only maker fees retain provenance and zero-fee reasons.
+Quotes bind market/mode/native pUSD unit and round upward per supplied fill at five decimal places, without assuming rebate credits.
+Added two unchanged public fee records and pinned payload digests, plus synthetic boundary, malformed and fee-free cases.
+Validation: all 52 focused fee policy and shared fee-contract tests pass; Ruff and whitespace checks pass.
+This provider is not yet consumed by the engine, and supplied fills do not prove actual execution fragmentation.
+See `docs/polymarket-fees.md`.
+Current official Kalshi documentation additionally describes six-decimal trade-fee rounding, balance precision of 0.0001 for direct members versus 0.01 for other members, and per-order rounding accumulators with capped rebates.
+The official OpenAPI schema documents event overrides and scheduled series/event fee changes; do not substitute the older PDF's simple cent rounding for the current mechanics.
+
+Next action: implement the Kalshi fee provider (#12) with observed series/event overrides and current rounding mechanics, then connect both providers to metadata refresh and depth-dependent evaluation (#14).
+Live settlement approval remains blocked on source completeness and joint exception validation (#10).
 Fees, stream lifecycle/revalidation, observability, deployment and recovery remain active scope.
 Do not infer live equivalence from titles or create human approvals automatically.
 No change to main, remote publication, trading or custody is included.
