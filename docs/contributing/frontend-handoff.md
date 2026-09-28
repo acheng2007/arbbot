@@ -1,5 +1,21 @@
 # Frontend workstream handoff
 
+## Demo delivery: September 27, 2026
+
+Branch: `backend/completion`; no new PR.
+The active scope is a usable local demo, with production complexity deferred.
+Browser reproduction showed the default market page buried the supported paired candidate behind old unpaired contracts.
+The default Markets view now features same-event predictions independently of catalog pagination, with both venues under the prediction and a prominent settlement-conflict notice.
+The running production web container was rebuilt at http://localhost:3000/markets.
+The live Fed rate-hike candidate displays fresh Polymarket and Kalshi YES/NO asks, size and timestamps.
+Its differing settlement terms remain explicit; it is not presented as an executable opportunity.
+Validation: production build, lint, typecheck and all 56 frontend unit tests pass.
+`node scripts/smoke-paired-demo.mjs` passes against the live backend on desktop and mobile, verifying both panels receive changing worker snapshots without navigation and no horizontal overflow.
+Both screenshots were visually inspected.
+Production fee integration, authentication UI and deployment hardening are deferred beyond this demo.
+The pre-existing untracked `backend/arbbot/fees/kalshi.py` remains unfinished and is not part of this frontend commit.
+Next action: open the local Markets page for the demo and use Inspect settlement review to explain why same-event prices do not establish arbitrage.
+
 ## API contract integration: September 26, 2026
 
 Branch: `backend/completion`; no PR opened.

@@ -6,6 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { venueLabel } from "@/features/shared/status";
 import { MarketPrices } from "./market-prices";
 
+export function PairedPrediction({ match }: { match: Match }) {
+  const market = useApi("market", { params: { market_id: match.left_id } });
+  if (market.isPending)
+    return <p role="status">Loading paired prediction...</p>;
+  if (!market.data || market.isError)
+    return (
+      <p role="alert">
+        Paired prediction unavailable. Try refreshing the page.
+      </p>
+    );
+  return (
+    <PredictionCard
+      market={market.data.data}
+      match={match}
+      pairingState="ready"
+    />
+  );
+}
+
 function VenuePrices({ market }: { market: Market }) {
   return (
     <div className="min-w-0 rounded-lg border border-border bg-background p-4">
@@ -58,6 +77,12 @@ export function PredictionCard({
       aria-label={market.title}
     >
       <h2 className="text-lg font-semibold leading-7">{market.title}</h2>
+      {match?.comparison?.status === "conflict" && (
+        <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
+          Settlement terms differ. These prices are a comparison, not a verified
+          arbitrage opportunity.
+        </p>
+      )}
       {match && (
         <Link
           href={`/matches/${encodeURIComponent(match.id)}`}

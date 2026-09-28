@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/states";
 import { OriginBanner } from "@/components/data-origin";
 import { useApi } from "@/lib/query/hooks";
 import { QueryState } from "@/features/shared/query-state";
-import { PredictionCard } from "./prediction-card";
+import { PairedPrediction, PredictionCard } from "./prediction-card";
 import {
   applyLocalFilters,
   PAGE_SIZE,
@@ -75,11 +75,25 @@ export function MarketBrowser() {
       ),
   );
   const narrowed = Boolean(filters.status || filters.search.trim());
+  const showFeatured = !filters.venue && !narrowed && filters.offset === 0;
   const page = Math.floor(filters.offset / PAGE_SIZE) + 1;
 
   return (
     <div className="space-y-6">
       {markets.data && <OriginBanner origin={markets.data.origin} />}
+
+      {showFeatured && pairs.length > 0 && (
+        <section aria-label="Cross-exchange predictions" className="space-y-3">
+          <h2 className="text-xl font-semibold">Cross-exchange predictions</h2>
+          <p className="text-sm text-muted-foreground">
+            Same-event candidates from both venues. Check settlement differences
+            before comparing prices.
+          </p>
+          {pairs.map((match) => (
+            <PairedPrediction key={match.id} match={match} />
+          ))}
+        </section>
+      )}
 
       <form
         role="search"
@@ -182,24 +196,27 @@ export function MarketBrowser() {
           />
         ) : (
           <ul className="space-y-3">
-            {cards.map((market) => (
-              <li key={market.id}>
-                <PredictionCard
-                  market={market}
-                  match={pairs.find(
-                    (pair) =>
-                      pair.left_id === market.id || pair.right_id === market.id,
-                  )}
-                  pairingState={
-                    matches.isPending
-                      ? "loading"
-                      : matches.isError
-                        ? "error"
-                        : "ready"
-                  }
-                />
-              </li>
-            ))}
+            {cards
+              .filter((market) => !showFeatured || !pairedIds.has(market.id))
+              .map((market) => (
+                <li key={market.id}>
+                  <PredictionCard
+                    market={market}
+                    match={pairs.find(
+                      (pair) =>
+                        pair.left_id === market.id ||
+                        pair.right_id === market.id,
+                    )}
+                    pairingState={
+                      matches.isPending
+                        ? "loading"
+                        : matches.isError
+                          ? "error"
+                          : "ready"
+                    }
+                  />
+                </li>
+              ))}
           </ul>
         )}
       </QueryState>
