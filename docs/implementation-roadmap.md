@@ -7,9 +7,19 @@ This checklist tracks one integrated product, organized by workstream.
 Checked items are implemented and locally validated; unchecked items remain work to do.
 A narrow implementation is marked complete only at its stated scope.
 
+## Active direction: US-accessible market comparison
+
+The October 1 direction supersedes the Opinion/Limitless four-venue expansion plan.
+Compare all discovered supported contracts across eligible US trading venues, find equivalent outcomes, and calculate price differences after fees and available depth.
+Venue count is evidence-driven, with no fixed four-venue requirement.
+See [the US venue expansion plan](us-venue-expansion.md) for sequencing, eligibility gates, and the first implementation milestone.
+Opinion and Limitless are excluded from this milestone.
+The existing Polymarket adapter is International and must not be treated as Polymarket US or as an eligible US execution route.
+US eligibility filtering is planned work, not a capability of the restored demo.
+
 ## Exchange integrations
 
-- [x] Kalshi and Polymarket REST market and order-book adapters.
+- [x] Kalshi and Polymarket International REST market and order-book adapters.
 - [x] Explicit market watchlists, bounded discovery, pacing, retries, and concurrent book reads.
 - [x] Source metadata preservation and explicit simulation mode.
 - [x] Initial recorded corpus of nine real contracts with capture timestamps, URLs, and labels.
@@ -19,6 +29,9 @@ A narrow implementation is marked complete only at its stated scope.
 - [ ] Market-specific fee retrieval and normalization.
 - [ ] Exchange WebSocket books, reconnects, and reconciliation.
 - [ ] Assess negative-risk contract support separately before admitting those markets.
+- [ ] Prioritize US-accessible venues for the discovery product: evaluate Polymarket US, Crypto.com Predictions, and ForecastEx/CME through documented market-data APIs before adding new adapters.
+- [x] Remove the uncommitted Opinion and Limitless expansion and defer both venues outside the US milestone.
+- [ ] Generalize the backend from its current Kalshi/Polymarket assumptions to an extensible venue registry, multi-venue matching, ingestion, evaluation, storage, and API contracts. This may require substantial backend rewrites rather than only adding two adapters.
 
 ## Backend matching
 
@@ -59,13 +72,14 @@ A narrow implementation is marked complete only at its stated scope.
 
 ## Frontend
 
-- [ ] Next.js application and generated TypeScript API client.
-- [ ] Market browser with source rules and ingestion status.
-- [ ] Side-by-side contract comparison and evidence inspection.
+- [x] Next.js application and generated TypeScript API client.
+- [x] Market browser with source rules and ingestion status.
+- [x] Side-by-side contract comparison and evidence inspection.
 - [ ] Review queue, draft editing, approval, and rejection.
 - [ ] Opportunity dashboard with depth, costs, payoff scenarios, and freshness.
 - [ ] Accessible loading, empty, error, stale, and reconnect states.
-- [ ] Vitest and Playwright coverage, including visual review.
+- [x] Vitest and Playwright coverage for existing read-only screens, including prior visual review.
+- [ ] Review and potentially rewrite frontend market, comparison, and opportunity flows so they support any number of venues with explicit two-leg comparisons, venue-specific status and costs, and clear provenance. Avoid hard-coded two-platform presentation.
 
 ## Infrastructure and QA
 
@@ -81,26 +95,23 @@ A narrow implementation is marked complete only at its stated scope.
 
 ## Implementation order
 
-1. Data foundation: initial real-contract fixtures and CI definition are complete; next enrich source metadata and discover genuinely overlapping supported contracts.
-2. Review workflow: implement persistent reviews and authenticated APIs alongside frontend market and comparison screens.
-3. Opportunity workflow: automate costs, strengthen scenario validation, and build the opportunity dashboard.
-4. Live reliability: implement WebSockets, recovery, freshness UX, and monitoring.
-5. Production readiness: validate the full browser workflow, deployment, and operational controls.
+1. Assess Polymarket US, Crypto.com Predictions/CDNA, and ForecastEx/CME access, source evidence, books, fees, restrictions, and actual overlap with Kalshi.
+2. Implement US eligibility and an extensible venue registry, preserving historical International IDs and review hashes.
+3. Integrate Polymarket US first, then Crypto.com, then ForecastEx and CME separately through validated broker access; revise the order if evidence or access blocks a candidate.
+4. Expand catalog discovery beyond CPI/Fed, with explicit supported categories and coverage reports; add settlement parsers and review evidence before enabling evaluation for each category.
+5. Complete paginated event comparison, authenticated review editing, fees, exceptional-settlement validation, and live quote rechecks.
+6. Run a seven-day forward paper study, then finish streaming, operational monitoring, staging, and recovery validation.
 
-Frontend read-only screens can proceed alongside data foundation work using existing APIs.
-Approval UI depends on authenticated review APIs.
 No phase authorizes automatic trading, custody, or transfers.
+Two-leg comparison remains the initial strategy boundary.
 
 ## Current validation and next task
 
-The initial corpus contains two Kalshi CPI markets and seven Polymarket markets covering annual/monthly CPI, core CPI, foreign inflation, PCE, and Treasury yields.
-Six Polymarket fixtures are negative-risk contracts excluded by current adapters.
-The original parser extracted zero of 63 labeled fields.
-The updated parser extracts 14 correct fields with no incorrect fields in this small sample.
-This is a coverage baseline, not proof of general extraction accuracy or an actionable arbitrage pair.
+The restored baseline includes the live-price demo, source enrichment, persistent reviews, authenticated review APIs, and existing read-only frontend screens.
+Browser review editing, generalized venue selection, and all-counterpart pagination remain unfinished.
+Existing Polymarket International fixtures remain useful for historical regression tests but do not establish US trading eligibility.
+The abandoned expansion was uncommitted and was removed without changing the database or existing historical reviews.
 
-Settlement source artifacts are now persisted with immutable content, explicit retrieval failures, and audit history, but nothing fetches evidence into that store yet.
-The next backend task is source and series enrichment plus targeted discovery of supported overlapping contracts.
-Kalshi market-level rules in the sample do not independently establish jurisdiction or the source publisher.
-Those fields must remain unknown until the relevant source evidence is ingested.
-See [recorded contract validation](recorded-contracts.md) for commands and limitations.
+Next action: capture a reproducible Polymarket US capability assessment and immutable public market, rule, book, and fee evidence, including eligibility restrictions and measured overlap with Kalshi.
+Document unsupported contracts and missing overlap rather than assuming catalog coverage or executable returns.
+See [the US expansion handoff](contributing/us-expansion-handoff.md) for the rollback and validation record.
