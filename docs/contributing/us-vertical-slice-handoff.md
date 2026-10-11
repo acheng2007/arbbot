@@ -55,3 +55,31 @@ Real public pages were persisted in PostgreSQL with continuation tokens and expl
 Migration roundtrip tests preserve existing markets, snapshots, reviews, and source evidence.
 Use `.venv/bin/python backend/scripts/smoke_us.py` for opt-in public catalog/book checks.
 The script does not validate completed source, fee, access, approval, or evaluation gates.
+
+## Stage 3: captured text foundations and verified US rulebook host
+
+Pinned `pypdf==6.20.0` and added text/HTML/PDF extraction in isolated subprocesses.
+Extraction bounds cover 100 pages, 300,000 characters, stream expansion, concurrency, wall time, and CPU time; Linux additionally enforces a child address-space limit.
+Partial, empty, encrypted, malformed, oversized, and timed-out results remain explicit.
+Derived text carries original content hash, artifact identity, extractor version, text hash, and page numbers.
+The new `/api/v1/sources/{artifact_id}/text` endpoint reads captured bytes without exchange ingestion.
+Captured document text and provenance enter settlement details, so text/version changes invalidate dependent definitions and approvals.
+The browser presents captured text and unresolved source gaps as plain escaped text.
+
+Verified `polymarketexchange.com` through the official end-user legal documentation.
+US enrichment captures gateway identity, the official US rulebook, and the official product and notice indexes.
+Legal aliases resolve through at most three validated same-host legal-path redirects; other redirects remain rejected.
+Current live PostgreSQL capture extracted all 84 pages of the September 30 rulebook and retained the full original bytes.
+Rendered the actual first page and inspected it.
+Desktop/mobile browser screenshots of real captured US evidence were inspected under `apps/web/test-results/stage3-source-*.png`.
+
+The full SQLite backend suite passed (456 tests); 55 source/review PostgreSQL tests passed; 58 frontend unit tests passed.
+Frontend type/lint/generated-contract checks and the production webpack build passed.
+The 20 desktop/mobile opportunity browser tests passed, including the added missing-book empty state.
+Visual inspection found a catalog contract without monitored quotes showing a generic error; this was replaced with an explanatory empty state.
+
+Stage 3 remains incomplete: gateway-to-product-specification linkage and amendment/clarification applicability are not proven by document index filenames.
+No global rulebook or similarly titled PDF is being treated as sufficient instrument-specific settlement evidence.
+The source status remains incomplete and live US evaluation remains blocked.
+Next action: establish evidence-backed product-document applicability for a real public gateway instrument, then finish joint exceptional-outcome review validation and browser review/auth/access workflows.
+Stages 4 through 7, OIDC, reviewed access profiles, actual fee integration, fresh-book publication rechecks, and the full recorded/OIDC acceptance harness remain outstanding.

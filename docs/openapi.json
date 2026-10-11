@@ -491,6 +491,45 @@
         }
       }
     },
+    "/api/v1/sources/{artifact_id}/text": {
+      "get": {
+        "summary": "Source Text",
+        "operationId": "source_text_api_v1_sources__artifact_id__text_get",
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Artifact Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DerivedText"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/markets/{market_id}/draft": {
       "get": {
         "tags": [
@@ -2340,6 +2379,86 @@
         ],
         "title": "DecisionWrite"
       },
+      "DerivedText": {
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "title": "Artifact Id"
+          },
+          "content_digest": {
+            "type": "string",
+            "title": "Content Digest"
+          },
+          "extractor_version": {
+            "type": "string",
+            "title": "Extractor Version",
+            "default": "source-text-v1:pypdf-6.20.0"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/TextPage"
+            },
+            "type": "array",
+            "title": "Pages",
+            "default": []
+          },
+          "text_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Digest"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "page_limit": {
+            "type": "integer",
+            "title": "Page Limit",
+            "default": 100
+          },
+          "text_limit": {
+            "type": "integer",
+            "title": "Text Limit",
+            "default": 300000
+          },
+          "time_limit_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Time Limit Seconds",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "content_digest",
+          "status"
+        ],
+        "title": "DerivedText"
+      },
       "Difference": {
         "properties": {
           "field": {
@@ -4090,6 +4209,31 @@
         ],
         "title": "SourceArtifactSummary",
         "description": "Metadata for a persisted retrieval attempt, without the document bytes."
+      },
+      "TextPage": {
+        "properties": {
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TextPage"
       },
       "ValidationError": {
         "properties": {

@@ -188,6 +188,19 @@ export type DecisionWrite = {
   review?: ReviewInput | null;
 };
 
+export type DerivedText = {
+  artifact_id: string;
+  content_digest: string;
+  extractor_version?: string;
+  status: "complete" | "partial" | "unavailable";
+  pages?: Array<TextPage>;
+  text_digest?: string | null;
+  reason?: string | null;
+  page_limit?: number;
+  text_limit?: number;
+  time_limit_seconds?: number;
+};
+
 export type Difference = {
   field: string;
   status: "equal" | "different" | "unknown";
@@ -493,6 +506,11 @@ export type SourceArtifactSummary = {
   details?: Partial<Record<string, unknown>>;
 };
 
+export type TextPage = {
+  page?: number | null;
+  text: string;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -577,6 +595,16 @@ export interface ApiOperations {
     };
     query: Record<string, never>;
     response: unknown;
+  };
+  sourceText: {
+    route: "/api/v1/sources/{artifact_id}/text";
+    method: "GET";
+    body: never;
+    params: {
+      artifact_id: string;
+    };
+    query: Record<string, never>;
+    response: DerivedText;
   };
   currentDraft: {
     route: "/api/v1/markets/{market_id}/draft";
@@ -829,6 +857,12 @@ export const API_OPERATIONS = {
   },
   sourceContent: {
     route: "/api/v1/sources/{artifact_id}/content",
+    method: "GET",
+    params: ["artifact_id"],
+    query: [],
+  },
+  sourceText: {
+    route: "/api/v1/sources/{artifact_id}/text",
     method: "GET",
     params: ["artifact_id"],
     query: [],

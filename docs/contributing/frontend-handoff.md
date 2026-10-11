@@ -36,3 +36,9 @@ Desktop/mobile opportunity Playwright passed (18 tests), frontend unit tests pas
 The actual PostgreSQL/worker/API/Next.js simulation workflow refreshed on both viewports; screenshots were inspected.
 Next action: continue the US vertical slice with durable broad catalog inventory, then evidence-linked review workflows.
 See [the implementation handoff](us-vertical-slice-handoff.md) for remaining stages.
+
+## October 11 captured source text update
+
+Source terms now expose captured document text in collapsible plain-text panels and display unresolved evidence gaps.
+Real captured US rulebook evidence was inspected in desktop/mobile browsers with no horizontal overflow.
+Next action: implement evidence-linked review editing and OIDC sessions after product-document applicability and review validation are ready.

@@ -174,3 +174,14 @@ test("a backend snapshot refreshes displayed opportunities", async ({
   await expect(page.getByText("No opportunities right now")).toBeVisible();
   expect(reads).toBeGreaterThan(initialReads);
 });
+
+test("a catalog contract without monitored quotes has a useful empty state", async ({
+  page,
+}) => {
+  await page.route("**/api/data/book?*", (route) =>
+    route.fulfill({ status: 404, json: { failure: "not_found" } }),
+  );
+  await page.goto("/markets/kalshi%3ACPIYOY-26SEP-T3.0");
+  await expect(page.getByText("No monitored order book")).toBeVisible();
+  await expect(page.getByText("This view could not be loaded")).toHaveCount(0);
+});

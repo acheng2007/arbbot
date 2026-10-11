@@ -6,7 +6,7 @@ from urllib.parse import quote
 
 from arbbot.discovery.models import DiscoveryDecision, DiscoveryScan
 from arbbot.domain import Book, ExecutionSemantics, InstrumentConstraints, Level, Market, utcnow
-from arbbot.sources.fetch import EvidenceCollector
+from arbbot.exchanges.polymarket_us_sources import enrich_polymarket_us
 
 BASE = "https://gateway.polymarket.us"
 
@@ -217,17 +217,7 @@ class PolymarketUSAdapter:
         )
 
     async def enrich_sources(self, market, repository, fetcher):
-        collector = EvidenceCollector(market, repository, fetcher)
-        data = await collector.get(
-            BASE + "/v1/market/slug/" + quote(market.external_id, safe=""),
-            label="polymarket_us_market",
-            json_document=True,
-        )
-        if not data or self.normalize_market(data["market"]).terms_hash != market.terms_hash:
-            collector.issues.append("market_terms_changed_during_capture")
-        # Metadata contains product descriptions, not a complete rulebook/clarification history.
-        collector.issues.append("rulebook_and_clarification_evidence_required")
-        return collector.finish({"description": market.rules})
+        return await enrich_polymarket_us(market, repository, fetcher)
 
 
 def cls_constraints(item):

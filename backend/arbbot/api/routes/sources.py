@@ -7,6 +7,7 @@ from fastapi.responses import Response
 
 from arbbot.sources.models import SourceArtifactSummary
 from arbbot.sources.repository import SourceRepository
+from arbbot.sources.text import DerivedText, derive_text
 from arbbot.storage.repository import Repository
 
 
@@ -40,5 +41,12 @@ def sources_router(database, mode):
                 "ETag": f'"{result.content_digest}"',
             },
         )
+
+    @router.get("/api/v1/sources/{artifact_id}/text", response_model=DerivedText)
+    async def source_text(artifact_id: str):
+        result = await sources.get(mode, artifact_id)
+        if result is None or result.content is None:
+            raise HTTPException(404, "Captured source not found")
+        return await derive_text(result.content, result.content_type, result.id)
 
     return router

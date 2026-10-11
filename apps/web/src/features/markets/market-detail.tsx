@@ -136,14 +136,21 @@ export function MarketDetail({ marketId }: { marketId: string }) {
               </h1>
             </header>
 
-            <QueryState
-              isPending={book.isPending}
-              error={book.error}
-              loadingLabel="Loading order book"
-              onRetry={() => void book.refetch()}
-            >
-              {book.data && <QuoteHealth book={book.data.data} />}
-            </QueryState>
+            {book.error?.failure === "not_found" ? (
+              <EmptyState
+                title="No monitored order book"
+                description="This catalog contract has no captured order book yet. An executable estimate requires fresh quotes on both venues."
+              />
+            ) : (
+              <QueryState
+                isPending={book.isPending}
+                error={book.error}
+                loadingLabel="Loading order book"
+                onRetry={() => void book.refetch()}
+              >
+                {book.data && <QuoteHealth book={book.data.data} />}
+              </QueryState>
+            )}
 
             <SourceTerms market={market.data.data} />
 

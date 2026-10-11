@@ -131,3 +131,26 @@ describe("review panel", () => {
     ).toHaveLength(2);
   });
 });
+
+it("shows captured source text with its unresolved evidence gaps", async () => {
+  const { SourceTerms } = await import("@/features/comparisons/source-terms");
+  render(
+    <SourceTerms
+      market={{
+        ...dataset.markets[0],
+        settlement_details: {
+          source_text_rulebook: "Captured cancellation terms.",
+          source_issues: ["product_specification_applicability_unverified"],
+        },
+      }}
+    />,
+  );
+  expect(
+    screen.getByText("Settlement evidence remains incomplete"),
+  ).toBeVisible();
+  expect(
+    screen.getByText("product specification applicability unverified"),
+  ).toBeVisible();
+  expect(screen.getByText("Captured rulebook text")).toBeVisible();
+  expect(screen.getByText("Captured cancellation terms.")).toBeInTheDocument();
+});

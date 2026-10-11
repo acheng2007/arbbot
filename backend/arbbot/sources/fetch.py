@@ -9,12 +9,15 @@ import httpx
 
 from arbbot.domain import utcnow
 from arbbot.sources.models import MAX_CONTENT_BYTES, SourceCapture, SourceFailure
+from arbbot.sources.text import derive_text
 
 ALLOWED_HOSTS = frozenset(
     {
         "external-api.kalshi.com",
         "gamma-api.polymarket.com",
         "gateway.polymarket.us",
+        "polymarketexchange.com",
+        "www.polymarketexchange.com",
         "assets.kalshi.com",
         "kalshi-public-docs.s3.amazonaws.com",
         "kalshi-public-docs.s3.us-east-1.amazonaws.com",
@@ -37,6 +40,7 @@ class SourceFetcher:
         self.transport, self.ttl = transport, ttl
         self.max_bytes = max_bytes
         self.cache = OrderedDict()
+        self.resolved_urls = {}
         self.locks = [asyncio.Lock() for _ in range(16)]
         self.capacity = asyncio.Semaphore(4)
 
@@ -65,9 +69,34 @@ class SourceFetcher:
                 async with httpx.AsyncClient(
                     timeout=5, follow_redirects=False, trust_env=False, transport=self.transport
                 ) as client:
-                    for attempt in range(3):
+                    current_url = url
+                    redirects = 0
+                    for attempt in range(6):
                         try:
-                            async with client.stream("GET", url) as response:
+                            async with client.stream("GET", current_url) as response:
+                                if (
+                                    response.status_code in {301, 302, 307, 308}
+                                    and parsed.host
+                                    in {"polymarketexchange.com", "www.polymarketexchange.com"}
+                                    and parsed.path.startswith("/files/legal/latest/")
+                                ):
+                                    target = httpx.URL(current_url).join(
+                                        response.headers.get("location", "")
+                                    )
+                                    if (
+                                        redirects >= 3
+                                        or target.scheme != "https"
+                                        or target.host != parsed.host
+                                        or target.port not in (None, 443)
+                                        or target.userinfo
+                                        or target.query
+                                        or target.fragment
+                                        or not target.path.startswith("/files/legal/")
+                                    ):
+                                        raise EvidenceError("source_redirect_not_allowed")
+                                    redirects += 1
+                                    current_url = str(target)
+                                    continue
                                 if response.status_code in {429, 500, 502, 503, 504}:
                                     raise httpx.TransportError("retryable_response")
                                 if response.status_code != 200:
@@ -85,13 +114,15 @@ class SourceFetcher:
                                 if not data:
                                     raise EvidenceError("empty_source")
                                 result = (bytes(data), content_type, utcnow())
+                                self.resolved_urls[url] = current_url
                                 self.cache[url] = (monotonic(), *result)
                                 self.cache.move_to_end(url)
                                 while len(self.cache) > 128:
-                                    self.cache.popitem(last=False)
+                                    evicted, _ = self.cache.popitem(last=False)
+                                    self.resolved_urls.pop(evicted, None)
                                 return result
                         except httpx.RequestError:
-                            if attempt == 2:
+                            if attempt >= 2:
                                 raise EvidenceError("source_transport_failure") from None
                             await asyncio.sleep(0.1 * 2**attempt)
 
@@ -101,6 +132,8 @@ class EvidenceCollector:
         self.market, self.repository, self.fetcher = market, repository, fetcher
         self.references, self.issues = [], []
         self.documents = []
+        self.texts = {}
+        self.text_provenance = []
 
     async def get(self, url, *, label="resolution_source", json_document=False):
         try:
@@ -114,6 +147,7 @@ class EvidenceCollector:
                 retrieved_at=retrieved_at,
                 content=content,
                 content_type=content_type,
+                details={"canonical_url": getattr(self.fetcher, "resolved_urls", {}).get(url, url)},
             )
             saved = await self.repository.record(capture)
             self.references.append(
@@ -135,6 +169,26 @@ class EvidenceCollector:
                 not content.startswith(b"%PDF-") or b"%%EOF" not in content[-1024:]
             ):
                 raise EvidenceError("malformed_pdf")
+            derived = await derive_text(content, content_type, saved.id)
+            self.text_provenance.append(
+                {
+                    "artifact_id": saved.id,
+                    "label": label,
+                    "url": str(saved.url),
+                    "content_digest": saved.content_digest,
+                    "extractor_version": derived.extractor_version,
+                    "text_digest": derived.text_digest,
+                    "status": derived.status,
+                }
+            )
+            if derived.status != "complete":
+                self.issues.append("source_text_" + (derived.reason or "unavailable"))
+            if derived.pages:
+                key = "source_text_" + label
+                text = "\n".join(
+                    (f"Page {p.page}:\n" if p.page else "") + p.text for p in derived.pages
+                )
+                self.texts[key] = (self.texts.get(key, "") + "\n" + text).strip()
             return content
         except (EvidenceError, TimeoutError) as exc:
             code = str(exc) if isinstance(exc, EvidenceError) else "source_timeout"
@@ -174,6 +228,10 @@ class EvidenceCollector:
     def finish(self, evidence):
         # Do not place capture times or failure IDs in semantic terms.
         details = dict(self.market.settlement_details)
+        details.update(self.texts)
+        details["source_text_provenance"] = sorted(
+            self.text_provenance, key=lambda item: (item["label"], item["artifact_id"])
+        )
         details["source_evidence"] = evidence
         # Quotations can reference these stable, top-level strings. The original
         # complete response stays in the immutable artifact, outside semantic terms.
