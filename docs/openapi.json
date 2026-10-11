@@ -44,7 +44,8 @@
                 {
                   "enum": [
                     "kalshi",
-                    "polymarket"
+                    "polymarket",
+                    "polymarket_us"
                   ],
                   "type": "string"
                 },
@@ -178,7 +179,8 @@
                 {
                   "enum": [
                     "kalshi",
-                    "polymarket"
+                    "polymarket",
+                    "polymarket_us"
                   ],
                   "type": "string"
                 },
@@ -875,6 +877,28 @@
         }
       }
     },
+    "/api/v1/venues": {
+      "get": {
+        "summary": "Venues",
+        "operationId": "venues_api_v1_venues_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VenueInfo"
+                  },
+                  "type": "array",
+                  "title": "Response Venues Api V1 Venues Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/status": {
       "get": {
         "summary": "Status",
@@ -1418,7 +1442,8 @@
             "type": "string",
             "enum": [
               "kalshi",
-              "polymarket"
+              "polymarket",
+              "polymarket_us"
             ],
             "title": "Venue"
           },
@@ -2578,7 +2603,8 @@
             "type": "string",
             "enum": [
               "kalshi",
-              "polymarket"
+              "polymarket",
+              "polymarket_us"
             ],
             "title": "Venue"
           },
@@ -3567,7 +3593,8 @@
             "type": "string",
             "enum": [
               "kalshi",
-              "polymarket"
+              "polymarket",
+              "polymarket_us"
             ],
             "title": "Venue"
           },
@@ -3772,6 +3799,45 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VenueInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket",
+              "polymarket_us"
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "evaluation_enabled": {
+            "type": "boolean",
+            "title": "Evaluation Enabled"
+          },
+          "access_note": {
+            "type": "string",
+            "title": "Access Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "enabled",
+          "evaluation_enabled",
+          "access_note"
+        ],
+        "title": "VenueInfo"
       }
     },
     "securitySchemes": {

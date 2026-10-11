@@ -7,6 +7,7 @@ from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from arbbot.discovery.models import DEFAULT_FAMILIES, EventFamily
+from arbbot.domain import Venue
 from arbbot.sources.models import MAX_CONTENT_BYTES
 
 
@@ -37,6 +38,8 @@ class Settings(BaseSettings):
     review_source: Literal["database", "files"] = "database"
     kalshi_tickers: list[str] = []
     polymarket_market_ids: list[str] = []
+    polymarket_us_market_ids: list[str] = []
+    enabled_venues: tuple[Venue, ...] = Field(default=("kalshi", "polymarket"), min_length=1)
     polymarket_websocket: bool = True
     kalshi_key_id: SecretStr | None = None
     kalshi_private_key_path: Path | None = None
@@ -52,6 +55,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_catalog(self):
+        if len(set(self.enabled_venues)) != len(self.enabled_venues):
+            raise ValueError("Enabled venues must be unique")
         if (
             self.catalog_max_age_seconds
             <= self.catalog_refresh_seconds + self.catalog_timeout_seconds

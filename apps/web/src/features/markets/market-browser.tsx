@@ -42,6 +42,7 @@ export function MarketBrowser() {
     },
   });
 
+  const venues = useApi("venues");
   const matches = useApi("matches", { query: { limit: 200 } });
   const pairedIds = new Set<string>();
   const pairs = (matches.isError ? [] : (matches.data?.data ?? [])).filter(
@@ -133,8 +134,9 @@ export function MarketBrowser() {
             className={CONTROL}
           >
             <option value="">All venues</option>
-            <option value="kalshi">Kalshi</option>
-            <option value="polymarket">Polymarket</option>
+            {venues.data?.data.filter((v) => v.enabled).map((v) => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">

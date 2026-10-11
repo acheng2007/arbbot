@@ -13,7 +13,7 @@ from arbbot.matching.contracts import Comparison
 NonNegative = Annotated[Decimal, Field(ge=0, allow_inf_nan=False)]
 Positive = Annotated[Decimal, Field(gt=0, allow_inf_nan=False)]
 Probability = Annotated[Decimal, Field(ge=0, le=1, allow_inf_nan=False)]
-Venue = Literal["kalshi", "polymarket"]
+Venue = Literal["kalshi", "polymarket", "polymarket_us"]
 Mode = Literal["simulation", "live"]
 Outcome = Literal["yes", "no"]
 

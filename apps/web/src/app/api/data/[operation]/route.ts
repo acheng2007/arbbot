@@ -7,6 +7,7 @@ import { API_OPERATIONS, type OperationId } from "@/lib/api/schema";
 // Read-only operations the browser may request. Streaming and health checks are
 // excluded: the stream has its own route and health is served by /api/connection.
 const EXPOSED = [
+  "venues",
   "markets",
   "market",
   "extraction",

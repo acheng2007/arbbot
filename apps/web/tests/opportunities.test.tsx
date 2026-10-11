@@ -85,7 +85,66 @@ describe("live update status", () => {
       />,
     );
     expect(screen.getByRole("status")).toHaveTextContent(
-      /Nothing below has been confirmed by a live update yet/,
+      /No snapshot has arrived yet/,
     );
+  });
+});
+
+describe("backend snapshot subscription", () => {
+  it("refreshes current queries and closes the stream on unmount", async () => {
+    const { QueryClient, QueryClientProvider } =
+      await import("@tanstack/react-query");
+    const { renderHook, act } = await import("@testing-library/react");
+    const { vi } = await import("vitest");
+    const { useOpportunityStream } =
+      await import("@/features/opportunities/use-stream");
+    const client = new QueryClient();
+    const invalidate = vi.spyOn(client, "invalidateQueries");
+    class MockSource extends EventTarget {
+      onopen: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      close = vi.fn();
+    }
+    const source = new MockSource();
+    vi.stubGlobal(
+      "EventSource",
+      vi.fn(function () {
+        return source;
+      }),
+    );
+    try {
+      const hook = renderHook(() => useOpportunityStream(), {
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={client}>{children}</QueryClientProvider>
+        ),
+      });
+      act(() => source.onopen?.());
+      expect(hook.result.current.status).toBe("open");
+      expect(hook.result.current.lastEventAt).toBeNull();
+      act(() =>
+        source.dispatchEvent(
+          new MessageEvent("snapshot", {
+            data: JSON.stringify({
+              mode: "live",
+              as_of: new Date().toISOString(),
+              opportunities: [],
+              exchanges: [],
+              limit: 200,
+            }),
+          }),
+        ),
+      );
+      expect(hook.result.current.lastEventAt).not.toBeNull();
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: ["arbbot", "opportunities"],
+      });
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: ["arbbot", "evaluations"],
+      });
+      hook.unmount();
+      expect(source.close).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

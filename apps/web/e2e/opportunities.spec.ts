@@ -81,9 +81,7 @@ test("a dropped stream stops the page claiming the figures are current", async (
 
   const banner = page.getByText("Live updates disconnected, retrying.");
   await expect(banner).toBeVisible();
-  await expect(
-    page.getByText(/Nothing below has been confirmed by a live update yet/),
-  ).toBeVisible();
+  await expect(page.getByText(/No snapshot has arrived yet/)).toBeVisible();
   await expect(page.getByText("Live updates connected")).toHaveCount(0);
 });
 
@@ -138,4 +136,41 @@ test("a failing API produces a retryable error, not a blank page", async ({
     "could not be loaded",
   );
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+});
+
+test("a backend snapshot refreshes displayed opportunities", async ({
+  page,
+}) => {
+  let reads = 0;
+  let changed = false;
+  let sendSnapshot!: () => void;
+  const snapshotReady = new Promise<void>((resolve) => {
+    sendSnapshot = resolve;
+  });
+  await page.route("**/api/data/opportunities*", async (route) => {
+    reads += 1;
+    const response = await route.fetch();
+    const entries = await response.json();
+    await route.fulfill({ json: changed ? [] : entries });
+  });
+  await page.route("**/api/stream", async (route) => {
+    await snapshotReady;
+    await route.fulfill({
+      contentType: "text/event-stream",
+      body: `event: snapshot\ndata: ${JSON.stringify({
+        mode: "simulation",
+        as_of: new Date().toISOString(),
+        opportunities: [],
+        exchanges: [],
+        limit: 200,
+      })}\n\n`,
+    });
+  });
+  await page.goto("/opportunities");
+  await expect(page.getByText("Quote-supported estimate")).toBeVisible();
+  const initialReads = reads;
+  changed = true;
+  sendSnapshot();
+  await expect(page.getByText("No opportunities right now")).toBeVisible();
+  expect(reads).toBeGreaterThan(initialReads);
 });

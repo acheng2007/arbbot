@@ -63,7 +63,8 @@ export function fieldLabel(field: string) {
 
 const VENUE_LABEL: Record<string, string> = {
   kalshi: "Kalshi",
-  polymarket: "Polymarket",
+  polymarket: "Polymarket International",
+  polymarket_us: "Polymarket US",
 };
 
 export function venueLabel(venue: string) {

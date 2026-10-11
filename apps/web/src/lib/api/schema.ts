@@ -22,7 +22,7 @@ export type Book = {
 
 export type CatalogReport = {
   mode: "simulation" | "live";
-  venue: "kalshi" | "polymarket";
+  venue: "kalshi" | "polymarket" | "polymarket_us";
   status: "ready" | "degraded" | "failed" | "stale";
   started_at: string;
   completed_at: string;
@@ -278,7 +278,7 @@ export type Level = {
 
 export type Market = {
   id: string;
-  venue: "kalshi" | "polymarket";
+  venue: "kalshi" | "polymarket" | "polymarket_us";
   external_id: string;
   mode: "simulation" | "live";
   title: string;
@@ -430,7 +430,7 @@ export type SettlementPolicy = {
 
 export type SourceArtifactSummary = {
   id: string;
-  venue: "kalshi" | "polymarket";
+  venue: "kalshi" | "polymarket" | "polymarket_us";
   mode: "simulation" | "live";
   market_id: string;
   url: string;
@@ -465,6 +465,14 @@ export type ValidationError = {
   ctx?: Partial<Record<string, unknown>>;
 };
 
+export type VenueInfo = {
+  id: "kalshi" | "polymarket" | "polymarket_us";
+  name: string;
+  enabled: boolean;
+  evaluation_enabled: boolean;
+  access_note: string;
+};
+
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
   markets: {
@@ -475,7 +483,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | null;
+      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
       status?: "open" | "closed" | null;
       family?: string | null;
       q?: string | null;
@@ -490,7 +498,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | null;
+      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
       status?: "candidate" | "verified" | "rejected" | null;
       family?: string | null;
       q?: string | null;
@@ -619,6 +627,14 @@ export interface ApiOperations {
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
+  };
+  venues: {
+    route: "/api/v1/venues";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Array<VenueInfo>;
   };
   status: {
     route: "/api/v1/status";
@@ -818,6 +834,12 @@ export const API_OPERATIONS = {
   },
   readiness: {
     route: "/health/ready",
+    method: "GET",
+    params: [],
+    query: [],
+  },
+  venues: {
+    route: "/api/v1/venues",
     method: "GET",
     params: [],
     query: [],

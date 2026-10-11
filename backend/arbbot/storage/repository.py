@@ -187,12 +187,22 @@ class Repository:
                     },
                 )
             )
-            # Without a complete catalog, no pair using this venue is trustworthy.
+            # Without a current catalog, pairs using this venue are not trustworthy.
             # Partial book failures are filtered per leg by opportunities() instead.
             if market_health is None:
                 await session.execute(
                     update(OpportunityRecord)
-                    .where(OpportunityRecord.mode == mode)
+                    .where(
+                        OpportunityRecord.mode == mode,
+                        or_(
+                            *(
+                                OpportunityRecord.payload["legs"][leg]["market_id"]
+                                .as_string()
+                                .startswith(venue + ":")
+                                for leg in (0, 1)
+                            )
+                        ),
+                    )
                     .values(active=False)
                 )
 
@@ -261,13 +271,19 @@ class Repository:
             self.database, allow_file_reviews=self.allow_file_reviews
         ).matches(mode, limit=limit, offset=offset)
 
-    async def opportunities(self, mode, health_max_age, limit=100, offset=0, history=False):
+    async def opportunities(
+        self, mode, health_max_age, limit=100, offset=0, history=False, enabled_venues=None
+    ):
         eligible_books = []
         if not history:
             health = await self.health(mode, health_max_age)
-            available = [h for h in health if h["status"] != "stale" and h.get("discovery_ok")]
-            if {h["venue"] for h in available} != {"kalshi", "polymarket"}:
-                return []
+            available = [
+                h
+                for h in health
+                if h["status"] != "stale"
+                and h.get("discovery_ok")
+                and (enabled_venues is None or h["venue"] in enabled_venues)
+            ]
             eligible_books = [
                 feed["book_id"]
                 for venue in available

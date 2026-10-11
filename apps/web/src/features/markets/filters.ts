@@ -19,7 +19,7 @@ export const EMPTY_FILTERS: MarketFilters = {
   offset: 0,
 };
 
-const VENUES: Market["venue"][] = ["kalshi", "polymarket"];
+const VENUES: Market["venue"][] = ["kalshi", "polymarket", "polymarket_us"];
 const STATUSES: Market["status"][] = ["open", "closed"];
 
 /** Reads filters from the address bar, ignoring values the API does not accept. */

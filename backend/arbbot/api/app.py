@@ -31,6 +31,7 @@ from arbbot.matching.extraction import Extraction, extract_contract
 from arbbot.observability.tracing import Tracing, correlation_fields, create_tracing
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
+from arbbot.venues import VenueInfo, venue_info
 
 PageSize = Annotated[int, Query(ge=1, le=200)]
 Offset = Annotated[int, Query(ge=0, le=100000)]
@@ -82,7 +83,12 @@ def create_app(
     app.state.auth_origins = frozenset(settings.cors_origins)
     app.state.tracing = tracing or Tracing()
     app.include_router(
-        catalog_router(db, settings.mode, allow_file_reviews=settings.review_source == "files")
+        catalog_router(
+            db,
+            settings.mode,
+            allow_file_reviews=settings.review_source == "files",
+            venues=settings.enabled_venues,
+        )
     )
     app.include_router(sources_router(db, settings.mode))
     app.include_router(reviews_router(db, settings.mode))
@@ -142,17 +148,25 @@ def create_app(
     async def prometheus():
         return Response(generate_latest(registry), headers={"Content-Type": CONTENT_TYPE_LATEST})
 
+    @app.get("/api/v1/venues", response_model=list[VenueInfo])
+    async def venues():
+        return venue_info(settings)
+
     @app.get("/api/v1/status")
     async def status():
         health = await repository.health(settings.mode, settings.health_timeout_seconds)
+        health = [h for h in health if h["venue"] in settings.enabled_venues]
         return {
             "mode": settings.mode,
             "exchanges": health,
-            "ingestion_healthy": len(health) == 2 and all(h["status"] == "healthy" for h in health),
+            "ingestion_healthy": len(health) == len(settings.enabled_venues)
+            and all(h["status"] == "healthy" for h in health),
             "discovery_limit_per_exchange": settings.discovery_limit,
             "ingestion_transport": (
                 "Kalshi REST; Polymarket WebSocket book + price_change"
-                if settings.mode == "live" and settings.polymarket_websocket
+                if settings.mode == "live"
+                and settings.polymarket_websocket
+                and "polymarket" in settings.enabled_venues
                 else "REST full snapshots"
             ),
             "max_quote_age_seconds": settings.max_quote_age_seconds,
@@ -200,7 +214,11 @@ def create_app(
     @app.get("/api/v1/opportunities", response_model=list[Opportunity])
     async def opportunities(limit: PageSize = 100, offset: Offset = 0):
         return await repository.opportunities(
-            settings.mode, settings.health_timeout_seconds, limit, offset
+            settings.mode,
+            settings.health_timeout_seconds,
+            limit,
+            offset,
+            enabled_venues=settings.enabled_venues,
         )
 
     @app.get("/api/v1/opportunities/history", response_model=list[Opportunity])
@@ -219,9 +237,13 @@ def create_app(
             # Each event is a full current view. Reconnection does not require replay.
             while not await request.is_disconnected():
                 rows = await repository.opportunities(
-                    settings.mode, settings.health_timeout_seconds, limit=200
+                    settings.mode,
+                    settings.health_timeout_seconds,
+                    limit=200,
+                    enabled_venues=settings.enabled_venues,
                 )
                 health = await repository.health(settings.mode, settings.health_timeout_seconds)
+                health = [h for h in health if h["venue"] in settings.enabled_venues]
                 payload = {
                     "mode": settings.mode,
                     "as_of": utcnow().isoformat(),

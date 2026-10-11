@@ -26,3 +26,13 @@ US evaluation presentation depends on complete rules, eligibility, automatic fee
 ## Next action
 
 Validate the existing US desktop/mobile quote/comparison UI against the restored running stack, then build authenticated review actions against the existing API with evidence requirements and concurrent-edit conflicts preserved.
+
+## October 11 snapshot integration update
+
+Branch: `backend/completion`.
+Browser and fixture streams now use backend `snapshot` events; current opportunity/evaluation/history queries refresh on delivery.
+Connectivity labels no longer assert quote freshness.
+Desktop/mobile opportunity Playwright passed (18 tests), frontend unit tests passed (57), and type/lint/generated-client checks passed.
+The actual PostgreSQL/worker/API/Next.js simulation workflow refreshed on both viewports; screenshots were inspected.
+Next action: continue the US vertical slice with durable broad catalog inventory, then evidence-linked review workflows.
+See [the implementation handoff](us-vertical-slice-handoff.md) for remaining stages.

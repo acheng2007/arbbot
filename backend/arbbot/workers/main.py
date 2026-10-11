@@ -10,15 +10,11 @@ from sqlalchemy import text
 
 from arbbot.config import Settings
 from arbbot.discovery.service import CatalogService
-from arbbot.exchanges.base import ExchangeHTTP
-from arbbot.exchanges.kalshi import KalshiAdapter
-from arbbot.exchanges.polymarket import PolymarketAdapter
-from arbbot.exchanges.simulation import SimulationAdapter
 from arbbot.ingestion.pipeline import Pipeline, safe_error
 from arbbot.observability.tracing import correlation_fields, create_tracing
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
-from arbbot.streams.polymarket import StreamingPolymarketAdapter
+from arbbot.venues import build_adapters
 
 
 class JSONFormatter(logging.Formatter):
@@ -52,23 +48,10 @@ async def run(once=False):
                     AsyncExitStack() as resources,
                     httpx.AsyncClient(timeout=httpx.Timeout(15), follow_redirects=False) as client,
                 ):
-                    if settings.mode == "simulation":
-                        adapters = [SimulationAdapter(venue) for venue in ("kalshi", "polymarket")]
-                    else:
-                        poly_class = (
-                            StreamingPolymarketAdapter
-                            if settings.polymarket_websocket and not once
-                            else PolymarketAdapter
-                        )
-                        polymarket = poly_class(
-                            ExchangeHTTP(client), settings.polymarket_market_ids
-                        )
-                        if isinstance(polymarket, StreamingPolymarketAdapter):
-                            resources.push_async_callback(polymarket.aclose)
-                        adapters = [
-                            KalshiAdapter(ExchangeHTTP(client), settings),
-                            polymarket,
-                        ]
+                    adapters = build_adapters(client, settings, once)
+                    for adapter in adapters:
+                        if hasattr(adapter, "aclose"):
+                            resources.push_async_callback(adapter.aclose)
                     catalog = None
                     if settings.mode == "live":
                         catalog = CatalogService(settings, repository, adapters)
@@ -87,7 +70,7 @@ async def run(once=False):
                             result = await pipeline.cycle()
                             print(json.dumps(result), flush=True)
                         except Exception as exc:
-                            for venue in ("kalshi", "polymarket"):
+                            for venue in settings.enabled_venues:
                                 await repository.set_health(
                                     settings.mode, venue, "degraded", error=safe_error(exc)
                                 )

@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { backendUrl } from "@/lib/backend";
 import { ORIGIN_HEADER } from "@/lib/api/origin";
 import { dataOrigin } from "@/lib/api/server";
+import { recordedDataset } from "@/lib/api/fixtures";
 
 export const dynamic = "force-dynamic";
 
@@ -25,12 +26,16 @@ function fixtureStream(signal: AbortSignal) {
           encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`),
         );
 
-      send("ready", { origin: "fixtures", mode: "simulation" });
-      const timer = setInterval(
-        () =>
-          send("update", { origin: "fixtures", at: new Date().toISOString() }),
-        5000,
-      );
+      const snapshot = () =>
+        send("snapshot", {
+          mode: "simulation",
+          as_of: new Date().toISOString(),
+          opportunities: recordedDataset().opportunities,
+          exchanges: [],
+          limit: 200,
+        });
+      snapshot();
+      const timer = setInterval(snapshot, 5000);
 
       const stop = () => {
         clearInterval(timer);

@@ -6,7 +6,7 @@ export type StreamStatus = "connecting" | "open" | "reconnecting";
 
 export type StreamState = {
   status: StreamStatus;
-  /** When the stream last confirmed the data on screen is current. */
+  /** When the stream last delivered a snapshot; quote freshness is independent. */
   lastEventAt: number | null;
   /** How many times the connection has dropped since the page loaded. */
   drops: number;
@@ -41,15 +41,11 @@ export function useOpportunityStream(enabled = true) {
         lastEventAt: Date.now(),
       }));
 
-    source.addEventListener("ready", () => {
-      openedOnce.current = true;
-      markCurrent();
-    });
-
-    source.addEventListener("update", () => {
+    source.addEventListener("snapshot", () => {
       markCurrent();
       void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] });
       void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] });
+      void client.invalidateQueries({ queryKey: ["arbbot", "history"] });
     });
 
     source.onopen = () => {

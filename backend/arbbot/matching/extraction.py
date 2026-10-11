@@ -9,6 +9,7 @@ from collections import defaultdict
 from typing import Literal
 
 from arbbot.domain import Market
+from arbbot.matching.baseball import baseball_facts
 from arbbot.matching.contracts import (
     REQUIRED_FIELDS,
     ContractDefinition,
@@ -64,6 +65,20 @@ class Extraction(StrictModel):
 
 
 def extract_contract(market: Market) -> Extraction:
+    sports = baseball_facts(market)
+    if sports:
+        return Extraction(
+            status="partial",
+            definition=ContractDefinition(
+                market_id=market.id,
+                terms_hash=market.terms_hash,
+                schema_version=2,
+                extractor="mlb-championship-rules/v1",
+                facts=sports,
+            ),
+            missing_fields=tuple(n for n in REQUIRED_FIELDS if n not in sports),
+            issues=("exceptional_settlement_and_source_review_required",),
+        )
     rate_facts = rate_hike_facts(market)
     if rate_facts:
         return Extraction(

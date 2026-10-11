@@ -20,6 +20,8 @@ POLYMARKET = re.compile(
 
 
 def rate_hike_facts(market):
+    if market.venue not in {"kalshi", "polymarket"}:
+        return {}
     match = (KALSHI if market.venue == "kalshi" else POLYMARKET).match(
         market.rules.split("\n", 1)[0] if market.venue == "kalshi" else market.rules
     )

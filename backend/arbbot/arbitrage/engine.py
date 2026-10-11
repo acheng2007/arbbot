@@ -42,6 +42,8 @@ def evaluate(
     ):
         reasons.append("review_invalid_or_expired")
     if match.mode == "live":
+        if any(m.venue == "polymarket_us" for m in (left, right)):
+            reasons.append("polymarket_us_discovery_only:fees_rules_and_access_unverified")
         comparison = compare_contracts(
             left,
             right,

@@ -10,6 +10,10 @@ from arbbot.domain import utcnow
 
 
 async def scan_catalog(adapter, families, limit, max_pages):
+    if hasattr(adapter, "scan_catalog"):
+        return await adapter.scan_catalog(families, limit, max_pages)
+    if adapter.venue not in {"kalshi", "polymarket"}:
+        raise ValueError("Venue has no discovery implementation")
     watchlist = adapter.tickers if adapter.venue == "kalshi" else adapter.market_ids
     if watchlist:
         # Existing explicit watchlists retain absolute precedence over family search.

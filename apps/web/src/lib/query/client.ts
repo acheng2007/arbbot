@@ -6,6 +6,7 @@ import type { ApiOperations, OperationId } from "@/lib/api/schema";
 /** Operations the browser may request through the same-origin proxy. */
 export type BrowserOperation = Extract<
   OperationId,
+  | "venues"
   | "markets"
   | "market"
   | "extraction"

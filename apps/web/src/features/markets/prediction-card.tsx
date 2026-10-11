@@ -43,6 +43,9 @@ function VenuePrices({ market }: { market: Market }) {
       <p className="mt-2 text-xs text-muted-foreground">
         {market.status === "open" ? "Open" : "Closed"}
       </p>
+      {market.venue === "polymarket_us" && (
+        <p className="mt-2 text-xs text-muted-foreground">No price is the collateral cost of shorting the YES instrument. Access eligibility requires verification.</p>
+      )}
       <MarketPrices marketId={market.id} />
     </div>
   );
@@ -64,6 +67,7 @@ export function PredictionCard({
     { params: { market_id: counterpartId ?? "" } },
     { enabled: Boolean(counterpartId) },
   );
+  const venues = useApi("venues");
   const other = counterpart.isError ? undefined : counterpart.data?.data;
   const contracts = [
     market,
@@ -77,9 +81,9 @@ export function PredictionCard({
       aria-label={market.title}
     >
       <h2 className="text-lg font-semibold leading-7">{market.title}</h2>
-      {match?.comparison?.status === "conflict" && (
+      {match && match.status !== "verified" && (
         <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
-          Settlement terms differ. These prices are a comparison, not a verified
+          Settlement review is incomplete or terms differ. These prices are a comparison, not a verified
           arbitrage opportunity.
         </p>
       )}
@@ -92,7 +96,7 @@ export function PredictionCard({
         </Link>
       )}
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        {(["polymarket", "kalshi"] as const).map((venue) => {
+        {(venues.data?.data.filter((v) => v.enabled).map((v) => v.id) ?? contracts.map((c) => c.venue)).map((venue) => {
           const contract = contracts.find((item) => item.venue === venue);
           return contract ? (
             <VenuePrices key={venue} market={contract} />

@@ -11,9 +11,9 @@ Search = Annotated[str | None, Query(min_length=1, max_length=200)]
 Family = Annotated[str | None, Query(min_length=1, max_length=100)]
 
 
-def catalog_router(database, mode, *, allow_file_reviews=False):
+def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
     router = APIRouter(prefix="/api/v1")
-    catalog = CatalogQueries(database, allow_file_reviews=allow_file_reviews)
+    catalog = CatalogQueries(database, allow_file_reviews=allow_file_reviews, venues=venues)
 
     @router.get("/markets", response_model=list[Market])
     async def markets(

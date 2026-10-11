@@ -96,6 +96,9 @@ function fromFixtures(
       return { status: "ok", mode: "simulation" };
     case "status":
       return { mode: "simulation", venues: ["kalshi", "polymarket"] };
+    case "venues":
+      return [{id: "kalshi", name: "Kalshi", enabled: true, evaluation_enabled: true, access_note: "Simulation"},
+        {id: "polymarket", name: "Polymarket International", enabled: true, evaluation_enabled: true, access_note: "Simulation"}];
     case "markets": {
       const venue = query.venue;
       const filtered = venue

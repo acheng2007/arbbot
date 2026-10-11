@@ -14,6 +14,7 @@ ALLOWED_HOSTS = frozenset(
     {
         "external-api.kalshi.com",
         "gamma-api.polymarket.com",
+        "gateway.polymarket.us",
         "assets.kalshi.com",
         "kalshi-public-docs.s3.amazonaws.com",
         "kalshi-public-docs.s3.us-east-1.amazonaws.com",
