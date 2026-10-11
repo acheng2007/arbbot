@@ -5,7 +5,7 @@ from decimal import Decimal
 from urllib.parse import quote
 
 from arbbot.discovery.models import DiscoveryDecision, DiscoveryScan
-from arbbot.domain import Book, Level, Market, utcnow
+from arbbot.domain import Book, ExecutionSemantics, InstrumentConstraints, Level, Market, utcnow
 from arbbot.sources.fetch import EvidenceCollector
 
 BASE = "https://gateway.polymarket.us"
@@ -27,8 +27,10 @@ class PolymarketUSAdapter:
         return (
             bool(item.get("slug"))
             and bool(item.get("endDate"))
-            and item.get("marketType") == "futures"
-            and item.get("sportsMarketTypeV2") == "SPORTS_MARKET_TYPE_FUTURE"
+            and item.get("marketType") in {"futures", "binary", "moneyline", "spreads", "totals"}
+            and not item.get("assetPriceTerms")
+            and not item.get("combo")
+            and not item.get("negRisk")
             and {s.get("description", "").lower() for s in sides} == {"yes", "no"}
             and all(
                 s.get("marketSideType") == "MARKET_SIDE_TYPE_INSTRUMENT"
@@ -37,7 +39,7 @@ class PolymarketUSAdapter:
                 and (s.get("quote") or {}).get("currency") == "USD"
                 for s in sides
             )
-            and Decimal(str(item.get("minimumTradeQty", 0))) >= 1
+            and cls_constraints(item) is not None
         )
 
     @classmethod
@@ -58,6 +60,14 @@ class PolymarketUSAdapter:
             and item.get("status") == "MARKET_STATUS_OPEN"
             else "closed",
             settlement_asset="USD",
+            category=item.get("category"),
+            instrument_constraints=cls_constraints(item),
+            execution_semantics=ExecutionSemantics(
+                yes_action="buy_instrument",
+                no_action="short_instrument",
+                no_native_price_is_complement=True,
+                gross_short_collateral_per_contract="1",
+            ),
             observed_at=utcnow(),
             raw=item,
             settlement_details={
@@ -179,7 +189,13 @@ class PolymarketUSAdapter:
                     raise ValueError("Unsupported quote currency")
                 price, size = Decimal(entry["px"]["value"]), Decimal(entry["qty"])
                 Level(price=price, size=size)  # Validate before complementing or aggregating.
-                if size != size.to_integral_value():
+                constraints = market.instrument_constraints
+                if constraints and (
+                    size % constraints.quantity_increment != 0
+                    or price % constraints.price_increment != 0
+                ):
+                    raise ValueError("Book violates instrument increments")
+                if constraints is None and size != size.to_integral_value():
                     raise ValueError("Unsupported fractional contract quantity")
                 price = 1 - price if complement else price
                 aggregate[price] = aggregate.get(price, Decimal(0)) + size
@@ -212,3 +228,19 @@ class PolymarketUSAdapter:
         # Metadata contains product descriptions, not a complete rulebook/clarification history.
         collector.issues.append("rulebook_and_clarification_evidence_required")
         return collector.finish({"description": market.rules})
+
+
+def cls_constraints(item):
+    """Public gateway binary formats, backed by documented USD unit payout semantics."""
+    try:
+        tick = Decimal(str(item["orderPriceMinTickSize"]))
+        if not tick.is_finite() or not 0 < tick <= 1:
+            return None
+        return InstrumentConstraints(
+            price_increment=tick,
+            quantity_increment=str(item["minimumTradeQty"]),
+            minimum_quantity=str(item["minimumTradeQty"]),
+            payout_evidence="https://docs.polymarket.us/concepts/events-and-markets",
+        )
+    except (KeyError, ValueError, TypeError, ArithmeticError):
+        return None

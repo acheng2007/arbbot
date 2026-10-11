@@ -32,6 +32,22 @@ class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class InstrumentConstraints(Model):
+    price_increment: Positive
+    quantity_increment: Positive
+    minimum_quantity: Positive
+    unit_payout: Positive = Decimal("1")
+    payout_currency: Literal["USD"] = "USD"
+    payout_evidence: str = Field(min_length=10)
+
+
+class ExecutionSemantics(Model):
+    yes_action: Literal["buy_yes", "buy_instrument"]
+    no_action: Literal["buy_no", "short_instrument"]
+    no_native_price_is_complement: bool = False
+    gross_short_collateral_per_contract: NonNegative | None = None
+
+
 class Market(Model):
     id: str
     venue: Venue
@@ -42,6 +58,9 @@ class Market(Model):
     closes_at: AwareDatetime
     status: Literal["open", "closed"]
     settlement_asset: str
+    category: str | None = None
+    instrument_constraints: InstrumentConstraints | None = None
+    execution_semantics: ExecutionSemantics | None = None
     tokens: dict[Outcome, str] = {}
     # Semantic metadata only; changing this invalidates settlement review.
     settlement_details: dict = {}
@@ -58,6 +77,16 @@ class Market(Model):
                 "closes_at": self.closes_at.isoformat(),
                 "asset": self.settlement_asset,
                 "tokens": self.tokens,
+                **(
+                    {"instrument_constraints": self.instrument_constraints.model_dump(mode="json")}
+                    if self.instrument_constraints
+                    else {}
+                ),
+                **(
+                    {"execution_semantics": self.execution_semantics.model_dump(mode="json")}
+                    if self.execution_semantics
+                    else {}
+                ),
                 "settlement_details": self.settlement_details,
             }
         )
@@ -193,6 +222,8 @@ class Review(Model):
 
 
 class Match(Model):
+    retrieval_limited: bool = False
+    retrieval_limit: int | None = None
     id: str
     mode: Mode
     left_id: str

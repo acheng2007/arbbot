@@ -20,6 +20,17 @@ export type Book = {
   raw: Partial<Record<string, unknown>>;
 };
 
+export type CatalogObservation = {
+  venue: "kalshi" | "polymarket" | "polymarket_us";
+  external_id: string;
+  observation_id: string;
+  market_id: string | null;
+  supported: boolean;
+  reason: string;
+  observed_at: string;
+  raw: Partial<Record<string, unknown>>;
+};
+
 export type CatalogReport = {
   mode: "simulation" | "live";
   venue: "kalshi" | "polymarket" | "polymarket_us";
@@ -31,6 +42,10 @@ export type CatalogReport = {
   decisions: Array<DiscoveryDecision>;
   pages_scanned: number;
   truncated: boolean;
+  catalog_market_count?: number;
+  monitoring_limit?: number | null;
+  continuation?: string | number | null;
+  coverage_complete?: boolean;
   missing_source_market_ids?: Array<string>;
   error?: string | null;
 };
@@ -215,6 +230,13 @@ export type Evaluation = {
   opportunities: Array<Opportunity>;
 };
 
+export type ExecutionSemantics = {
+  yes_action: "buy_yes" | "buy_instrument";
+  no_action: "buy_no" | "short_instrument";
+  no_native_price_is_complement?: boolean;
+  gross_short_collateral_per_contract?: DecimalString | null;
+};
+
 export type Extraction = {
   status: "partial" | "unsupported" | "ambiguous";
   definition: ContractDefinition;
@@ -258,6 +280,15 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type InstrumentConstraints = {
+  price_increment: DecimalString;
+  quantity_increment: DecimalString;
+  minimum_quantity: DecimalString;
+  unit_payout?: DecimalString;
+  payout_currency?: "USD";
+  payout_evidence: string;
+};
+
 export type Leg = {
   market_id: string;
   outcome: "yes" | "no";
@@ -286,6 +317,9 @@ export type Market = {
   closes_at: string;
   status: "open" | "closed";
   settlement_asset: string;
+  category?: string | null;
+  instrument_constraints?: InstrumentConstraints | null;
+  execution_semantics?: ExecutionSemantics | null;
   tokens?: Partial<Record<"yes" | "no", string>>;
   settlement_details?: Partial<Record<string, unknown>>;
   raw: Partial<Record<string, unknown>>;
@@ -294,6 +328,8 @@ export type Market = {
 };
 
 export type Match = {
+  retrieval_limited?: boolean;
+  retrieval_limit?: number | null;
   id: string;
   mode: "simulation" | "live";
   left_id: string;
@@ -475,6 +511,19 @@ export type VenueInfo = {
 
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
+  inventory: {
+    route: "/api/v1/catalog/inventory";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      supported?: boolean | null;
+    };
+    response: Array<CatalogObservation>;
+  };
   markets: {
     route: "/api/v1/markets";
     method: "GET";
@@ -754,6 +803,12 @@ export type ReadOperationId = {
 
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
+  inventory: {
+    route: "/api/v1/catalog/inventory",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset", "venue", "supported"],
+  },
   markets: {
     route: "/api/v1/markets",
     method: "GET",

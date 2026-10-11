@@ -27,28 +27,31 @@ class Repository:
 
     async def save_market(self, market: Market):
         async with self.database.sessions.begin() as session:
-            key = f"{market.mode}:{market.id}"
-            row = await session.get(MarketRecord, key, with_for_update=True)
-            if row and aware(row.observed_at) > market.observed_at:
-                return
-            if row is None:
-                row = MarketRecord(key=key, id=market.id, mode=market.mode, venue=market.venue)
-                session.add(row)
-            row.payload = market.model_dump(mode="json")
-            row.observed_at = market.observed_at
-            metric = extract_contract(market).definition.facts.get("metric")
-            row.family = metric.value if metric and metric.value != "unknown" else None
-            await session.flush()
-            version_id = digest([market.mode, market.id, market.terms_hash])
-            if not await session.get(MarketVersionRecord, version_id):
-                session.add(
-                    MarketVersionRecord(
-                        id=version_id,
-                        market_key=key,
-                        terms_hash=market.terms_hash,
-                        payload=market.model_dump(mode="json"),
-                    )
+            await self.save_market_in_session(session, market)
+
+    async def save_market_in_session(self, session, market: Market):
+        key = f"{market.mode}:{market.id}"
+        row = await session.get(MarketRecord, key, with_for_update=True)
+        if row and aware(row.observed_at) > market.observed_at:
+            return
+        if row is None:
+            row = MarketRecord(key=key, id=market.id, mode=market.mode, venue=market.venue)
+            session.add(row)
+        row.payload = market.model_dump(mode="json")
+        row.observed_at = market.observed_at
+        metric = extract_contract(market).definition.facts.get("metric")
+        row.family = metric.value if metric and metric.value != "unknown" else None
+        await session.flush()
+        version_id = digest([market.mode, market.id, market.terms_hash])
+        if not await session.get(MarketVersionRecord, version_id):
+            session.add(
+                MarketVersionRecord(
+                    id=version_id,
+                    market_key=key,
+                    terms_hash=market.terms_hash,
+                    payload=market.model_dump(mode="json"),
                 )
+            )
 
     async def market_version(self, mode, market_id, terms_hash):
         async with self.database.sessions() as session:

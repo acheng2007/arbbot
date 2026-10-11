@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     discovery_families: tuple[EventFamily, ...] = Field(
         default=DEFAULT_FAMILIES, min_length=1, max_length=8
     )
+    discovery_mode: Literal["focused", "broad"] = "focused"
+    catalog_page_size: int = Field(default=100, ge=1, le=100)
     discovery_scan_pages: int = Field(default=8, ge=1, le=50)
     catalog_refresh_seconds: float = Field(default=300, ge=10, le=3600)
     catalog_max_age_seconds: int = Field(default=900, ge=30, le=86400)

@@ -6,6 +6,101 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v1/catalog/inventory": {
+      "get": {
+        "summary": "Inventory",
+        "operationId": "inventory_api_v1_catalog_inventory_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "kalshi",
+                    "polymarket",
+                    "polymarket_us"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue"
+            }
+          },
+          {
+            "name": "supported",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Supported"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogObservation"
+                  },
+                  "title": "Response Inventory Api V1 Catalog Inventory Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/markets": {
       "get": {
         "summary": "Markets",
@@ -1428,6 +1523,69 @@
         ],
         "title": "Book"
       },
+      "CatalogObservation": {
+        "properties": {
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket",
+              "polymarket_us"
+            ],
+            "title": "Venue"
+          },
+          "external_id": {
+            "type": "string",
+            "title": "External Id"
+          },
+          "observation_id": {
+            "type": "string",
+            "title": "Observation Id"
+          },
+          "market_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Id"
+          },
+          "supported": {
+            "type": "boolean",
+            "title": "Supported"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "raw": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Raw"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "venue",
+          "external_id",
+          "observation_id",
+          "market_id",
+          "supported",
+          "reason",
+          "observed_at",
+          "raw"
+        ],
+        "title": "CatalogObservation"
+      },
       "CatalogReport": {
         "properties": {
           "mode": {
@@ -1494,6 +1652,43 @@
           "truncated": {
             "type": "boolean",
             "title": "Truncated"
+          },
+          "catalog_market_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Catalog Market Count",
+            "default": 0
+          },
+          "monitoring_limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monitoring Limit"
+          },
+          "continuation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Continuation"
+          },
+          "coverage_complete": {
+            "type": "boolean",
+            "title": "Coverage Complete",
+            "default": false
           },
           "missing_source_market_ids": {
             "items": {
@@ -2383,6 +2578,50 @@
         ],
         "title": "Evaluation"
       },
+      "ExecutionSemantics": {
+        "properties": {
+          "yes_action": {
+            "type": "string",
+            "enum": [
+              "buy_yes",
+              "buy_instrument"
+            ],
+            "title": "Yes Action"
+          },
+          "no_action": {
+            "type": "string",
+            "enum": [
+              "buy_no",
+              "short_instrument"
+            ],
+            "title": "No Action"
+          },
+          "no_native_price_is_complement": {
+            "type": "boolean",
+            "title": "No Native Price Is Complement",
+            "default": false
+          },
+          "gross_short_collateral_per_contract": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Short Collateral Per Contract"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "yes_action",
+          "no_action"
+        ],
+        "title": "ExecutionSemantics"
+      },
       "Extraction": {
         "properties": {
           "status": {
@@ -2502,6 +2741,51 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InstrumentConstraints": {
+        "properties": {
+          "price_increment": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Price Increment"
+          },
+          "quantity_increment": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity Increment"
+          },
+          "minimum_quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimum Quantity"
+          },
+          "unit_payout": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Unit Payout",
+            "default": "1"
+          },
+          "payout_currency": {
+            "type": "string",
+            "const": "USD",
+            "title": "Payout Currency",
+            "default": "USD"
+          },
+          "payout_evidence": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Payout Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "price_increment",
+          "quantity_increment",
+          "minimum_quantity",
+          "payout_evidence"
+        ],
+        "title": "InstrumentConstraints"
       },
       "Leg": {
         "properties": {
@@ -2646,6 +2930,37 @@
             "type": "string",
             "title": "Settlement Asset"
           },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "instrument_constraints": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InstrumentConstraints"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_semantics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionSemantics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "tokens": {
             "additionalProperties": {
               "type": "string"
@@ -2702,6 +3017,22 @@
       },
       "Match": {
         "properties": {
+          "retrieval_limited": {
+            "type": "boolean",
+            "title": "Retrieval Limited",
+            "default": false
+          },
+          "retrieval_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieval Limit"
+          },
           "id": {
             "type": "string",
             "title": "Id"

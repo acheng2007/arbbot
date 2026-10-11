@@ -231,3 +231,33 @@ async def test_live_definitions_file_through_worker_database_api(
         assert (await client.get("/api/v1/matches")).json()[0]["comparison"][
             "status"
         ] == "incomplete"
+
+
+def test_indexed_retrieval_bounds_unknown_title_hypotheses():
+    from datetime import timedelta
+
+    from arbbot.domain import Market, utcnow
+    from arbbot.matching.service import retrieve_candidates
+
+    markets = [
+        Market(
+            id=f"{venue}:{i}",
+            venue=venue,
+            external_id=str(i),
+            mode="simulation",
+            title="Will the example candidate win this event?",
+            rules="No reviewed terms",
+            status="open",
+            settlement_asset="USD",
+            raw={},
+            observed_at=utcnow(),
+            closes_at=utcnow() + timedelta(days=1),
+        )
+        for venue in ("kalshi", "polymarket_us")
+        for i in range(150)
+    ]
+    pairs, limited = retrieve_candidates(markets, {}, [], limit=10)
+    assert limited
+    assert len(pairs) <= len(markets) * 10
+    assert len(pairs) < 150 * 150
+    assert all(left.venue != right.venue for left, right in pairs)

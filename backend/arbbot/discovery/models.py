@@ -64,5 +64,20 @@ class CatalogReport(Model):
     decisions: tuple[DiscoveryDecision, ...]
     pages_scanned: int = Field(ge=0)
     truncated: bool
+    catalog_market_count: int = Field(default=0, ge=0)
+    monitoring_limit: int | None = Field(default=None, ge=1)
+    continuation: str | int | None = None
+    coverage_complete: bool = False
     missing_source_market_ids: tuple[str, ...] = ()
     error: str | None = None
+
+
+class CatalogObservation(Model):
+    venue: Venue
+    external_id: str
+    observation_id: str
+    market_id: str | None
+    supported: bool
+    reason: str
+    observed_at: AwareDatetime
+    raw: dict

@@ -163,6 +163,12 @@ class Pipeline:
         ingested = await asyncio.gather(*(self.ingest_venue(adapter) for adapter in self.adapters))
         markets = [market for discovered, _ in ingested for market in discovered]
         books = {key: value for _, snapshots in ingested for key, value in snapshots.items()}
+        if self.catalog is not None and self.settings.discovery_mode == "broad":
+            markets = [
+                market
+                for adapter in self.adapters
+                for market in self.catalog.all_current(adapter.venue)
+            ]
         if self.settings.mode == "simulation":
             reviews = simulation_reviews(markets)
         elif self.settings.review_source == "files" and self.settings.reviews_file:

@@ -20,14 +20,38 @@ Synthetic publication tests prove US venue routing only; live US evaluation rema
 
 Checks: 15 focused backend tests passed on PostgreSQL; 18 opportunity Playwright tests passed across desktop/mobile; 57 frontend unit tests passed; TypeScript and generated-client drift checks passed.
 The full SQLite backend suite passed (433 tests), and frontend lint passed.
-The production build is being rerun with local process permissions after the sandbox prevented Turbopack from binding its internal port.
+The production webpack build passed; Turbopack hit an internal port-binding failure.
 
 ## Remaining stages and next action
 
-Stages 2 through 7 and the complete recorded-exchange/OIDC acceptance harness remain outstanding.
+Stages 3 through 7 and the complete recorded-exchange/OIDC acceptance harness remain outstanding.
 Current official US documentation was retrieved on October 11, including the October 7 fee schedule.
 Do not use October 1 fee recordings as current policy.
 The browsing connector returned an invalidated OAuth token; official documents were retrieved directly over HTTPS instead.
 
-Next action: implement durable broad catalog continuation and raw observations with a quote-monitoring budget independent of catalog coverage (Stage 2).
+Next action: capture applicable official US settlement documents and expose bounded, artifact-linked derived text for human review (Stage 3).
 Keep live evaluation blocked until settlement, source, access, and fee gates pass.
+
+## Stage 2: broad catalog inventory
+
+Added immutable raw observations, current inclusion/exclusion projections, and durable cursor/offset progress in additive migration `b021_us_catalog_inventory`.
+The migration follows the actual `b016_review_revisions` head; numbering alone is not migration order.
+Pages and continuation commit atomically; repeated pages stop without skipping forward.
+Broad discovery is enabled in Compose and the live demo environment; focused family discovery remains configurable.
+The persisted catalog is independent of the bounded quote set, which prioritizes verified pairs and watchlists and rotates other candidates with a durable offset.
+Matching reads the fresh catalog rather than only monitored books.
+Indexed structured-event and title candidate retrieval bounds unfamiliar hypotheses and exposes retrieval limits.
+The public `/api/v1/catalog/inventory` endpoint exposes raw exclusions and observation identities with pagination.
+US normalization now validates documented binary formats, instrument orientation, USD units, and numeric constraints independently of sports categories.
+Unfamiliar formats remain excluded; optional typed instrument/native-direction fields preserve historical payload readability and invalidate changed settlement terms.
+
+Current public smoke checks fetched US catalog data and executable books from both venues.
+The observed sample contained sports instruments; election normalization is covered by structural tests, not claimed as a complete live election audit.
+Kalshi REST books still have no source timestamp and report that limitation explicitly.
+No positive live opportunity was manufactured, and US evaluation remains blocked.
+The full SQLite and PostgreSQL suites each passed (446 tests).
+The new inventory API normalizes SQLite receipt timestamps to UTC.
+Real public pages were persisted in PostgreSQL with continuation tokens and explicit exclusions; no fixed live count was asserted.
+Migration roundtrip tests preserve existing markets, snapshots, reviews, and source evidence.
+Use `.venv/bin/python backend/scripts/smoke_us.py` for opt-in public catalog/book checks.
+The script does not validate completed source, fee, access, approval, or evaluation gates.

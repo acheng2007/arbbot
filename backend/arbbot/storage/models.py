@@ -164,3 +164,37 @@ class DecisionHeadRecord(Base):
     pair_key: Mapped[str] = mapped_column(String(64), primary_key=True)
     mode: Mapped[str] = mapped_column(String, index=True)
     revision_id: Mapped[str] = mapped_column(ForeignKey("review_revisions.id"), unique=True)
+
+
+class CatalogObservationRecord(Base):
+    """Immutable raw catalog content; repeat receipts update the projection only."""
+
+    __tablename__ = "catalog_observations"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    venue: Mapped[str] = mapped_column(String, index=True)
+    external_id: Mapped[str] = mapped_column(String, index=True)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class CatalogInventoryRecord(Base):
+    __tablename__ = "catalog_inventory"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String)
+    venue: Mapped[str] = mapped_column(String)
+    external_id: Mapped[str] = mapped_column(String)
+    observation_id: Mapped[str] = mapped_column(ForeignKey("catalog_observations.id"))
+    market_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    supported: Mapped[bool] = mapped_column(Boolean)
+    reason: Mapped[str] = mapped_column(String)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (Index("ix_inventory_fresh", "mode", "venue", "observed_at"),)
+
+
+class DiscoveryProgressRecord(Base):
+    __tablename__ = "discovery_progress"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String)
+    venue: Mapped[str] = mapped_column(String)
+    payload: Mapped[dict] = mapped_column(Document)

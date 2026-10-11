@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 from arbbot.config import Settings
-from arbbot.domain import Book, Level, Market, utcnow
+from arbbot.domain import Book, ExecutionSemantics, Level, Market, utcnow
 from arbbot.exchanges.base import ExchangeHTTP
 from arbbot.exchanges.kalshi_sources import enrich_kalshi
 
@@ -96,6 +96,8 @@ class KalshiAdapter:
             closes_at=datetime.fromisoformat(item["close_time"]),
             status="open" if item["status"] in {"open", "active"} else "closed",
             settlement_asset="USD",
+            category=item.get("category"),
+            execution_semantics=ExecutionSemantics(yes_action="buy_yes", no_action="buy_no"),
             raw=item,
             observed_at=utcnow(),
             settlement_details={
