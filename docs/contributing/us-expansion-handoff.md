@@ -1,39 +1,31 @@
 # US venue expansion handoff
 
-## October 1, 2026 reroute
+## Current status: October 11, 2026
 
-Branch: `backend/completion`.
-The user canceled the Opinion/Limitless implementation and requested US-accessible markets with the same cross-market mispricing objective.
-The [US venue expansion plan](../us-venue-expansion.md) and [roadmap](../implementation-roadmap.md) now supersede the earlier four-venue plan.
+Branch: `backend/completion`; no PR was opened or remote status rechecked during this cleanup.
+This update reconciles the local implementation and documented delivery evidence.
+See the [roadmap](../implementation-roadmap.md) for the integrated sequence and the [project status handoff](project-status-handoff.md) for the October 11 checks and limitations.
+Prior session details and validation evidence are preserved in [history](history/us-expansion-handoff.md).
 
-## Completed
+## Completed baseline and local progress
 
-Restored all 32 modified tracked implementation files to the pre-expansion HEAD, `31aa38a`.
-Removed 17 newly created implementation paths covering the abandoned adapters, fixtures, registry, generalized event UI, fee integration, quote rechecks, and unfinished browser authentication/review editing.
-Restored the original asynchronous interface of the pre-existing untracked Kalshi fee provider by removing only the added synchronous wrapper.
-Preserved the user's staged research document, staged and unstaged research handoff, `.specstory/`, and pre-existing Kalshi provider.
-Preserved and incorporated the user's US-focused roadmap edits.
-No database reset, history rewrite, or running-container deployment was performed.
-The abandoned implementation is recoverable locally from `/tmp/arbbot-abandoned-four-venue-20261001.tar.gz`; this temporary archive is not a durable project artifact.
+The October 1 reroute deferred Opinion/Limitless and preserved the original Kalshi/Polymarket International history.
+Polymarket International remains a separate research identity, not a US trading route.
+Local uncommitted work now includes immutable Polymarket US catalog/book/fee/restriction recordings, a separate adapter, venue registration/API metadata, configured catalog filtering, and venue-aware browser panels.
+Rule-backed World Series extraction identifies a recorded Kalshi/Polymarket US Dodgers candidate while retaining incomplete settlement status.
+Automated tests explicitly reject malformed books and suppress US evaluation.
+The older statement that no US adapter or recordings exist is superseded.
 
-Official documentation supports assessing Polymarket US, Crypto.com Predictions/CDNA, and ForecastEx/CME through IBKR.
-The new plan separates exchange identity, broker route, public data access, and account/product eligibility.
-It retains broad discovery and two-leg comparisons across every supported independent venue pair.
-Polymarket International remains historical/research infrastructure and must not be silently relabeled as Polymarket US.
+## Blockers and acceptance
 
-## Validation
+Complete rulebook/clarification evidence, applicable fees, and account/product eligibility remain unverified; Polymarket US evaluation is deliberately blocked.
+The local registry is not a complete capability/eligibility model.
+Fresh worker/API/PostgreSQL and desktop/mobile validation is blocked by the unavailable Docker daemon.
+Crypto.com and ForecastEx/CME capability assessments and the seven-day study remain unfinished.
 
-After rollback, `.venv/bin/pytest -c backend/pyproject.toml backend/tests -q` passed all 417 tests.
-`npm test --prefix apps/web` passed all 56 tests.
-`git diff --check` passed before committing.
-No new browser visual validation or live venue API smoke check was performed for this documentation-only reroute after restoring the original application code.
+## Next action
 
-## Blockers and next action
-
-Replacement venue endpoint behavior, catalog overlap, fees, source completeness, and user-specific eligibility remain unverified.
-No replacement adapter, US eligibility gate, or seven-day paper study has been started.
-The restored demo still contains International quotes and does not implement the planned US-only eligibility filter.
-Do not describe its quotes as eligible US execution opportunities.
-
-Single clearest next action: assess Polymarket US with immutable public catalog, rules, book, and fee fixtures; record access restrictions and actual overlap with Kalshi before implementing its adapter.
-Continue with Crypto.com and then independently assessed ForecastEx/CME access, adjusting order only for documented blockers.
+Finish the existing US discovery milestone before adding another venue.
+Restore Docker and run `node scripts/smoke-us-demo.mjs` from `apps/web` against the configured demo stack, inspect desktop/mobile output, and verify fresh quotes plus retained candidate/incomplete labels.
+Run appropriate PostgreSQL/migration checks and document the capability matrix, unsupported instruments, and outstanding rules/fees/access evidence.
+Commit the focused implementation only after these checks; retain evaluation blocking until evidence and human review support it.

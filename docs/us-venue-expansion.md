@@ -29,6 +29,10 @@ Opinion and Limitless are deferred and excluded from the US milestone.
 
 ## Delivery sequence
 
+The [implementation roadmap](implementation-roadmap.md) gives the current implementation order.
+Finish the existing Kalshi/Polymarket US discovery and review-to-estimate path before implementing another venue.
+The stages below describe acceptance boundaries; initial work is already present at the scopes listed in Current status.
+
 ### 1. Establish access and actual coverage
 
 Record country, state, account permissions, and product restrictions as separate evidence-backed eligibility inputs.
@@ -78,7 +82,20 @@ Follow with streaming coverage, dashboards, staging, and backup/recovery validat
 
 ## Current status
 
-The prior uncommitted four-venue implementation has been rolled back.
-No replacement adapter, US eligibility gate, or paper study is implemented by this planning change.
-The original Kalshi/Polymarket International demo and the pre-existing unfinished Kalshi fee provider remain in place.
-The next implementation starts with the Polymarket US capability assessment described above.
+Reconciled October 11, 2026 on `backend/completion`.
+The earlier Opinion/Limitless implementation was rolled back and remains deferred.
+Local uncommitted work now includes Polymarket US catalog/book/fee/restriction recordings, a separate REST adapter, World Series candidate extraction, a stable venue registry/API, configured catalog filtering, and venue-aware browser panels.
+The recorded Dodgers pair is a rule-backed same-event candidate with incomplete settlement evidence, not a reviewed equivalent pair.
+Polymarket US evaluation is explicitly blocked on rules, fees, and access verification.
+Enabled-venue filtering does not establish account/product eligibility.
+The unfinished local Kalshi fee provider is not connected to automatic evaluation.
+
+Full SQLite backend and frontend unit/type/lint/contract checks passed on October 11 at the counts recorded in the [integrated status handoff](contributing/project-status-handoff.md).
+Docker is unavailable, so fresh running-stack PostgreSQL, migration, and desktop/mobile smoke validation remains required.
+No complete US eligibility model, automatic US fee integration, authenticated browser review workflow, immediate quote-recheck path, or seven-day study has been delivered.
+Crypto.com and ForecastEx/CME assessments remain future work; candidate descriptions above retain their October 1 evidence date.
+
+Next action: restore Docker and finish integrated validation and capability documentation for the existing US discovery work.
+Then complete source/exception evidence, eligibility gates, fees, authenticated reviews, and freshly rechecked conditional estimates for a supported pair before adding another venue.
+If settlement incompatibility prevents approval, preserve the conflict and assess another pair.
+See the [US expansion handoff](contributing/us-expansion-handoff.md) for concrete acceptance checks.

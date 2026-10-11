@@ -5,57 +5,52 @@ Each implementation issue is scoped to one PR; the tracker itself is not a singl
 GitHub is authoritative for current status and assignees.
 This index records dependency and file boundaries at publication time.
 
-## Work on Data and Matching first
+## Current priorities: October 11, 2026
 
-[#2](https://github.com/acheng2007/arbbot/issues/2) is implemented: settlement source artifacts persist with immutable content, explicit retrieval failures, and audit history.
-**Start with [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4), which capture real evidence into that store.**
-In parallel, complete [#1](https://github.com/acheng2007/arbbot/issues/1) to define the canonical measurement and settlement fields.
-These are the foundation for deciding whether real contracts describe compatible payouts.
-The [data workstream handoff](data-handoff.md) records what source storage already provides and how the enrichment issues should use it.
+The [implementation roadmap](../implementation-roadmap.md) is the reconciled product checklist.
+The [integrated status handoff](project-status-handoff.md) records the current branch, checks, blockers, and single next action.
+Issue numbers below identify the published work breakdown; implemented scope is not a claim that an entire issue is closed or that a remote PR has merged.
+Remote issue/PR states were not refreshed during this documentation reconciliation.
 
-Recommended order within this first section:
+The current baseline already includes source storage/enrichment, canonical version 2 definitions, discovery/corpus foundations, fee/stream contracts, authentication, persistent reviews and mutation APIs, catalog filtering, read-only frontend screens, tracing, and historical hosted CI evidence.
+Do not restart those foundation tasks based on old handoff instructions.
+Local uncommitted Polymarket US work adds recordings, discovery/books, World Series candidates, venue registration/API metadata, and browser venue panels.
+It is not a completed US evaluation release.
 
-1. [#2](https://github.com/acheng2007/arbbot/issues/2) established source storage; complete [#1](https://github.com/acheng2007/arbbot/issues/1) for canonical definitions in its own PR.
-2. [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4): enrich Kalshi and Polymarket evidence after [#2](https://github.com/acheng2007/arbbot/issues/2); the venue-specific work can run in parallel.
-3. [#5](https://github.com/acheng2007/arbbot/issues/5): discover supported overlapping events after both enrichment issues.
-4. [#6](https://github.com/acheng2007/arbbot/issues/6): label and validate cross-exchange pairs after [#5](https://github.com/acheng2007/arbbot/issues/5) and [#1](https://github.com/acheng2007/arbbot/issues/1).
-5. [#7](https://github.com/acheng2007/arbbot/issues/7) and [#8](https://github.com/acheng2007/arbbot/issues/8): expand venue extraction once each issue's own schema and enrichment dependencies are merged; these can overlap steps 3 and 4.
+1. Finish the existing Kalshi/Polymarket US discovery milestone with running worker/API/PostgreSQL and desktop/mobile validation.
+2. Complete source/exception evidence and account/product eligibility for a supported US pair, with human settlement review.
+3. Complete US venue fees and automatic sizing integration alongside authenticated browser review actions.
+4. Add immediate quote rechecks and a seeded PostgreSQL browser review-to-estimate workflow.
+5. Complete counterpart pagination and frontend catalog-wide filtering, then assess additional US venues/categories.
+6. Run the forward paper study and finish monitoring, staging, and recovery validation.
 
-The first milestone is a supported, evidence-backed same-event pair with explicitly reviewed settlement differences.
-It does not require a profitable price discrepancy, and it must not manufacture equivalence to satisfy the milestone.
+Backend review APIs and approval consumption already exist, so frontend review UI work is no longer blocked on their original absence.
+Automatic fees, US eligibility, and real-pair evidence still block actionable estimates.
+A positive opportunity is not required; conflict, unavailable access, and unprofitable results must remain visible.
+Keep focused PR boundaries and check GitHub ownership before overlapping implementation work.
 
-## Parallel work and later priorities
+## Current workstream handoffs
 
-- Verify hosted CI with [#32](https://github.com/acheng2007/arbbot/issues/32) alongside the first foundation PRs.
-- Frontend contributors can start [#21](https://github.com/acheng2007/arbbot/issues/21), then [#22](https://github.com/acheng2007/arbbot/issues/22), then the read-only comparison screen [#24](https://github.com/acheng2007/arbbot/issues/24); market browsing [#23](https://github.com/acheng2007/arbbot/issues/23) also needs [#20](https://github.com/acheng2007/arbbot/issues/20).
-- Arbitrage contributors can start [#11](https://github.com/acheng2007/arbbot/issues/11), then [#12](https://github.com/acheng2007/arbbot/issues/12) and [#13](https://github.com/acheng2007/arbbot/issues/13) in parallel, followed by [#14](https://github.com/acheng2007/arbbot/issues/14) and [#15](https://github.com/acheng2007/arbbot/issues/15) for fees and slippage.
-- After the data foundation, prioritize review persistence/authentication/APIs and review UI, following each issue's dependencies.
-- Then complete the opportunity dashboard, live streams and revalidation, followed by observability, end-to-end QA, staging and recovery.
-
-Dependency-free does not mean equally urgent.
-Prioritize Data and Matching when contributor capacity is limited.
-Keep one issue per PR throughout.
-
-## Other dependency-free tasks
-
-These tasks have no backlog dependencies, but are not all first-priority work.
-Follow the order above and check the issue for current ownership before starting.
-
-| Issue | Workstream | Task |
+| Workstream | Current handoff | Next work |
 | --- | --- | --- |
-| [#1](https://github.com/acheng2007/arbbot/issues/1) | Matching | Version canonical measurement and settlement definitions |
-| [#11](https://github.com/acheng2007/arbbot/issues/11) | Arbitrage | Define a versioned fee quote interface |
-| [#17](https://github.com/acheng2007/arbbot/issues/17) | Backend | Add authentication and reviewer authorization |
-| [#20](https://github.com/acheng2007/arbbot/issues/20) | Backend | Add market and match search and filtering |
-| [#21](https://github.com/acheng2007/arbbot/issues/21) | Frontend | Scaffold the Next.js application and shared UI foundation |
-| [#27](https://github.com/acheng2007/arbbot/issues/27) | Live data | Define order-book stream and resynchronization contracts |
-| [#32](https://github.com/acheng2007/arbbot/issues/32) | Infrastructure | Verify the first hosted backend CI run |
-| [#36](https://github.com/acheng2007/arbbot/issues/36) | Observability | Add tracing across ingestion evaluation and API requests |
+| Integrated product | [Project status](project-status-handoff.md) | Validate and finish the current US discovery baseline |
+| Backend | [Backend](backend-handoff.md) | Evidence/eligibility gates and fee-aware, rechecked evaluation |
+| Frontend | [Frontend](frontend-handoff.md) | US browser validation, authenticated reviews, complete comparisons/filters |
+| Data | [Data](data-handoff.md) | Complete US rulebook/clarification and exceptional-settlement evidence |
+| Catalog | [Catalog](catalog-handoff.md) | Full counterpart pagination and API-backed browser filtering |
+| Fees | [Fees](fees-handoff.md) | Tested Kalshi/US policies and automatic sizing integration |
+| Authentication | [Authentication](auth-handoff.md) | Browser identity/session and real provider validation |
+| Streams | [Streams](backend-streams-handoff.md), [live data](live-data-handoff.md) | Fresh US quotes, quote rechecks, eligible venue event publication |
+| CI | [CI](backend-ci-handoff.md) | Hosted checks for the exact finished US milestone head |
+| Observability | [Tracing](backend-tracing-handoff.md) | Worker metrics/alerts and real collector validation |
+| US expansion | [US venues](us-expansion-handoff.md) | Finish discovery capability assessment before another venue |
+| Research | [Research](research-handoff.md) | Real-pair evidence first, then the seven-day paper study |
 
-Negative-risk assessment is research only.
-Account/execution-readiness is deferred and does not authorize private account access, orders, custody or transfers.
+Prior PR/branch instructions and validation records are retained under [history](history/README.md).
+The published issue tables below preserve original scope, dependency keys, and proposed file ownership; they are not a current ready-work queue.
+Negative-risk support remains excluded, and execution-readiness does not authorize orders, custody, or transfers.
 
-## All issues and merge dependencies
+## Published issue scopes and original dependencies
 
 Primary paths identify ownership; each issue separately names necessary integration edits.
 Paths that do not exist yet are proposed modules to create.
@@ -176,7 +171,8 @@ The dashboard and revalidation issues depend on this completed cost model.
 
 ## Parallel work and shared edits
 
-Frontend bootstrap, auth, source artifact storage, fee interfaces, stream interfaces and canonical definition work can start independently.
+Frontend bootstrap, authentication, source storage, fee/stream interfaces, and canonical definitions are already implemented at their documented scopes.
+The original dependency graph remains useful for identifying integration contracts, not for restarting completed work.
 Venue-specific fetchers, parsers, fee implementations and stream adapters use separate modules and test files.
 Feature screens live in separate frontend feature and route directories.
 Small necessary edits to shared routers, worker wiring, config, schemas, engine or migrations are explicitly called out in the issue.

@@ -1,35 +1,27 @@
 # Live data handoff
 
-## Polymarket WebSocket integration
+## Current status: October 11, 2026
 
-Branch: `demo/live-prices`.
-No PR was opened or merged for this change.
-The user requested connection to the live Polymarket WebSocket and listening for `price_change` events.
+Branch: `backend/completion`; no PR was opened or remote status rechecked during this cleanup.
+This update reconciles the local implementation and documented delivery evidence.
+See the [roadmap](../implementation-roadmap.md) for the integrated sequence and the [project status handoff](project-status-handoff.md) for the October 11 checks and limitations.
+Prior session details and validation evidence are preserved in [history](history/live-data-handoff.md).
 
-Implemented the public `/ws/market` subscription for all discovered YES/NO tokens, initial snapshots, absolute price-level changes, zero-size removal, Decimal depth, and source/receipt timestamps.
-The persistent listener sends application heartbeats, retries with bounded backoff, discards disconnected state, validates identity/timestamps/top-of-book consistency, and periodically resubscribes for fresh snapshots.
-The continuous worker now uses this adapter by default for Polymarket, while Kalshi stays on REST.
-The existing pipeline persists reconstructed stream snapshots and evaluates them on its normal cycle.
-`--once` and the explicit `ARBBOT_POLYMARKET_WEBSOCKET=false` configuration retain REST behavior.
-Runtime and development dependencies pin `websockets==17.1`.
+## Completed
 
-Live verification confirmed initial `book` frames and subsequent `price_change` batches for real tokens.
-The running demo API returned `raw.transport=websocket` and `raw.yes.last_event.event_type=price_change` for `polymarket:559651`.
-The demo remains at <http://localhost:3000/markets?venue=polymarket>, using the isolated `arbbot-demo` Compose project.
+Polymarket International public WebSocket snapshots and absolute price changes reconstruct Decimal YES/NO depth with separate source/receipt timestamps.
+Heartbeats, bounded reconnects, disconnected-state invalidation, top-of-book checks, and periodic resubscription are integrated into the persistent worker.
+Historical real exchange and desktop/mobile smoke checks verified stream provenance and multiple persisted snapshots reaching the browser.
+REST remains available for single-cycle/explicit fallback configuration; Kalshi uses REST.
+Local uncommitted Polymarket US work adds separate REST catalog/book reads, not reuse of the International stream.
 
-Validation: Ruff lint/format checks passed, all 91 backend tests passed against PostgreSQL in isolated schemas, and all 16 stream-focused tests passed locally.
-The full SQLite suite passed with 88 tests before the final three lifecycle tests were added and validated in the focused and PostgreSQL runs.
-The Docker API/worker build and deployment passed.
-The live browser smoke test passed for both venues on desktop and mobile, requiring Polymarket WebSocket provenance and at least two distinct persisted snapshots per detail page.
-The rendered desktop quote screen was visually inspected.
-The final worker logs confirmed an active stream and continuing `price_change` events after deployment.
-Some inactive or older books remain excluded as `book_stale` or `out_of_order_snapshot`; no freshness checks were weakened.
-No blocking issue remains for the requested stream connection.
+## Remaining work and blockers
 
-No sequence numbers are documented in this feed.
-Periodic snapshots and best-price validation bound drift but cannot prove that every change was received.
-The worker persists cycle snapshots, not every intermediate delta, and the browser refreshes prices every five seconds.
-No live settlement equivalence was approved and no trading was enabled.
+The worker persists cycle snapshots rather than every intermediate delta, and browser market quotes poll every five seconds.
+Market-price SSE, immediate event publication, live opportunity rechecks, and eligible US venue streaming remain unfinished.
+Historical stream/browser evidence does not validate the current US working tree.
+Docker is unavailable for fresh live smoke validation.
 
-Next action: add an event-driven publication path and market-price SSE updates so WebSocket changes reach the browser without waiting for the ingestion cycle and five-second browser refresh.
-Preserve immutable quote timestamps, disconnected-feed invalidation, and the isolated demo database when doing so.
+## Next action
+
+Restore the running stack and validate current Kalshi/Polymarket US quote freshness and refresh behavior with the existing US desktop/mobile smoke script before advancing event-driven publication.

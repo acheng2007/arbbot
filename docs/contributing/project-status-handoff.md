@@ -14,7 +14,7 @@ Source evidence, definition/review revisions, authenticated review APIs, approva
 Polymarket International streaming, browser opportunity SSE, API metrics, tracing infrastructure, and backend/frontend CI definitions exist.
 Browser market quotes still refresh by polling.
 
-## Local work beyond the committed roadmap
+## Local work beyond the committed implementation
 
 The uncommitted tree includes a separate Polymarket US adapter, recorded catalog/book/fee/restriction evidence, venue registration and API metadata, enabled-venue catalog filtering, World Series candidate extraction, and frontend venue selection.
 Recorded Kalshi/Polymarket US Dodgers contracts produce a same-event candidate, not an approved equivalent pair.
@@ -37,8 +37,19 @@ The registry is a foundation, not a completed account/product eligibility model.
 
 The market browser currently loads only 200 matches and selects one pair per market.
 Its search/status filters apply only to the loaded market page despite backend search/filter support.
-Roadmap checkboxes and older handoff dependency statements are partly stale: opportunity screens, loading/error states, review APIs, stream integration, and historical hosted CI evidence already exist at narrower scopes.
-Kalshi source enrichment already retains group fields, so older research notes about missing group evidence require checking against current normalized and reviewed evidence before treating them as current defects.
+The roadmap now marks opportunity screens, loading/error states, version 2 measurement fields, settlement-policy validation, review APIs, International stream integration, tracing, and historical hosted CI evidence complete at their actual scopes.
+US discovery/registry/browser work is explicitly labeled local and uncommitted rather than treated as a completed release.
+Current workstream handoffs supersede archived PR/branch/dependency instructions under [history](history/README.md).
+Kalshi source enrichment already retains group fields; the data/research handoffs now distinguish capture from validated interpretation in settlement reviews.
+
+## Documentation reconciliation completed
+
+Updated the roadmap, contributor index, US expansion plan, and twelve workstream handoffs with completed scope, remaining gates, and concrete next actions.
+Archived the prior handoffs, including existing research additions, with historical-status notices and relocated local links.
+Backend review APIs are no longer described as an absent dependency for frontend review actions.
+Original issue scopes/dependency tables remain available but are labeled as published history rather than a current ready-work queue.
+This documentation cleanup commits only the affected documentation; existing implementation work and the staged research article remain outside the commit.
+No product code, remote issue/PR state, or deployment was changed by this cleanup.
 
 ## Validation and limitations
 
@@ -47,6 +58,9 @@ Kalshi source enrichment already retains group fields, so older research notes a
 - Frontend TypeScript checks passed.
 - Frontend ESLint and generated API client drift checks passed.
 - Backend Ruff lint and formatting checks passed.
+
+These product checks were run during the preceding October 11 assessment, not rerun for the documentation-only cleanup.
+Documentation validation checks whitespace, relative links, archived-record preservation, scoped file changes, and Git commit identity.
 
 Docker Compose inspection failed because the local Docker daemon socket is unavailable.
 No fresh PostgreSQL, migration, production build, Playwright, live API, or live UI validation is claimed by this assessment.
