@@ -395,3 +395,13 @@ async def test_review_migration_preserves_existing_sources_and_catalog(database,
     assert await catalog_reports(db, market.mode) == [report]
     await migrate(settings, "upgrade", "head")
     await migrate(settings, "check")
+
+
+async def test_per_venue_cancellation_coverage_is_not_joint_settlement_proof(drafts):
+    store, _, request, _, _ = drafts
+    incomplete = request.model_copy(
+        update={"review": request.review.model_copy(update={"joint_settlement_cases": ()})}
+    )
+    with pytest.raises(ReviewValidationError) as error:
+        await store.save_decision("live", incomplete, ACTOR)
+    assert any("joint_settlement_case_uncovered" in issue for issue in error.value.issues)

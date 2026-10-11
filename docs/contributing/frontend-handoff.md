@@ -42,3 +42,11 @@ See [the implementation handoff](us-vertical-slice-handoff.md) for remaining sta
 Source terms now expose captured document text in collapsible plain-text panels and display unresolved evidence gaps.
 Real captured US rulebook evidence was inspected in desktop/mobile browsers with no horizontal overflow.
 Next action: implement evidence-linked review editing and OIDC sessions after product-document applicability and review validation are ready.
+
+## October 11 counterpart browsing update
+
+Comparison details load exact pair and contract identities beyond the first catalog page.
+Markets expose paginated counterparts, including multiple pairs for the same market.
+Desktop/mobile regression tests verify browsing beyond 200 pairs without horizontal overflow.
+Next action: implement the Stage 5 OIDC and evidence-linked review editor against the existing revision-aware review APIs.
+See [the vertical slice handoff](us-vertical-slice-handoff.md) for the joint-outcome schema and remaining blockers.

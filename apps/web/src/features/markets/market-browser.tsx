@@ -44,20 +44,12 @@ export function MarketBrowser() {
 
   const venues = useApi("venues");
   const matches = useApi("matches", { query: { limit: 200 } });
-  const pairedIds = new Set<string>();
   const pairs = (matches.isError ? [] : (matches.data?.data ?? [])).filter(
-    (match) => {
-      if (
-        match.status === "rejected" ||
-        match.comparison?.same_event !== true ||
-        pairedIds.has(match.left_id) ||
-        pairedIds.has(match.right_id)
-      )
-        return false;
-      pairedIds.add(match.left_id);
-      pairedIds.add(match.right_id);
-      return true;
-    },
+    (match) =>
+      match.status !== "rejected" && match.comparison?.same_event === true,
+  );
+  const pairedIds = new Set(
+    pairs.flatMap((match) => [match.left_id, match.right_id]),
   );
 
   const loaded = markets.data?.data ?? [];
@@ -134,9 +126,13 @@ export function MarketBrowser() {
             className={CONTROL}
           >
             <option value="">All venues</option>
-            {venues.data?.data.filter((v) => v.enabled).map((v) => (
-              <option key={v.id} value={v.id}>{v.name}</option>
-            ))}
+            {venues.data?.data
+              .filter((v) => v.enabled)
+              .map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">

@@ -33,9 +33,11 @@ function UnresolvedAssumptions({ issues }: { issues: string[] }) {
 }
 
 export function ComparisonDetail({ matchId }: { matchId: string }) {
-  const matches = useApi("matches", { query: { limit: 200 } });
-  const { index } = useMarketIndex();
-  const match = matches.data?.data.find((entry) => entry.id === matchId);
+  const matches = useApi("match", { params: { match_id: matchId } });
+  const match = matches.data?.data;
+  const { index } = useMarketIndex(
+    match ? [match.left_id, match.right_id] : [],
+  );
 
   return (
     <div className="space-y-7">
@@ -51,7 +53,7 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
 
       <QueryState
         isPending={matches.isPending}
-        error={matches.error}
+        error={matches.error?.failure === "not_found" ? null : matches.error}
         loadingLabel="Loading contract comparison"
         onRetry={() => void matches.refetch()}
       >

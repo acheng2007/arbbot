@@ -50,11 +50,22 @@ class CatalogQueries:
         offset=0,
         status=None,
         evidence=None,
+        market_id=None,
+        match_id=None,
         venue=None,
         family=None,
         q=None,
     ):
         query = select(MatchRecord).where(MatchRecord.mode == mode, MatchRecord.current.is_(True))
+        if market_id is not None:
+            query = query.where(
+                or_(
+                    MatchRecord.payload["left_id"].as_string() == market_id,
+                    MatchRecord.payload["right_id"].as_string() == market_id,
+                )
+            )
+        if match_id is not None:
+            query = query.where(MatchRecord.id == match_id)
         if self.venues is not None:
             for side in ("left_id", "right_id"):
                 query = query.where(

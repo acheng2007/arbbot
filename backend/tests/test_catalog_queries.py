@@ -182,3 +182,21 @@ async def test_family_index_supports_ordered_mode_scoped_query(catalog_data):
         else:
             plan = await session.execute(text("EXPLAIN QUERY PLAN " + compiled))
         assert "ix_market_family_page" in str(plan.all())
+
+
+async def test_counterpart_filter_and_exact_pair_lookup(catalog_data):
+    settings, db, _, markets, matches = catalog_data
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        for side in (0, 1):
+            rows = (
+                await client.get(
+                    "/api/v1/matches", params={"market_id": markets[side].id, "limit": 1}
+                )
+            ).json()
+            assert [row["id"] for row in rows] == [matches[0].id]
+        assert (await client.get("/api/v1/matches", params={"market_id": "missing"})).json() == []
+        exact = await client.get("/api/v1/matches/" + matches[2].id)
+        assert exact.status_code == 200 and exact.json()["status"] == "rejected"
+        assert (await client.get("/api/v1/matches/missing")).status_code == 404

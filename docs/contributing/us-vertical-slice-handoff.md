@@ -83,3 +83,32 @@ No global rulebook or similarly titled PDF is being treated as sufficient instru
 The source status remains incomplete and live US evaluation remains blocked.
 Next action: establish evidence-backed product-document applicability for a real public gateway instrument, then finish joint exceptional-outcome review validation and browser review/auth/access workflows.
 Stages 4 through 7, OIDC, reviewed access profiles, actual fee integration, fresh-book publication rechecks, and the full recorded/OIDC acceptance harness remain outstanding.
+
+## Stage 4: counterpart access and joint settlement coverage
+
+Added `market_id` filtering to paginated matches and an exact current-match endpoint.
+Reproduced the first-page comparison failure in desktop Playwright before changing frontend loading.
+Comparison details fetch their exact pair and referenced contracts independently of catalog pagination.
+Each market exposes paginated counterpart browsing, tested beyond 200 pairs on desktop and mobile.
+Featured pairs no longer suppress additional pairs solely because a market appeared already.
+
+Reproduced approval of per-venue cancellation coverage without joint-outcome proof through the durable review approval service.
+Live OIDC browser reproduction remains unavailable pending identity-provider configuration, so this was the closest existing approval path.
+Reviews now require modeled combinations of exceptional and ordinary settlement states or explicit exclusions citing current policy evidence from both venues.
+Exclusions must cite the relevant exceptional policy kinds, rather than unrelated policies or title evidence.
+Duplicate, unknown, missing, and mismatched joint cases block approval and evaluation.
+Legacy payloads remain readable; approvals without required joint cases become ineligible and require renewed review.
+Synthetic fixtures explicitly define shared cancellation and do not claim a real venue pair is equivalent.
+One-sided cancellation tests demonstrate a valid joint payout calculation eliminating apparent profit.
+OpenAPI, review JSON schema, and the TypeScript client were regenerated.
+
+Checks: full SQLite and PostgreSQL suites each passed 460 tests; frontend units passed 58 tests; type/lint/client drift checks passed; four focused desktop/mobile pagination tests passed.
+The full browser run passed 48 of 50 tests; two older price-card assertions still expected the pre-existing venue name "Polymarket".
+Those assertions were corrected to "Polymarket International", and all 14 market browser tests then passed across desktop/mobile.
+The production webpack build passed.
+
+Next action: implement Stage 5 provider-configurable OIDC Authorization Code plus PKCE, durable encrypted browser sessions, evidence-linked review editing, and a versioned reviewed access profile.
+An asynchronous request for OIDC issuer/client registration details is pending; live sign-in validation needs that information, but the provider-configurable implementation can proceed independently.
+Stage 3 product/amendment applicability still needs evidence-backed review, and Stages 5 through 7 plus the recorded/OIDC acceptance harness remain unfinished.
+The pre-existing untracked `backend/arbbot/fees/kalshi.py`, staged research document, and `.specstory` data were preserved.
+The isolated PostgreSQL container remains available; inspection API/web/worker processes were stopped.

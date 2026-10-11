@@ -140,3 +140,52 @@ async def test_policy_evidence_must_exist_in_bound_market_rules(fixture_market):
     assert "evidence_not_found:settlement_policy:cancellation" in evidence_issues(
         markets[0], changed
     )
+
+
+async def test_one_sided_cancellation_must_be_modeled_and_can_eliminate_profit(fixture_market):
+    from arbbot.domain import JointSettlementCase
+
+    markets, books, review, definitions = live_pair(fixture_market)
+    scenarios = list(review.scenarios)
+    cases = [review.joint_settlement_cases[0]]
+    for side in ("left", "right"):
+        for outcome, normal in (("yes", Decimal(1)), ("no", Decimal(0))):
+            name = f"{side}_only_cancelled_other_{outcome}"
+            scenarios.append(
+                Scenario(
+                    name=name,
+                    left_yes="0.5" if side == "left" else normal,
+                    left_no="0.5" if side == "left" else 1 - normal,
+                    right_yes="0.5" if side == "right" else normal,
+                    right_no="0.5" if side == "right" else 1 - normal,
+                )
+            )
+            cases.append(
+                JointSettlementCase(
+                    left_state="cancellation:cancelled" if side == "left" else f"normal_{outcome}",
+                    right_state="cancellation:cancelled"
+                    if side == "right"
+                    else f"normal_{outcome}",
+                    scenario=name,
+                )
+            )
+    reviewed = review.model_copy(
+        update={"scenarios": tuple(scenarios), "joint_settlement_cases": tuple(cases)}
+    )
+    assert not settlement_issues(reviewed, *definitions)
+    match = match_markets(markets, [reviewed], definitions)[0]
+    assert match.status == "verified"
+    assert not evaluate(match, *markets, books, Settings(_env_file=None), utcnow()).opportunities
+
+
+async def test_joint_exclusion_requires_current_policy_evidence(fixture_market):
+    _, _, review, definitions = live_pair(fixture_market)
+    cases = list(review.joint_settlement_cases)
+    cases[1] = cases[1].model_copy(update={"left_evidence_policies": ("fallback",)})
+    policies = list(definitions[0].settlement_policies)
+    policies[1] = policies[1].model_copy(update={"status": "unknown"})
+    definitions[0] = definitions[0].model_copy(update={"settlement_policies": tuple(policies)})
+    reviewed = review.model_copy(update={"joint_settlement_cases": tuple(cases)})
+    assert "joint_exclusion_evidence_invalid:left:fallback" in settlement_issues(
+        reviewed, *definitions
+    )

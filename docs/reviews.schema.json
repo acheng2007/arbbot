@@ -99,6 +99,79 @@
       "title": "CostPolicy",
       "type": "object"
     },
+    "JointSettlementCase": {
+      "additionalProperties": false,
+      "properties": {
+        "left_state": {
+          "pattern": "^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$",
+          "title": "Left State",
+          "type": "string"
+        },
+        "right_state": {
+          "pattern": "^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$",
+          "title": "Right State",
+          "type": "string"
+        },
+        "scenario": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario"
+        },
+        "exclusion_reason": {
+          "anyOf": [
+            {
+              "minLength": 20,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Exclusion Reason"
+        },
+        "left_evidence_policies": {
+          "default": [],
+          "items": {
+            "enum": [
+              "cancellation",
+              "fallback",
+              "ambiguous_resolution"
+            ],
+            "type": "string"
+          },
+          "title": "Left Evidence Policies",
+          "type": "array"
+        },
+        "right_evidence_policies": {
+          "default": [],
+          "items": {
+            "enum": [
+              "cancellation",
+              "fallback",
+              "ambiguous_resolution"
+            ],
+            "type": "string"
+          },
+          "title": "Right Evidence Policies",
+          "type": "array"
+        }
+      },
+      "required": [
+        "left_state",
+        "right_state"
+      ],
+      "title": "JointSettlementCase",
+      "type": "object"
+    },
     "Review": {
       "additionalProperties": false,
       "properties": {
@@ -199,6 +272,15 @@
           },
           "maxItems": 192,
           "title": "Settlement Mappings",
+          "type": "array"
+        },
+        "joint_settlement_cases": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/JointSettlementCase"
+          },
+          "maxItems": 1024,
+          "title": "Joint Settlement Cases",
           "type": "array"
         },
         "left_costs": {

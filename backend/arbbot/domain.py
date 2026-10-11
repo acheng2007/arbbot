@@ -190,6 +190,37 @@ class SettlementMapping(Model):
         return self
 
 
+class JointSettlementCase(Model):
+    left_state: str = Field(
+        pattern=r"^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$"
+    )
+    right_state: str = Field(
+        pattern=r"^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$"
+    )
+    scenario: str | None = Field(default=None, min_length=1)
+    exclusion_reason: str | None = Field(default=None, min_length=20)
+    left_evidence_policies: tuple[
+        Literal["cancellation", "fallback", "ambiguous_resolution"], ...
+    ] = ()
+    right_evidence_policies: tuple[
+        Literal["cancellation", "fallback", "ambiguous_resolution"], ...
+    ] = ()
+
+    @model_validator(mode="after")
+    def modeled_or_excluded(self):
+        if (self.scenario is None) == (self.exclusion_reason is None):
+            raise ValueError(
+                "Joint settlement must name a scenario or an evidence-backed exclusion"
+            )
+        if self.exclusion_reason and (
+            not self.left_evidence_policies or not self.right_evidence_policies
+        ):
+            raise ValueError(
+                "Exclusion requires current settlement-policy evidence from both venues"
+            )
+        return self
+
+
 class Review(Model):
     left_id: str
     right_id: str
@@ -206,6 +237,7 @@ class Review(Model):
     expires_at: AwareDatetime
     scenarios: tuple[Scenario, ...] = Field(min_length=2)
     settlement_mappings: tuple[SettlementMapping, ...] = Field(default=(), max_length=192)
+    joint_settlement_cases: tuple[JointSettlementCase, ...] = Field(default=(), max_length=1024)
     left_costs: CostPolicy
     right_costs: CostPolicy
 

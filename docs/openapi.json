@@ -362,6 +362,24 @@
               ],
               "title": "Evidence"
             }
+          },
+          {
+            "name": "market_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Market Id"
+            }
           }
         ],
         "responses": {
@@ -375,6 +393,45 @@
                     "$ref": "#/components/schemas/Match"
                   },
                   "title": "Response Matches Api V1 Matches Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matches/{match_id}": {
+      "get": {
+        "summary": "Match",
+        "operationId": "match_api_v1_matches__match_id__get",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Match Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
                 }
               }
             }
@@ -2906,6 +2963,77 @@
         ],
         "title": "InstrumentConstraints"
       },
+      "JointSettlementCase": {
+        "properties": {
+          "left_state": {
+            "type": "string",
+            "pattern": "^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$",
+            "title": "Left State"
+          },
+          "right_state": {
+            "type": "string",
+            "pattern": "^(normal_yes|normal_no|(?:cancellation|fallback|ambiguous_resolution):[a-z0-9_]{1,64})$",
+            "title": "Right State"
+          },
+          "scenario": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario"
+          },
+          "exclusion_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclusion Reason"
+          },
+          "left_evidence_policies": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "cancellation",
+                "fallback",
+                "ambiguous_resolution"
+              ]
+            },
+            "type": "array",
+            "title": "Left Evidence Policies",
+            "default": []
+          },
+          "right_evidence_policies": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "cancellation",
+                "fallback",
+                "ambiguous_resolution"
+              ]
+            },
+            "type": "array",
+            "title": "Right Evidence Policies",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left_state",
+          "right_state"
+        ],
+        "title": "JointSettlementCase"
+      },
       "Leg": {
         "properties": {
           "market_id": {
@@ -3536,6 +3664,15 @@
             "title": "Settlement Mappings",
             "default": []
           },
+          "joint_settlement_cases": {
+            "items": {
+              "$ref": "#/components/schemas/JointSettlementCase"
+            },
+            "type": "array",
+            "maxItems": 1024,
+            "title": "Joint Settlement Cases",
+            "default": []
+          },
           "left_costs": {
             "$ref": "#/components/schemas/CostPolicy-Input"
           },
@@ -3660,6 +3797,15 @@
             "type": "array",
             "maxItems": 192,
             "title": "Settlement Mappings",
+            "default": []
+          },
+          "joint_settlement_cases": {
+            "items": {
+              "$ref": "#/components/schemas/JointSettlementCase"
+            },
+            "type": "array",
+            "maxItems": 1024,
+            "title": "Joint Settlement Cases",
             "default": []
           },
           "left_costs": {

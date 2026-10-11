@@ -14,6 +14,7 @@ export type BrowserOperation = Extract<
   | "marketVersion"
   | "snapshot"
   | "matches"
+  | "match"
   | "sourceText"
   | "opportunities"
   | "history"

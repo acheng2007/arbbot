@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import select
 
 from arbbot.discovery.models import CatalogObservation
@@ -82,6 +82,7 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
         family: Family = None,
         q: Search = None,
         evidence: Literal["complete", "incomplete"] | None = None,
+        market_id: Annotated[str | None, Query(min_length=1, max_length=200)] = None,
     ):
         return await catalog.matches(
             mode,
@@ -92,6 +93,14 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
             family=family,
             q=q,
             evidence=evidence,
+            market_id=market_id,
         )
+
+    @router.get("/matches/{match_id}", response_model=Match)
+    async def match(match_id: str):
+        rows = await catalog.matches(mode, match_id=match_id, limit=1)
+        if not rows:
+            raise HTTPException(404, "Current match not found")
+        return rows[0]
 
     return router

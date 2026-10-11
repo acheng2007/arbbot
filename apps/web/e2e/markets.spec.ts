@@ -121,7 +121,7 @@ test("prediction cards show both venue prices together", async ({ page }) => {
     name: /US CPI year-over-year above/,
   });
   await expect(
-    prediction.getByRole("heading", { name: "Polymarket", exact: true }),
+    prediction.getByRole("heading", { name: "Polymarket International", exact: true }),
   ).toBeVisible();
   await expect(
     prediction.getByRole("heading", { name: "Kalshi", exact: true }),

@@ -4,6 +4,7 @@ from decimal import Decimal
 from arbbot.domain import (
     Book,
     CostPolicy,
+    JointSettlementCase,
     Level,
     Market,
     Review,
@@ -30,6 +31,7 @@ class SimulationAdapter:
                 rules=(
                     "Synthetic binary event; YES and NO are complementary, including cancellation."
                     " Synthetic cancellation pays 0.5 to each outcome."
+                    " Cancellation is a single shared event that occurs on both venues together."
                     " No fallback or ambiguous-resolution conditions apply in this simulation."
                 ),
                 closes_at=CLOSE,
@@ -83,6 +85,30 @@ def simulation_reviews(markets: list[Market]) -> list[Review]:
             expires_at=utcnow() + timedelta(days=1),
             left_costs=policy,
             right_costs=policy,
+            joint_settlement_cases=(
+                JointSettlementCase(
+                    left_state="cancellation:cancelled",
+                    right_state="cancellation:cancelled",
+                    scenario="cancelled",
+                ),
+                *(
+                    JointSettlementCase(
+                        left_state=a,
+                        right_state=b,
+                        exclusion_reason=(
+                            "The synthetic rules explicitly define cancellation as a single "
+                            "shared event on both venues together."
+                        ),
+                        left_evidence_policies=("cancellation",),
+                        right_evidence_policies=("cancellation",),
+                    )
+                    for normal in ("normal_yes", "normal_no")
+                    for a, b in (
+                        ("cancellation:cancelled", normal),
+                        (normal, "cancellation:cancelled"),
+                    )
+                ),
+            ),
             settlement_mappings=tuple(
                 SettlementMapping(
                     side=side,

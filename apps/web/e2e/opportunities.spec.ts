@@ -185,3 +185,77 @@ test("a catalog contract without monitored quotes has a useful empty state", asy
   await expect(page.getByText("No monitored order book")).toBeVisible();
   await expect(page.getByText("This view could not be loaded")).toHaveCount(0);
 });
+
+test("comparison details load a pair and contracts beyond catalog pages", async ({
+  page,
+}) => {
+  const response = await page.request.get("/api/data/matches?limit=200");
+  const matches = await response.json();
+  const pair = matches.find(
+    (entry: { id: string }) => entry.id === "match-cpi-2026-09",
+  );
+  await page.route("**/api/data/matches?*", (route) =>
+    route.fulfill({ json: [] }),
+  );
+  await page.route("**/api/data/markets?*", (route) =>
+    route.fulfill({ json: [] }),
+  );
+  await page.route("**/api/data/match?*", (route) =>
+    route.fulfill({ json: pair }),
+  );
+  await page.goto("/matches/match-cpi-2026-09");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "US CPI year-over-year",
+  );
+  await expect(page.getByText("Kalshi original terms")).toBeVisible();
+  await expect(
+    page.getByText("Polymarket International original terms"),
+  ).toBeVisible();
+});
+
+test("market counterpart browsing continues beyond 200 pairs", async ({
+  page,
+}) => {
+  const response = await page.request.get("/api/data/matches?limit=200");
+  const base = (await response.json())[0];
+  const marketId = base.left_id;
+  await page.route("**/api/data/matches?*", (route) => {
+    const url = new URL(route.request().url());
+    if (url.searchParams.get("market_id") !== marketId) return route.continue();
+    const offset = Number(url.searchParams.get("offset") || 0);
+    const limit = Number(url.searchParams.get("limit") || 20);
+    const rows = Array.from(
+      { length: Math.min(limit, Math.max(0, 205 - offset)) },
+      (_, i) => ({
+        ...base,
+        id: `counterpart-${offset + i}`,
+        reason: `Candidate number ${offset + i}`,
+      }),
+    );
+    return route.fulfill({ json: rows });
+  });
+  await page.goto(`/markets/${encodeURIComponent(marketId)}`);
+  const section = page.getByRole("region", { name: "Proposed counterparts" });
+  await expect(
+    section.getByText("Candidate number 0", { exact: true }),
+  ).toBeVisible();
+  for (let pageNumber = 2; pageNumber <= 11; pageNumber++) {
+    await section.getByRole("button", { name: "Next counterparts" }).click();
+    await expect(
+      section.getByText(`Page ${pageNumber}`, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      section.getByText(`Candidate number ${(pageNumber - 1) * 20}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+  }
+  await expect(
+    section.getByRole("button", { name: "Next counterparts" }),
+  ).toBeDisabled();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+  ).toBe(false);
+});

@@ -15,6 +15,7 @@ const EXPOSED = [
   "marketVersion",
   "snapshot",
   "matches",
+  "match",
   "sourceText",
   "opportunities",
   "history",

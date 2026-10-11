@@ -11,6 +11,7 @@ import type { Extraction } from "@/lib/api/schema";
 import { QueryState } from "@/features/shared/query-state";
 import { fieldLabel, venueLabel } from "@/features/shared/status";
 import { SourceQuote, SourceTerms } from "@/features/comparisons/source-terms";
+import { Counterparts } from "./counterparts";
 import { QuoteHealth } from "./quote-health";
 
 const EXTRACTION_STATUS = {
@@ -153,6 +154,7 @@ export function MarketDetail({ marketId }: { marketId: string }) {
             )}
 
             <SourceTerms market={market.data.data} />
+            <Counterparts key={marketId} marketId={marketId} />
 
             {extraction.isError ? (
               <EmptyState

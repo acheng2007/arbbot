@@ -302,6 +302,19 @@ export type InstrumentConstraints = {
   payout_evidence: string;
 };
 
+export type JointSettlementCase = {
+  left_state: string;
+  right_state: string;
+  scenario?: string | null;
+  exclusion_reason?: string | null;
+  left_evidence_policies?: Array<
+    "cancellation" | "fallback" | "ambiguous_resolution"
+  >;
+  right_evidence_policies?: Array<
+    "cancellation" | "fallback" | "ambiguous_resolution"
+  >;
+};
+
 export type Leg = {
   market_id: string;
   outcome: "yes" | "no";
@@ -402,6 +415,7 @@ export type ReviewInput = {
   expires_at: string;
   scenarios: Array<ScenarioInput>;
   settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
   left_costs: CostPolicyInput;
   right_costs: CostPolicyInput;
 };
@@ -422,6 +436,7 @@ export type Review = {
   expires_at: string;
   scenarios: Array<Scenario>;
   settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
   left_costs: CostPolicy;
   right_costs: CostPolicy;
 };
@@ -570,8 +585,19 @@ export interface ApiOperations {
       family?: string | null;
       q?: string | null;
       evidence?: "complete" | "incomplete" | null;
+      market_id?: string | null;
     };
     response: Array<Match>;
+  };
+  match: {
+    route: "/api/v1/matches/{match_id}";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: Record<string, never>;
+    response: Match;
   };
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources";
@@ -847,7 +873,22 @@ export const API_OPERATIONS = {
     route: "/api/v1/matches",
     method: "GET",
     params: [],
-    query: ["limit", "offset", "venue", "status", "family", "q", "evidence"],
+    query: [
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "family",
+      "q",
+      "evidence",
+      "market_id",
+    ],
+  },
+  match: {
+    route: "/api/v1/matches/{match_id}",
+    method: "GET",
+    params: ["match_id"],
+    query: [],
   },
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources",

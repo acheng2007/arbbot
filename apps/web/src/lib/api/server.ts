@@ -87,6 +87,7 @@ function fromFixtures(
     limit?: number;
     offset?: number;
     venue?: string | null;
+    market_id?: string | null;
   };
   const fixtures = recordedDataset();
 
@@ -97,8 +98,22 @@ function fromFixtures(
     case "status":
       return { mode: "simulation", venues: ["kalshi", "polymarket"] };
     case "venues":
-      return [{id: "kalshi", name: "Kalshi", enabled: true, evaluation_enabled: true, access_note: "Simulation"},
-        {id: "polymarket", name: "Polymarket International", enabled: true, evaluation_enabled: true, access_note: "Simulation"}];
+      return [
+        {
+          id: "kalshi",
+          name: "Kalshi",
+          enabled: true,
+          evaluation_enabled: true,
+          access_note: "Simulation",
+        },
+        {
+          id: "polymarket",
+          name: "Polymarket International",
+          enabled: true,
+          evaluation_enabled: true,
+          access_note: "Simulation",
+        },
+      ];
     case "markets": {
       const venue = query.venue;
       const filtered = venue
@@ -131,8 +146,21 @@ function fromFixtures(
         ),
         "Snapshot",
       );
+    case "match":
+      return required(
+        fixtures.matches.find((entry) => entry.id === params.match_id),
+        "Match",
+      );
     case "matches":
-      return paginate(fixtures.matches, query);
+      return paginate(
+        fixtures.matches.filter(
+          (entry) =>
+            !query.market_id ||
+            entry.left_id === query.market_id ||
+            entry.right_id === query.market_id,
+        ),
+        query,
+      );
     case "opportunities":
       return paginate(fixtures.opportunities, query);
     case "history":
