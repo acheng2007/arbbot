@@ -199,3 +199,43 @@ async def test_inventory_api_exposes_unsupported_raw_provenance(database):
         assert rows[0]["raw"] == payload
         assert len(rows[0]["observation_id"]) == 64
         assert (await client.get("/api/v1/markets")).json() == []
+
+
+async def test_broad_kalshi_discovery_excludes_unsupported_combo_feed(database):
+    settings, _, repository = database
+    settings = settings.model_copy(update={"mode": "live", "discovery_scan_pages": 1})
+
+    def handler(request):
+        if request.url.params.get("mve_filter") != "exclude":
+            return httpx.Response(
+                200,
+                json={
+                    "markets": [raw_kalshi("COMBO", mve_collection_ticker="MVE")],
+                    "cursor": "next",
+                },
+            )
+        return httpx.Response(200, json={"markets": [raw_kalshi("STANDARD")], "cursor": ""})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        adapter = KalshiAdapter(ExchangeHTTP(client, interval=0), settings)
+        scan = await CatalogInventory(settings, repository).scan(adapter)
+    assert [market.external_id for market in scan.markets] == ["STANDARD"]
+
+
+async def test_changed_catalog_query_restarts_its_continuation(database):
+    settings, _, repository = database
+    settings = settings.model_copy(
+        update={"mode": "live", "catalog_page_size": 1, "discovery_scan_pages": 1}
+    )
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(200, json={"markets": [raw_kalshi("ONE")], "cursor": "next"})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        adapter = KalshiAdapter(ExchangeHTTP(client, interval=0), settings)
+        await CatalogInventory(settings, repository).scan(adapter)
+        changed = settings.model_copy(update={"catalog_page_size": 2})
+        await CatalogInventory(changed, repository).scan(adapter)
+    assert requests[0].url.params["cursor"] == requests[1].url.params["cursor"] == ""

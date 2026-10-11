@@ -140,3 +140,30 @@ The initial detached launch attempts did not remain running; stale PID files fro
 
 Next action: open the two demo links and inspect calculation assumptions in simulation, then the real Dodgers contract comparison and captured settlement evidence in the live view.
 Implementation beyond this demo still follows the Stage 5 next action above.
+
+## October 11 broad demo expansion
+
+The user asked why the live demo showed only one market.
+The original demo deliberately used a one-contract watchlist on each venue, displayed as one paired prediction.
+Reproduced the two-contract limit through the actual running API before changing the demo configuration.
+Removed both exclusive watchlists and enabled continuous broad public catalog traversal.
+The live view remains at `http://127.0.0.1:3001/markets`; the simulation view is unchanged.
+
+A fresh public Kalshi check showed the unfiltered first 100 records were unsupported combo contracts, while `mve_filter=exclude` returned ordinary binary instruments.
+Verified the parameter in official Kalshi documentation and reproduced the missing filter with a failing catalog regression before editing.
+Broad inventory now applies the documented combo exclusion consistently with the existing Kalshi general and focused discovery paths.
+Stored continuation tokens are bound to query scope, so a changed watchlist, page size, or filter restarts traversal instead of reusing an incompatible token.
+Combos remain unsupported and excluded from this discovery scope; other observed exclusions retain raw provenance.
+
+The broader demo discovered more than 1,000 supported venue contracts during verification, with incomplete coverage disclosed by discovery reports.
+Configured eight bounded pages per refresh, a 30-second refresh interval, a 180-second catalog timeout, and a 1,800-second catalog age limit.
+Quote monitoring is bounded to 20 contracts per venue and rotates separately from the catalog; not every browsable contract has current books.
+Both desktop and mobile live-browser checks passed for multiple contracts, page navigation, and US venue filtering without horizontal overflow.
+Screenshots are under `apps/web/test-results/broad-demo-*.png`.
+Checks: 24 discovery/inventory tests and 28 adapter/ingestion tests passed; lint and diff checks passed.
+
+The broadened API session is 64493 and the current broadened worker session is 10070, replacing the original focused live worker.
+Runtime logs are `/private/tmp/arbbot-test-demo/live-api-broad.log` and `/private/tmp/arbbot-test-demo/live-worker-broad.log`.
+Live US evaluation still blocks incomplete settlement, fees, and access; discovery breadth does not imply verified arbitrage.
+
+Next action: refresh the live demo, browse both venue catalogs, and inspect discovery coverage and quote freshness before resuming Stage 5 implementation.

@@ -30,15 +30,27 @@ class CatalogInventory:
             raise ValueError("Broad discovery is supported only for Kalshi and Polymarket US")
         mode, venue = self.settings.mode, adapter.venue
         state = await self.progress(venue)
+        watchlist = list(
+            dict.fromkeys(adapter.tickers if venue == "kalshi" else adapter.market_ids)
+        )
+        page_size = self.settings.catalog_page_size
+        scope = digest(
+            {
+                "venue": venue,
+                "watchlist": watchlist,
+                "page_size": page_size,
+                "status": "open",
+                "mve_filter": "exclude" if venue == "kalshi" and not watchlist else None,
+            }
+        )
+        # Continuations belong to the exact query, not just the venue.
+        if state.get("scope") != scope:
+            state.update(scope=scope, continuation=None, page_hashes=[], coverage_complete=False)
         token = state.get("continuation")
         if token is None:
             state["cycle_started_at"] = utcnow().isoformat()
         seen_pages = list(state.get("page_hashes", [])) if token is not None else []
         decisions, pages = [], 0
-        watchlist = list(
-            dict.fromkeys(adapter.tickers if venue == "kalshi" else adapter.market_ids)
-        )
-        page_size = self.settings.catalog_page_size
         for _ in range(self.settings.discovery_scan_pages):
             if watchlist:
                 offset = int(token or 0)
@@ -59,7 +71,12 @@ class CatalogInventory:
             elif venue == "kalshi":
                 response = await adapter.http.get(
                     "https://external-api.kalshi.com/trade-api/v2/markets",
-                    params={"status": "open", "limit": page_size, "cursor": token or ""},
+                    params={
+                        "status": "open",
+                        "limit": page_size,
+                        "cursor": token or "",
+                        "mve_filter": "exclude",
+                    },
                 )
                 items, next_token = response["markets"], response.get("cursor") or None
             else:

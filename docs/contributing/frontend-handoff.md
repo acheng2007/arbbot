@@ -58,3 +58,10 @@ Desktop/mobile checks passed for simulation calculations, SSE refresh, real pair
 Screenshots are under `apps/web/test-results/test-demo-*.png`.
 The services are left running for inspection; see the vertical slice handoff for runtime details and session IDs.
 Next action: walk through the simulation calculation, then inspect the live Dodgers comparison before resuming Stage 5 implementation.
+
+## October 11 broader live demo
+
+Removed the two-contract runtime watchlist from the live demo at `http://127.0.0.1:3001/markets`.
+More than 1,000 supported venue contracts were discovered during verification, with quote monitoring bounded separately to 20 per venue.
+Desktop/mobile checks passed for multiple contracts, pagination, and venue filtering without overflow.
+Next action: refresh the live demo and explore catalog pages; implementation then resumes at Stage 5.
