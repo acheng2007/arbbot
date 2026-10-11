@@ -50,3 +50,11 @@ Markets expose paginated counterparts, including multiple pairs for the same mar
 Desktop/mobile regression tests verify browsing beyond 200 pairs without horizontal overflow.
 Next action: implement the Stage 5 OIDC and evidence-linked review editor against the existing revision-aware review APIs.
 See [the vertical slice handoff](us-vertical-slice-handoff.md) for the joint-outcome schema and remaining blockers.
+
+## October 11 interactive demo
+
+The user requested a test demo; simulation is running at `http://127.0.0.1:3000/opportunities` and real Kalshi/US discovery at `http://127.0.0.1:3001/markets`.
+Desktop/mobile checks passed for simulation calculations, SSE refresh, real paired price refresh, and incomplete settlement/source labels.
+Screenshots are under `apps/web/test-results/test-demo-*.png`.
+The services are left running for inspection; see the vertical slice handoff for runtime details and session IDs.
+Next action: walk through the simulation calculation, then inspect the live Dodgers comparison before resuming Stage 5 implementation.

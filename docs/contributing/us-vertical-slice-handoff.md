@@ -112,3 +112,31 @@ An asynchronous request for OIDC issuer/client registration details is pending; 
 Stage 3 product/amendment applicability still needs evidence-backed review, and Stages 5 through 7 plus the recorded/OIDC acceptance harness remain unfinished.
 The pre-existing untracked `backend/arbbot/fees/kalshi.py`, staged research document, and `.specstory` data were preserved.
 The isolated PostgreSQL container remains available; inspection API/web/worker processes were stopped.
+
+## October 11 interactive test demo
+
+Started two isolated local demonstrations at the user's request.
+Docker Desktop is manually paused, so this demo uses the migrated SQLite database at `/private/tmp/arbbot-test-demo/demo.db`.
+The earlier PostgreSQL validation remains separate from this runtime demo.
+
+Simulation web: `http://127.0.0.1:3000/opportunities`; API port 8100.
+A persistent simulation worker refreshes quotes and produces a clearly labeled synthetic $1.61 estimate with costs, payout scenarios, and execution assumptions.
+Live web: `http://127.0.0.1:3001/markets`; API port 8101.
+A persistent public-data worker monitors only Kalshi `KXMLB-26-LAD` and US `tec-mlb-champ-2026-09-27-lad` for this focused demonstration.
+Both venue books were healthy during verification; the pair remained a candidate and live opportunity publication returned zero.
+The UI preserves settlement-source, fee, and access blocking rather than treating the quotes as approved arbitrage.
+No private accounts or order-placement integrations were used.
+
+Verified simulation cost/detail screens and SSE-driven query refresh on desktop and mobile.
+Verified live paired YES/NO prices refreshed through at least two distinct receipt timestamps on both viewports.
+Verified real comparison pages retain incomplete settlement and source-gap labels.
+Inspected screenshots under `apps/web/test-results/test-demo-*.png`; no horizontal overflow was detected.
+The runtime services are intentionally left running for the user to explore.
+Production Next.js standalone builds serve both demos with runtime backend URLs and backend-origin data.
+
+Persistent tool session IDs: simulation API 25765, simulation worker 97831, simulation web 3576; live API 97102, live worker 3781, live web 25345.
+These are tool session IDs, not operating-system PIDs.
+The initial detached launch attempts did not remain running; stale PID files from those attempts should not be used to stop the services.
+
+Next action: open the two demo links and inspect calculation assumptions in simulation, then the real Dodgers contract comparison and captured settlement evidence in the live view.
+Implementation beyond this demo still follows the Stage 5 next action above.
