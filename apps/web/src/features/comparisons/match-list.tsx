@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/states";
@@ -21,12 +23,19 @@ function unresolvedCount(match: Match) {
 }
 
 export function MatchList() {
-  const matches = useApi("matches", { query: { limit: 100 } });
-  const { index } = useMarketIndex();
+  const [offset, setOffset] = useState(0);
+  const [search, setSearch] = useState("");
+  const matches = useApi("matches", { query: { limit: 25, offset, ...(search.trim() ? { q: search.trim() } : {}) } });
+  const { index } = useMarketIndex(matches.data?.data.flatMap((match) => [match.left_id, match.right_id]) ?? []);
 
   return (
     <div className="space-y-6">
       {matches.data && <OriginBanner origin={matches.data.origin} />}
+      <label className="block text-sm font-medium">Search comparisons
+        <input type="search" value={search} maxLength={200}
+          onChange={(event) => { setSearch(event.target.value); setOffset(0); }}
+          className="mt-2 block h-11 w-full rounded-md border border-border bg-card px-3" />
+      </label>
       <QueryState
         isPending={matches.isPending}
         error={matches.error}
@@ -101,6 +110,13 @@ export function MatchList() {
           </ul>
         )}
       </QueryState>
+      <nav aria-label="Comparison pages" className="flex items-center justify-between gap-3">
+        <span className="text-sm">Page {Math.floor(offset / 25) + 1}</span>
+        <div className="flex gap-2">
+          <Button variant="outline" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 25))}>Previous</Button>
+          <Button variant="outline" disabled={(matches.data?.data.length ?? 0) < 25} onClick={() => setOffset(offset + 25)}>Next</Button>
+        </div>
+      </nav>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { useOpportunityStream } from "@/features/opportunities/use-stream";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { Search } from "lucide-react";
@@ -9,7 +10,6 @@ import { useApi } from "@/lib/query/hooks";
 import { QueryState } from "@/features/shared/query-state";
 import { PairedPrediction, PredictionCard } from "./prediction-card";
 import {
-  applyLocalFilters,
   PAGE_SIZE,
   parseFilters,
   serializeFilters,
@@ -20,6 +20,7 @@ const CONTROL =
   "h-11 rounded-md border border-border bg-card px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export function MarketBrowser() {
+  useOpportunityStream();
   const router = useRouter();
   const params = useSearchParams();
   const filters = useMemo(
@@ -34,16 +35,22 @@ export function MarketBrowser() {
     router.replace(`/markets${serializeFilters(next)}`, { scroll: false });
   };
 
-  const markets = useApi("markets", {
+  const markets = useApi("marketSummaries", {
     query: {
       limit: PAGE_SIZE,
       offset: filters.offset,
       ...(filters.venue ? { venue: filters.venue } : {}),
+      ...(filters.status ? { status: filters.status } : {}),
+      ...(filters.category ? { category: filters.category } : {}),
+      ...(filters.search.trim() ? { q: filters.search.trim() } : {}),
     },
   });
 
   const venues = useApi("venues");
-  const matches = useApi("matches", { query: { limit: 200 } });
+  const matches = useApi("matches", { query: { limit: PAGE_SIZE, offset: filters.offset,
+    ...(filters.venue ? { venue: filters.venue } : {}),
+    ...(filters.search.trim() ? { q: filters.search.trim() } : {}),
+  } });
   const pairs = (matches.isError ? [] : (matches.data?.data ?? [])).filter(
     (match) =>
       match.status !== "rejected" && match.comparison?.same_event === true,
@@ -53,7 +60,7 @@ export function MarketBrowser() {
   );
 
   const loaded = markets.data?.data ?? [];
-  const visible = applyLocalFilters(loaded, filters);
+  const visible = loaded;
   const cards = visible.filter(
     (market, index) =>
       !pairs.some(
@@ -67,7 +74,7 @@ export function MarketBrowser() {
             ),
       ),
   );
-  const narrowed = Boolean(filters.status || filters.search.trim());
+  const narrowed = Boolean(filters.status || filters.category || filters.search.trim());
   const showFeatured = !filters.venue && !narrowed && filters.offset === 0;
   const page = Math.floor(filters.offset / PAGE_SIZE) + 1;
 
@@ -96,7 +103,7 @@ export function MarketBrowser() {
       >
         <div className="flex min-w-[14rem] flex-1 flex-col gap-1.5">
           <label htmlFor="market-search" className="text-xs font-semibold">
-            Search the loaded page
+            Search all markets
           </label>
           <div className="relative">
             <Search
@@ -152,6 +159,11 @@ export function MarketBrowser() {
             <option value="closed">Closed</option>
           </select>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="market-category" className="text-xs font-semibold">Category</label>
+          <input id="market-category" value={filters.category} placeholder="Exact category"
+            onChange={(event) => update({ category: event.target.value })} className={CONTROL} />
+        </div>
         {(filters.venue || narrowed) && (
           <Button
             type="button"
@@ -164,13 +176,10 @@ export function MarketBrowser() {
       </form>
 
       <p className="text-sm leading-6 text-muted-foreground">
-        Best asks refresh every 5 seconds while this page is visible, before
-        fees. Predictions with a recorded same-event comparison show both venues
-        together. Pairing uses the first 200 comparison records; unpaired
-        contracts remain visible. Open a market to inspect depth and source
-        terms. Venue and page position are applied by the API. Status and text
-        search narrow the {loaded.length} markets on this page only, because
-        catalog-wide filtering is not yet available from the backend.
+        Best asks refresh every 5 seconds while this page is visible, before fees.
+        Search, category, status, and venue filters apply across the catalog.
+        Featured comparisons are paginated; each contract also links to its counterparts.
+        Open a market to inspect depth and source terms.
       </p>
 
       <QueryState
@@ -188,7 +197,7 @@ export function MarketBrowser() {
             }
             description={
               narrowed
-                ? "Try a broader search, or clear the filters to see everything the API returned for this page."
+                ? "Try a broader search, or clear the filters to browse the catalog."
                 : "The API returned no markets for this venue and page. Ingestion may not have discovered any yet."
             }
           />

@@ -65,3 +65,14 @@ Removed the two-contract runtime watchlist from the live demo at `http://127.0.0
 More than 1,000 supported venue contracts were discovered during verification, with quote monitoring bounded separately to 20 per venue.
 Desktop/mobile checks passed for multiple contracts, pagination, and venue filtering without overflow.
 Next action: refresh the live demo and explore catalog pages; implementation then resumes at Stage 5.
+
+## Integrated workflow implementation follow-up
+
+Catalog-wide lightweight summaries now drive market browsing with API search, status, category, and venue filters.
+Comparison lists paginate and load contracts by exact ID.
+Cards resolve counterparts by market ID, and opportunity details resolve exact opportunity IDs.
+Blocked evaluations expose status and signed calculations; native US short actions and collateral breakdowns are displayed.
+Snapshot refresh covers catalog, comparisons, evaluations, opportunities, books, and status.
+The gross settlement payout table label was corrected during visual review.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for validation and remaining acceptance work.
+Next action: run the recorded PostgreSQL / worker / API / browser harness and verify US native short, signed-loss, withdrawal, and recovery states on desktop and mobile.

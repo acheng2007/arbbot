@@ -88,6 +88,9 @@ function fromFixtures(
     offset?: number;
     venue?: string | null;
     market_id?: string | null;
+    status?: string | null;
+    category?: string | null;
+    q?: string | null;
   };
   const fixtures = recordedDataset();
 
@@ -97,6 +100,8 @@ function fromFixtures(
       return { status: "ok", mode: "simulation" };
     case "status":
       return { mode: "simulation", venues: ["kalshi", "polymarket"] };
+    case "accessSummary":
+      return { status: "unknown", revision_id: null, permitted_venues: [], expires_at: null };
     case "venues":
       return [
         {
@@ -114,12 +119,17 @@ function fromFixtures(
           access_note: "Simulation",
         },
       ];
+    case "marketSummaries":
     case "markets": {
       const venue = query.venue;
       const filtered = venue
         ? fixtures.markets.filter((market) => market.venue === venue)
         : fixtures.markets;
-      return paginate(filtered, query);
+      return paginate(filtered.filter((market) =>
+        (!query.status || market.status === query.status) &&
+        (!query.category || market.category === query.category) &&
+        (!query.q || `${market.title} ${market.id} ${market.external_id} ${market.rules}`
+          .toLowerCase().includes(String(query.q).toLowerCase()))), query);
     }
     case "market":
       return required(
@@ -161,6 +171,11 @@ function fromFixtures(
         ),
         query,
       );
+    case "opportunity": {
+      const current = fixtures.opportunities.find((entry) => entry.id === params.opportunity_id);
+      const entry = current ?? fixtures.history.find((entry) => entry.id === params.opportunity_id);
+      return { opportunity: required(entry, "Opportunity"), eligible: Boolean(current) };
+    }
     case "opportunities":
       return paginate(fixtures.opportunities, query);
     case "history":

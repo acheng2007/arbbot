@@ -36,14 +36,14 @@ function ScenarioPayouts({
         positive result in only some outcomes is not arbitrage.
       </p>
       <table className="mt-4 w-full text-sm">
-        <caption className="sr-only">Net result by settlement outcome</caption>
+        <caption className="sr-only">Combined payout by settlement outcome</caption>
         <thead>
           <tr className="border-b border-border text-left text-muted-foreground">
             <th scope="col" className="py-2 font-medium">
               Outcome
             </th>
             <th scope="col" className="py-2 text-right font-medium">
-              Net result
+              Payout
             </th>
           </tr>
         </thead>
@@ -69,15 +69,11 @@ export function OpportunityDetail({
 }: {
   opportunityId: string;
 }) {
-  const current = useApi("opportunities", { query: { limit: 200 } });
-  const history = useApi("history", { query: { limit: 200 } });
-  const { index } = useMarketIndex();
+  const current = useApi("opportunity", { params: { opportunity_id: opportunityId } });
+  const opportunity = current.data?.data.opportunity;
+  const { index } = useMarketIndex(opportunity?.legs.map((leg) => leg.market_id) ?? []);
 
-  const live = current.data?.data.find((entry) => entry.id === opportunityId);
-  const archived = history.data?.data.find(
-    (entry) => entry.id === opportunityId,
-  );
-  const opportunity = live ?? archived;
+  const live = current.data?.data.eligible ? opportunity : undefined;
 
   return (
     <div className="space-y-7">
@@ -92,7 +88,7 @@ export function OpportunityDetail({
       {current.data && <OriginBanner origin={current.data.origin} />}
 
       <QueryState
-        isPending={current.isPending || history.isPending}
+        isPending={current.isPending}
         error={current.error}
         loadingLabel="Loading opportunity"
         onRetry={() => void current.refetch()}

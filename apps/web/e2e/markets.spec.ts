@@ -50,7 +50,7 @@ test("filters are shareable through the address bar", async ({ page }) => {
     page.getByRole("link", { name: /Will US CPI YoY/ }),
   ).toBeVisible();
 
-  await page.getByLabel("Search the loaded page").fill("payrolls");
+  await page.getByLabel("Search all markets").fill("payrolls");
   await expect(page).toHaveURL(/q=payrolls/);
   await expect(
     page.getByRole("link", { name: /nonfarm payrolls/ }),
@@ -59,7 +59,7 @@ test("filters are shareable through the address bar", async ({ page }) => {
   // Reloading the shared address must reproduce the same view.
   await page.reload();
   await expect(page.getByLabel("Venue")).toHaveValue("kalshi");
-  await expect(page.getByLabel("Search the loaded page")).toHaveValue(
+  await expect(page.getByLabel("Search all markets")).toHaveValue(
     "payrolls",
   );
 

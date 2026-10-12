@@ -39,8 +39,8 @@ function typeOf(schema, path) {
   if (schema === undefined) fail(`missing schema at ${path}`);
   if (schema.$ref) return refName(schema.$ref);
   if (schema.const !== undefined) return quote(schema.const);
-  if (schema.anyOf)
-    return schema.anyOf
+  if (schema.anyOf || schema.oneOf)
+    return (schema.anyOf ?? schema.oneOf)
       .map((option, index) => typeOf(option, `${path}.anyOf[${index}]`))
       .join(" | ");
   if (schema.enum) return schema.enum.map(quote).join(" | ");

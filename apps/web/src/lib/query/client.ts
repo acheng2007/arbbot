@@ -7,7 +7,9 @@ import type { ApiOperations, OperationId } from "@/lib/api/schema";
 export type BrowserOperation = Extract<
   OperationId,
   | "venues"
+  | "accessSummary"
   | "markets"
+  | "marketSummaries"
   | "market"
   | "extraction"
   | "book"
@@ -17,6 +19,7 @@ export type BrowserOperation = Extract<
   | "match"
   | "sourceText"
   | "opportunities"
+  | "opportunity"
   | "history"
   | "evaluations"
 >;

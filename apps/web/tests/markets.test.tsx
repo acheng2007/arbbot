@@ -17,6 +17,7 @@ describe("market filters", () => {
       status: "open" as const,
       search: "cpi",
       offset: 50,
+      category: "",
     };
     expect(
       parseFilters(new URLSearchParams(serializeFilters(filters))),
@@ -27,7 +28,7 @@ describe("market filters", () => {
     const parsed = parseFilters(
       new URLSearchParams("venue=nasdaq&status=pending&offset=-3"),
     );
-    expect(parsed).toEqual({ venue: "", status: "", search: "", offset: 0 });
+    expect(parsed).toEqual({ venue: "", status: "", search: "", category: "", offset: 0 });
   });
 
   it("matches on title and on the venue identifier", () => {
@@ -37,6 +38,7 @@ describe("market filters", () => {
         status: "",
         search: "0x8f21a4c7",
         offset: 0,
+        category: "",
       }).map((market) => market.id),
     ).toEqual(["polymarket:0x8f21"]);
   });
@@ -47,6 +49,7 @@ describe("market filters", () => {
       status: "closed",
       search: "",
       offset: 0,
+        category: "",
     });
     expect(closed).toHaveLength(1);
     expect(closed[0].status).toBe("closed");

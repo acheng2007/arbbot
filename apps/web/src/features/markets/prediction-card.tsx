@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import type { Market, Match } from "@/lib/api/schema";
+import type { Market, MarketSummary, Match } from "@/lib/api/schema";
 import { useApi } from "@/lib/query/hooks";
 import { Badge } from "@/components/ui/badge";
 import { venueLabel } from "@/features/shared/status";
@@ -25,7 +25,7 @@ export function PairedPrediction({ match }: { match: Match }) {
   );
 }
 
-function VenuePrices({ market }: { market: Market }) {
+function VenuePrices({ market }: { market: Market | MarketSummary }) {
   return (
     <div className="min-w-0 rounded-lg border border-border bg-background p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -51,12 +51,12 @@ function VenuePrices({ market }: { market: Market }) {
   );
 }
 
-export function PredictionCard({
+function ResolvedPredictionCard({
   market,
   match,
   pairingState,
 }: {
-  market: Market;
+  market: Market | MarketSummary;
   match?: Match;
   pairingState: "loading" | "error" | "ready";
 }) {
@@ -112,7 +112,7 @@ export function PredictionCard({
                   ? "Loading counterpart..."
                   : pairingState === "error" || counterpart.isError
                     ? "Comparison unavailable. Try refreshing the page."
-                    : "No same-event counterpart available in loaded comparisons."}
+                    : "No established same-event counterpart available."}
               </p>
             </div>
           );
@@ -120,4 +120,17 @@ export function PredictionCard({
       </div>
     </article>
   );
+}
+
+export function PredictionCard(props: {
+  market: Market | MarketSummary;
+  match?: Match;
+  pairingState: "loading" | "error" | "ready";
+}) {
+  const matches = useApi("matches", { query: { market_id: props.market.id, limit: 1 } },
+    { enabled: !props.match });
+  const match = props.match ?? matches.data?.data.find((m) =>
+    m.status !== "rejected" && m.comparison?.same_event);
+  return <ResolvedPredictionCard {...props} match={match} pairingState={props.match ? "ready" :
+    matches.isPending ? "loading" : matches.isError ? "error" : "ready"} />;
 }

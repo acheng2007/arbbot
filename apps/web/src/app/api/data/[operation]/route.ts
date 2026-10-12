@@ -8,7 +8,9 @@ import { API_OPERATIONS, type OperationId } from "@/lib/api/schema";
 // excluded: the stream has its own route and health is served by /api/connection.
 const EXPOSED = [
   "venues",
+  "accessSummary",
   "markets",
+  "marketSummaries",
   "market",
   "extraction",
   "book",
@@ -18,6 +20,7 @@ const EXPOSED = [
   "match",
   "sourceText",
   "opportunities",
+  "opportunity",
   "history",
   "evaluations",
 ] as const satisfies readonly OperationId[];

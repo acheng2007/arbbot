@@ -3,10 +3,39 @@
 
 /** Exact decimal transported as a string; never convert this to a number. */
 export type DecimalString = string;
+export type AccessProfile = {
+  kind?: "access";
+  jurisdiction: string;
+  status: "verified" | "restricted" | "unknown";
+  permissions: Array<Permission>;
+  supporting_evidence: Array<string>;
+  expires_at: string;
+};
+
+export type AccessSummary = {
+  status: "unknown" | "verified" | "restricted" | "expired";
+  revision_id?: string | null;
+  permitted_venues?: Array<"kalshi" | "polymarket" | "polymarket_us">;
+  expires_at?: string | null;
+};
+
 export type Actor = {
   issuer: string;
   subject: string;
   audit_id: string;
+};
+
+export type Applicability = {
+  kind?: "applicability";
+  market_id: string;
+  terms_hash: string;
+  product_id: string;
+  status: "verified" | "revoked";
+  specifications: Array<Citation>;
+  amendments?: Array<Citation>;
+  amendment_inventory: Citation;
+  rationale: string;
+  expires_at: string;
 };
 
 export type Book = {
@@ -50,6 +79,12 @@ export type CatalogReport = {
   error?: string | null;
 };
 
+export type Citation = {
+  artifact_id: string;
+  content_hash: string;
+  quotation: string;
+};
+
 export type Comparison = {
   status: "compatible" | "conflict" | "incomplete";
   same_event: boolean;
@@ -60,6 +95,23 @@ export type Comparison = {
   right_hash: string | null;
   differences: Array<Difference>;
   issues: Array<string>;
+};
+
+export type ConfigurationRevision = {
+  id: string;
+  previous_revision_id: string | null;
+  mode: "live" | "simulation";
+  key: string;
+  value: AccessProfile | Applicability | ExecutableFeePolicy;
+  actor: Actor;
+  created_at: string;
+  reason: string;
+};
+
+export type ConfigurationWrite = {
+  expected_revision_id?: string | null;
+  value: AccessProfile | Applicability | ExecutableFeePolicyInput;
+  reason: string;
 };
 
 export type ContractDefinitionInput = {
@@ -157,6 +209,7 @@ export type CostPolicy = {
 };
 
 export type DecisionRevision = {
+  applicability_revision_ids?: Array<string>;
   id: string;
   previous_revision_id: string | null;
   revision: number;
@@ -236,11 +289,51 @@ export type DraftWrite = {
 };
 
 export type Evaluation = {
+  status?: "profitable" | "unprofitable" | "blocked" | "invalid";
+  best_calculation?: SignedCalculation | null;
+  access_revision_id?: string | null;
+  fee_revision_ids?: Array<string>;
   match_id: string;
   mode: "simulation" | "live";
   evaluated_at: string;
   blocked_reasons: Array<string>;
   opportunities: Array<Opportunity>;
+};
+
+export type ExecutableFeePolicyInput = {
+  kind?: "fees";
+  market_id: string;
+  venue: "kalshi" | "polymarket_us";
+  terms_hash: string;
+  formula: "kalshi_quadratic" | "us_standard";
+  coefficient: number | DecimalString;
+  minimum_execution_quantity?: number | DecimalString | null;
+  balance_precision?: "0.0001" | "0.01" | null;
+  account_class: "direct" | "non_direct" | "standard";
+  source: Citation;
+  metadata_hash: string;
+  metadata?: Partial<Record<string, unknown>>;
+  observed_at: string;
+  effective_at: string;
+  expires_at: string;
+};
+
+export type ExecutableFeePolicy = {
+  kind?: "fees";
+  market_id: string;
+  venue: "kalshi" | "polymarket_us";
+  terms_hash: string;
+  formula: "kalshi_quadratic" | "us_standard";
+  coefficient: DecimalString;
+  minimum_execution_quantity?: DecimalString | null;
+  balance_precision?: "0.0001" | "0.01" | null;
+  account_class: "direct" | "non_direct" | "standard";
+  source: Citation;
+  metadata_hash: string;
+  metadata?: Partial<Record<string, unknown>>;
+  observed_at: string;
+  effective_at: string;
+  expires_at: string;
 };
 
 export type ExecutionSemantics = {
@@ -295,6 +388,7 @@ export type HTTPValidationError = {
 
 export type InstrumentConstraints = {
   price_increment: DecimalString;
+  price_ranges?: Array<PriceBand>;
   quantity_increment: DecimalString;
   minimum_quantity: DecimalString;
   unit_payout?: DecimalString;
@@ -316,6 +410,13 @@ export type JointSettlementCase = {
 };
 
 export type Leg = {
+  native_action?:
+    "buy_yes" | "buy_no" | "buy_instrument" | "short_instrument" | null;
+  native_price?: DecimalString | null;
+  short_proceeds?: DecimalString;
+  gross_collateral?: DecimalString;
+  net_buying_power?: DecimalString | null;
+  fee_policy_id?: string | null;
   market_id: string;
   outcome: "yes" | "no";
   quantity: DecimalString;
@@ -353,6 +454,19 @@ export type Market = {
   terms_hash: string;
 };
 
+export type MarketSummary = {
+  id: string;
+  venue: "kalshi" | "polymarket" | "polymarket_us";
+  external_id: string;
+  mode: "simulation" | "live";
+  title: string;
+  closes_at: string;
+  status: "open" | "closed";
+  settlement_asset: string;
+  category?: string | null;
+  observed_at: string;
+};
+
 export type Match = {
   retrieval_limited?: boolean;
   retrieval_limit?: number | null;
@@ -369,6 +483,9 @@ export type Match = {
 };
 
 export type Opportunity = {
+  access_revision_id?: string | null;
+  applicability_revision_ids?: Array<string>;
+  fee_revision_ids?: Array<string>;
   id: string;
   match_id: string;
   mode: "simulation" | "live";
@@ -389,6 +506,24 @@ export type Opportunity = {
   review_revision_id?: string | null;
   comparison?: Comparison | null;
   assumptions: Array<string>;
+};
+
+export type OpportunityState = {
+  opportunity: Opportunity;
+  eligible: boolean;
+};
+
+export type Permission = {
+  venue: "kalshi" | "polymarket" | "polymarket_us";
+  market_ids: Array<string>;
+  short_allowed: boolean;
+  fee_account_class: "direct" | "non_direct" | "standard";
+};
+
+export type PriceBand = {
+  start: DecimalString;
+  end: DecimalString;
+  step: DecimalString;
 };
 
 export type Principal = {
@@ -492,6 +627,18 @@ export type SettlementPolicy = {
   conditions?: Array<SettlementCondition>;
 };
 
+export type SignedCalculation = {
+  quantity: DecimalString;
+  legs: [Leg, Leg];
+  capital_required: DecimalString;
+  estimated_outlay: DecimalString;
+  fee_bound: DecimalString;
+  slippage_reserve: DecimalString;
+  minimum_payout: DecimalString;
+  net_profit: DecimalString;
+  scenario_payouts: Partial<Record<string, DecimalString>>;
+};
+
 export type SourceArtifactSummary = {
   id: string;
   venue: "kalshi" | "polymarket" | "polymarket_us";
@@ -544,6 +691,14 @@ export type VenueInfo = {
 
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
+  accessSummary: {
+    route: "/api/v1/access-summary";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: AccessSummary;
+  };
   inventory: {
     route: "/api/v1/catalog/inventory";
     method: "GET";
@@ -556,6 +711,21 @@ export interface ApiOperations {
       supported?: boolean | null;
     };
     response: Array<CatalogObservation>;
+  };
+  marketSummaries: {
+    route: "/api/v1/market-summaries";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      status?: "open" | "closed" | null;
+      category?: string | null;
+      q?: string | null;
+    };
+    response: Array<MarketSummary>;
   };
   markets: {
     route: "/api/v1/markets";
@@ -707,6 +877,14 @@ export interface ApiOperations {
     query: Record<string, never>;
     response: DecisionRevision;
   };
+  saveConfiguration: {
+    route: "/api/v1/execution/configuration";
+    method: "POST";
+    body: ConfigurationWrite;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: ConfigurationRevision;
+  };
   liveness: {
     route: "/health/live";
     method: "GET";
@@ -828,6 +1006,16 @@ export interface ApiOperations {
     };
     response: Array<Opportunity>;
   };
+  opportunity: {
+    route: "/api/v1/opportunities/{opportunity_id}";
+    method: "GET";
+    body: never;
+    params: {
+      opportunity_id: string;
+    };
+    query: Record<string, never>;
+    response: OpportunityState;
+  };
   evaluations: {
     route: "/api/v1/evaluations";
     method: "GET";
@@ -836,6 +1024,9 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
+      history?: boolean;
+      match_id?: string | null;
+      status?: "profitable" | "unprofitable" | "blocked" | "invalid" | null;
     };
     response: Array<Evaluation>;
   };
@@ -857,11 +1048,23 @@ export type ReadOperationId = {
 
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
+  accessSummary: {
+    route: "/api/v1/access-summary",
+    method: "GET",
+    params: [],
+    query: [],
+  },
   inventory: {
     route: "/api/v1/catalog/inventory",
     method: "GET",
     params: [],
     query: ["limit", "offset", "venue", "supported"],
+  },
+  marketSummaries: {
+    route: "/api/v1/market-summaries",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset", "venue", "status", "category", "q"],
   },
   markets: {
     route: "/api/v1/markets",
@@ -950,6 +1153,12 @@ export const API_OPERATIONS = {
     params: [],
     query: [],
   },
+  saveConfiguration: {
+    route: "/api/v1/execution/configuration",
+    method: "POST",
+    params: [],
+    query: [],
+  },
   liveness: {
     route: "/health/live",
     method: "GET",
@@ -1028,11 +1237,17 @@ export const API_OPERATIONS = {
     params: [],
     query: ["limit", "offset"],
   },
+  opportunity: {
+    route: "/api/v1/opportunities/{opportunity_id}",
+    method: "GET",
+    params: ["opportunity_id"],
+    query: [],
+  },
   evaluations: {
     route: "/api/v1/evaluations",
     method: "GET",
     params: [],
-    query: ["limit", "offset"],
+    query: ["limit", "offset", "history", "match_id", "status"],
   },
   stream: {
     route: "/api/v1/stream",

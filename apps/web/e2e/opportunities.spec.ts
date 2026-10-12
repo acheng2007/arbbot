@@ -5,10 +5,11 @@ async function patchOpportunities(
   page: Page,
   patch: (entries: Record<string, unknown>[]) => Record<string, unknown>[],
 ) {
-  await page.route("**/api/data/opportunities*", async (route) => {
+  await page.route("**/api/data/opportunit*", async (route) => {
     const response = await route.fetch();
-    const body = (await response.json()) as Record<string, unknown>[];
-    await route.fulfill({ json: patch(body) });
+    const body = await response.json();
+    await route.fulfill({ json: Array.isArray(body) ? patch(body) :
+      { ...body, opportunity: patch([body.opportunity])[0] } });
   });
 }
 

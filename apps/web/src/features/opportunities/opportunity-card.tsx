@@ -39,7 +39,7 @@ export function LegSummary({
           {market ? venueLabel(market.venue) : leg.market_id}
         </Badge>
         <Badge tone={leg.outcome === "yes" ? "positive" : "critical"}>
-          Buy {leg.outcome.toUpperCase()}
+          {leg.native_action === "short_instrument" ? "Short instrument (NO)" : `Buy ${leg.outcome.toUpperCase()}`}
         </Badge>
         <QuoteAge
           sourceAt={leg.source_timestamp_available ? leg.quote_at : null}
@@ -51,6 +51,12 @@ export function LegSummary({
         {[
           ["Quantity", formatQuantity(leg.quantity)],
           ["Limit price", formatPrice(leg.limit_price)],
+          ...(leg.native_price ? [["Native limit", formatPrice(leg.native_price)]] : []),
+          ...(leg.native_action === "short_instrument" ? [
+            ["Short proceeds", formatMoney(leg.short_proceeds ?? "0", asset)],
+            ["Gross collateral", formatMoney(leg.gross_collateral ?? "0", asset)],
+            ["Net buying power", formatMoney(leg.net_buying_power ?? "0", asset)],
+          ] : []),
           ["Depth cost", formatMoney(leg.cost_usd, asset)],
           ["Fee bound", formatMoney(leg.fee_bound_usd, asset)],
         ].map(([term, value]) => (

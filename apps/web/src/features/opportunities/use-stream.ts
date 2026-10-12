@@ -46,6 +46,8 @@ export function useOpportunityStream(enabled = true) {
       void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] });
       void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] });
       void client.invalidateQueries({ queryKey: ["arbbot", "history"] });
+      for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "book", "status"])
+        void client.invalidateQueries({ queryKey: ["arbbot", operation] });
     });
 
     source.onopen = () => {
