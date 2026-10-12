@@ -266,6 +266,11 @@ class ReviewRepository:
                     if review.expires_at <= utcnow():
                         raise ReviewValidationError(["approval_expired"])
                     review = review.model_copy(update={"reviewer": actor.audit_id})
+                applicability_ids, applicability_issues = await self._applicability(
+                    session, mode, [markets[left.market.id], markets[right.market.id]]
+                )
+                if request.action == "verified" and applicability_issues:
+                    raise ReviewValidationError(applicability_issues)
                 previous = await session.get(DecisionRevisionRecord, current) if current else None
                 result = DecisionRevision(
                     id=uuid4().hex,
@@ -273,6 +278,7 @@ class ReviewRepository:
                     revision=previous.revision + 1 if previous else 1,
                     mode=mode,
                     pair_key=key,
+                    applicability_revision_ids=applicability_ids,
                     left_id=left.market.id,
                     right_id=right.market.id,
                     left_draft_id=left.id,
@@ -326,6 +332,36 @@ class ReviewRepository:
             ).all()
             return [DecisionRevision.model_validate(row.payload) for row in rows]
 
+    async def _applicability(self, session, mode, markets):
+        if mode != "live" or not any(m.venue == "polymarket_us" for m in markets):
+            return (), ()
+        from arbbot.execution.repository import ExecutionRepository
+
+        configuration = ExecutionRepository(self.database)
+        ids, issues = [], []
+        for market in markets:
+            revision = await configuration.current(session, f"{mode}:applicability:{market.id}")
+            if (
+                not revision
+                or revision.value.status != "verified"
+                or (
+                    revision.value.terms_hash != market.terms_hash
+                    or revision.value.expires_at <= utcnow()
+                )
+            ):
+                issues.append(f"source_applicability_unverified:{market.id}")
+                continue
+            ids.append(revision.id)
+            citations = (
+                *revision.value.specifications,
+                *revision.value.amendments,
+                revision.value.amendment_inventory,
+            )
+            issues.extend(
+                await self._source_issues(session, market, tuple(c.artifact_id for c in citations))
+            )
+        return tuple(ids), tuple(issues)
+
     async def _state(self, session, revision):
         if revision.action != "verified":
             return DecisionState(
@@ -334,7 +370,7 @@ class ReviewRepository:
         issues = []
         if revision.review.expires_at <= utcnow():
             issues.append("approval_expired")
-        definitions = []
+        definitions, markets = [], []
         for side, draft_id, market_id in (
             ("left", revision.left_draft_id, revision.left_id),
             ("right", revision.right_draft_id, revision.right_id),
@@ -342,9 +378,14 @@ class ReviewRepository:
             draft = await self._draft(session, revision.mode, draft_id)
             definitions.append(draft.definition)
             market = await self._market(session, revision.mode, market_id)
+            markets.append(market)
             issues += [
                 f"{side}:{issue}" for issue in await self._draft_issues(session, draft, market)
             ]
+        app_ids, app_issues = await self._applicability(session, revision.mode, markets)
+        issues.extend(app_issues)
+        if app_ids != revision.applicability_revision_ids:
+            issues.append("reviewed_source_applicability_changed")
         if revision.mode == "live":
             issues.extend(settlement_issues(revision.review, *definitions))
         return DecisionState(revision=revision, eligible=not issues, blocked_reasons=tuple(issues))

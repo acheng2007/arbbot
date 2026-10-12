@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 from contextlib import asynccontextmanager
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,7 +26,7 @@ from arbbot.auth.service import Authenticator, Principal
 from arbbot.config import Settings
 from arbbot.discovery.models import CatalogReport
 from arbbot.discovery.service import catalog_reports
-from arbbot.domain import Book, Evaluation, Market, Opportunity, utcnow
+from arbbot.domain import Book, Evaluation, Market, Opportunity, OpportunityState, utcnow
 from arbbot.matching.extraction import Extraction, extract_contract
 from arbbot.observability.tracing import Tracing, correlation_fields, create_tracing
 from arbbot.storage.database import Database
@@ -227,9 +227,29 @@ def create_app(
             settings.mode, settings.health_timeout_seconds, limit, offset, history=True
         )
 
+    @app.get("/api/v1/opportunities/{opportunity_id}", response_model=OpportunityState)
+    async def opportunity(opportunity_id: str):
+        historical = await repository.opportunities(
+            settings.mode, settings.health_timeout_seconds, history=True,
+            opportunity_id=opportunity_id,
+        )
+        if not historical:
+            raise HTTPException(404, "Opportunity not found")
+        current = await repository.opportunities(
+            settings.mode, settings.health_timeout_seconds, enabled_venues=settings.enabled_venues,
+            opportunity_id=opportunity_id,
+        )
+        return OpportunityState(opportunity=historical[0], eligible=bool(current))
+
     @app.get("/api/v1/evaluations", response_model=list[Evaluation])
-    async def evaluations(limit: PageSize = 100, offset: Offset = 0):
-        return await repository.evaluations(settings.mode, limit, offset)
+    async def evaluations(
+        limit: PageSize = 100, offset: Offset = 0, history: bool = False,
+        match_id: str | None = None,
+        status: Literal["profitable", "unprofitable", "blocked", "invalid"] | None = None,
+    ):
+        return await repository.evaluations(
+            settings.mode, limit, offset, history=history, match_id=match_id, status=status
+        )
 
     @app.get("/api/v1/stream", response_class=StreamingResponse)
     async def stream(request: Request):

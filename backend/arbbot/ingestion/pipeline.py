@@ -9,6 +9,9 @@ from pydantic import TypeAdapter
 from arbbot.arbitrage.engine import evaluate
 from arbbot.domain import MarketHealth, Review, utcnow
 from arbbot.exchanges.simulation import simulation_reviews
+from arbbot.execution.repository import ExecutionRepository
+from arbbot.fees.refresh import FeeRefresh
+from arbbot.ingestion.monitoring import PairMonitor
 from arbbot.matching.contracts import ContractDefinition
 from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
@@ -38,18 +41,27 @@ class Pipeline:
         self.source_fetcher = source_fetcher or SourceFetcher(max_bytes=settings.source_max_bytes)
         self.catalog = catalog
         self.review_provider = ReviewProvider(repository.database)
+        self.monitor = PairMonitor(settings, repository, adapters)
+        self.current_matches = []
+        self.evaluation_ready = asyncio.Event()
 
-    async def ingest_venue(self, adapter):
+    async def ingest_venue(self, adapter, selected=None):
         mode = self.settings.mode
         try:
             with self.tracing.span("ingestion.catalog", venue=adapter.venue) as span:
                 markets = (
-                    self.catalog.current(adapter.venue)
-                    if self.catalog is not None
-                    else await adapter.discover(self.settings.discovery_limit)
+                    selected
+                    if selected is not None
+                    else (
+                        self.catalog.current(adapter.venue)
+                        if self.catalog is not None
+                        else await adapter.discover(self.settings.discovery_limit)
+                    )
                 )
                 span.set_attribute("market_count", len(markets))
             markets = list({market.id: market for market in markets}.values())
+            if not markets and selected is not None:
+                return [], {}
             if not markets:
                 await self.repository.set_health(
                     mode, adapter.venue, "degraded", error="no_supported_markets"
@@ -169,6 +181,58 @@ class Pipeline:
                 for adapter in self.adapters
                 for market in self.catalog.all_current(adapter.venue)
             ]
+        matches = await self.match_catalog(markets)
+        indexed = {market.id: market for market in markets}
+        now = utcnow()
+
+        evaluations = await self.evaluate_pairs(matches, indexed, books, now)
+        with self.tracing.span("publication", evaluation_count=len(evaluations)):
+            published = await self.repository.publish(
+                self.settings.mode, matches, evaluations, settings=self.settings
+            )
+        return {
+            "mode": self.settings.mode,
+            "markets": len(markets),
+            "books": len(books),
+            "matches": len(matches),
+            "opportunities": published,
+        }
+
+    async def evaluate_pairs(self, matches, indexed, books, now):
+        configuration = ExecutionRepository(self.repository.database)
+        contexts = {}
+        if self.settings.mode == "live":
+            async with self.repository.database.sessions() as session:
+                for match in matches:
+                    pair = [indexed[match.left_id], indexed[match.right_id]]
+                    if any(m.venue == "polymarket_us" for m in pair):
+                        contexts[match.id] = await configuration.context(session, "live", pair)
+
+        def calculate(match, quotes, instant):
+            with self.tracing.span("evaluation", match_id=match.id):
+                return evaluate(
+                    match,
+                    indexed[match.left_id],
+                    indexed[match.right_id],
+                    quotes,
+                    self.settings,
+                    instant,
+                    contexts.get(match.id),
+                )
+
+        results = await asyncio.to_thread(lambda: [calculate(m, books, now) for m in matches])
+        # Positive live estimates require an immediate simultaneous two-leg recheck.
+        adapters = {adapter.venue: adapter for adapter in self.adapters}
+        for index, (match, result) in enumerate(zip(matches, results, strict=True)):
+            if self.settings.mode != "live" or not result.opportunities:
+                continue
+            pair = [indexed[match.left_id], indexed[match.right_id]]
+            await asyncio.gather(*(self.ingest_venue(adapters[m.venue], [m]) for m in pair))
+            refreshed = await self.repository.latest_books(self.settings.mode)
+            results[index] = await asyncio.to_thread(calculate, match, refreshed, utcnow())
+        return results
+
+    async def match_catalog(self, markets):
         if self.settings.mode == "simulation":
             reviews = simulation_reviews(markets)
         elif self.settings.review_source == "files" and self.settings.reviews_file:
@@ -193,33 +257,107 @@ class Pipeline:
             matches = (
                 await self.review_provider.matches(self.settings.mode, markets)
                 if self.settings.mode == "live" and self.settings.review_source == "database"
-                else match_markets(markets, reviews, definitions)
+                else await asyncio.to_thread(match_markets, markets, reviews, definitions)
             )
-        indexed = {market.id: market for market in markets}
-        now = utcnow()
+        return matches
 
-        # Calculation work must not block the event loop as the monitored set grows.
-        def calculate():
-            with self.tracing.span("evaluation", match_count=len(matches)):
-                return [
-                    evaluate(
-                        match,
-                        indexed[match.left_id],
-                        indexed[match.right_id],
-                        books,
-                        self.settings,
-                        now,
+    async def run(self, stop):
+        """Supervise independent nonoverlapping quote, matching, and evaluation loops."""
+        if self.catalog is None:
+            raise ValueError("Persistent scheduling requires a catalog")
+
+        async def periodic(action, seconds):
+            while not stop.is_set():
+                started = asyncio.get_running_loop().time()
+                try:
+                    await action()
+                except Exception as exc:
+                    logger.warning("scheduled_work_failed", extra={"error": safe_error(exc)})
+                delay = max(0.1, seconds - (asyncio.get_running_loop().time() - started))
+                try:
+                    await asyncio.wait_for(stop.wait(), delay)
+                except TimeoutError:
+                    pass
+
+        async def catalog_markets():
+            markets = []
+            for adapter in self.adapters:
+                if self.catalog.all_current(adapter.venue):
+                    markets.extend(await self.catalog.inventory.markets(adapter.venue))
+            return markets
+
+        async def matching():
+            markets = await catalog_markets()
+            if not markets:
+                return
+            matches = await self.match_catalog(markets)
+            await self.repository.publish(self.settings.mode, matches, [])
+            self.current_matches = matches
+            self.evaluation_ready.set()
+
+        async def matching_loop():
+            while not stop.is_set():
+                self.catalog.changed.clear()
+                try:
+                    await matching()
+                except Exception as exc:
+                    logger.warning("matching_failed", extra={"error": safe_error(exc)})
+                try:
+                    await asyncio.wait_for(
+                        self.catalog.changed.wait(), self.settings.catalog_refresh_seconds
                     )
-                    for match in matches
-                ]
+                except TimeoutError:
+                    pass
 
-        evaluations = await asyncio.to_thread(calculate)
-        with self.tracing.span("publication", evaluation_count=len(evaluations)):
-            published = await self.repository.publish(self.settings.mode, matches, evaluations)
-        return {
-            "mode": self.settings.mode,
-            "markets": len(markets),
-            "books": len(books),
-            "matches": len(matches),
-            "opportunities": published,
-        }
+        async def quotes():
+            markets = await catalog_markets()
+            selected = await self.monitor.select(markets)
+            await asyncio.gather(
+                *(
+                    self.ingest_venue(adapter, [m for m in selected if m.venue == adapter.venue])
+                    for adapter in self.adapters
+                )
+            )
+            self.evaluation_ready.set()
+
+        fee_refresh = FeeRefresh(self.settings, self.repository, self.adapters, self.source_fetcher)
+
+        async def fees():
+            await fee_refresh.refresh(await catalog_markets())
+            self.evaluation_ready.set()
+
+        async def evaluation():
+            while not stop.is_set():
+                await self.evaluation_ready.wait()
+                self.evaluation_ready.clear()
+                try:
+                    markets = await catalog_markets()
+                    indexed = {m.id: m for m in markets}
+                    matches = [
+                        m
+                        for m in self.current_matches
+                        if m.left_id in indexed and m.right_id in indexed
+                    ]
+                    books = await self.repository.latest_books(self.settings.mode)
+                    now = utcnow()
+                    results = await self.evaluate_pairs(matches, indexed, books, now)
+                    await self.repository.publish(
+                        self.settings.mode,
+                        matches,
+                        results,
+                        replace_generation=False,
+                        settings=self.settings,
+                    )
+                except Exception as exc:
+                    logger.warning("evaluation_failed", extra={"error": safe_error(exc)})
+
+        async with asyncio.TaskGroup() as group:
+            tasks = [
+                group.create_task(periodic(quotes, self.settings.poll_seconds)),
+                group.create_task(matching_loop()),
+                group.create_task(evaluation()),
+                group.create_task(periodic(fees, 120)),
+            ]
+            await stop.wait()
+            for task in tasks:
+                task.cancel()

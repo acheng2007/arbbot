@@ -32,8 +32,21 @@ class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class PriceBand(Model):
+    start: Probability
+    end: Probability
+    step: Positive
+
+    @model_validator(mode="after")
+    def ordered(self):
+        if self.start >= self.end:
+            raise ValueError("Price band must have positive width")
+        return self
+
+
 class InstrumentConstraints(Model):
     price_increment: Positive
+    price_ranges: tuple[PriceBand, ...] = ()
     quantity_increment: Positive
     minimum_quantity: Positive
     unit_payout: Positive = Decimal("1")
@@ -90,6 +103,19 @@ class Market(Model):
                 "settlement_details": self.settlement_details,
             }
         )
+
+
+class MarketSummary(Model):
+    id: str
+    venue: Venue
+    external_id: str
+    mode: Mode
+    title: str
+    closes_at: AwareDatetime
+    status: Literal["open", "closed"]
+    settlement_asset: str
+    category: str | None = None
+    observed_at: AwareDatetime
 
 
 class Level(Model):
@@ -269,6 +295,12 @@ class Match(Model):
 
 
 class Leg(Model):
+    native_action: Literal["buy_yes", "buy_no", "buy_instrument", "short_instrument"] | None = None
+    native_price: Probability | None = None
+    short_proceeds: NonNegative = Decimal(0)
+    gross_collateral: NonNegative = Decimal(0)
+    net_buying_power: NonNegative | None = None
+    fee_policy_id: str | None = None
     market_id: str
     outcome: Outcome
     quantity: Positive
@@ -281,7 +313,22 @@ class Leg(Model):
     fee_bound_usd: NonNegative
 
 
+class SignedCalculation(Model):
+    quantity: Positive
+    legs: tuple[Leg, Leg]
+    capital_required: Positive
+    estimated_outlay: Positive
+    fee_bound: NonNegative
+    slippage_reserve: NonNegative
+    minimum_payout: NonNegative
+    net_profit: Decimal = Field(allow_inf_nan=False)
+    scenario_payouts: dict[str, Decimal]
+
+
 class Opportunity(Model):
+    access_revision_id: str | None = None
+    applicability_revision_ids: tuple[str, ...] = ()
+    fee_revision_ids: tuple[str, ...] = ()
     id: str
     match_id: str
     mode: Mode
@@ -304,12 +351,37 @@ class Opportunity(Model):
     assumptions: tuple[str, ...]
 
 
+class OpportunityState(Model):
+    opportunity: Opportunity
+    eligible: bool
+
+
 class Evaluation(Model):
+    status: Literal["profitable", "unprofitable", "blocked", "invalid"] = "blocked"
+    best_calculation: SignedCalculation | None = None
+    access_revision_id: str | None = None
+    fee_revision_ids: tuple[str, ...] = ()
     match_id: str
     mode: Mode
     evaluated_at: AwareDatetime
     blocked_reasons: tuple[str, ...]
     opportunities: tuple[Opportunity, ...]
+
+    @model_validator(mode="after")
+    def legacy_status(self):
+        if "status" not in self.model_fields_set:
+            object.__setattr__(
+                self,
+                "status",
+                "profitable"
+                if self.opportunities
+                else (
+                    "unprofitable"
+                    if self.blocked_reasons == ("no_profitable_size_within_constraints",)
+                    else "blocked"
+                ),
+            )
+        return self
 
 
 def restore(model, payload):

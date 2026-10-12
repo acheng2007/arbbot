@@ -6,6 +6,8 @@ from arbbot.config import Settings
 from arbbot.exchanges.base import ExchangeHTTP
 from arbbot.exchanges.kalshi import KalshiAdapter
 from arbbot.exchanges.polymarket_us import PolymarketUSAdapter
+from arbbot.matching.extraction import extract_contract
+from arbbot.matching.service import match_markets
 
 
 async def main():
@@ -61,6 +63,27 @@ async def main():
                 "yes_levels": len(book.yes_asks),
                 "no_levels": len(book.no_asks),
                 "source_at": str(book.source_at),
+            }
+        )
+
+        raw_us = await http.get(
+            "https://gateway.polymarket.us/v1/market/slug/tec-mlb-champ-2026-09-27-lad"
+        )
+        counterpart = us.normalize_market(raw_us["market"])
+        pair = [market, counterpart]
+        matches = match_markets(pair, [], [extract_contract(m).definition for m in pair])
+        print(
+            {
+                "real_matches": [
+                    {
+                        "id": m.id,
+                        "status": m.status,
+                        "same_event": bool(m.comparison and m.comparison.same_event),
+                        "reason": m.reason,
+                        "issues": m.comparison.issues if m.comparison else (),
+                    }
+                    for m in matches
+                ]
             }
         )
 

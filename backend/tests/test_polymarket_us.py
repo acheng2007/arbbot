@@ -87,7 +87,7 @@ def test_championship_pair_is_rule_backed_but_not_approved():
     assert match.comparison.status == "incomplete"
     result = evaluate(match, *markets, {}, Settings(_env_file=None), utcnow())
     assert not result.opportunities
-    assert "polymarket_us_discovery_only:fees_rules_and_access_unverified" in result.blocked_reasons
+    assert "installation_access_unknown" in result.blocked_reasons
 
 
 def test_different_team_or_competition_never_gets_same_event():
@@ -145,4 +145,4 @@ async def test_us_catalog_api_preserves_international_history_but_filters_active
         assert {m["venue"] for m in response.json()} == {"kalshi", "polymarket_us"}
         assert (await client.get("/api/v1/markets/polymarket:historic")).status_code == 200
         venues = (await client.get("/api/v1/venues")).json()
-        assert next(v for v in venues if v["id"] == "polymarket_us")["evaluation_enabled"] is False
+        assert next(v for v in venues if v["id"] == "polymarket_us")["evaluation_enabled"] is True

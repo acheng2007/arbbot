@@ -57,6 +57,11 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_catalog(self):
+        if self.mode == "live":
+            if "discovery_mode" not in self.model_fields_set:
+                self.discovery_mode = "broad"
+            if "enabled_venues" not in self.model_fields_set:
+                self.enabled_venues = ("kalshi", "polymarket_us")
         if len(set(self.enabled_venues)) != len(self.enabled_venues):
             raise ValueError("Enabled venues must be unique")
         if (

@@ -282,7 +282,7 @@ async def test_scheduler_cancels_inflight_work(database):
     started = asyncio.Event()
     stopped = asyncio.Event()
 
-    async def refresh(adapter):
+    async def refresh(adapter, **kwargs):
         started.set()
         try:
             await asyncio.Event().wait()

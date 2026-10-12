@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import select
 
 from arbbot.discovery.models import CatalogObservation
-from arbbot.domain import Market, Match, Venue
+from arbbot.domain import Market, MarketSummary, Match, Venue
 from arbbot.storage.catalog_queries import CatalogQueries
 from arbbot.storage.models import CatalogInventoryRecord, CatalogObservationRecord
 from arbbot.storage.repository import aware
@@ -18,6 +18,30 @@ Family = Annotated[str | None, Query(min_length=1, max_length=100)]
 def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
     router = APIRouter(prefix="/api/v1")
     catalog = CatalogQueries(database, allow_file_reviews=allow_file_reviews, venues=venues)
+
+    from arbbot.execution.models import AccessSummary
+    from arbbot.execution.repository import ExecutionRepository
+
+    @router.get("/access-summary", response_model=AccessSummary)
+    async def accessSummary():
+        from arbbot.domain import utcnow
+
+        async with database.sessions() as session:
+            current = await ExecutionRepository(database).current(
+                session, f"{mode}:access:installation"
+            )
+        if not current:
+            return AccessSummary(status="unknown")
+        value = current.value
+        status = "expired" if value.expires_at <= utcnow() else value.status
+        return AccessSummary(
+            status=status,
+            revision_id=current.id,
+            permitted_venues=tuple(p.venue for p in value.permissions)
+            if status == "verified"
+            else (),
+            expires_at=value.expires_at,
+        )
 
     @router.get("/catalog/inventory", response_model=list[CatalogObservation])
     async def inventory(
@@ -59,6 +83,19 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
             )
             for row, observation in rows
         ]
+
+    @router.get("/market-summaries", response_model=list[MarketSummary])
+    async def marketSummaries(
+        limit: PageSize = 100,
+        offset: Offset = 0,
+        venue: Venue | None = None,
+        status: Literal["open", "closed"] | None = None,
+        category: Family = None,
+        q: Search = None,
+    ):
+        return await catalog.summaries(
+            mode, limit=limit, offset=offset, venue=venue, status=status, category=category, q=q
+        )
 
     @router.get("/markets", response_model=list[Market])
     async def markets(

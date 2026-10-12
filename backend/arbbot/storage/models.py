@@ -198,3 +198,16 @@ class DiscoveryProgressRecord(Base):
     mode: Mapped[str] = mapped_column(String)
     venue: Mapped[str] = mapped_column(String)
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class ConfigurationRevisionRecord(Base):
+    __tablename__ = "execution_configuration_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    key: Mapped[str] = mapped_column(String, index=True)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class ConfigurationHeadRecord(Base):
+    __tablename__ = "execution_configuration_heads"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("execution_configuration_revisions.id"))

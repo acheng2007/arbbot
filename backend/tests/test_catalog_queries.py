@@ -200,3 +200,35 @@ async def test_counterpart_filter_and_exact_pair_lookup(catalog_data):
         exact = await client.get("/api/v1/matches/" + matches[2].id)
         assert exact.status_code == 200 and exact.json()["status"] == "rejected"
         assert (await client.get("/api/v1/matches/missing")).status_code == 404
+
+
+async def test_summary_projection_filters_before_pagination(database, fixture_market):
+    settings, db, repository = database
+    import httpx
+
+    from arbbot.api.app import create_app
+
+    original = fixture_market[0][0]
+    for i in range(205):
+        await repository.save_market(
+            original.model_copy(
+                update={
+                    "id": f"kalshi:SUMMARY-{i:03d}",
+                    "external_id": f"SUMMARY-{i:03d}",
+                    "title": "Rare target" if i == 204 else "Other instrument",
+                    "category": "economics" if i == 204 else "sports",
+                }
+            )
+        )
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        rows = (
+            await client.get(
+                "/api/v1/market-summaries",
+                params={"q": "Rare target", "status": "open", "category": "economics", "limit": 1},
+            )
+        ).json()
+        assert len(rows) == 1 and rows[0]["id"] == "kalshi:SUMMARY-204"
+        assert not {"raw", "rules", "settlement_details"}.intersection(rows[0])
+        assert (await client.get("/api/v1/markets/kalshi:SUMMARY-204")).json()["rules"]

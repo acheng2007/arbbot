@@ -61,11 +61,14 @@ async def run(once=False):
                                 *(catalog.refresh(adapter) for adapter in adapters)
                             )
                         else:
+                            await catalog.restore()
                             catalog.start()
                     pipeline = Pipeline(
                         settings, repository, adapters, tracing=tracing, catalog=catalog
                     )
-                    while not stop.is_set():
+                    if catalog is not None and not once:
+                        await pipeline.run(stop)
+                    while (catalog is None or once) and not stop.is_set():
                         try:
                             result = await pipeline.cycle()
                             print(json.dumps(result), flush=True)

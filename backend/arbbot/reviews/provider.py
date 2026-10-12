@@ -1,5 +1,7 @@
 """Database approvals are authoritative; absent or invalid decisions never fall back to files."""
 
+import asyncio
+
 from sqlalchemy import text
 
 from arbbot.matching.extraction import extract_contract
@@ -18,7 +20,7 @@ class ReviewProvider:
         definitions = [supplied.get(m.id) or extract_contract(m).definition for m in markets]
         approvals = [state.revision.review for state in states if state.eligible]
         indexed = {frozenset((s.revision.left_id, s.revision.right_id)): s for s in states}
-        matches = match_markets(markets, approvals, definitions)
+        matches = await asyncio.to_thread(match_markets, markets, approvals, definitions)
         results = []
         for match in matches:
             state = indexed.get(frozenset((match.left_id, match.right_id)))
@@ -93,6 +95,7 @@ async def guard_publication(database, session, mode, matches, evaluations):
             result.model_copy(
                 update={
                     "opportunities": (),
+                    "status": "invalid",
                     "blocked_reasons": (
                         *result.blocked_reasons,
                         "approval_changed_before_publication",

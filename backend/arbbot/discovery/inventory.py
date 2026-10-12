@@ -30,9 +30,11 @@ class CatalogInventory:
             raise ValueError("Broad discovery is supported only for Kalshi and Polymarket US")
         mode, venue = self.settings.mode, adapter.venue
         state = await self.progress(venue)
-        watchlist = list(
-            dict.fromkeys(adapter.tickers if venue == "kalshi" else adapter.market_ids)
-        )
+        watchlist = []
+        if self.settings.discovery_mode == "focused":
+            watchlist = list(
+                dict.fromkeys(adapter.tickers if venue == "kalshi" else adapter.market_ids)
+            )
         page_size = self.settings.catalog_page_size
         scope = digest(
             {
@@ -148,6 +150,19 @@ class CatalogInventory:
                         )
                     )
                     if market:
+                        previous = await session.get(MarketRecord, f"{mode}:{market.id}")
+                        if (
+                            previous
+                            and previous.payload.get("settlement_details", {}).get(
+                                "catalog_input_hash"
+                            )
+                            == market.terms_hash
+                        ):
+                            market = market.model_copy(
+                                update={
+                                    "settlement_details": previous.payload["settlement_details"]
+                                }
+                            )
                         # Same page and progress commit atomically with the normalized projection.
                         await self.repository.save_market_in_session(session, market)
                     decisions.append(

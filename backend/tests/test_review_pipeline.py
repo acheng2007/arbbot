@@ -162,7 +162,7 @@ async def test_revocation_during_calculation_cannot_publish_stale_result(
     approved = await reviews.save_decision("live", request, ACTOR)
     publish = pipeline.repository.publish
 
-    async def revoke_before_publish(mode, matches, evaluations):
+    async def revoke_before_publish(mode, matches, evaluations, **kwargs):
         assert any(e.opportunities for e in evaluations)
         await reviews.save_decision(
             "live",
@@ -175,13 +175,13 @@ async def test_revocation_during_calculation_cannot_publish_stale_result(
             ),
             ACTOR,
         )
-        return await publish(mode, matches, evaluations)
+        return await publish(mode, matches, evaluations, **kwargs)
 
     monkeypatch.setattr(pipeline.repository, "publish", revoke_before_publish)
     assert (await pipeline.cycle())["opportunities"] == 0
     assert (await client.get("/api/v1/opportunities")).json() == []
     evaluations = await pipeline.repository.evaluations("live")
-    assert any("approval_changed_before_publication" in e["blocked_reasons"] for e in evaluations)
+    assert any("approval_changed_before_publication" in e.blocked_reasons for e in evaluations)
 
 
 async def test_database_mode_never_falls_back_to_review_files(reviewed_pipeline, tmp_path):
@@ -238,3 +238,35 @@ async def test_live_database_api_filters_unbound_legacy_results(reviewed_pipelin
     )
     result = (await client.get("/api/v1/opportunities", params={"limit": 1})).json()
     assert [item["id"] for item in result] == [opportunity.id]
+
+
+async def test_live_publication_recheck_removes_preliminary_profit(reviewed_pipeline):
+    """Synthetic live-mode fixture; the price move is not actual venue evidence."""
+    from arbbot.domain import Level
+
+    pipeline, reviews, request, _, _, _, client = reviewed_pipeline
+    await reviews.save_decision("live", request, ACTOR)
+    for adapter in pipeline.adapters:
+        initial_fetch = adapter.fetch_book
+        state = {"calls": 0}
+
+        async def moving_book(market, initial_fetch=initial_fetch, state=state):
+            state["calls"] += 1
+            book = await initial_fetch(market)
+            if state["calls"] > 1:
+                return book.model_copy(
+                    update={
+                        "source_at": utcnow(),
+                        "received_at": utcnow(),
+                        "yes_asks": (Level(price="0.99", size="100"),),
+                        "no_asks": (Level(price="0.99", size="100"),),
+                    }
+                )
+            return book
+
+        adapter.fetch_book = moving_book
+    assert (await pipeline.cycle())["opportunities"] == 0
+    assert (await client.get("/api/v1/opportunities")).json() == []
+    evaluations = (await client.get("/api/v1/evaluations")).json()
+    assert evaluations[0]["status"] == "unprofitable"
+    assert evaluations[0]["best_calculation"]["net_profit"].startswith("-")

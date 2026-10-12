@@ -25,3 +25,12 @@ Docker is unavailable for fresh PostgreSQL/live validation.
 
 Finish the current US discovery baseline through worker/API/PostgreSQL and desktop/mobile smoke validation, then document the evidence and access gaps that must close before evaluation is enabled.
 Follow with fee-aware sizing and freshly rechecked estimates for a human-reviewed supported US pair.
+
+## Integrated US workflow implementation follow-up
+
+Independent persistent scheduling, durable pair allocation, versioned execution configuration, official fee refresh, gated US short calculations, quote rechecks, and guarded pair publication are implemented.
+Migration `b022_execution_configuration` adds immutable access, applicability, and fee snapshots.
+The local operator module captures official documents and imports reviewed records through the existing revision-aware repositories.
+Latest evaluations, signed losses, market summaries, exact opportunity lookup, and sanitized access status are available through the API.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for checks and limitations.
+Next action: resume Docker Desktop and build/run the isolated recorded-exchange PostgreSQL acceptance harness before treating the workflow as complete.

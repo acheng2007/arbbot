@@ -99,4 +99,17 @@ def reviews_router(database, mode):
         actor = Actor(issuer=principal.issuer, subject=principal.subject)
         return await review_operation(reviews.save_decision(mode, body, actor))
 
+    from arbbot.execution.models import ConfigurationRevision, ConfigurationWrite
+    from arbbot.execution.repository import ExecutionRepository
+
+    configuration = ExecutionRepository(database)
+
+    @router.post("/execution/configuration", response_model=ConfigurationRevision, status_code=201)
+    async def save_configuration(body: ConfigurationWrite, principal: Reviewer):
+        return await review_operation(
+            configuration.save(
+                mode, body, Actor(issuer=principal.issuer, subject=principal.subject)
+            )
+        )
+
     return router

@@ -59,8 +59,8 @@ VENUES = {
     "polymarket_us": Registration(
         "Polymarket US",
         polymarket_us,
-        False,
-        "Discovery only; account and product eligibility unverified",
+        True,
+        "Requires reviewed settlement, installation access, and current fee evidence",
     ),
 }
 

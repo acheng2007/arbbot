@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from sqlalchemy import false, or_, select, update
+from sqlalchemy import false, func, or_, select, update
 
 from arbbot.domain import Book, Market, MarketHealth, Opportunity, digest, restore, utcnow
 from arbbot.matching.extraction import extract_contract
@@ -116,6 +116,17 @@ class Repository:
             snapshot = await session.get(SnapshotRecord, row.latest_book_id)
             return Book.model_validate(snapshot.payload)
 
+    async def latest_books(self, mode):
+        async with self.database.sessions() as session:
+            rows = (
+                await session.scalars(
+                    select(SnapshotRecord)
+                    .join(MarketRecord, MarketRecord.latest_book_id == SnapshotRecord.id)
+                    .where(MarketRecord.mode == mode)
+                )
+            ).all()
+        return {row.payload["market_id"]: Book.model_validate(row.payload) for row in rows}
+
     async def health(self, mode, health_max_age: int):
         async with self.database.sessions() as session:
             rows = (
@@ -168,6 +179,20 @@ class Repository:
     ):
         now = utcnow()
         async with self.database.sessions.begin() as session:
+            if market_health is not None:
+                previous = await session.get(HealthRecord, f"{mode}:{venue}", with_for_update=True)
+                incoming = {feed.market_id: feed for feed in market_health}
+                if previous:
+                    for payload in previous.payload.get("market_health", []):
+                        feed = MarketHealth.model_validate(payload)
+                        if feed.market_id not in incoming and (
+                            feed.valid_until > now
+                            if feed.valid_until
+                            else feed.checked_at > now - timedelta(seconds=120)
+                        ):
+                            incoming[feed.market_id] = feed
+                market_health = list(incoming.values())
+                book_count = sum(feed.status == "healthy" for feed in market_health)
             await session.merge(
                 HealthRecord(
                     key=f"{mode}:{venue}",
@@ -209,7 +234,7 @@ class Repository:
                     .values(active=False)
                 )
 
-    async def publish(self, mode, matches, evaluations):
+    async def publish(self, mode, matches, evaluations, *, replace_generation=True, settings=None):
         from arbbot.reviews.provider import guard_publication
 
         # Publish a coherent cycle in one transaction; retain past calculations for audit.
@@ -217,11 +242,33 @@ class Repository:
             matches, evaluations = await guard_publication(
                 self.database, session, mode, matches, evaluations
             )
+            if settings is not None:
+                from arbbot.execution.publication import guard_execution
+
+                evaluations = await guard_execution(
+                    self.database, session, mode, evaluations, settings
+                )
+            if replace_generation:
+                await session.execute(
+                    update(MatchRecord).where(MatchRecord.mode == mode).values(current=False)
+                )
+                retained = [match.id for match in matches]
+                await session.execute(
+                    update(OpportunityRecord)
+                    .where(
+                        OpportunityRecord.mode == mode,
+                        OpportunityRecord.match_id.not_in(retained),
+                    )
+                    .values(active=False)
+                )
+            evaluated_ids = [result.match_id for result in evaluations]
             await session.execute(
-                update(MatchRecord).where(MatchRecord.mode == mode).values(current=False)
-            )
-            await session.execute(
-                update(OpportunityRecord).where(OpportunityRecord.mode == mode).values(active=False)
+                update(OpportunityRecord)
+                .where(
+                    OpportunityRecord.mode == mode,
+                    OpportunityRecord.match_id.in_(evaluated_ids),
+                )
+                .values(active=False)
             )
             for match in matches:
                 await session.merge(
@@ -275,7 +322,14 @@ class Repository:
         ).matches(mode, limit=limit, offset=offset)
 
     async def opportunities(
-        self, mode, health_max_age, limit=100, offset=0, history=False, enabled_venues=None
+        self,
+        mode,
+        health_max_age,
+        limit=100,
+        offset=0,
+        history=False,
+        enabled_venues=None,
+        opportunity_id=None,
     ):
         eligible_books = []
         if not history:
@@ -294,6 +348,8 @@ class Repository:
                 if feed["status"] == "healthy" and feed["book_id"]
             ]
         query = select(OpportunityRecord).where(OpportunityRecord.mode == mode)
+        if opportunity_id is not None:
+            query = query.where(OpportunityRecord.id == opportunity_id)
         if not history:
             query = query.where(
                 OpportunityRecord.active.is_(True), OpportunityRecord.valid_until > utcnow()
@@ -337,10 +393,33 @@ class Repository:
                     else false()
                 )
                 query = query.where(or_(legacy, revision.in_(eligible)))
-                rows = (
-                    await session.scalars(query.order_by(*ordering).limit(limit).offset(offset))
-                ).all()
-                return [Opportunity.model_validate(row.payload) for row in rows]
+                from arbbot.execution.repository import ExecutionRepository
+
+                configuration = ExecutionRepository(self.database)
+                rows = (await session.scalars(query.order_by(*ordering))).all()
+                current = []
+                for row in rows:
+                    opportunity = Opportunity.model_validate(row.payload)
+                    if mode == "live" and any(
+                        leg.market_id.startswith("polymarket_us:") for leg in opportunity.legs
+                    ):
+                        markets = []
+                        for leg in opportunity.legs:
+                            market_row = await session.get(MarketRecord, f"{mode}:{leg.market_id}")
+                            if market_row:
+                                markets.append(restore(Market, market_row.payload))
+                        if len(markets) != 2:
+                            continue
+                        context = await configuration.context(session, mode, markets)
+                        if context.blocked_reasons or (
+                            opportunity.access_revision_id != context.access_revision_id
+                            or opportunity.applicability_revision_ids
+                            != context.applicability_revision_ids
+                            or opportunity.fee_revision_ids != context.fee_revision_ids
+                        ):
+                            continue
+                    current.append(opportunity)
+                return current[offset : offset + limit]
         query = (
             query.order_by(
                 *ordering,
@@ -354,15 +433,37 @@ class Repository:
                 for row in (await session.scalars(query)).all()
             ]
 
-    async def evaluations(self, mode, limit=100, offset=0):
-        async with self.database.sessions() as session:
-            rows = (
-                await session.scalars(
-                    select(EvaluationRecord)
-                    .where(EvaluationRecord.mode == mode)
-                    .order_by(EvaluationRecord.evaluated_at.desc(), EvaluationRecord.id)
-                    .limit(limit)
-                    .offset(offset)
+    async def evaluations(
+        self, mode, limit=100, offset=0, *, history=False, match_id=None, status=None
+    ):
+        from arbbot.domain import Evaluation
+
+        query = select(EvaluationRecord).where(EvaluationRecord.mode == mode)
+        if match_id is not None:
+            query = query.where(EvaluationRecord.match_id == match_id)
+        if not history:
+            latest = (
+                select(
+                    EvaluationRecord.id.label("id"),
+                    func.row_number()
+                    .over(
+                        partition_by=EvaluationRecord.match_id,
+                        order_by=(EvaluationRecord.evaluated_at.desc(), EvaluationRecord.id.desc()),
+                    )
+                    .label("position"),
                 )
-            ).all()
-            return [row.payload for row in rows]
+                .where(EvaluationRecord.mode == mode)
+                .subquery()
+            )
+            query = query.join(latest, latest.c.id == EvaluationRecord.id).where(
+                latest.c.position == 1
+            )
+        query = query.order_by(EvaluationRecord.evaluated_at.desc(), EvaluationRecord.id)
+        if status is None:
+            query = query.limit(limit).offset(offset)
+        async with self.database.sessions() as session:
+            rows = (await session.scalars(query)).all()
+        values = [Evaluation.model_validate(row.payload) for row in rows]
+        if status is not None:
+            values = [value for value in values if value.status == status]
+        return values[offset : offset + limit] if status is not None else values

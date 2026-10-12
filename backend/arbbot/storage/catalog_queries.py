@@ -1,10 +1,12 @@
 from sqlalchemy import or_, select
 
-from arbbot.domain import Market, Match, restore
+from arbbot.domain import Market, MarketSummary, Match, restore
 from arbbot.storage.models import MarketRecord, MatchRecord
 
 
-def market_predicates(mode, *, venue=None, status=None, family=None, q=None, venues=None):
+def market_predicates(
+    mode, *, venue=None, status=None, family=None, q=None, venues=None, category=None
+):
     predicates = [MarketRecord.mode == mode]
     if venues is not None:
         predicates.append(MarketRecord.venue.in_(venues))
@@ -12,6 +14,8 @@ def market_predicates(mode, *, venue=None, status=None, family=None, q=None, ven
         predicates.append(MarketRecord.venue == venue)
     if status is not None:
         predicates.append(MarketRecord.payload["status"].as_string() == status)
+    if category is not None:
+        predicates.append(MarketRecord.payload["category"].as_string() == category)
     if family is not None:
         predicates.append(MarketRecord.family == family)
     if q is not None:
@@ -41,6 +45,18 @@ class CatalogQueries:
                 query.order_by(MarketRecord.id).limit(limit).offset(offset)
             )
             return [restore(Market, row.payload) for row in rows]
+
+    async def summaries(self, mode, *, limit=100, offset=0, **filters):
+        fields = list(MarketSummary.model_fields)
+        query = select(*(MarketRecord.payload[field].as_string().label(field) for field in fields))
+        query = query.where(*market_predicates(mode, venues=self.venues, **filters))
+        async with self.database.sessions() as session:
+            rows = (
+                (await session.execute(query.order_by(MarketRecord.id).limit(limit).offset(offset)))
+                .mappings()
+                .all()
+            )
+        return [MarketSummary.model_validate(dict(row)) for row in rows]
 
     async def matches(
         self,

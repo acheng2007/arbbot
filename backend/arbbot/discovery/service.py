@@ -31,6 +31,9 @@ class CatalogService:
         self.inventory = CatalogInventory(settings, repository)
         self.tasks = []
         self.enrichment_slots = asyncio.Semaphore(8)
+        self.pending_enrichment = {}
+        self.enrichment_ready = asyncio.Event()
+        self.changed = asyncio.Event()
 
     def start(self):
         if self.tasks:
@@ -38,7 +41,7 @@ class CatalogService:
         self.tasks = [
             asyncio.create_task(self._run(adapter), name=f"catalog-{adapter.venue}")
             for adapter in self.adapters
-        ]
+        ] + [asyncio.create_task(self._enrich(), name="source-enrichment")]
 
     async def aclose(self):
         for task in self.tasks:
@@ -49,7 +52,7 @@ class CatalogService:
     async def _run(self, adapter):
         while True:
             try:
-                await self.refresh(adapter)
+                await self.refresh(adapter, enrich=False)
             except Exception as exc:
                 # A failed database write cannot kill the scheduler permanently.
                 logger.warning(
@@ -57,6 +60,60 @@ class CatalogService:
                     extra={"venue": adapter.venue, "error": type(exc).__name__},
                 )
             await asyncio.sleep(self.settings.catalog_refresh_seconds)
+
+    async def restore(self):
+        """Recover still-fresh persisted catalog before starting network refreshes."""
+        reports = await catalog_reports(self.repository.database, self.settings.mode)
+        for report in reports:
+            if report.valid_until <= utcnow():
+                continue
+            markets = await self.inventory.markets(report.venue)
+            if markets:
+                self.catalogs[report.venue] = (report.valid_until, tuple(markets))
+                selected = set(report.selected_market_ids)
+                self.snapshots[report.venue] = (
+                    report.valid_until,
+                    tuple(m for m in markets if m.id in selected),
+                )
+
+    async def _enrich(self):
+        while True:
+            await self.enrichment_ready.wait()
+            pending, self.pending_enrichment = self.pending_enrichment, {}
+            self.enrichment_ready.clear()
+            for adapter, markets in pending.values():
+
+                async def enrich_one(market, adapter=adapter):
+                    async with self.enrichment_slots:
+                        try:
+                            base = adapter.normalize_market(market.raw)
+                            result = await adapter.enrich_sources(base, self.sources, self.fetcher)
+                            result = result.model_copy(
+                                update={
+                                    "settlement_details": {
+                                        **result.settlement_details,
+                                        "catalog_input_hash": base.terms_hash,
+                                    }
+                                }
+                            )
+                            previous = await self.repository.market(result.mode, result.id)
+                            if (
+                                previous
+                                and previous.settlement_details.get("applicability_base_hash")
+                                == result.terms_hash
+                            ):
+                                result = result.model_copy(
+                                    update={"settlement_details": previous.settlement_details}
+                                )
+                            await self.repository.save_market(result)
+                            self.changed.set()
+                        except Exception as exc:
+                            logger.warning(
+                                "source_enrichment_failed",
+                                extra={"venue": adapter.venue, "error": type(exc).__name__},
+                            )
+
+                await asyncio.gather(*(enrich_one(market) for market in markets))
 
     def current(self, venue):
         snapshot = self.snapshots.get(venue)
@@ -105,7 +162,7 @@ class CatalogService:
             )
         return preferred[: self.settings.discovery_limit] + rotated[:slots]
 
-    async def refresh(self, adapter):
+    async def refresh(self, adapter, *, enrich=True):
         started = utcnow()
         scan = None
         error = None
@@ -142,9 +199,15 @@ class CatalogService:
                         await self.repository.save_market(result)
                         return result
 
-                async with asyncio.TaskGroup() as group:
-                    pending = [group.create_task(enrich(market)) for market in selected]
-                markets = [task.result() for task in pending]
+                if enrich:
+                    async with asyncio.TaskGroup() as group:
+                        pending = [group.create_task(enrich(market)) for market in selected]
+                    markets = [task.result() for task in pending]
+                else:
+                    # At most one bounded cohort per venue; newer work replaces missed ticks.
+                    markets = selected
+                    self.pending_enrichment[adapter.venue] = (adapter, tuple(selected))
+                    self.enrichment_ready.set()
                 # Family scans do not call the adapter's general-discovery method.
                 if hasattr(adapter, "stream"):
                     await adapter.stream.subscribe(markets)
@@ -200,6 +263,7 @@ class CatalogService:
                 valid_until,
                 tuple(enriched.get(m.id, m) for m in catalog_markets),
             )
+            self.changed.set()
         return report
 
 

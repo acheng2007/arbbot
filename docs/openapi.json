@@ -6,6 +6,24 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v1/access-summary": {
+      "get": {
+        "summary": "Accesssummary",
+        "operationId": "accessSummary_api_v1_access_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/catalog/inventory": {
       "get": {
         "summary": "Inventory",
@@ -84,6 +102,141 @@
                     "$ref": "#/components/schemas/CatalogObservation"
                   },
                   "title": "Response Inventory Api V1 Catalog Inventory Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/market-summaries": {
+      "get": {
+        "summary": "Marketsummaries",
+        "operationId": "marketSummaries_api_v1_market_summaries_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "kalshi",
+                    "polymarket",
+                    "polymarket_us"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MarketSummary"
+                  },
+                  "title": "Response Marketsummaries Api V1 Market Summaries Get"
                 }
               }
             }
@@ -1013,6 +1166,52 @@
         ]
       }
     },
+    "/api/v1/execution/configuration": {
+      "post": {
+        "tags": [
+          "reviews"
+        ],
+        "summary": "Save Configuration",
+        "operationId": "save_configuration_api_v1_execution_configuration_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationRevision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/health/live": {
       "get": {
         "summary": "Liveness",
@@ -1448,6 +1647,45 @@
         }
       }
     },
+    "/api/v1/opportunities/{opportunity_id}": {
+      "get": {
+        "summary": "Opportunity",
+        "operationId": "opportunity_api_v1_opportunities__opportunity_id__get",
+        "parameters": [
+          {
+            "name": "opportunity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Opportunity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/evaluations": {
       "get": {
         "summary": "Evaluations",
@@ -1475,6 +1713,54 @@
               "minimum": 0,
               "default": 0,
               "title": "Offset"
+            }
+          },
+          {
+            "name": "history",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "History"
+            }
+          },
+          {
+            "name": "match_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Match Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "profitable",
+                    "unprofitable",
+                    "blocked",
+                    "invalid"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
             }
           }
         ],
@@ -1520,6 +1806,120 @@
   },
   "components": {
     "schemas": {
+      "AccessProfile": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "access",
+            "title": "Kind",
+            "default": "access"
+          },
+          "jurisdiction": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Jurisdiction"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "restricted",
+              "unknown"
+            ],
+            "title": "Status"
+          },
+          "permissions": {
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Permissions"
+          },
+          "supporting_evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Supporting Evidence"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "jurisdiction",
+          "status",
+          "permissions",
+          "supporting_evidence",
+          "expires_at"
+        ],
+        "title": "AccessProfile"
+      },
+      "AccessSummary": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "verified",
+              "restricted",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision Id"
+          },
+          "permitted_venues": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "kalshi",
+                "polymarket",
+                "polymarket_us"
+              ]
+            },
+            "type": "array",
+            "title": "Permitted Venues",
+            "default": []
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "AccessSummary"
+      },
       "Actor": {
         "properties": {
           "issuer": {
@@ -1549,6 +1949,86 @@
         ],
         "title": "Actor",
         "description": "Server-derived identity. Never accept this object from a mutation body."
+      },
+      "Applicability": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "applicability",
+            "title": "Kind",
+            "default": "applicability"
+          },
+          "market_id": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Market Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "product_id": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Product Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "revoked"
+            ],
+            "title": "Status"
+          },
+          "specifications": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Specifications"
+          },
+          "amendments": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "title": "Amendments",
+            "default": []
+          },
+          "amendment_inventory": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "rationale": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 20,
+            "title": "Rationale"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "terms_hash",
+          "product_id",
+          "status",
+          "specifications",
+          "amendment_inventory",
+          "rationale",
+          "expires_at"
+        ],
+        "title": "Applicability"
       },
       "Book": {
         "properties": {
@@ -1822,6 +2302,34 @@
         ],
         "title": "CatalogReport"
       },
+      "Citation": {
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Artifact Id"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          },
+          "quotation": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 10,
+            "title": "Quotation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "content_hash",
+          "quotation"
+        ],
+        "title": "Citation"
+      },
       "Comparison": {
         "properties": {
           "status": {
@@ -1918,6 +2426,137 @@
           "issues"
         ],
         "title": "Comparison"
+      },
+      "ConfigurationRevision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Id"
+          },
+          "previous_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Revision Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "simulation"
+            ],
+            "title": "Mode"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccessProfile"
+              },
+              {
+                "$ref": "#/components/schemas/Applicability"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutableFeePolicy-Output"
+              }
+            ],
+            "title": "Value",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "access": "#/components/schemas/AccessProfile",
+                "applicability": "#/components/schemas/Applicability",
+                "fees": "#/components/schemas/ExecutableFeePolicy-Output"
+              }
+            }
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "previous_revision_id",
+          "mode",
+          "key",
+          "value",
+          "actor",
+          "created_at",
+          "reason"
+        ],
+        "title": "ConfigurationRevision"
+      },
+      "ConfigurationWrite": {
+        "properties": {
+          "expected_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Revision Id"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccessProfile"
+              },
+              {
+                "$ref": "#/components/schemas/Applicability"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutableFeePolicy-Input"
+              }
+            ],
+            "title": "Value",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "access": "#/components/schemas/AccessProfile",
+                "applicability": "#/components/schemas/Applicability",
+                "fees": "#/components/schemas/ExecutableFeePolicy-Input"
+              }
+            }
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 10,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "reason"
+        ],
+        "title": "ConfigurationWrite"
       },
       "ContractDefinition-Input": {
         "properties": {
@@ -2243,6 +2882,14 @@
       },
       "DecisionRevision": {
         "properties": {
+          "applicability_revision_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Applicability Revision Ids",
+            "default": []
+          },
           "id": {
             "type": "string",
             "pattern": "^[a-f0-9]{32}$",
@@ -2711,6 +3358,46 @@
       },
       "Evaluation": {
         "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "profitable",
+              "unprofitable",
+              "blocked",
+              "invalid"
+            ],
+            "title": "Status",
+            "default": "blocked"
+          },
+          "best_calculation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignedCalculation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "access_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Revision Id"
+          },
+          "fee_revision_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fee Revision Ids",
+            "default": []
+          },
           "match_id": {
             "type": "string",
             "title": "Match Id"
@@ -2753,6 +3440,265 @@
           "opportunities"
         ],
         "title": "Evaluation"
+      },
+      "ExecutableFeePolicy-Input": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "fees",
+            "title": "Kind",
+            "default": "fees"
+          },
+          "market_id": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Market Id"
+          },
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket_us"
+            ],
+            "title": "Venue"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "formula": {
+            "type": "string",
+            "enum": [
+              "kalshi_quadratic",
+              "us_standard"
+            ],
+            "title": "Formula"
+          },
+          "coefficient": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 7.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Coefficient"
+          },
+          "minimum_execution_quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Execution Quantity"
+          },
+          "balance_precision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "0.0001",
+                  "0.01"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance Precision"
+          },
+          "account_class": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "non_direct",
+              "standard"
+            ],
+            "title": "Account Class"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "metadata_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Metadata Hash"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "default": {}
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "venue",
+          "terms_hash",
+          "formula",
+          "coefficient",
+          "account_class",
+          "source",
+          "metadata_hash",
+          "observed_at",
+          "effective_at",
+          "expires_at"
+        ],
+        "title": "ExecutableFeePolicy"
+      },
+      "ExecutableFeePolicy-Output": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "fees",
+            "title": "Kind",
+            "default": "fees"
+          },
+          "market_id": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Market Id"
+          },
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket_us"
+            ],
+            "title": "Venue"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "formula": {
+            "type": "string",
+            "enum": [
+              "kalshi_quadratic",
+              "us_standard"
+            ],
+            "title": "Formula"
+          },
+          "coefficient": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Coefficient"
+          },
+          "minimum_execution_quantity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Execution Quantity"
+          },
+          "balance_precision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "0.0001",
+                  "0.01"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance Precision"
+          },
+          "account_class": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "non_direct",
+              "standard"
+            ],
+            "title": "Account Class"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "metadata_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Metadata Hash"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "default": {}
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "venue",
+          "terms_hash",
+          "formula",
+          "coefficient",
+          "account_class",
+          "source",
+          "metadata_hash",
+          "observed_at",
+          "effective_at",
+          "expires_at"
+        ],
+        "title": "ExecutableFeePolicy"
       },
       "ExecutionSemantics": {
         "properties": {
@@ -2925,6 +3871,14 @@
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Price Increment"
           },
+          "price_ranges": {
+            "items": {
+              "$ref": "#/components/schemas/PriceBand"
+            },
+            "type": "array",
+            "title": "Price Ranges",
+            "default": []
+          },
           "quantity_increment": {
             "type": "string",
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
@@ -3036,6 +3990,70 @@
       },
       "Leg": {
         "properties": {
+          "native_action": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "buy_yes",
+                  "buy_no",
+                  "buy_instrument",
+                  "short_instrument"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Native Action"
+          },
+          "native_price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Native Price"
+          },
+          "short_proceeds": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Short Proceeds",
+            "default": "0"
+          },
+          "gross_collateral": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Gross Collateral",
+            "default": "0"
+          },
+          "net_buying_power": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Buying Power"
+          },
+          "fee_policy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee Policy Id"
+          },
           "market_id": {
             "type": "string",
             "title": "Market Id"
@@ -3262,6 +4280,86 @@
         ],
         "title": "Market"
       },
+      "MarketSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket",
+              "polymarket_us"
+            ],
+            "title": "Venue"
+          },
+          "external_id": {
+            "type": "string",
+            "title": "External Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "closes_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Closes At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "title": "Status"
+          },
+          "settlement_asset": {
+            "type": "string",
+            "title": "Settlement Asset"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "venue",
+          "external_id",
+          "mode",
+          "title",
+          "closes_at",
+          "status",
+          "settlement_asset",
+          "observed_at"
+        ],
+        "title": "MarketSummary"
+      },
       "Match": {
         "properties": {
           "retrieval_limited": {
@@ -3364,6 +4462,33 @@
       },
       "Opportunity": {
         "properties": {
+          "access_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Revision Id"
+          },
+          "applicability_revision_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Applicability Revision Ids",
+            "default": []
+          },
+          "fee_revision_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fee Revision Ids",
+            "default": []
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -3521,6 +4646,95 @@
           "assumptions"
         ],
         "title": "Opportunity"
+      },
+      "OpportunityState": {
+        "properties": {
+          "opportunity": {
+            "$ref": "#/components/schemas/Opportunity"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "opportunity",
+          "eligible"
+        ],
+        "title": "OpportunityState"
+      },
+      "Permission": {
+        "properties": {
+          "venue": {
+            "type": "string",
+            "enum": [
+              "kalshi",
+              "polymarket",
+              "polymarket_us"
+            ],
+            "title": "Venue"
+          },
+          "market_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Market Ids"
+          },
+          "short_allowed": {
+            "type": "boolean",
+            "title": "Short Allowed"
+          },
+          "fee_account_class": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "non_direct",
+              "standard"
+            ],
+            "title": "Fee Account Class"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "venue",
+          "market_ids",
+          "short_allowed",
+          "fee_account_class"
+        ],
+        "title": "Permission"
+      },
+      "PriceBand": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "End"
+          },
+          "step": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Step"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "step"
+        ],
+        "title": "PriceBand"
       },
       "Principal": {
         "properties": {
@@ -4178,6 +5392,81 @@
           "evidence"
         ],
         "title": "SettlementPolicy"
+      },
+      "SignedCalculation": {
+        "properties": {
+          "quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity"
+          },
+          "legs": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/Leg"
+              },
+              {
+                "$ref": "#/components/schemas/Leg"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Legs"
+          },
+          "capital_required": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Capital Required"
+          },
+          "estimated_outlay": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Estimated Outlay"
+          },
+          "fee_bound": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Fee Bound"
+          },
+          "slippage_reserve": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Slippage Reserve"
+          },
+          "minimum_payout": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Minimum Payout"
+          },
+          "net_profit": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Net Profit"
+          },
+          "scenario_payouts": {
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+            },
+            "type": "object",
+            "title": "Scenario Payouts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quantity",
+          "legs",
+          "capital_required",
+          "estimated_outlay",
+          "fee_bound",
+          "slippage_reserve",
+          "minimum_payout",
+          "net_profit",
+          "scenario_payouts"
+        ],
+        "title": "SignedCalculation"
       },
       "SourceArtifactSummary": {
         "properties": {

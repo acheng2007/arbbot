@@ -58,9 +58,9 @@ class SimulationAdapter:
 
 def simulation_reviews(markets: list[Market]) -> list[Review]:
     indexed = {m.venue: m for m in markets if m.mode == "simulation"}
-    if set(indexed) != {"kalshi", "polymarket"}:
+    if set(indexed) not in ({"kalshi", "polymarket"}, {"kalshi", "polymarket_us"}):
         return []
-    a, b = indexed["kalshi"], indexed["polymarket"]
+    a, b = indexed["kalshi"], indexed.get("polymarket_us") or indexed["polymarket"]
     policy = CostPolicy(
         fee_per_contract=Decimal("0.02"),
         fixed_fee=Decimal("0.01"),

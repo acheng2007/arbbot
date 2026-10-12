@@ -2,7 +2,18 @@ from datetime import datetime, timedelta
 from decimal import ROUND_CEILING, Decimal
 
 from arbbot.config import Settings
-from arbbot.domain import Book, Evaluation, Leg, Market, Match, Opportunity, digest
+from arbbot.domain import (
+    Book,
+    Evaluation,
+    Leg,
+    Market,
+    Match,
+    Opportunity,
+    SignedCalculation,
+    digest,
+)
+from arbbot.fees.executable import fee_bound
+from arbbot.fees.models import Fill
 from arbbot.matching.contracts import compare_contracts
 from arbbot.matching.settlement import settlement_issues
 from arbbot.quality import book_issue
@@ -23,6 +34,26 @@ def fill(levels, quantity: Decimal) -> tuple[Decimal, Decimal] | None:
     return None
 
 
+def valid_price(constraints, price):
+    if constraints.price_ranges:
+        return any(
+            b.start <= price <= b.end and (price - b.start) % b.step == 0
+            for b in constraints.price_ranges
+        )
+    return price % constraints.price_increment == 0
+
+
+def consume(levels, quantity):
+    remaining, fills = quantity, []
+    for level in levels:
+        taken = min(level.size, remaining)
+        fills.append(Fill(price=level.price, quantity=taken))
+        remaining -= taken
+        if remaining == 0:
+            return tuple(fills)
+    return ()
+
+
 def evaluate(
     match: Match,
     left: Market,
@@ -30,6 +61,7 @@ def evaluate(
     books: dict[str, Book],
     settings: Settings,
     now: datetime,
+    execution=None,
 ) -> Evaluation:
     reasons = []
     review = match.review
@@ -43,7 +75,35 @@ def evaluate(
         reasons.append("review_invalid_or_expired")
     if match.mode == "live":
         if any(m.venue == "polymarket_us" for m in (left, right)):
-            reasons.append("polymarket_us_discovery_only:fees_rules_and_access_unverified")
+            if execution is None:
+                reasons.extend(
+                    (
+                        "installation_access_unknown",
+                        "source_applicability_unverified",
+                        "fee_policy_unavailable",
+                    )
+                )
+            else:
+                reasons.extend(execution.blocked_reasons)
+                if execution.valid_until is None or execution.valid_until <= now:
+                    reasons.append("execution_configuration_expired")
+                if len(execution.policies) == 2 and any(
+                    p.market_id != m.id or p.terms_hash != m.terms_hash
+                    for p, m in zip(execution.policies, (left, right), strict=True)
+                ):
+                    reasons.append("fee_policy_identity_mismatch")
+                if len(execution.policies) != 2:
+                    reasons.append("fee_policy_unavailable")
+        if any(m.venue == "polymarket_us" for m in (left, right)):
+            for market in (left, right):
+                if market.instrument_constraints is None or market.execution_semantics is None:
+                    reasons.append(f"native_constraints_unverified:{market.id}")
+                if market.settlement_asset != "USD":
+                    reasons.append(f"unsupported_settlement_asset:{market.id}")
+            if review and any(
+                p.cost_fx != 1 or p.payout_fx != 1 for p in (review.left_costs, review.right_costs)
+            ):
+                reasons.append("usd_conversion_policy_invalid")
         comparison = compare_contracts(
             left,
             right,
@@ -77,13 +137,31 @@ def evaluate(
             evaluated_at=now,
             blocked_reasons=tuple(reasons),
             opportunities=(),
+            status="invalid"
+            if any(
+                r.startswith(
+                    ("mixed_data", "book_identity", "book_mode", "book_from_future", "book_stale")
+                )
+                for r in reasons
+            )
+            else "blocked",
         )
 
     assert review is not None
     a, b = books[left.id], books[right.id]
     policies = review.left_costs, review.right_costs
     opportunities = []
+    best_calculation = None
+    unavailable_fees = False
+    live_us = match.mode == "live" and any(m.venue == "polymarket_us" for m in (left, right))
     for sides in (("yes", "no"), ("no", "yes")):
+        if live_us and any(
+            side == "no"
+            and market.venue == "polymarket_us"
+            and market.id not in execution.short_allowed_market_ids
+            for market, side in zip((left, right), sides, strict=True)
+        ):
+            continue
         ladders = (getattr(a, f"{sides[0]}_asks"), getattr(b, f"{sides[1]}_asks"))
         maximum = min(
             settings.max_contracts,
@@ -104,6 +182,19 @@ def evaluate(
                 break
             if any(f[0] < p.min_notional for f, p in zip(fills, policies, strict=True)):
                 continue
+            constraints = [m.instrument_constraints for m in (left, right)]
+            if live_us and any(c is None for c in constraints):
+                continue
+            if any(
+                c
+                and (
+                    quantity % c.quantity_increment
+                    or quantity < c.minimum_quantity
+                    or any(not valid_price(c, level.price) for level in ladder)
+                )
+                for c, ladder in zip(constraints, ladders, strict=True)
+            ):
+                continue
             costs = [f[0] * p.cost_fx for f, p in zip(fills, policies, strict=True)]
             fees = [
                 ((p.fee_per_contract * quantity + p.fixed_fee) * p.cost_fx).quantize(
@@ -111,6 +202,14 @@ def evaluate(
                 )
                 for p in policies
             ]
+            if live_us:
+                fees = [
+                    fee_bound(p, consume(ladder, quantity), now)
+                    for p, ladder in zip(execution.policies, ladders, strict=True)
+                ]
+                if any(fee is None for fee in fees):
+                    unavailable_fees = True
+                    continue
             reserve = (sum(costs) * settings.slippage_bps / Decimal(10000)).quantize(
                 CENT, rounding=ROUND_CEILING
             )
@@ -118,7 +217,14 @@ def evaluate(
             # A venue may reserve the whole order at its limit price, even when
             # displayed depth implies a lower volume-weighted acquisition cost.
             capital = (
-                sum(quantity * f[1] * p.cost_fx for f, p in zip(fills, policies, strict=True))
+                sum(
+                    quantity
+                    * (Decimal(1) if market.venue == "polymarket_us" and side == "no" else f[1])
+                    * p.cost_fx
+                    for market, side, f, p in zip(
+                        (left, right), sides, fills, policies, strict=True
+                    )
+                )
                 + sum(fees)
                 + reserve
             )
@@ -134,9 +240,7 @@ def evaluate(
                 )
             payout = min(payouts.values())
             profit = payout - outlay
-            if capital <= 0 or profit < settings.min_profit:
-                continue
-            if best is not None and profit <= best.net_profit:
+            if capital <= 0:
                 continue
             legs = tuple(
                 Leg(
@@ -150,11 +254,44 @@ def evaluate(
                     native_cost=f[0],
                     cost_usd=cost,
                     fee_bound_usd=fee,
+                    native_action=(
+                        market.execution_semantics.yes_action
+                        if side == "yes"
+                        else market.execution_semantics.no_action
+                    )
+                    if market.execution_semantics
+                    else None,
+                    native_price=1 - f[1]
+                    if market.venue == "polymarket_us" and side == "no"
+                    else f[1],
+                    short_proceeds=quantity - f[0]
+                    if market.venue == "polymarket_us" and side == "no"
+                    else ZERO,
+                    gross_collateral=quantity
+                    if market.venue == "polymarket_us" and side == "no"
+                    else ZERO,
+                    net_buying_power=quantity * f[1] + fee,
+                    fee_policy_id=execution.fee_revision_ids[index] if live_us else None,
                 )
-                for market, side, book, f, cost, fee in zip(
-                    (left, right), sides, (a, b), fills, costs, fees, strict=True
+                for index, (market, side, book, f, cost, fee) in enumerate(
+                    zip((left, right), sides, (a, b), fills, costs, fees, strict=True)
                 )
             )
+            signed = SignedCalculation(
+                quantity=quantity,
+                legs=legs,
+                capital_required=capital,
+                estimated_outlay=outlay,
+                fee_bound=sum(fees),
+                slippage_reserve=reserve,
+                minimum_payout=payout,
+                net_profit=profit,
+                scenario_payouts=payouts,
+            )
+            if best_calculation is None or profit > best_calculation.net_profit:
+                best_calculation = signed
+            if profit < settings.min_profit or (best is not None and profit <= best.net_profit):
+                continue
             best = Opportunity(
                 id=digest(
                     [
@@ -169,6 +306,9 @@ def evaluate(
                 ),
                 match_id=match.id,
                 review_revision_id=match.review_revision_id,
+                access_revision_id=execution.access_revision_id if live_us else None,
+                applicability_revision_ids=execution.applicability_revision_ids if live_us else (),
+                fee_revision_ids=execution.fee_revision_ids if live_us else (),
                 mode=match.mode,
                 classification="simulation"
                 if match.mode == "simulation"
@@ -180,6 +320,7 @@ def evaluate(
                     left.closes_at,
                     right.closes_at,
                     review.expires_at,
+                    execution.valid_until if live_us else review.expires_at,
                 ),
                 quantity=quantity,
                 legs=legs,
@@ -195,7 +336,10 @@ def evaluate(
                 comparison=match.comparison,
                 assumptions=(
                     "Both legs fill in full; execution is not atomic.",
-                    "Venue access, prefunded balances, and account limits are unverified.",
+                    "Reviewed installation access must remain effective; prefunded balances "
+                    "and account limits are unverified."
+                    if live_us
+                    else "Venue access, prefunded balances, and account limits are unverified.",
                     "Reviewed fee bounds, conversion bounds, and settlement scenarios hold.",
                     "Whole-contract sizes only; optimum is within configured size/capital bounds.",
                     "Quotes may change; estimated profit is not guaranteed.",
@@ -207,6 +351,16 @@ def evaluate(
         match_id=match.id,
         mode=match.mode,
         evaluated_at=now,
-        blocked_reasons=() if opportunities else ("no_profitable_size_within_constraints",),
+        blocked_reasons=()
+        if opportunities
+        else (
+            "fee_policy_execution_granularity_unavailable"
+            if unavailable_fees
+            else "no_profitable_size_within_constraints",
+        ),
+        status="profitable" if opportunities else "unprofitable" if best_calculation else "blocked",
+        best_calculation=best_calculation,
+        access_revision_id=execution.access_revision_id if live_us else None,
+        fee_revision_ids=execution.fee_revision_ids if live_us else (),
         opportunities=tuple(opportunities),
     )

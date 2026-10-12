@@ -14,6 +14,8 @@ from arbbot.sources.text import derive_text
 ALLOWED_HOSTS = frozenset(
     {
         "external-api.kalshi.com",
+        "docs.kalshi.com",
+        "docs.polymarket.us",
         "gamma-api.polymarket.com",
         "gateway.polymarket.us",
         "polymarketexchange.com",

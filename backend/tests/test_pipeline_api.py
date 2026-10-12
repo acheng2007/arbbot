@@ -46,7 +46,8 @@ async def test_ingestion_to_api_and_audit_history(database):
         await Pipeline(settings, repository, adapters()).cycle()
         assert len((await client.get("/api/v1/opportunities")).json()) == 1
         assert len((await client.get("/api/v1/opportunities/history")).json()) == 2
-        assert len((await client.get("/api/v1/evaluations")).json()) == 2
+        assert len((await client.get("/api/v1/evaluations")).json()) == 1
+        assert len((await client.get("/api/v1/evaluations?history=true")).json()) == 2
         async with db.sessions.begin() as session:
             await session.execute(
                 update(OpportunityRecord).values(valid_until=utcnow() - timedelta(seconds=1))

@@ -68,6 +68,7 @@ class DecisionWrite(Model):
 
 
 class DecisionRevision(Model):
+    applicability_revision_ids: tuple[str, ...] = ()
     id: RevisionId
     previous_revision_id: RevisionId | None
     revision: int = Field(ge=1)
