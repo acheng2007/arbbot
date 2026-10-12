@@ -67,3 +67,17 @@ Connected loading, error, and stale browser states need final coverage review; t
 
 The user's pre-existing staged research document, `.specstory/`, and untracked `backend/arbbot/fees/kalshi.py` prototype are excluded from this checkpoint.
 Do not adopt or commit those files incidentally.
+
+## October 12 inspection demo
+
+Implementation remains paused.
+At the user's request, a fresh recorded PostgreSQL / worker / API / Next.js demo is running at `http://127.0.0.1:3000/opportunities`.
+The backend is `http://127.0.0.1:49278`; the runner tool session is `88418`.
+Runtime metadata, process IDs, recording, control file, and logs are under `/tmp/arbbot-show-demo/`.
+The temporary launcher is `/tmp/arbbot-show-demo.py`.
+The dashboard returned HTTP 200 and the opportunity API returned a synthetic positive estimate.
+Synthetic results are labeled and are not real profitable market evidence.
+Review and access seed evidence expires after one hour; estimates may disappear when that evidence expires.
+The services are left running for inspection.
+Automatic approval review blocked selecting Firefox because it would expose an unrelated private page; no browser navigation was completed.
+Next action: open the local demo link to inspect it; implementation still resumes with the SQLite scheduling-history failure.
