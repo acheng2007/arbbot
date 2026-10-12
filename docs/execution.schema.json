@@ -261,6 +261,15 @@
         "source": {
           "$ref": "#/$defs/Citation"
         },
+        "supporting_sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "maxItems": 16,
+          "title": "Supporting Sources",
+          "type": "array"
+        },
         "metadata_hash": {
           "pattern": "^[a-f0-9]{64}$",
           "title": "Metadata Hash",
@@ -347,6 +356,52 @@
       ],
       "title": "Permission",
       "type": "object"
+    },
+    "UnavailableFeePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "fee_unavailable",
+          "default": "fee_unavailable",
+          "title": "Kind",
+          "type": "string"
+        },
+        "market_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Market Id",
+          "type": "string"
+        },
+        "terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Terms Hash",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "provider_error",
+            "unsupported_policy",
+            "incomplete_metadata",
+            "stale",
+            "unverified_account_fees"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "market_id",
+        "terms_hash",
+        "reason",
+        "expires_at"
+      ],
+      "title": "UnavailableFeePolicy",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -369,6 +424,7 @@
         "mapping": {
           "access": "#/$defs/AccessProfile",
           "applicability": "#/$defs/Applicability",
+          "fee_unavailable": "#/$defs/UnavailableFeePolicy",
           "fees": "#/$defs/ExecutableFeePolicy"
         },
         "propertyName": "kind"
@@ -382,6 +438,9 @@
         },
         {
           "$ref": "#/$defs/ExecutableFeePolicy"
+        },
+        {
+          "$ref": "#/$defs/UnavailableFeePolicy"
         }
       ],
       "title": "Value"

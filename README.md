@@ -233,3 +233,5 @@ The fixture-backed workflow does not replace the future seeded-backend review-to
 | `/markets` | Discovered markets with original terms, extracted facts, and quote health |
 
 Authenticated draft editing and review actions are not implemented; those depend on the backend review APIs.
+
+See [the integrated Kalshi/Polymarket US workflow](docs/arbitrage-workflow.md) for operator review, execution gates, recorded acceptance, and operational limits.

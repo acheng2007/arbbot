@@ -1,11 +1,11 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/states";
 import { OriginBanner } from "@/components/data-origin";
-import { Badge } from "@/components/ui/badge";
 import { useApi } from "@/lib/query/hooks";
 import type { Match } from "@/lib/api/schema";
 import { QueryState } from "@/features/shared/query-state";
@@ -66,11 +66,7 @@ export function MatchList() {
                           status={match.comparison.status}
                         />
                       )}
-                      <Badge
-                        tone={match.mode === "live" ? "positive" : "caution"}
-                      >
-                        {match.mode === "live" ? "Live feed" : "Simulation"}
-                      </Badge>
+                      <ModeBadge mode={match.mode} feedOrigin={match.feed_origin} />
                       <span className="ml-auto hidden text-sm font-medium text-primary sm:flex sm:items-center sm:gap-1">
                         Inspect terms
                         <ArrowRight aria-hidden="true" className="size-4" />

@@ -62,6 +62,9 @@ class ExecutionSemantics(Model):
 
 
 class Market(Model):
+    ingestion_issues: tuple[str, ...] = ()
+    source_revision: int = Field(default=0, ge=0)
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     id: str
     venue: Venue
     external_id: str
@@ -91,7 +94,14 @@ class Market(Model):
                 "asset": self.settlement_asset,
                 "tokens": self.tokens,
                 **(
-                    {"instrument_constraints": self.instrument_constraints.model_dump(mode="json")}
+                    {
+                        "instrument_constraints": self.instrument_constraints.model_dump(
+                            mode="json",
+                            exclude={"price_ranges"}
+                            if not self.instrument_constraints.price_ranges
+                            else set(),
+                        )
+                    }
                     if self.instrument_constraints
                     else {}
                 ),
@@ -106,6 +116,8 @@ class Market(Model):
 
 
 class MarketSummary(Model):
+    ingestion_issues: tuple[str, ...] = ()
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     id: str
     venue: Venue
     external_id: str
@@ -124,6 +136,7 @@ class Level(Model):
 
 
 class Book(Model):
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     market_id: str
     mode: Mode
     yes_asks: tuple[Level, ...]
@@ -148,7 +161,11 @@ class Book(Model):
 
     @property
     def id(self) -> str:
-        return digest(self.model_dump(mode="json"))
+        return digest(
+            self.model_dump(
+                mode="json", exclude={"feed_origin"} if self.feed_origin == "exchange" else set()
+            )
+        )
 
 
 class MarketHealth(Model):
@@ -280,6 +297,7 @@ class Review(Model):
 
 
 class Match(Model):
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     retrieval_limited: bool = False
     retrieval_limit: int | None = None
     id: str
@@ -295,6 +313,8 @@ class Match(Model):
 
 
 class Leg(Model):
+    source_at: AwareDatetime | None = None
+    received_at: AwareDatetime | None = None
     native_action: Literal["buy_yes", "buy_no", "buy_instrument", "short_instrument"] | None = None
     native_price: Probability | None = None
     short_proceeds: NonNegative = Decimal(0)
@@ -326,6 +346,8 @@ class SignedCalculation(Model):
 
 
 class Opportunity(Model):
+    quote_skew_seconds: float | None = Field(default=None, ge=0)
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     access_revision_id: str | None = None
     applicability_revision_ids: tuple[str, ...] = ()
     fee_revision_ids: tuple[str, ...] = ()

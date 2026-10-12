@@ -76,3 +76,11 @@ Snapshot refresh covers catalog, comparisons, evaluations, opportunities, books,
 The gross settlement payout table label was corrected during visual review.
 See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for validation and remaining acceptance work.
 Next action: run the recorded PostgreSQL / worker / API / browser harness and verify US native short, signed-loss, withdrawal, and recovery states on desktop and mobile.
+
+## October 12 paused checkpoint
+
+Work is paused at the user's request.
+The recorded PostgreSQL / worker / API / Next.js acceptance passed, including both desktop/mobile tests.
+The latest PostgreSQL suite passed 496 tests; SQLite has one unresolved evaluation-history scheduling test failure.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for saved implementation, exact verification status, and artifacts.
+Next action: reproduce and resolve the SQLite scheduling-history failure before resuming final acceptance review.

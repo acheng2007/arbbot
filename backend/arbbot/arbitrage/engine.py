@@ -98,6 +98,20 @@ def evaluate(
             for market in (left, right):
                 if market.instrument_constraints is None or market.execution_semantics is None:
                     reasons.append(f"native_constraints_unverified:{market.id}")
+                if market.instrument_constraints and market.instrument_constraints.unit_payout != 1:
+                    reasons.append(f"unsupported_unit_payout:{market.id}")
+                semantics = market.execution_semantics
+                if (
+                    market.venue == "polymarket_us"
+                    and semantics
+                    and (
+                        semantics.yes_action != "buy_instrument"
+                        or semantics.no_action != "short_instrument"
+                        or not semantics.no_native_price_is_complement
+                        or semantics.gross_short_collateral_per_contract != 1
+                    )
+                ):
+                    reasons.append(f"unsupported_native_exposure:{market.id}")
                 if market.settlement_asset != "USD":
                     reasons.append(f"unsupported_settlement_asset:{market.id}")
             if review and any(
@@ -121,6 +135,8 @@ def evaluate(
     if left.mode != right.mode or match.mode != left.mode:
         reasons.append("mixed_data_modes")
     for market in (left, right):
+        if market.ingestion_issues:
+            reasons.append(f"instrument_data_invalid:{market.id}")
         if market.status != "open" or market.closes_at <= now:
             reasons.append(f"market_closed:{market.id}")
         issue = book_issue(market, books.get(market.id), now, settings.max_quote_age_seconds)
@@ -140,7 +156,14 @@ def evaluate(
             status="invalid"
             if any(
                 r.startswith(
-                    ("mixed_data", "book_identity", "book_mode", "book_from_future", "book_stale")
+                    (
+                        "mixed_data",
+                        "book_identity",
+                        "book_mode",
+                        "book_from_future",
+                        "book_stale",
+                        "instrument_data_invalid",
+                    )
                 )
                 for r in reasons
             )
@@ -190,9 +213,19 @@ def evaluate(
                 and (
                     quantity % c.quantity_increment
                     or quantity < c.minimum_quantity
-                    or any(not valid_price(c, level.price) for level in ladder)
+                    or any(
+                        not valid_price(
+                            c,
+                            1 - level.price
+                            if market.venue == "polymarket_us" and side == "no"
+                            else level.price,
+                        )
+                        for level in ladder
+                    )
                 )
-                for c, ladder in zip(constraints, ladders, strict=True)
+                for c, ladder, market, side in zip(
+                    constraints, ladders, (left, right), sides, strict=True
+                )
             ):
                 continue
             costs = [f[0] * p.cost_fx for f, p in zip(fills, policies, strict=True)]
@@ -250,6 +283,8 @@ def evaluate(
                     limit_price=f[1],
                     book_id=book.id,
                     quote_at=book.effective_at,
+                    source_at=book.source_at,
+                    received_at=book.received_at,
                     source_timestamp_available=book.source_at is not None,
                     native_cost=f[0],
                     cost_usd=cost,
@@ -310,10 +345,12 @@ def evaluate(
                 applicability_revision_ids=execution.applicability_revision_ids if live_us else (),
                 fee_revision_ids=execution.fee_revision_ids if live_us else (),
                 mode=match.mode,
+                feed_origin=match.feed_origin,
                 classification="simulation"
-                if match.mode == "simulation"
+                if match.mode == "simulation" or match.feed_origin != "exchange"
                 else "quote_supported_estimate",
                 evaluated_at=now,
+                quote_skew_seconds=abs((a.effective_at - b.effective_at).total_seconds()),
                 valid_until=min(
                     a.effective_at + timedelta(seconds=settings.max_quote_age_seconds),
                     b.effective_at + timedelta(seconds=settings.max_quote_age_seconds),

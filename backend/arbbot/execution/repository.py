@@ -2,6 +2,7 @@ from decimal import Decimal
 from uuid import uuid4
 
 from sqlalchemy import update
+from sqlalchemy.exc import IntegrityError
 
 from arbbot.domain import utcnow
 from arbbot.execution.models import (
@@ -21,13 +22,14 @@ from arbbot.storage.models import (
 
 
 def configuration_key(mode, value):
-    return f"{mode}:{value.kind}:" + ("installation" if value.kind == "access" else value.market_id)
+    kind = "fees" if value.kind == "fee_unavailable" else value.kind
+    return f"{mode}:{kind}:" + ("installation" if value.kind == "access" else value.market_id)
 
 
 class ExecutionRepository:
-    def __init__(self, database):
+    def __init__(self, database, *, validate_only=False):
         self.database = database
-        self.reviews = ReviewRepository(database)
+        self.reviews = ReviewRepository(database, validate_only=validate_only)
 
     async def current(self, session, key, *, lock=False):
         head = await session.get(ConfigurationHeadRecord, key, with_for_update=lock)
@@ -37,14 +39,25 @@ class ExecutionRepository:
         return ConfigurationRevision.model_validate(row.payload)
 
     async def save(self, mode, request, actor):
+        try:
+            return await self._save(mode, request, actor)
+        except IntegrityError as exc:
+            async with self.database.sessions() as session:
+                current = await self.current(session, configuration_key(mode, request.value))
+            raise RevisionConflict(
+                "Configuration changed; reload the current revision",
+                current.id if current else None,
+            ) from exc
+
+    async def _save(self, mode, request, actor):
         key = configuration_key(mode, request.value)
         derived = {}
         value = request.value
-        if value.kind != "access":
+        if value.kind not in ("access", "fee_unavailable"):
             from arbbot.sources.repository import SourceRepository
 
             citations = (
-                (value.source,)
+                (value.source, *value.supporting_sources)
                 if value.kind == "fees"
                 else (*value.specifications, *value.amendments, value.amendment_inventory)
             )
@@ -61,9 +74,13 @@ class ExecutionRepository:
                 if market.terms_hash != value.terms_hash:
                     raise ReviewValidationError(("configuration_terms_changed",))
                 citations = (
-                    (value.source,)
-                    if value.kind == "fees"
-                    else (*value.specifications, *value.amendments, value.amendment_inventory)
+                    ()
+                    if value.kind == "fee_unavailable"
+                    else (
+                        (value.source, *value.supporting_sources)
+                        if value.kind == "fees"
+                        else (*value.specifications, *value.amendments, value.amendment_inventory)
+                    )
                 )
                 issues = await self.reviews._source_issues(
                     session, market, tuple(c.artifact_id for c in citations)
@@ -97,8 +114,28 @@ class ExecutionRepository:
                     if value.metadata_hash != digest(value.metadata):
                         issues.append("fee_metadata_hash_mismatch")
                     if mode == "live" and value.venue == "kalshi":
-                        from arbbot.fees.refresh import kalshi_parameters
+                        from arbbot.fees.refresh import documented_general_rate, kalshi_parameters
 
+                        if value.account_class != "direct":
+                            issues.append("fee_account_additional_charges_unverified")
+                        formula_verified = False
+                        for citation in value.supporting_sources:
+                            document = derived.get(citation.artifact_id)
+                            if document and document.status == "complete":
+                                body = "\n".join(p.text for p in document.pages)
+                                formula_source = await session.get(
+                                    SourceArtifactRecord, citation.artifact_id
+                                )
+                                if (
+                                    formula_source
+                                    and formula_source.url
+                                    == "https://kalshi.com/docs/kalshi-fee-schedule.pdf"
+                                    and documented_general_rate(body) == Decimal("0.07")
+                                    and "Trading Fees" in " ".join(body.split())
+                                ):
+                                    formula_verified = True
+                        if not formula_verified:
+                            issues.append("fee_formula_evidence_unverified")
                         try:
                             if value.metadata["market"].get("ticker") != market.external_id:
                                 issues.append("fee_market_identity_mismatch")
@@ -113,7 +150,8 @@ class ExecutionRepository:
                         document = derived.get(value.source.artifact_id)
                         body = "\n".join(p.text for p in document.pages) if document else ""
                         if (
-                            str(source.url) != "https://docs.polymarket.us/fees"
+                            source is None
+                            or str(source.url) != "https://docs.polymarket.us/fees"
                             or not all(
                                 x in body
                                 for x in (
@@ -173,7 +211,19 @@ class ExecutionRepository:
                 ConfigurationRevisionRecord(id=revision.id, key=key, payload=payload(revision))
             )
             await session.flush()
-            await session.merge(ConfigurationHeadRecord(key=key, revision_id=revision.id))
+            if current is None:
+                session.add(ConfigurationHeadRecord(key=key, revision_id=revision.id))
+            else:
+                changed = await session.execute(
+                    update(ConfigurationHeadRecord)
+                    .where(
+                        ConfigurationHeadRecord.key == key,
+                        ConfigurationHeadRecord.revision_id == current.id,
+                    )
+                    .values(revision_id=revision.id)
+                )
+                if changed.rowcount != 1:
+                    raise RevisionConflict("Configuration changed; reload the current revision")
             # Withdraw first; publication requires a fresh calculation under the new version.
             query = update(OpportunityRecord).where(OpportunityRecord.mode == mode)
             if value.kind != "access":
@@ -228,7 +278,7 @@ class ExecutionRepository:
                     app.value.amendment_inventory,
                 )
                 issues = await self.reviews._source_issues(
-                    session, market, tuple(c.artifact_id for c in citations)
+                    session, market, tuple(c.artifact_id for c in citations), lock=lock
                 )
                 reasons.extend(issues)
                 applicability_ids.append(app.id)
@@ -245,11 +295,19 @@ class ExecutionRepository:
                     or fee.value.account_class != permission.fee_account_class
                 )
             ):
-                reasons.append(f"fee_policy_unavailable:{market.id}")
+                suffix = (
+                    f":{fee.value.reason}" if fee and fee.value.kind == "fee_unavailable" else ""
+                )
+                reasons.append(f"fee_policy_unavailable:{market.id}{suffix}")
             else:
                 reasons.extend(
                     await self.reviews._source_issues(
-                        session, market, (fee.value.source.artifact_id,)
+                        session,
+                        market,
+                        tuple(
+                            c.artifact_id for c in (fee.value.source, *fee.value.supporting_sources)
+                        ),
+                        lock=lock,
                     )
                 )
                 policies.append(fee.value)

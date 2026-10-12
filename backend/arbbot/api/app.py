@@ -162,6 +162,10 @@ def create_app(
             "ingestion_healthy": len(health) == len(settings.enabled_venues)
             and all(h["status"] == "healthy" for h in health),
             "discovery_limit_per_exchange": settings.discovery_limit,
+            "monitoring_limit_per_exchange": {
+                v: settings.monitoring_limit(v) for v in settings.enabled_venues
+            },
+            "feed_origin": "recorded_exchange" if settings.recording_file else "exchange",
             "ingestion_transport": (
                 "Kalshi REST; Polymarket WebSocket book + price_change"
                 if settings.mode == "live"
@@ -230,20 +234,26 @@ def create_app(
     @app.get("/api/v1/opportunities/{opportunity_id}", response_model=OpportunityState)
     async def opportunity(opportunity_id: str):
         historical = await repository.opportunities(
-            settings.mode, settings.health_timeout_seconds, history=True,
+            settings.mode,
+            settings.health_timeout_seconds,
+            history=True,
             opportunity_id=opportunity_id,
         )
         if not historical:
             raise HTTPException(404, "Opportunity not found")
         current = await repository.opportunities(
-            settings.mode, settings.health_timeout_seconds, enabled_venues=settings.enabled_venues,
+            settings.mode,
+            settings.health_timeout_seconds,
+            enabled_venues=settings.enabled_venues,
             opportunity_id=opportunity_id,
         )
         return OpportunityState(opportunity=historical[0], eligible=bool(current))
 
     @app.get("/api/v1/evaluations", response_model=list[Evaluation])
     async def evaluations(
-        limit: PageSize = 100, offset: Offset = 0, history: bool = False,
+        limit: PageSize = 100,
+        offset: Offset = 0,
+        history: bool = False,
         match_id: str | None = None,
         status: Literal["profitable", "unprofitable", "blocked", "invalid"] | None = None,
     ):

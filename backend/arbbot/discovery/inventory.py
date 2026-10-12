@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
-from sqlalchemy import select
+from sqlalchemy import or_, select, update
 
 from arbbot.discovery.models import DiscoveryDecision, DiscoveryScan
 from arbbot.domain import digest, restore, utcnow
@@ -13,6 +13,7 @@ from arbbot.storage.models import (
     CatalogObservationRecord,
     DiscoveryProgressRecord,
     MarketRecord,
+    OpportunityRecord,
 )
 
 
@@ -136,6 +137,31 @@ class CatalogInventory:
                             )
                         )
                         await session.flush()
+                    if reason:
+                        previous_market = await session.get(
+                            MarketRecord, f"{mode}:{venue}:{external_id}", with_for_update=True
+                        )
+                        if previous_market:
+                            previous_market.payload = {
+                                **previous_market.payload,
+                                "ingestion_issues": [reason],
+                            }
+                            await session.execute(
+                                update(OpportunityRecord)
+                                .where(
+                                    OpportunityRecord.mode == mode,
+                                    or_(
+                                        *(
+                                            OpportunityRecord.payload["legs"][i][
+                                                "market_id"
+                                            ].as_string()
+                                            == previous_market.id
+                                            for i in (0, 1)
+                                        )
+                                    ),
+                                )
+                                .values(active=False)
+                            )
                     await session.merge(
                         CatalogInventoryRecord(
                             key=f"{mode}:{venue}:{external_id}",
@@ -164,7 +190,9 @@ class CatalogInventory:
                                 }
                             )
                         # Same page and progress commit atomically with the normalized projection.
-                        await self.repository.save_market_in_session(session, market)
+                        await self.repository.save_market_in_session(
+                            session, market, from_catalog=True
+                        )
                     decisions.append(
                         DiscoveryDecision(
                             external_id=external_id,

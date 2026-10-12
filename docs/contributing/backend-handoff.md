@@ -34,3 +34,11 @@ The local operator module captures official documents and imports reviewed recor
 Latest evaluations, signed losses, market summaries, exact opportunity lookup, and sanitized access status are available through the API.
 See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for checks and limitations.
 Next action: resume Docker Desktop and build/run the isolated recorded-exchange PostgreSQL acceptance harness before treating the workflow as complete.
+
+## October 12 paused checkpoint
+
+Work is paused at the user's request.
+The recorded PostgreSQL / worker / API / Next.js acceptance passed, including both desktop/mobile tests.
+The latest PostgreSQL suite passed 496 tests; SQLite has one unresolved evaluation-history scheduling test failure.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for saved implementation, exact verification status, and artifacts.
+Next action: reproduce and resolve the SQLite scheduling-history failure before resuming final acceptance review.

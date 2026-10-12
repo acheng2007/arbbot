@@ -15,6 +15,7 @@ ALLOWED_HOSTS = frozenset(
     {
         "external-api.kalshi.com",
         "docs.kalshi.com",
+        "kalshi.com",
         "docs.polymarket.us",
         "gamma-api.polymarket.com",
         "gateway.polymarket.us",
@@ -75,7 +76,18 @@ class SourceFetcher:
                     redirects = 0
                     for attempt in range(6):
                         try:
-                            async with client.stream("GET", current_url) as response:
+                            async with client.stream(
+                                "GET",
+                                current_url,
+                                headers={
+                                    "User-Agent": (
+                                        "Mozilla/5.0 (compatible; Arbbot public evidence reader)"
+                                    ),
+                                    "Accept": (
+                                        "application/pdf,application/json,text/html,text/plain"
+                                    ),
+                                },
+                            ) as response:
                                 if (
                                     response.status_code in {301, 302, 307, 308}
                                     and parsed.host

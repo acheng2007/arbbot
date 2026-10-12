@@ -6,12 +6,20 @@ from arbbot.quality import book_issue
 from arbbot.storage.models import HealthRecord, MarketRecord, SnapshotRecord
 
 
-async def guard_execution(database, session, mode, evaluations, settings):
+async def guard_execution(
+    database, session, mode, evaluations, settings, *, require_current_match=True
+):
     guarded = []
     configuration = ExecutionRepository(database)
     for result in evaluations:
         accepted, reasons = [], []
         for opportunity in result.opportunities:
+            from arbbot.storage.models import MatchRecord
+
+            current_match = await session.get(MatchRecord, opportunity.match_id)
+            if require_current_match and (not current_match or not current_match.current):
+                reasons.append("matching_generation_changed_before_publication")
+                continue
             markets, books = [], []
             now = utcnow()
             for leg in opportunity.legs:
@@ -38,7 +46,8 @@ async def guard_execution(database, session, mode, evaluations, settings):
                     else None
                 )
                 if (
-                    market.venue not in settings.enabled_venues
+                    market.ingestion_issues
+                    or market.venue not in settings.enabled_venues
                     or market.status != "open"
                     or market.closes_at <= now
                     or book_issue(market, book, now, settings.max_quote_age_seconds)
@@ -61,6 +70,9 @@ async def guard_execution(database, session, mode, evaluations, settings):
                     reasons.append("quote_expired_or_unsynchronized_before_publication")
                     continue
                 if mode == "live" and any(m.venue == "polymarket_us" for m in markets):
+                    if not opportunity.review_revision_id:
+                        reasons.append("database_approval_required_before_publication")
+                        continue
                     context = await configuration.context(session, mode, markets, lock=True)
                     if context.blocked_reasons or (
                         context.access_revision_id != opportunity.access_revision_id

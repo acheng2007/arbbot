@@ -17,7 +17,7 @@ import { recordedDataset } from "./fixtures";
 export function dataOrigin(): DataOrigin {
   return process.env.ARBBOT_WEB_DATA_SOURCE === "fixtures"
     ? "fixtures"
-    : "backend";
+    : process.env.ARBBOT_WEB_DATA_SOURCE === "recorded_backend" ? "recorded_backend" : "backend";
 }
 
 const TIMEOUT_MS = 8000;

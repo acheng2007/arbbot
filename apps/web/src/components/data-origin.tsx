@@ -14,12 +14,15 @@ export function OriginBanner({ origin }: { origin: DataOrigin }) {
       className="flex items-start gap-3 rounded-lg border border-sky-300 bg-sky-50 p-4 text-sm text-sky-950"
     >
       <FlaskConical aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-      <p className="leading-6">
+      {origin === "recorded_backend" ? <p className="leading-6">
+        <strong>Offline recorded acceptance data.</strong> The backend and persistent worker use recorded exchange responses.
+        Synthetic scenarios are labeled explicitly and are not tradable.
+      </p> : <p className="leading-6">
         <span className="font-semibold">Recorded fixture data.</span> No
         exchange or backend was contacted. Prices, matches, and profit figures
         on this page are illustrative recordings for development and are not
         tradable.
-      </p>
+      </p>}
     </div>
   );
 }
@@ -39,7 +42,11 @@ export function OriginBadge({ origin }: { origin: DataOrigin }) {
 }
 
 /** The backend's own ingestion mode, which is independent of the data origin. */
-export function ModeBadge({ mode }: { mode: "simulation" | "live" }) {
+export function ModeBadge({ mode, feedOrigin }: { mode: "simulation" | "live";
+  feedOrigin?: "exchange" | "synthetic_recording" | "recorded_exchange" }) {
+  if (feedOrigin && feedOrigin !== "exchange") return <Badge tone="caution">
+    {feedOrigin === "synthetic_recording" ? "Synthetic recording" : "Recorded exchange"}
+  </Badge>;
   return (
     <Badge tone={mode === "live" ? "positive" : "caution"}>
       {mode === "live" ? "Live feed" : "Simulation"}

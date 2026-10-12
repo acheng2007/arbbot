@@ -61,7 +61,7 @@ async def operate(args):
         args.kind
     ]
     request = model.model_validate_json(args.file.read_text())
-    if args.command == "validate":
+    if args.command == "validate" and args.schema_only:
         print(
             json.dumps(
                 {
@@ -76,7 +76,8 @@ async def operate(args):
     database = Database(settings)
     actor = Actor(issuer="local-operator", subject=getpass.getuser())
     try:
-        reviews = ReviewRepository(database)
+        validate_only = args.command == "validate"
+        reviews = ReviewRepository(database, validate_only=validate_only)
         if args.kind == "draft":
             if not args.market_id:
                 raise ValueError("Draft import requires --market-id")
@@ -84,8 +85,19 @@ async def operate(args):
         elif args.kind == "decision":
             result = await reviews.save_decision(settings.mode, request, actor)
         else:
-            result = await ExecutionRepository(database).save(settings.mode, request, actor)
-        print(json.dumps({"revision_id": result.id, "operator": actor.subject}))
+            result = await ExecutionRepository(database, validate_only=validate_only).save(
+                settings.mode, request, actor
+            )
+        print(
+            json.dumps(
+                {
+                    "revision_id": None if validate_only else result.id,
+                    "operator": actor.subject,
+                    "validated": True,
+                    "imported": not validate_only,
+                }
+            )
+        )
     finally:
         await database.close()
 
@@ -96,7 +108,13 @@ def main():
     parser.add_argument("kind", choices=("draft", "decision", "configuration", "source"))
     parser.add_argument("file", type=Path)
     parser.add_argument("--market-id")
-    asyncio.run(operate(parser.parse_args()))
+    parser.add_argument(
+        "--schema-only", action="store_true", help="Skip repository checks during validate"
+    )
+    args = parser.parse_args()
+    if args.schema_only and args.command != "validate":
+        parser.error("--schema-only is available only for validate")
+    asyncio.run(operate(args))
 
 
 if __name__ == "__main__":

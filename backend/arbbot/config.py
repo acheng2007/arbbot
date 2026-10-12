@@ -1,6 +1,6 @@
 from decimal import Decimal
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, field_validator, model_validator
@@ -17,10 +17,12 @@ class Settings(BaseSettings):
     database_url: SecretStr = SecretStr("postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot")
     mode: Literal["simulation", "live"] = "simulation"
     poll_seconds: float = Field(default=5, ge=1, le=3600)
+    fee_refresh_seconds: float = Field(default=120, ge=10, le=300)
     max_quote_age_seconds: int = Field(default=30, ge=1, le=300)
     max_quote_skew_seconds: int = Field(default=10, ge=0, le=60)
     health_timeout_seconds: int = Field(default=120, ge=10)
     discovery_limit: int = Field(default=50, ge=1, le=1000)
+    monitoring_limits: dict[Venue, Annotated[int, Field(ge=1, le=1000)]] = {}
     discovery_families: tuple[EventFamily, ...] = Field(
         default=DEFAULT_FAMILIES, min_length=1, max_length=8
     )
@@ -35,6 +37,7 @@ class Settings(BaseSettings):
     max_capital: Decimal = Field(default=Decimal("1000"), gt=0)
     slippage_bps: Decimal = Field(default=Decimal("10"), ge=0, le=10000)
     min_profit: Decimal = Field(default=Decimal("0.01"), gt=0)
+    recording_file: Path | None = None
     definitions_file: Path | None = None
     reviews_file: Path | None = None
     review_source: Literal["database", "files"] = "database"
@@ -55,6 +58,9 @@ class Settings(BaseSettings):
     auth_clock_skew_seconds: int = Field(default=0, ge=0, le=30)
     auth_max_token_seconds: int = Field(default=900, ge=60, le=3600)
 
+    def monitoring_limit(self, venue):
+        return self.monitoring_limits.get(venue, self.discovery_limit)
+
     @model_validator(mode="after")
     def validate_catalog(self):
         if self.mode == "live":
@@ -62,6 +68,13 @@ class Settings(BaseSettings):
                 self.discovery_mode = "broad"
             if "enabled_venues" not in self.model_fields_set:
                 self.enabled_venues = ("kalshi", "polymarket_us")
+        if self.recording_file and (
+            self.mode != "live"
+            or any(venue not in ("kalshi", "polymarket_us") for venue in self.enabled_venues)
+        ):
+            raise ValueError("Recorded exchange replay requires the public Kalshi/US adapter path")
+        if self.recording_file and (self.kalshi_key_id or self.kalshi_private_key_path):
+            raise ValueError("Offline recording mode cannot use private exchange credentials")
         if len(set(self.enabled_venues)) != len(self.enabled_venues):
             raise ValueError("Enabled venues must be unique")
         if (

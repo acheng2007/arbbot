@@ -39,6 +39,7 @@ export type Applicability = {
 };
 
 export type Book = {
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   market_id: string;
   mode: "simulation" | "live";
   yes_asks: Array<Level>;
@@ -61,6 +62,8 @@ export type CatalogObservation = {
 };
 
 export type CatalogReport = {
+  discovery_mode?: "focused" | "broad";
+  query_scope?: string | null;
   mode: "simulation" | "live";
   venue: "kalshi" | "polymarket" | "polymarket_us";
   status: "ready" | "degraded" | "failed" | "stale";
@@ -102,7 +105,8 @@ export type ConfigurationRevision = {
   previous_revision_id: string | null;
   mode: "live" | "simulation";
   key: string;
-  value: AccessProfile | Applicability | ExecutableFeePolicy;
+  value:
+    AccessProfile | Applicability | ExecutableFeePolicy | UnavailableFeePolicy;
   actor: Actor;
   created_at: string;
   reason: string;
@@ -110,7 +114,11 @@ export type ConfigurationRevision = {
 
 export type ConfigurationWrite = {
   expected_revision_id?: string | null;
-  value: AccessProfile | Applicability | ExecutableFeePolicyInput;
+  value:
+    | AccessProfile
+    | Applicability
+    | ExecutableFeePolicyInput
+    | UnavailableFeePolicy;
   reason: string;
 };
 
@@ -269,6 +277,8 @@ export type DiscoveryDecision = {
 };
 
 export type DraftRevision = {
+  source_revisions?: Partial<Record<string, number>> | null;
+  source_revision?: number;
   id: string;
   previous_revision_id: string | null;
   revision: number;
@@ -311,6 +321,7 @@ export type ExecutableFeePolicyInput = {
   balance_precision?: "0.0001" | "0.01" | null;
   account_class: "direct" | "non_direct" | "standard";
   source: Citation;
+  supporting_sources?: Array<Citation>;
   metadata_hash: string;
   metadata?: Partial<Record<string, unknown>>;
   observed_at: string;
@@ -329,6 +340,7 @@ export type ExecutableFeePolicy = {
   balance_precision?: "0.0001" | "0.01" | null;
   account_class: "direct" | "non_direct" | "standard";
   source: Citation;
+  supporting_sources?: Array<Citation>;
   metadata_hash: string;
   metadata?: Partial<Record<string, unknown>>;
   observed_at: string;
@@ -410,6 +422,8 @@ export type JointSettlementCase = {
 };
 
 export type Leg = {
+  source_at?: string | null;
+  received_at?: string | null;
   native_action?:
     "buy_yes" | "buy_no" | "buy_instrument" | "short_instrument" | null;
   native_price?: DecimalString | null;
@@ -435,6 +449,9 @@ export type Level = {
 };
 
 export type Market = {
+  ingestion_issues?: Array<string>;
+  source_revision?: number;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
   venue: "kalshi" | "polymarket" | "polymarket_us";
   external_id: string;
@@ -455,6 +472,8 @@ export type Market = {
 };
 
 export type MarketSummary = {
+  ingestion_issues?: Array<string>;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
   venue: "kalshi" | "polymarket" | "polymarket_us";
   external_id: string;
@@ -468,6 +487,7 @@ export type MarketSummary = {
 };
 
 export type Match = {
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   retrieval_limited?: boolean;
   retrieval_limit?: number | null;
   id: string;
@@ -483,6 +503,8 @@ export type Match = {
 };
 
 export type Opportunity = {
+  quote_skew_seconds?: number | null;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   access_revision_id?: string | null;
   applicability_revision_ids?: Array<string>;
   fee_revision_ids?: Array<string>;
@@ -671,6 +693,19 @@ export type SourceArtifactSummary = {
 export type TextPage = {
   page?: number | null;
   text: string;
+};
+
+export type UnavailableFeePolicy = {
+  kind?: "fee_unavailable";
+  market_id: string;
+  terms_hash: string;
+  reason:
+    | "provider_error"
+    | "unsupported_policy"
+    | "incomplete_metadata"
+    | "stale"
+    | "unverified_account_fees";
+  expires_at: string;
 };
 
 export type ValidationError = {

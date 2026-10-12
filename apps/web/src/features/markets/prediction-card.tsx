@@ -1,8 +1,8 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import Link from "next/link";
 import type { Market, MarketSummary, Match } from "@/lib/api/schema";
 import { useApi } from "@/lib/query/hooks";
-import { Badge } from "@/components/ui/badge";
 import { venueLabel } from "@/features/shared/status";
 import { MarketPrices } from "./market-prices";
 
@@ -30,9 +30,7 @@ function VenuePrices({ market }: { market: Market | MarketSummary }) {
     <div className="min-w-0 rounded-lg border border-border bg-background p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold">{venueLabel(market.venue)}</h3>
-        <Badge tone={market.mode === "live" ? "positive" : "caution"}>
-          {market.mode === "live" ? "Live feed" : "Simulation"}
-        </Badge>
+        <ModeBadge mode={market.mode} feedOrigin={market.feed_origin} />
       </div>
       <Link
         className="mt-2 block text-sm leading-6 underline underline-offset-4"
@@ -81,6 +79,9 @@ function ResolvedPredictionCard({
       aria-label={market.title}
     >
       <h2 className="text-lg font-semibold leading-7">{market.title}</h2>
+      {!!market.ingestion_issues?.length && <p role="alert" className="mt-2 text-sm text-amber-800">
+        Latest instrument data is unsupported: {market.ingestion_issues.join(", ")}. Estimates are blocked.
+      </p>}
       {match && match.status !== "verified" && (
         <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
           Settlement review is incomplete or terms differ. These prices are a comparison, not a verified

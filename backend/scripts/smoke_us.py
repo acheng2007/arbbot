@@ -4,6 +4,7 @@ import httpx
 
 from arbbot.config import Settings
 from arbbot.exchanges.base import ExchangeHTTP
+from arbbot.exchanges.discovery import candidate
 from arbbot.exchanges.kalshi import KalshiAdapter
 from arbbot.exchanges.polymarket_us import PolymarketUSAdapter
 from arbbot.matching.extraction import extract_contract
@@ -45,14 +46,21 @@ async def main():
                 "source_at": str(book.source_at),
             }
         )
+        checked_us = {market.id}
+        live_us = supported.copy()
         kalshi = KalshiAdapter(http, Settings(_env_file=None))
         data = await http.get(
             "https://external-api.kalshi.com/trade-api/v2/markets",
-            params={"status": "open", "limit": 10},
+            params={"status": "open", "limit": 100, "mve_filter": "exclude"},
         )
         print(
             {"kalshi_observed": len(data["markets"]), "has_continuation": bool(data.get("cursor"))}
         )
+        live_kalshi = []
+        for raw_market in data["markets"]:
+            reason, normalized = candidate(kalshi, raw_market, None)
+            if not reason and normalized:
+                live_kalshi.append(normalized)
         raw = await http.get("https://external-api.kalshi.com/trade-api/v2/markets/KXMLB-26-LAD")
         market = kalshi.normalize_market(raw["market"])
         book = await kalshi.fetch_book(market)
@@ -84,6 +92,38 @@ async def main():
                     }
                     for m in matches
                 ]
+            }
+        )
+
+        checked_kalshi = {market.id}
+        extra_books = []
+        for adapter, catalog, checked in (
+            (us, live_us, checked_us),
+            (kalshi, live_kalshi, checked_kalshi),
+        ):
+            for instrument in catalog:
+                if len(checked) >= 3:
+                    break
+                if instrument.id in checked or instrument.status != "open":
+                    continue
+                quote = await adapter.fetch_book(instrument)
+                checked.add(instrument.id)
+                extra_books.append(
+                    {
+                        "venue": instrument.venue,
+                        "market": instrument.id,
+                        "yes_levels": len(quote.yes_asks),
+                        "no_levels": len(quote.no_asks),
+                        "source_at": str(quote.source_at),
+                    }
+                )
+        print(
+            {
+                "additional_books": extra_books,
+                "books_checked_per_venue": {
+                    "kalshi": len(checked_kalshi),
+                    "polymarket_us": len(checked_us),
+                },
             }
         )
 

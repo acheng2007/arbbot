@@ -106,3 +106,34 @@ async def test_independent_matching_does_not_delay_quotes(database, fixture_mark
         stop.set()
         release.set()
         await asyncio.wait_for(task, 2)
+
+
+async def test_smaller_venue_budget_does_not_split_known_pairs(database, fixture_market):
+    settings, _, repository = database
+    settings = settings.model_copy(update={"monitoring_limits": {"kalshi": 2, "polymarket": 1}})
+    original = fixture_market[0]
+    markets, matches = [], []
+    for i in range(3):
+        pair = [
+            m.model_copy(update={"id": f"{m.venue}:PAIR-{i}", "external_id": f"PAIR-{i}"})
+            for m in original
+        ]
+        markets.extend(pair)
+        for market in pair:
+            await repository.save_market(market)
+        matches.append(
+            Match(
+                id=f"budget-{i}",
+                mode="simulation",
+                left_id=pair[0].id,
+                right_id=pair[1].id,
+                status="candidate",
+                similarity=1,
+                reason="Known candidate pair",
+            )
+        )
+    await repository.publish("simulation", matches, [])
+    selected = await PairMonitor(
+        settings, repository, [SimulationAdapter(v) for v in ("kalshi", "polymarket")]
+    ).select(markets)
+    assert len(selected) == 2 and selected[0].external_id == selected[1].external_id

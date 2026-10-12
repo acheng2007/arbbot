@@ -98,6 +98,16 @@ class EvaluationRecord(Base):
     mode: Mapped[str] = mapped_column(String, index=True)
     evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     payload: Mapped[dict] = mapped_column(Document)
+    status: Mapped[str | None] = mapped_column(String)
+    net_profit: Mapped[Decimal | None] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal | None] = mapped_column(Numeric())
+
+
+class EvaluationHeadRecord(Base):
+    __tablename__ = "evaluation_heads"
+    match_id: Mapped[str] = mapped_column(ForeignKey("matches.id"), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    evaluation_id: Mapped[str] = mapped_column(ForeignKey("evaluations.id"), unique=True)
 
 
 class OpportunityRecord(Base):
@@ -108,8 +118,8 @@ class OpportunityRecord(Base):
     active: Mapped[bool] = mapped_column(Boolean)
     evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    net_profit: Mapped[Decimal] = mapped_column(Numeric(30, 12))
-    capital_required: Mapped[Decimal] = mapped_column(Numeric(30, 12))
+    net_profit: Mapped[Decimal] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal] = mapped_column(Numeric())
     payload: Mapped[dict] = mapped_column(Document)
     __table_args__ = (Index("ix_opportunity_feed", "mode", "active", "valid_until"),)
 

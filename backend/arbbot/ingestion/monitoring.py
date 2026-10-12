@@ -27,6 +27,7 @@ class PairMonitor:
                 )
             ).all()
             tiers = [[], [], [], [], []]
+            paired = set()
             for row in rows:
                 match = Match.model_validate(row.payload)
                 if match.status == "rejected" or any(
@@ -34,15 +35,24 @@ class PairMonitor:
                 ):
                     continue
                 pair = (match.left_id, match.right_id)
+                paired.update(pair)
+                watched = any(
+                    indexed[mid].external_id in self.watchlists.get(indexed[mid].venue, ())
+                    for mid in pair
+                )
                 tier = (
                     0
                     if match.status == "verified"
                     else 1
                     if (match.comparison and match.comparison.same_event)
+                    else 2
+                    if watched
                     else 3
                 )
                 tiers[tier].append(pair)
             for market in indexed.values():
+                if market.id in paired:
+                    continue
                 tier = 2 if market.external_id in self.watchlists.get(market.venue, ()) else 4
                 tiers[tier].append((market.id,))
             selected, counts = set(), {}
@@ -57,7 +67,7 @@ class PairMonitor:
                         venue = indexed[mid].venue
                         required[venue] = required.get(venue, 0) + 1
                     if any(
-                        counts.get(v, 0) + n > self.settings.discovery_limit
+                        counts.get(v, 0) + n > self.settings.monitoring_limit(v)
                         for v, n in required.items()
                     ):
                         continue

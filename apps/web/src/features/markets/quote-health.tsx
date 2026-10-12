@@ -1,5 +1,5 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
+import { ModeBadge } from "@/components/data-origin";
 import { EmptyState } from "@/components/states";
 import { Timestamp } from "@/components/timestamp";
 import { QuoteAge } from "@/components/freshness";
@@ -65,9 +65,7 @@ export function QuoteHealth({ book }: { book: Book }) {
     <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="mr-auto text-lg font-semibold">Quote health</h3>
-        <Badge tone={book.mode === "live" ? "positive" : "caution"}>
-          {book.mode === "live" ? "Live feed" : "Simulation"}
-        </Badge>
+        <ModeBadge mode={book.mode} feedOrigin={book.feed_origin} />
         <QuoteAge sourceAt={book.source_at} receivedAt={book.received_at} />
       </div>
 

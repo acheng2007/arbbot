@@ -1,4 +1,5 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -121,15 +122,7 @@ export function MarketDetail({ marketId }: { marketId: string }) {
                 >
                   {market.data.data.status === "open" ? "Open" : "Closed"}
                 </Badge>
-                <Badge
-                  tone={
-                    market.data.data.mode === "live" ? "positive" : "caution"
-                  }
-                >
-                  {market.data.data.mode === "live"
-                    ? "Live feed"
-                    : "Simulation"}
-                </Badge>
+                <ModeBadge mode={market.data.data.mode} feedOrigin={market.data.data.feed_origin} />
                 <Age at={market.data.data.observed_at} label="Observed" />
               </div>
               <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">

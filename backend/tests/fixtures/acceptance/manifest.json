@@ -1,0 +1,23 @@
+[
+  {
+    "file": "us-fees.txt",
+    "url": "https://docs.polymarket.us/fees",
+    "content_type": "text/html",
+    "sha256": "dff62de14a61dc2ce7d39bf9cf913a530ad62fe9777fcb3d1804b09a8c2806e1",
+    "captured_at": "2026-10-12T19:11:05.176289+00:00"
+  },
+  {
+    "file": "kalshi-rounding.txt",
+    "url": "https://docs.kalshi.com/getting_started/fee_rounding",
+    "content_type": "text/html",
+    "sha256": "80a32419c59299260f932762902879e4b94b5a3888815606ad856839936c1201",
+    "captured_at": "2026-10-12T19:11:05.564283+00:00"
+  },
+  {
+    "file": "kalshi-fees.pdf",
+    "url": "https://kalshi.com/docs/kalshi-fee-schedule.pdf",
+    "content_type": "application/pdf",
+    "sha256": "c326a69f596a11e8f8be2620402d39a8d4823920c21cc97c93a114d862699601",
+    "captured_at": "2026-10-12T20:16:44.525855+00:00"
+  }
+]

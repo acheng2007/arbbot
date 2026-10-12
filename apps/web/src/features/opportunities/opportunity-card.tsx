@@ -1,4 +1,5 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -42,8 +43,8 @@ export function LegSummary({
           {leg.native_action === "short_instrument" ? "Short instrument (NO)" : `Buy ${leg.outcome.toUpperCase()}`}
         </Badge>
         <QuoteAge
-          sourceAt={leg.source_timestamp_available ? leg.quote_at : null}
-          receivedAt={leg.quote_at}
+          sourceAt={leg.source_at ?? (leg.source_timestamp_available ? leg.quote_at : null)}
+          receivedAt={leg.received_at ?? leg.quote_at}
         />
       </div>
       <p className="mt-3 text-sm leading-6">{market?.title ?? leg.market_id}</p>
@@ -90,10 +91,11 @@ export function OpportunityCard({
     <article className="rounded-xl border border-border bg-card p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <ClassificationBadge classification={opportunity.classification} />
-        <Badge tone={opportunity.mode === "live" ? "positive" : "caution"}>
-          {opportunity.mode === "live" ? "Live feed" : "Simulation"}
-        </Badge>
+        <ModeBadge mode={opportunity.mode} feedOrigin={opportunity.feed_origin} />
         <ValidUntil validUntil={opportunity.valid_until} />
+        {opportunity.quote_skew_seconds != null && <span className="text-xs text-muted-foreground">
+          Quote timing skew {opportunity.quote_skew_seconds.toFixed(3)} seconds
+        </span>}
       </div>
 
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">

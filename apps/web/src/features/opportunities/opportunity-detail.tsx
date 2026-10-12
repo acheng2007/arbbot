@@ -1,4 +1,5 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -116,13 +117,7 @@ export function OpportunityDetail({
                     <ClassificationBadge
                       classification={opportunity.classification}
                     />
-                    <Badge
-                      tone={
-                        opportunity.mode === "live" ? "positive" : "caution"
-                      }
-                    >
-                      {opportunity.mode === "live" ? "Live feed" : "Simulation"}
-                    </Badge>
+                    <ModeBadge mode={opportunity.mode} feedOrigin={opportunity.feed_origin} />
                     <ValidUntil validUntil={opportunity.valid_until} />
                     {!live && <Badge tone="neutral">From history</Badge>}
                   </div>

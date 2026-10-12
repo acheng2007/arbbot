@@ -2032,6 +2032,16 @@
       },
       "Book": {
         "properties": {
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin",
+            "default": "exchange"
+          },
           "market_id": {
             "type": "string",
             "title": "Market Id"
@@ -2164,6 +2174,26 @@
       },
       "CatalogReport": {
         "properties": {
+          "discovery_mode": {
+            "type": "string",
+            "enum": [
+              "focused",
+              "broad"
+            ],
+            "title": "Discovery Mode",
+            "default": "focused"
+          },
+          "query_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Scope"
+          },
           "mode": {
             "type": "string",
             "enum": [
@@ -2468,6 +2498,9 @@
               },
               {
                 "$ref": "#/components/schemas/ExecutableFeePolicy-Output"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableFeePolicy"
               }
             ],
             "title": "Value",
@@ -2476,6 +2509,7 @@
               "mapping": {
                 "access": "#/components/schemas/AccessProfile",
                 "applicability": "#/components/schemas/Applicability",
+                "fee_unavailable": "#/components/schemas/UnavailableFeePolicy",
                 "fees": "#/components/schemas/ExecutableFeePolicy-Output"
               }
             }
@@ -2531,6 +2565,9 @@
               },
               {
                 "$ref": "#/components/schemas/ExecutableFeePolicy-Input"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableFeePolicy"
               }
             ],
             "title": "Value",
@@ -2539,6 +2576,7 @@
               "mapping": {
                 "access": "#/components/schemas/AccessProfile",
                 "applicability": "#/components/schemas/Applicability",
+                "fee_unavailable": "#/components/schemas/UnavailableFeePolicy",
                 "fees": "#/components/schemas/ExecutableFeePolicy-Input"
               }
             }
@@ -3242,6 +3280,26 @@
       },
       "DraftRevision": {
         "properties": {
+          "source_revisions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Revisions"
+          },
+          "source_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source Revision",
+            "default": 0
+          },
           "id": {
             "type": "string",
             "pattern": "^[a-f0-9]{32}$",
@@ -3533,6 +3591,15 @@
           "source": {
             "$ref": "#/components/schemas/Citation"
           },
+          "supporting_sources": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "title": "Supporting Sources",
+            "default": []
+          },
           "metadata_hash": {
             "type": "string",
             "pattern": "^[a-f0-9]{64}$",
@@ -3655,6 +3722,15 @@
           },
           "source": {
             "$ref": "#/components/schemas/Citation"
+          },
+          "supporting_sources": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "maxItems": 16,
+            "title": "Supporting Sources",
+            "default": []
           },
           "metadata_hash": {
             "type": "string",
@@ -3990,6 +4066,30 @@
       },
       "Leg": {
         "properties": {
+          "source_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source At"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
           "native_action": {
             "anyOf": [
               {
@@ -4144,6 +4244,30 @@
       },
       "Market": {
         "properties": {
+          "ingestion_issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ingestion Issues",
+            "default": []
+          },
+          "source_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source Revision",
+            "default": 0
+          },
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin",
+            "default": "exchange"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -4282,6 +4406,24 @@
       },
       "MarketSummary": {
         "properties": {
+          "ingestion_issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ingestion Issues",
+            "default": []
+          },
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin",
+            "default": "exchange"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -4362,6 +4504,16 @@
       },
       "Match": {
         "properties": {
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin",
+            "default": "exchange"
+          },
           "retrieval_limited": {
             "type": "boolean",
             "title": "Retrieval Limited",
@@ -4462,6 +4614,28 @@
       },
       "Opportunity": {
         "properties": {
+          "quote_skew_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Skew Seconds"
+          },
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin",
+            "default": "exchange"
+          },
           "access_revision_id": {
             "anyOf": [
               {
@@ -5669,6 +5843,52 @@
           "text"
         ],
         "title": "TextPage"
+      },
+      "UnavailableFeePolicy": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "fee_unavailable",
+            "title": "Kind",
+            "default": "fee_unavailable"
+          },
+          "market_id": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Market Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "provider_error",
+              "unsupported_policy",
+              "incomplete_metadata",
+              "stale",
+              "unverified_account_fees"
+            ],
+            "title": "Reason"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "market_id",
+          "terms_hash",
+          "reason",
+          "expires_at"
+        ],
+        "title": "UnavailableFeePolicy"
       },
       "ValidationError": {
         "properties": {

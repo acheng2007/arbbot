@@ -290,3 +290,78 @@ def test_current_kalshi_overrides_and_scheduled_deadlines():
     }
     coefficient, expiry = kalshi_parameters(metadata, now)
     assert coefficient == Decimal("0.14") and expiry == now + timedelta(seconds=20)
+
+
+async def test_missing_us_fee_artifact_returns_validation_error(database):
+    from tests.test_polymarket_us import pair
+
+    _, db, storage = database
+    market = pair()[1]
+    await storage.save_market(market)
+    now = utcnow()
+    value = policy("polymarket_us", now).model_copy(
+        update={"market_id": market.id, "terms_hash": market.terms_hash}
+    )
+    with pytest.raises(ReviewValidationError):
+        await ExecutionRepository(db).save(
+            "live",
+            ConfigurationWrite(
+                value=value, reason="Reject fee policy with missing recorded evidence"
+            ),
+            ACTOR,
+        )
+
+
+async def test_validation_only_checks_repositories_without_import(database):
+    _, db, _ = database
+    profile = AccessProfile(
+        jurisdiction="SYNTHETIC",
+        status="verified",
+        permissions=(
+            Permission(
+                venue="kalshi",
+                market_ids=("kalshi:synthetic",),
+                short_allowed=False,
+                fee_account_class="direct",
+            ),
+        ),
+        supporting_evidence=("Synthetic operator evidence",),
+        expires_at=utcnow() + timedelta(hours=1),
+    )
+    request = ConfigurationWrite(value=profile, reason="Validate synthetic installation profile")
+    await ExecutionRepository(db, validate_only=True).save("live", request, ACTOR)
+    store = ExecutionRepository(db)
+    async with db.sessions() as session:
+        assert await store.current(session, "live:access:installation") is None
+    imported = await store.save("live", request, ACTOR)
+    with pytest.raises(RevisionConflict):
+        await ExecutionRepository(db, validate_only=True).save("live", request, ACTOR)
+    async with db.sessions() as session:
+        assert (await store.current(session, "live:access:installation")).id == imported.id
+
+
+async def test_concurrent_initial_access_import_returns_revision_conflict(database):
+    import asyncio
+
+    _, db, _ = database
+    profile = AccessProfile(
+        jurisdiction="SYNTHETIC",
+        status="verified",
+        permissions=(
+            Permission(
+                venue="kalshi",
+                market_ids=("kalshi:synthetic",),
+                short_allowed=False,
+                fee_account_class="direct",
+            ),
+        ),
+        supporting_evidence=("Synthetic operator evidence",),
+        expires_at=utcnow() + timedelta(hours=1),
+    )
+    request = ConfigurationWrite(value=profile, reason="Concurrent initial access import")
+    results = await asyncio.gather(
+        *(ExecutionRepository(db).save("live", request, ACTOR) for _ in range(2)),
+        return_exceptions=True,
+    )
+    assert sum(isinstance(result, RevisionConflict) for result in results) == 1
+    assert sum(not isinstance(result, Exception) for result in results) == 1

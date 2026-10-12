@@ -270,3 +270,96 @@ async def test_live_publication_recheck_removes_preliminary_profit(reviewed_pipe
     evaluations = (await client.get("/api/v1/evaluations")).json()
     assert evaluations[0]["status"] == "unprofitable"
     assert evaluations[0]["best_calculation"]["net_profit"].startswith("-")
+
+
+async def test_source_change_then_restore_cannot_replay_previous_estimate(reviewed_pipeline):
+    pipeline, reviews, request, _, sources, captures, client = reviewed_pipeline
+    await reviews.save_decision("live", request, ACTOR)
+    assert (await pipeline.cycle())["opportunities"] == 1
+    original = captures[0]
+    await sources.record(
+        original.model_copy(
+            update={
+                "content": original.content + b"\nChanged settlement source.",
+                "retrieved_at": utcnow(),
+            }
+        )
+    )
+    assert (await client.get("/api/v1/opportunities")).json() == []
+    await sources.record(original.model_copy(update={"retrieved_at": utcnow()}))
+    assert (await client.get("/api/v1/opportunities")).json() == [], (
+        "Returning to previously captured bytes must not replay an old estimate or approval"
+    )
+
+
+async def test_transient_source_failure_requires_new_estimate_not_new_terms(reviewed_pipeline):
+    pipeline, reviews, request, _, sources, captures, client = reviewed_pipeline
+    await reviews.save_decision("live", request, ACTOR)
+    await pipeline.cycle()
+    old = (await client.get("/api/v1/opportunities")).json()[0]
+    capture = captures[0]
+    await sources.record(
+        SourceFailure(
+            venue=capture.venue,
+            mode=capture.mode,
+            market_id=capture.market_id,
+            url=capture.url,
+            label=capture.label,
+            reason="network_error",
+            detail="temporary_source_timeout",
+            attempted_at=utcnow(),
+        )
+    )
+    assert (await client.get("/api/v1/opportunities")).json() == []
+    await sources.record(capture.model_copy(update={"retrieved_at": utcnow()}))
+    assert (await client.get("/api/v1/opportunities")).json() == []
+    assert (await pipeline.cycle())["opportunities"] == 1
+    fresh = (await client.get("/api/v1/opportunities")).json()[0]
+    assert fresh["id"] != old["id"]
+
+
+async def test_shared_document_change_withdraws_every_dependent_market(reviewed_pipeline):
+    pipeline, reviews, request, _, sources, captures, client = reviewed_pipeline
+    await reviews.save_decision("live", request, ACTOR)
+    await pipeline.cycle()
+    original = captures[0]
+    market = await pipeline.repository.market("live", original.market_id)
+    other = market.model_copy(update={"id": "kalshi:OTHER-SOURCE", "external_id": "OTHER-SOURCE"})
+    await pipeline.repository.save_market(other)
+    shared = original.model_copy(update={"market_id": other.id, "retrieved_at": utcnow()})
+    await sources.record(shared)
+    assert (await client.get("/api/v1/opportunities")).json()
+    await sources.record(
+        shared.model_copy(
+            update={
+                "content": shared.content + b"\nChanged shared document.",
+                "retrieved_at": utcnow(),
+            }
+        )
+    )
+    assert (await client.get("/api/v1/opportunities")).json() == []
+    await sources.record(shared.model_copy(update={"retrieved_at": utcnow()}))
+    assert (await client.get("/api/v1/opportunities")).json() == []
+
+
+async def test_new_unsupported_catalog_observation_withdraws_cached_estimate(reviewed_pipeline):
+    from arbbot.discovery.inventory import CatalogInventory
+    from arbbot.exchanges.base import ExchangeHTTP
+    from arbbot.exchanges.kalshi import KalshiAdapter
+    from tests.test_targeted_discovery import raw_kalshi
+
+    pipeline, reviews, request, _, _, _, client = reviewed_pipeline
+    await reviews.save_decision("live", request, ACTOR)
+    await pipeline.cycle()
+    assert (await client.get("/api/v1/opportunities")).json()
+    identifier = request.review.left_id.split(":", 1)[1]
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(
+                200, json={"markets": [raw_kalshi(identifier, market_type="scalar")], "cursor": ""}
+            )
+        )
+    ) as source:
+        adapter = KalshiAdapter(ExchangeHTTP(source, interval=0), pipeline.settings)
+        await CatalogInventory(pipeline.settings, pipeline.repository).scan(adapter)
+    assert (await client.get("/api/v1/opportunities")).json() == []

@@ -36,6 +36,8 @@ class DraftWrite(Model):
 
 
 class DraftRevision(Model):
+    source_revisions: dict[str, int] | None = None
+    source_revision: int = Field(default=0, ge=0)
     id: RevisionId
     previous_revision_id: RevisionId | None
     revision: int = Field(ge=1)

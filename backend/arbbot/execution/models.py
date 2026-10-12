@@ -66,6 +66,7 @@ class ExecutableFeePolicy(Model):
     balance_precision: Literal["0.0001", "0.01"] | None = None
     account_class: Literal["direct", "non_direct", "standard"]
     source: Citation
+    supporting_sources: tuple[Citation, ...] = Field(default=(), max_length=16)
     metadata_hash: Hash
     metadata: dict = {}
     observed_at: AwareDatetime
@@ -105,7 +106,21 @@ class ExecutableFeePolicy(Model):
         return self
 
 
-Configuration = AccessProfile | Applicability | ExecutableFeePolicy
+class UnavailableFeePolicy(Model):
+    kind: Literal["fee_unavailable"] = "fee_unavailable"
+    market_id: str = Field(min_length=1, max_length=512)
+    terms_hash: Hash
+    reason: Literal[
+        "provider_error",
+        "unsupported_policy",
+        "incomplete_metadata",
+        "stale",
+        "unverified_account_fees",
+    ]
+    expires_at: AwareDatetime
+
+
+Configuration = AccessProfile | Applicability | ExecutableFeePolicy | UnavailableFeePolicy
 
 
 class ConfigurationWrite(Model):

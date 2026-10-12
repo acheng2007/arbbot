@@ -54,6 +54,8 @@ class DiscoveryScan(Model):
 
 
 class CatalogReport(Model):
+    discovery_mode: Literal["focused", "broad"] = "focused"
+    query_scope: str | None = None
     mode: Mode
     venue: Venue
     status: Literal["ready", "degraded", "failed", "stale"]

@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from arbbot.discovery.inventory import CatalogInventory
 from arbbot.discovery.models import CatalogReport
-from arbbot.domain import utcnow
+from arbbot.domain import digest, utcnow
 from arbbot.exchanges.discovery import scan_catalog
 from arbbot.sources.fetch import SourceFetcher
 from arbbot.sources.repository import SourceRepository
@@ -61,13 +61,40 @@ class CatalogService:
                 )
             await asyncio.sleep(self.settings.catalog_refresh_seconds)
 
+    def scope(self, adapter):
+        watchlist = list(getattr(adapter, "tickers", getattr(adapter, "market_ids", ())))
+        return digest(
+            {
+                "mode": self.settings.discovery_mode,
+                "watchlist": watchlist if self.settings.discovery_mode == "focused" else [],
+                "families": [f.model_dump(mode="json") for f in self.settings.discovery_families]
+                if self.settings.discovery_mode == "focused" and not watchlist
+                else [],
+                "page_size": self.settings.catalog_page_size,
+            }
+        )
+
     async def restore(self):
         """Recover still-fresh persisted catalog before starting network refreshes."""
         reports = await catalog_reports(self.repository.database, self.settings.mode)
         for report in reports:
-            if report.valid_until <= utcnow():
+            adapter = next((a for a in self.adapters if a.venue == report.venue), None)
+            if (
+                report.valid_until <= utcnow()
+                or adapter is None
+                or report.query_scope != self.scope(adapter)
+            ):
                 continue
-            markets = await self.inventory.markets(report.venue)
+            if self.settings.discovery_mode == "broad":
+                markets = await self.inventory.markets(report.venue)
+            else:
+                restored = await asyncio.gather(
+                    *(
+                        self.repository.market(self.settings.mode, mid)
+                        for mid in report.selected_market_ids
+                    )
+                )
+                markets = [market for market in restored if market is not None]
             if markets:
                 self.catalogs[report.venue] = (report.valid_until, tuple(markets))
                 selected = set(report.selected_market_ids)
@@ -147,7 +174,7 @@ class CatalogService:
         progress = await self.inventory.progress(adapter.venue)
         offset = progress.get("monitoring_offset", 0) % max(1, len(remaining))
         rotated = remaining[offset:] + remaining[:offset]
-        slots = max(0, self.settings.discovery_limit - len(preferred))
+        slots = max(0, self.settings.monitoring_limit(adapter.venue) - len(preferred))
         progress["monitoring_offset"] = offset + slots
         from arbbot.storage.models import DiscoveryProgressRecord
 
@@ -160,7 +187,7 @@ class CatalogService:
                     payload=progress,
                 )
             )
-        return preferred[: self.settings.discovery_limit] + rotated[:slots]
+        return preferred[: self.settings.monitoring_limit(adapter.venue)] + rotated[:slots]
 
     async def refresh(self, adapter, *, enrich=True):
         started = utcnow()
@@ -192,16 +219,19 @@ class CatalogService:
                 if broad:
                     progress = await self.inventory.progress(adapter.venue)
 
-                async def enrich(market):
+                async def enrich_market(market):
                     async with self.enrichment_slots:
-                        await self.repository.save_market(market)
+                        await self.repository.save_market(market, from_catalog=True)
                         result = await adapter.enrich_sources(market, self.sources, self.fetcher)
                         await self.repository.save_market(result)
                         return result
 
+                if not broad:
+                    for market in selected:
+                        await self.repository.save_market(market, from_catalog=True)
                 if enrich:
                     async with asyncio.TaskGroup() as group:
-                        pending = [group.create_task(enrich(market)) for market in selected]
+                        pending = [group.create_task(enrich_market(market)) for market in selected]
                     markets = [task.result() for task in pending]
                 else:
                     # At most one bounded cohort per venue; newer work replaces missed ticks.
@@ -225,6 +255,8 @@ class CatalogService:
         )
         report = CatalogReport(
             mode=self.settings.mode,
+            discovery_mode=self.settings.discovery_mode,
+            query_scope=self.scope(adapter),
             venue=adapter.venue,
             status="failed"
             if error
@@ -239,7 +271,7 @@ class CatalogService:
             pages_scanned=scan.pages_scanned if scan else 0,
             truncated=scan.truncated if scan else progress.get("continuation") is not None,
             catalog_market_count=len(catalog_markets),
-            monitoring_limit=self.settings.discovery_limit,
+            monitoring_limit=self.settings.monitoring_limit(adapter.venue),
             continuation=progress.get("continuation"),
             coverage_complete=bool(progress.get("coverage_complete"))
             if broad

@@ -1,11 +1,12 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from sqlalchemy import false, func, or_, select, update
+from sqlalchemy import case, false, or_, select, update
 
 from arbbot.domain import Book, Market, MarketHealth, Opportunity, digest, restore, utcnow
 from arbbot.matching.extraction import extract_contract
 from arbbot.storage.models import (
+    EvaluationHeadRecord,
     EvaluationRecord,
     HealthRecord,
     MarketRecord,
@@ -25,11 +26,11 @@ class Repository:
         self.database = database
         self.allow_file_reviews = allow_file_reviews
 
-    async def save_market(self, market: Market):
+    async def save_market(self, market: Market, *, from_catalog=False):
         async with self.database.sessions.begin() as session:
-            await self.save_market_in_session(session, market)
+            await self.save_market_in_session(session, market, from_catalog=from_catalog)
 
-    async def save_market_in_session(self, session, market: Market):
+    async def save_market_in_session(self, session, market: Market, *, from_catalog=False):
         key = f"{market.mode}:{market.id}"
         row = await session.get(MarketRecord, key, with_for_update=True)
         if row and aware(row.observed_at) > market.observed_at:
@@ -37,6 +38,15 @@ class Repository:
         if row is None:
             row = MarketRecord(key=key, id=market.id, mode=market.mode, venue=market.venue)
             session.add(row)
+        previous = row.payload or {}
+        market = market.model_copy(
+            update={
+                "source_revision": previous.get("source_revision", 0),
+                "ingestion_issues": market.ingestion_issues
+                if from_catalog
+                else tuple(previous.get("ingestion_issues", market.ingestion_issues)),
+            }
+        )
         row.payload = market.model_dump(mode="json")
         row.observed_at = market.observed_at
         metric = extract_contract(market).definition.facts.get("metric")
@@ -234,7 +244,16 @@ class Repository:
                     .values(active=False)
                 )
 
-    async def publish(self, mode, matches, evaluations, *, replace_generation=True, settings=None):
+    async def publish(
+        self,
+        mode,
+        matches,
+        evaluations,
+        *,
+        replace_generation=True,
+        settings=None,
+        write_matches=True,
+    ):
         from arbbot.reviews.provider import guard_publication
 
         # Publish a coherent cycle in one transaction; retain past calculations for audit.
@@ -246,7 +265,12 @@ class Repository:
                 from arbbot.execution.publication import guard_execution
 
                 evaluations = await guard_execution(
-                    self.database, session, mode, evaluations, settings
+                    self.database,
+                    session,
+                    mode,
+                    evaluations,
+                    settings,
+                    require_current_match=not write_matches,
                 )
             if replace_generation:
                 await session.execute(
@@ -270,7 +294,7 @@ class Repository:
                 )
                 .values(active=False)
             )
-            for match in matches:
+            for match in matches if write_matches else ():
                 await session.merge(
                     MatchRecord(
                         id=match.id,
@@ -289,13 +313,27 @@ class Repository:
                 )
             await session.flush()
             for result in evaluations:
+                evaluation_id = str(uuid4())
                 session.add(
                     EvaluationRecord(
-                        id=str(uuid4()),
+                        id=evaluation_id,
                         match_id=result.match_id,
+                        status=result.status,
+                        net_profit=result.best_calculation.net_profit
+                        if result.best_calculation
+                        else None,
+                        capital_required=result.best_calculation.capital_required
+                        if result.best_calculation
+                        else None,
                         mode=mode,
                         evaluated_at=result.evaluated_at,
                         payload=result.model_dump(mode="json"),
+                    )
+                )
+                await session.flush()
+                await session.merge(
+                    EvaluationHeadRecord(
+                        match_id=result.match_id, mode=mode, evaluation_id=evaluation_id
                     )
                 )
                 for opportunity in result.opportunities:
@@ -361,6 +399,17 @@ class Repository:
                     OpportunityRecord.payload["legs"][leg]["book_id"]
                     .as_string()
                     .in_(eligible_books)
+                )
+                query = query.where(
+                    select(MarketRecord.key)
+                    .where(
+                        MarketRecord.mode == mode,
+                        MarketRecord.id
+                        == OpportunityRecord.payload["legs"][leg]["market_id"].as_string(),
+                        MarketRecord.latest_book_id
+                        == OpportunityRecord.payload["legs"][leg]["book_id"].as_string(),
+                    )
+                    .exists()
                 )
         ordering = (
             OpportunityRecord.evaluated_at.desc(),
@@ -442,22 +491,16 @@ class Repository:
         if match_id is not None:
             query = query.where(EvaluationRecord.match_id == match_id)
         if not history:
-            latest = (
-                select(
-                    EvaluationRecord.id.label("id"),
-                    func.row_number()
-                    .over(
-                        partition_by=EvaluationRecord.match_id,
-                        order_by=(EvaluationRecord.evaluated_at.desc(), EvaluationRecord.id.desc()),
-                    )
-                    .label("position"),
-                )
-                .where(EvaluationRecord.mode == mode)
-                .subquery()
+            query = query.join(
+                EvaluationHeadRecord, EvaluationHeadRecord.evaluation_id == EvaluationRecord.id
             )
-            query = query.join(latest, latest.c.id == EvaluationRecord.id).where(
-                latest.c.position == 1
+        if not history:
+            reviewed = (
+                select(MatchRecord.payload["status"].as_string())
+                .where(MatchRecord.id == EvaluationRecord.match_id)
+                .scalar_subquery()
             )
+            query = query.order_by(case((reviewed == "verified", 0), else_=1))
         query = query.order_by(EvaluationRecord.evaluated_at.desc(), EvaluationRecord.id)
         if status is None:
             query = query.limit(limit).offset(offset)

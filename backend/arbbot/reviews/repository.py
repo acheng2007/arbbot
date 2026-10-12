@@ -21,6 +21,7 @@ from arbbot.reviews.models import (
     pair_key,
     payload,
 )
+from arbbot.sources.versions import bound_versions, latest_document
 from arbbot.storage.models import (
     DecisionHeadRecord,
     DecisionRevisionRecord,
@@ -33,8 +34,9 @@ from arbbot.storage.repository import aware
 
 
 class ReviewRepository:
-    def __init__(self, database):
+    def __init__(self, database, *, validate_only=False):
         self.database = database
+        self.validate_only = validate_only
 
     @asynccontextmanager
     async def _write(self):
@@ -44,6 +46,8 @@ class ReviewRepository:
             if self.database.engine.dialect.name == "sqlite":
                 await session.execute(text("BEGIN IMMEDIATE"))
             yield session
+            if self.validate_only:
+                await session.rollback()
 
     @asynccontextmanager
     async def _read(self):
@@ -69,7 +73,7 @@ class ReviewRepository:
         return DraftRevision.model_validate(row.payload)
 
     @staticmethod
-    async def _source_issues(session, market, ids):
+    async def _source_issues(session, market, ids, *, lock=False):
         if not ids:
             return []
         rows = (
@@ -79,6 +83,7 @@ class ReviewRepository:
                     SourceArtifactRecord.url,
                     SourceArtifactRecord.label,
                     SourceArtifactRecord.status,
+                    SourceArtifactRecord.content_digest,
                     SourceArtifactRecord.last_seen_at,
                 ).where(SourceArtifactRecord.market_key == f"{market.mode}:{market.id}")
             )
@@ -93,6 +98,7 @@ class ReviewRepository:
                 previous.id,
             ):
                 latest[key] = row
+        await bound_versions(session, market.mode, ids, lock=lock)
         issues = []
         for artifact_id in ids:
             row = by_id.get(artifact_id)
@@ -100,6 +106,12 @@ class ReviewRepository:
                 issues.append(f"source_missing_or_wrong_market:{artifact_id}")
             elif latest[(row.url, row.label)].id != row.id:
                 issues.append(f"source_changed:{artifact_id}")
+            else:
+                current = await latest_document(session, market.mode, row.url)
+                if current and (
+                    current.status != "captured" or current.content_digest != row.content_digest
+                ):
+                    issues.append(f"source_changed:{artifact_id}")
         return issues
 
     async def save_draft(self, mode, market_id, request: DraftWrite, actor: Actor):
@@ -131,6 +143,10 @@ class ReviewRepository:
                     definition=request.definition,
                     definition_hash=definition_hash(request.definition),
                     source_artifact_ids=request.source_artifact_ids,
+                    source_revision=market.source_revision,
+                    source_revisions=await bound_versions(
+                        session, mode, request.source_artifact_ids
+                    ),
                     actor=actor,
                     created_at=utcnow(),
                     reason=request.reason,
@@ -189,6 +205,16 @@ class ReviewRepository:
 
     async def _draft_issues(self, session, draft, market):
         issues = []
+        if market.ingestion_issues:
+            issues.append("latest_instrument_unsupported")
+        if draft.source_revisions is None:
+            changed = market.source_revision != draft.source_revision
+        else:
+            changed = draft.source_revisions != await bound_versions(
+                session, market.mode, draft.source_artifact_ids
+            )
+        if changed:
+            issues.append("source_revision_changed")
         if market.terms_hash != draft.definition.terms_hash:
             issues.append("market_terms_changed")
         head = await session.get(DraftHeadRecord, f"{market.mode}:{market.id}")

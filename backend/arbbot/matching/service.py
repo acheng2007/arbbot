@@ -66,6 +66,7 @@ def match_markets(
                 status, reason = "candidate", "Review does not approve the current definitions."
         matches.append(
             Match(
+                feed_origin=a.feed_origin if a.feed_origin != "exchange" else b.feed_origin,
                 id=digest([a.mode, *sorted((a.id, b.id))]),
                 mode=a.mode,
                 left_id=a.id,

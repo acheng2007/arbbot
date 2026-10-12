@@ -1,10 +1,11 @@
 import asyncio
 import json
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import httpx
 from pydantic import TypeAdapter
+from sqlalchemy import select
 
 from arbbot.arbitrage.engine import evaluate
 from arbbot.domain import MarketHealth, Review, utcnow
@@ -20,6 +21,7 @@ from arbbot.quality import book_issue
 from arbbot.reviews.provider import ReviewProvider
 from arbbot.sources.fetch import SourceFetcher
 from arbbot.sources.repository import SourceRepository
+from arbbot.storage.models import ConfigurationHeadRecord, ConfigurationRevisionRecord
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +46,7 @@ class Pipeline:
         self.monitor = PairMonitor(settings, repository, adapters)
         self.current_matches = []
         self.evaluation_ready = asyncio.Event()
+        self.reported_candidates = {}
 
     async def ingest_venue(self, adapter, selected=None):
         mode = self.settings.mode
@@ -83,7 +86,7 @@ class Pipeline:
                 if market.mode != mode or market.venue != adapter.venue:
                     raise ValueError("Adapter emitted data for the wrong mode or venue")
                 if self.catalog is None:
-                    await self.repository.save_market(market)
+                    await self.repository.save_market(market, from_catalog=True)
             if self.catalog is None and mode == "live" and hasattr(adapter, "enrich_sources"):
 
                 async def enrich(market):
@@ -205,7 +208,7 @@ class Pipeline:
             async with self.repository.database.sessions() as session:
                 for match in matches:
                     pair = [indexed[match.left_id], indexed[match.right_id]]
-                    if any(m.venue == "polymarket_us" for m in pair):
+                    if match.status == "verified" and any(m.venue == "polymarket_us" for m in pair):
                         contexts[match.id] = await configuration.context(session, "live", pair)
 
         def calculate(match, quotes, instant):
@@ -282,8 +285,18 @@ class Pipeline:
         async def catalog_markets():
             markets = []
             for adapter in self.adapters:
-                if self.catalog.all_current(adapter.venue):
-                    markets.extend(await self.catalog.inventory.markets(adapter.venue))
+                current = self.catalog.all_current(adapter.venue)
+                if current:
+                    if self.settings.discovery_mode == "broad":
+                        markets.extend(await self.catalog.inventory.markets(adapter.venue))
+                    else:
+                        persisted = await asyncio.gather(
+                            *(
+                                self.repository.market(self.settings.mode, market.id)
+                                for market in current
+                            )
+                        )
+                        markets.extend(market for market in persisted if market is not None)
             return markets
 
         async def matching():
@@ -340,14 +353,97 @@ class Pipeline:
                     ]
                     books = await self.repository.latest_books(self.settings.mode)
                     now = utcnow()
-                    results = await self.evaluate_pairs(matches, indexed, books, now)
+                    async with self.repository.database.sessions() as session:
+                        rows = (
+                            await session.execute(
+                                select(
+                                    ConfigurationHeadRecord.key,
+                                    ConfigurationHeadRecord.revision_id,
+                                    ConfigurationRevisionRecord.payload["value"][
+                                        "expires_at"
+                                    ].as_string(),
+                                    ConfigurationRevisionRecord.payload["value"][
+                                        "effective_at"
+                                    ].as_string(),
+                                )
+                                .join(
+                                    ConfigurationRevisionRecord,
+                                    ConfigurationRevisionRecord.id
+                                    == ConfigurationHeadRecord.revision_id,
+                                )
+                                .where(
+                                    ConfigurationHeadRecord.key.startswith(self.settings.mode + ":")
+                                )
+                            )
+                        ).all()
+                    dependencies = {
+                        key: (
+                            revision,
+                            datetime.fromisoformat(expiry) > now if expiry else False,
+                            datetime.fromisoformat(effective) <= now if effective else True,
+                        )
+                        for key, revision, expiry, effective in rows
+                    }
+                    terms = {mid: market.terms_hash for mid, market in indexed.items()}
+                    cohort, signatures = [], {}
+                    for match in matches:
+                        pair = (match.left_id, match.right_id)
+                        snapshots = [books.get(mid) for mid in pair]
+                        signature = (
+                            match.status,
+                            match.review_revision_id,
+                            terms[match.left_id],
+                            terms[match.right_id],
+                            indexed[match.left_id].source_revision,
+                            indexed[match.right_id].source_revision,
+                            indexed[match.left_id].ingestion_issues,
+                            indexed[match.right_id].ingestion_issues,
+                            match.review.expires_at > now if match.review else False,
+                            tuple(
+                                dependencies.get(f"{self.settings.mode}:{kind}:{mid}")
+                                for kind, mid in (
+                                    ("access", "installation"),
+                                    ("applicability", match.left_id),
+                                    ("applicability", match.right_id),
+                                    ("fees", match.left_id),
+                                    ("fees", match.right_id),
+                                )
+                            ),
+                            tuple(book.id if book else None for book in snapshots)
+                            if all(snapshots)
+                            else tuple(bool(book) for book in snapshots),
+                            tuple(
+                                book_issue(
+                                    indexed[mid],
+                                    books.get(mid),
+                                    now,
+                                    self.settings.max_quote_age_seconds,
+                                )
+                                for mid in pair
+                            ),
+                        )
+                        if self.reported_candidates.get(match.id) != signature:
+                            cohort.append(match)
+                            signatures[match.id] = signature
+                    results = await self.evaluate_pairs(cohort, indexed, books, now)
                     await self.repository.publish(
                         self.settings.mode,
-                        matches,
+                        cohort,
                         results,
                         replace_generation=False,
                         settings=self.settings,
+                        write_matches=False,
                     )
+                    for result in results:
+                        signature = signatures[result.match_id]
+                        calculation = result.best_calculation
+                        if calculation:
+                            signature = (
+                                *signature[:10],
+                                tuple(leg.book_id for leg in calculation.legs),
+                                *signature[11:],
+                            )
+                        self.reported_candidates[result.match_id] = signature
                 except Exception as exc:
                     logger.warning("evaluation_failed", extra={"error": safe_error(exc)})
 
@@ -356,7 +452,7 @@ class Pipeline:
                 group.create_task(periodic(quotes, self.settings.poll_seconds)),
                 group.create_task(matching_loop()),
                 group.create_task(evaluation()),
-                group.create_task(periodic(fees, 120)),
+                group.create_task(periodic(fees, self.settings.fee_refresh_seconds)),
             ]
             await stop.wait()
             for task in tasks:

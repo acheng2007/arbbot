@@ -230,7 +230,9 @@ async def test_changed_or_failed_source_invalidates_approval(drafts, failure):
         )
     state = await store.current_decision("live", saved[0].market.id, saved[1].market.id)
     assert not state.eligible
-    assert state.blocked_reasons == (f"left:source_changed:{saved[0].source_artifact_ids[0]}",)
+    assert f"left:source_changed:{saved[0].source_artifact_ids[0]}" in state.blocked_reasons
+    if not failure:
+        assert "left:source_revision_changed" in state.blocked_reasons
     assert state.revision == decision
 
 

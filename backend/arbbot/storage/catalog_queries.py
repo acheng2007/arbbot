@@ -1,4 +1,4 @@
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 
 from arbbot.domain import Market, MarketSummary, Match, restore
 from arbbot.storage.models import MarketRecord, MatchRecord
@@ -48,7 +48,18 @@ class CatalogQueries:
 
     async def summaries(self, mode, *, limit=100, offset=0, **filters):
         fields = list(MarketSummary.model_fields)
-        query = select(*(MarketRecord.payload[field].as_string().label(field) for field in fields))
+        query = select(
+            *(
+                (
+                    MarketRecord.payload[field].as_string()
+                    if field not in ("feed_origin", "ingestion_issues")
+                    else MarketRecord.payload[field]
+                    if field == "ingestion_issues"
+                    else func.coalesce(MarketRecord.payload[field].as_string(), "exchange")
+                ).label(field)
+                for field in fields
+            )
+        )
         query = query.where(*market_predicates(mode, venues=self.venues, **filters))
         async with self.database.sessions() as session:
             rows = (
@@ -56,7 +67,12 @@ class CatalogQueries:
                 .mappings()
                 .all()
             )
-        return [MarketSummary.model_validate(dict(row)) for row in rows]
+        return [
+            MarketSummary.model_validate(
+                {**dict(row), "ingestion_issues": row["ingestion_issues"] or ()}
+            )
+            for row in rows
+        ]
 
     async def matches(
         self,

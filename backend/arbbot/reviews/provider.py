@@ -7,7 +7,8 @@ from sqlalchemy import text
 from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
 from arbbot.reviews.repository import ReviewRepository
-from arbbot.storage.models import MarketRecord
+from arbbot.sources.versions import bound_versions
+from arbbot.storage.models import DecisionRevisionRecord, DraftRevisionRecord, MarketRecord
 
 
 class ReviewProvider:
@@ -61,8 +62,11 @@ async def refresh_match(reviews, session, mode, match, *, allow_file_reviews=Fal
 
 
 async def guard_publication(database, session, mode, matches, evaluations):
+    positive_ids = {result.match_id for result in evaluations if result.opportunities}
     guarded = [
-        match for match in matches if match.review_revision_id and match.status == "verified"
+        match
+        for match in matches
+        if match.review_revision_id and match.status == "verified" and match.id in positive_ids
     ]
     if not guarded:
         return matches, evaluations
@@ -71,6 +75,15 @@ async def guard_publication(database, session, mode, matches, evaluations):
     # Review, draft, source and market mutations all serialize through these rows.
     for market_id in sorted({m for match in guarded for m in (match.left_id, match.right_id)}):
         await session.get(MarketRecord, f"{mode}:{market_id}", with_for_update=True)
+    for match in guarded:
+        decision = await session.get(DecisionRevisionRecord, match.review_revision_id)
+        if decision:
+            artifact_ids = []
+            for key in ("left_draft_id", "right_draft_id"):
+                draft = await session.get(DraftRevisionRecord, decision.payload[key])
+                if draft:
+                    artifact_ids.extend(draft.payload.get("source_artifact_ids", []))
+            await bound_versions(session, mode, artifact_ids, lock=True)
     reviews = ReviewRepository(database)
     invalid = set()
     for match in guarded:
