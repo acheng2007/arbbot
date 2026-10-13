@@ -91,7 +91,7 @@ export function OpportunityDashboard() {
         ) : (
           <ul className="space-y-5">
             {opportunities.data?.data.map((opportunity) => (
-              <li key={opportunity.id}>
+              <li key={`${opportunity.match_id}:${opportunity.legs.map((leg) => `${leg.market_id}:${leg.outcome}`).join("|")}`}>
                 <OpportunityCard opportunity={opportunity} markets={index} />
               </li>
             ))}

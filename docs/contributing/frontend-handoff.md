@@ -84,3 +84,16 @@ The recorded PostgreSQL / worker / API / Next.js acceptance passed, including bo
 The latest PostgreSQL suite passed 496 tests; SQLite has one unresolved evaluation-history scheduling test failure.
 See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for saved implementation, exact verification status, and artifacts.
 Next action: reproduce and resolve the SQLite scheduling-history failure before resuming final acceptance review.
+
+## October 12 completed integrated workflow
+
+This supersedes the paused checkpoint.
+The requested Kalshi / Polymarket US workflow and full recorded acceptance passed.
+SQLite and PostgreSQL each passed 497 tests; frontend units passed 58, fixture browsers passed 50, and connected desktop/mobile browsers passed four.
+Type, lint, generated-contract, migration preservation, financial, and production build checks passed.
+The final UI fixes preserve opportunity navigation across refreshes, coalesce pending SSE-triggered reads, wrap mobile reviewer identifiers, and separate actual US fee policy snapshots from legacy review costs.
+Branch: `backend/completion`; no PR or push.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for artifacts, operational limits, and the live evidence observations.
+Next action: inspect the completed acceptance artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.
+
+Exact historical opportunity details now show current invalidation reasons, including changed quotes, reviews, sources, access, fees, and venue health.

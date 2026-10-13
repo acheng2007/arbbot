@@ -135,12 +135,14 @@ describe("backend snapshot subscription", () => {
         ),
       );
       expect(hook.result.current.lastEventAt).not.toBeNull();
-      expect(invalidate).toHaveBeenCalledWith({
-        queryKey: ["arbbot", "opportunities"],
-      });
-      expect(invalidate).toHaveBeenCalledWith({
-        queryKey: ["arbbot", "evaluations"],
-      });
+      expect(invalidate).toHaveBeenCalledWith(
+        { queryKey: ["arbbot", "opportunities"] },
+        { cancelRefetch: false },
+      );
+      expect(invalidate).toHaveBeenCalledWith(
+        { queryKey: ["arbbot", "evaluations"] },
+        { cancelRefetch: false },
+      );
       hook.unmount();
       expect(source.close).toHaveBeenCalledOnce();
     } finally {

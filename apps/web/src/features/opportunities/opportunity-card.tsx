@@ -67,6 +67,10 @@ export function LegSummary({
           </div>
         ))}
       </dl>
+      {leg.fee_policy_id && <details className="mt-3 text-xs text-muted-foreground">
+        <summary className="cursor-pointer">Fee policy snapshot</summary>
+        <p className="mt-1 break-all font-mono">{leg.fee_policy_id}</p>
+      </details>}
       {!leg.source_timestamp_available && (
         <p className="mt-3 text-xs leading-5 text-amber-900">
           This venue supplied no exchange-side timestamp, so the quote age is

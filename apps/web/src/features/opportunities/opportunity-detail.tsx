@@ -138,6 +138,15 @@ export function OpportunityDetail({
                   </Link>
                 </header>
 
+                {!live && current.data?.data.invalidation_reasons?.length ? (
+                  <section aria-label="Opportunity invalidation" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+                    <p className="font-semibold">This estimate is no longer eligible.</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 [overflow-wrap:anywhere]">
+                      {current.data.data.invalidation_reasons.map((reason) => <li key={reason}>{reason}</li>)}
+                    </ul>
+                  </section>
+                ) : null}
+
                 <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
                   <h2 className="text-lg font-semibold">Cost and result</h2>
                   <div className="mt-4">

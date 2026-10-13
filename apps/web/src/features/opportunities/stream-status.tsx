@@ -13,7 +13,7 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
   const now = useNow();
   const confirmedAgo =
     now !== null && state.lastEventAt !== null
-      ? describeAge((now - state.lastEventAt) / 1000)
+      ? describeAge(Math.max(0, (now - state.lastEventAt) / 1000))
       : null;
 
   if (state.status === "open")

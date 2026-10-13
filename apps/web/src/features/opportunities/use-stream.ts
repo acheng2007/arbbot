@@ -43,11 +43,13 @@ export function useOpportunityStream(enabled = true) {
 
     source.addEventListener("snapshot", () => {
       markCurrent();
-      void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] });
-      void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] });
-      void client.invalidateQueries({ queryKey: ["arbbot", "history"] });
+      // Let pending reads finish when snapshots arrive faster than the API.
+      // Repeated cancellation can prevent refreshed data from reaching the UI.
+      void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] }, { cancelRefetch: false });
+      void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] }, { cancelRefetch: false });
+      void client.invalidateQueries({ queryKey: ["arbbot", "history"] }, { cancelRefetch: false });
       for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "book", "status"])
-        void client.invalidateQueries({ queryKey: ["arbbot", operation] });
+        void client.invalidateQueries({ queryKey: ["arbbot", operation] }, { cancelRefetch: false });
     });
 
     source.onopen = () => {

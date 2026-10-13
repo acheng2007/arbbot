@@ -19,8 +19,18 @@ test("recorded worker estimates, exact details, broad browsing and SSE recovery"
   await page.getByRole("link", { name: "Full calculation and assumptions" }).first().click();
   await expect(page.getByText("Payout in every settlement outcome")).toBeVisible();
   await expect(page.getByText("Short proceeds").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recorded review" })).toBeVisible();
+  await expect(page.getByText("Fee policy snapshot", { exact: true })).toHaveCount(2);
+  await expect(page.getByText("Fee per contract", { exact: true })).toHaveCount(0);
+  // A continuously replaced estimate remains inspectable with its audit reasons.
+  if (await page.getByText("From history", { exact: true }).isVisible()) {
+    await expect(page.getByRole("region", { name: "Opportunity invalidation" })).toBeVisible();
+  }
   await expect(page.getByText("Live feed", { exact: true })).toHaveCount(0);
-  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-calculation.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-calculation.png` });
+  await page.getByRole("heading", { name: "Recorded review" }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-review.png` });
 
   await page.goto("/markets?q=synthetic-3-counterpart-204&category=acceptance&status=open");
   await expect(page.getByRole("heading", { name: "SYNTHETIC: Scenario 3" }).first()).toBeVisible();
@@ -44,5 +54,43 @@ test("recorded worker estimates, exact details, broad browsing and SSE recovery"
   phase("baseline");
   await expect(page.getByText("Short instrument (NO)").first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-opportunities.png`, fullPage: true });
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-opportunities.png` });
+});
+
+test("connected loading, retry, and stale quote states remain understandable", async ({ page }) => {
+  // Hold actual backend reads to expose loading, then simulate a transport failure.
+  // Successful responses still come from the persistent PostgreSQL-backed worker.
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  let failing = true;
+  // Exercise manual retry while SSE is unavailable. Otherwise a real snapshot
+  // can recover the query before the user has time to press the retry button.
+  await page.route("**/api/stream", (route) => route.abort());
+  await page.route("**/api/data/opportunities*", async (route) => {
+    await held;
+    if (failing) await route.fulfill({ status: 503, json: { failure: "unreachable" } });
+    else await route.continue();
+  });
+  await page.goto("/opportunities");
+  await expect(page.getByText("Loading opportunities", { exact: true })).toBeVisible();
+  await page.getByText("Loading opportunities", { exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-loading.png` });
+  release();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("could not be loaded");
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+  await page.getByRole("main").getByRole("alert").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-error.png` });
+  failing = false;
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
+  await expect(page.getByText("Offline recorded acceptance data.")).toBeVisible();
+
+  // This book is genuinely stale in the exchange recording, not patched in the UI.
+  await page.goto("/markets/polymarket_us%3Asynthetic-4");
+  await expect(page.getByRole("heading", { name: "Quote health" })).toBeVisible();
+  await expect(page.getByText(/Stale quote/).first()).toBeVisible();
+  await expect(page.getByText("Synthetic recording").first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole("heading", { name: "Quote health" }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-stale.png` });
 });
