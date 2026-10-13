@@ -53,3 +53,11 @@ The final UI fixes preserve opportunity navigation across refreshes, coalesce pe
 Branch: `backend/completion`; no PR or push.
 See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for artifacts, operational limits, and the live evidence observations.
 Next action: inspect the completed acceptance artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.
+
+## Final opportunity contract verification
+
+Exact opportunity responses now include eligible/invalidated status and input-specific invalidation reasons without changing immutable audit payloads.
+The updated full SQLite and PostgreSQL suites each passed 497 tests.
+The full recorded acceptance passed again under `/tmp/arbbot-acceptance-final-contract`, including restricted-access reasons returned for the withdrawn estimate.
+Generated OpenAPI and TypeScript contracts match the additive response.
+Next action: inspect the final artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.

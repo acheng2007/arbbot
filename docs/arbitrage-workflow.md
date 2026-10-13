@@ -112,6 +112,7 @@ An estimate expires at its earliest input deadline.
 Invalid inputs withdraw estimates, and recovery calculates new estimates rather than replaying old ones.
 Pair publication does not replace unrelated matching generations or evaluations.
 Latest evaluation heads avoid scanning the entire audit history on each browser refresh.
+Exact opportunity details retain the original calculation and expose eligible/invalidated status plus current quote, approval, configuration, and feed invalidation reasons.
 Migration `b023_evaluation_heads` preserves historical payloads, backfills latest heads, and stores signed financial metrics with unscaled PostgreSQL `NUMERIC`.
 International venue identities and historical payloads remain readable; they are not an additional US trading route.
 

@@ -247,7 +247,12 @@ def create_app(
             enabled_venues=settings.enabled_venues,
             opportunity_id=opportunity_id,
         )
-        return OpportunityState(opportunity=historical[0], eligible=bool(current))
+        from arbbot.execution.invalidation import invalidation_reasons
+
+        reasons = () if current else await invalidation_reasons(repository, settings, historical[0])
+        return OpportunityState(
+            opportunity=historical[0], eligible=bool(current), invalidation_reasons=reasons
+        )
 
     @app.get("/api/v1/evaluations", response_model=list[Evaluation])
     async def evaluations(

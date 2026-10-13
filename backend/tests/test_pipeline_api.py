@@ -46,6 +46,7 @@ async def test_ingestion_to_api_and_audit_history(database):
         await Pipeline(settings, repository, adapters()).cycle()
         assert len((await client.get("/api/v1/opportunities")).json()) == 1
         assert len((await client.get("/api/v1/opportunities/history")).json()) == 2
+
         assert len((await client.get("/api/v1/evaluations")).json()) == 1
         assert len((await client.get("/api/v1/evaluations?history=true")).json()) == 2
         async with db.sessions.begin() as session:
@@ -54,6 +55,30 @@ async def test_ingestion_to_api_and_audit_history(database):
             )
         assert (await client.get("/api/v1/opportunities")).json() == []
         assert len((await client.get("/api/v1/opportunities/history")).json()) == 2
+
+
+async def test_exact_opportunity_reports_input_changes_and_preserves_history(database):
+    settings, db, repository = database
+    pipeline = Pipeline(settings, repository, adapters())
+    await pipeline.cycle()
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        opportunity = (await client.get("/api/v1/opportunities")).json()[0]
+        path = "/api/v1/opportunities/" + opportunity["id"]
+        current = (await client.get(path)).json()
+        assert current["status"] == "eligible" and current["invalidation_reasons"] == []
+        await pipeline.cycle()
+        previous = (await client.get(path)).json()
+        assert previous["status"] == "invalidated" and not previous["eligible"]
+        assert "evaluation_superseded_or_withdrawn" in previous["invalidation_reasons"]
+        assert any(r.startswith("quote_changed:") for r in previous["invalidation_reasons"])
+        assert previous["opportunity"] == opportunity
+        await repository.set_health(settings.mode, "polymarket", "degraded", error="ReadTimeout")
+        newest = (await client.get("/api/v1/opportunities/history")).json()[0]
+        failed = (await client.get("/api/v1/opportunities/" + newest["id"])).json()
+        assert failed["status"] == "invalidated"
+        assert "venue_feed_unavailable:polymarket" in failed["invalidation_reasons"]
 
 
 async def test_failed_exchange_invalidates_feed_and_recovers(database):

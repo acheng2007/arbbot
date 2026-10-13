@@ -376,6 +376,13 @@ class Opportunity(Model):
 class OpportunityState(Model):
     opportunity: Opportunity
     eligible: bool
+    status: Literal["eligible", "invalidated"] = "invalidated"
+    invalidation_reasons: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def reflect_eligibility(self):
+        object.__setattr__(self, "status", "eligible" if self.eligible else "invalidated")
+        return self
 
 
 class Evaluation(Model):

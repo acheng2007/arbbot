@@ -363,6 +363,7 @@ class Harness:
             return not await self.opportunities()
 
         current = self.seeded["access"]
+        previous_id = self.last_positive[0]["id"]
         restricted = await self.configuration.save(
             "live",
             ConfigurationWrite(
@@ -373,6 +374,9 @@ class Harness:
             ACTOR,
         )
         assert not await self.opportunities()
+        previous = (await self.api.get("/api/v1/opportunities/" + previous_id)).json()
+        assert previous["status"] == "invalidated"
+        assert "installation_access_restricted_or_expired" in previous["invalidation_reasons"]
         await self.configuration.save(
             "live",
             ConfigurationWrite(

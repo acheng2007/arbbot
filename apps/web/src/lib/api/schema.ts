@@ -533,6 +533,8 @@ export type Opportunity = {
 export type OpportunityState = {
   opportunity: Opportunity;
   eligible: boolean;
+  status?: "eligible" | "invalidated";
+  invalidation_reasons?: Array<string>;
 };
 
 export type Permission = {

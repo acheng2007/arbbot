@@ -4829,6 +4829,23 @@
           "eligible": {
             "type": "boolean",
             "title": "Eligible"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "eligible",
+              "invalidated"
+            ],
+            "title": "Status",
+            "default": "invalidated"
+          },
+          "invalidation_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Invalidation Reasons",
+            "default": []
           }
         },
         "additionalProperties": false,
