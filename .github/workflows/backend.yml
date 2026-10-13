@@ -66,4 +66,5 @@ jobs:
           python -m arbbot.api.export_schema --output docs/openapi.json
           python -m arbbot.api.export_schema --reviews --output docs/reviews.schema.json
           python -m arbbot.api.export_schema --definitions --output docs/definitions.schema.json
-          git diff --exit-code -- docs/openapi.json docs/reviews.schema.json docs/definitions.schema.json
+          python -m arbbot.api.export_schema --execution --output docs/execution.schema.json
+          git diff --exit-code -- docs/openapi.json docs/reviews.schema.json docs/definitions.schema.json docs/execution.schema.json

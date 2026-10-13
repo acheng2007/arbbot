@@ -128,6 +128,9 @@ ARBBOT_TEST_DATABASE_URL=postgresql+psycopg://arbbot:arbbot@127.0.0.1:55432/arbb
 Run the integrated acceptance harness against PostgreSQL.
 It upgrades a unique schema, delegates recorded HTTP responses through production adapters, runs the actual persistent worker and FastAPI processes, and connects Next.js to that API.
 It preserves its isolated schema, logs, request journal, recording, screenshots, and results for audit and stops only the processes it started.
+Stop other ingestion workers using the same PostgreSQL database before running the harness, or supply a separate database URL.
+The worker lease is shared across schemas in a database.
+Failed runs retain public API and persisted-input diagnostics in `diagnostics.json`, with schema and service ports in `runtime.json`.
 
 ```sh
 .venv/bin/python backend/scripts/run_acceptance.py --output /tmp/arbbot-acceptance

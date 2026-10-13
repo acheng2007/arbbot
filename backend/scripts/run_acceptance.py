@@ -65,6 +65,12 @@ class Harness:
         )
         self.processes, self.logs = {}, []
         self.results = []
+        (directory / "runtime.json").write_text(
+            json.dumps(
+                {"schema": self.schema, "api_port": self.api_port, "web_port": self.web_port},
+                indent=2,
+            )
+        )
         self.settings = Settings(
             _env_file=None,
             **{
@@ -509,6 +515,38 @@ class Harness:
         if hasattr(self, "db"):
             await self.db.close()
 
+    async def diagnostics(self):
+        """Keep enough public and persisted state to diagnose a failed browser phase."""
+        if not hasattr(self, "db"):
+            return
+        from sqlalchemy import select
+
+        from arbbot.storage.models import OpportunityRecord
+        from arbbot.storage.repository import Repository
+
+        repository = Repository(self.db)
+        books = await repository.latest_books("live")
+        async with self.db.sessions() as session:
+            rows = (
+                await session.scalars(
+                    select(OpportunityRecord)
+                    .order_by(OpportunityRecord.evaluated_at.desc())
+                    .limit(3)
+                )
+            ).all()
+        payload = {
+            "schema": self.schema,
+            "checks": self.results,
+            "opportunities": [{"active": row.active, "payload": row.payload} for row in rows],
+            "books": {mid: book.model_dump(mode="json") for mid, book in books.items()},
+            "health": await repository.health("live", self.settings.health_timeout_seconds),
+        }
+        async with httpx.AsyncClient(base_url=self.env["BACKEND_URL"], timeout=10) as api:
+            for path in ("evaluations", "opportunities", "matches"):
+                response = await api.get(f"/api/v1/{path}", params={"limit": 200})
+                payload[path + "_api"] = response.json()
+        (self.directory / "diagnostics.json").write_text(json.dumps(payload, default=str, indent=2))
+
 
 async def main(args):
     directory = args.output or Path(tempfile.mkdtemp(prefix="arbbot-acceptance-"))
@@ -516,6 +554,12 @@ async def main(args):
     try:
         await harness.run(browser=not args.no_browser)
         print(json.dumps({"acceptance": "passed", "artifacts": str(directory)}), flush=True)
+    except Exception:
+        try:
+            await harness.diagnostics()
+        except Exception as exc:
+            print(f"Diagnostic capture failed: {type(exc).__name__}", flush=True)
+        raise
     finally:
         await harness.close()
 

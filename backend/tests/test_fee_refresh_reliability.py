@@ -73,7 +73,9 @@ async def test_fee_refresh_isolates_failure_and_rotates_after_restart(database, 
 def test_general_fee_formula_uses_first_formula_not_intro_or_examples():
     from decimal import Decimal
     from pathlib import Path
+
     from pypdf import PdfReader
+
     from arbbot.fees.refresh import documented_general_rate
 
     body = "\n".join(

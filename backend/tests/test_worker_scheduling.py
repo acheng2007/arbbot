@@ -131,7 +131,15 @@ async def test_unchanged_quotes_coalesce_evaluation_history(database, fixture_ma
         ) as api:
             rows = (await api.get("/api/v1/evaluations", params={"history": "true"})).json()
             assert sum(row["status"] == "profitable" for row in rows) == 1
-            assert len(rows) <= 2  # Initial missing-book state may precede the first quote.
+            # Independent venue writes can expose zero or one book before both
+            # arrive. Each distinct missing-book state is legitimate audit history.
+            blocked = [row for row in rows if row["status"] != "profitable"]
+            reasons = [tuple(sorted(row["blocked_reasons"])) for row in blocked]
+            assert len(reasons) == len(set(reasons))
+            allowed = {f"book_missing:{market.id}" for market in markets}
+            assert all(row["status"] == "blocked" for row in blocked)
+            assert all(reason and set(reason) <= allowed for reason in reasons)
+            assert len(blocked) <= 2
     finally:
         stop.set()
         await worker
