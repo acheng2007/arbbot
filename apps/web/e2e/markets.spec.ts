@@ -17,6 +17,9 @@ test("quotes refresh without navigation and recover after a failed refresh", asy
     await route.fulfill({ response, json: book });
   });
   await page.goto("/markets/kalshi%3ACPIYOY-26SEP-T3.0");
+  await page
+    .getByText("Order-book depth and diagnostics", { exact: true })
+    .click();
   await expect(
     page.getByRole("cell", { name: "12.34¢", exact: true }),
   ).toBeVisible();
@@ -33,13 +36,19 @@ test("quotes refresh without navigation and recover after a failed refresh", asy
     page.getByRole("cell", { name: "23.45¢", exact: true }),
   ).toHaveCount(0);
   phase = "recovered";
+  await expect(page.getByText("23.45¢", { exact: true }).first()).toBeVisible({
+    timeout: 12000,
+  });
+  await page
+    .getByText("Order-book depth and diagnostics", { exact: true })
+    .click();
   await expect(
     page.getByRole("cell", { name: "23.45¢", exact: true }),
-  ).toBeVisible({ timeout: 12000 });
+  ).toBeVisible();
 });
 
 test("filters are shareable through the address bar", async ({ page }) => {
-  await page.goto("/markets");
+  await page.goto("/markets?view=all");
   await expect(
     page.getByRole("link", { name: /NYC high temperature/ }),
   ).toBeVisible();
@@ -47,7 +56,7 @@ test("filters are shareable through the address bar", async ({ page }) => {
   await page.getByLabel("Venue").selectOption("kalshi");
   await expect(page).toHaveURL(/venue=kalshi/);
   await expect(
-    page.getByRole("link", { name: /Will US CPI YoY/ }),
+    page.getByRole("link", { name: /US CPI year-over-year above/ }),
   ).toBeVisible();
 
   await page.getByLabel("Search all markets").fill("payrolls");
@@ -59,25 +68,26 @@ test("filters are shareable through the address bar", async ({ page }) => {
   // Reloading the shared address must reproduce the same view.
   await page.reload();
   await expect(page.getByLabel("Venue")).toHaveValue("kalshi");
-  await expect(page.getByLabel("Search all markets")).toHaveValue(
-    "payrolls",
-  );
+  await expect(page.getByLabel("Search all markets")).toHaveValue("payrolls");
 
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page).toHaveURL(/\/markets$/);
+  await expect(page).toHaveURL(/\/markets\?view=all$/);
 });
 
 test("a search with no matches explains itself", async ({ page }) => {
   await page.goto("/markets?q=nothing-matches-this");
-  await expect(page.getByText("No markets match these filters")).toBeVisible();
+  await expect(page.getByText("No paired markets found")).toBeVisible();
 });
 
 test("source detail shows original terms, extraction gaps, and quote health", async ({
   page,
 }) => {
   await page.goto("/markets");
+  await page.goto("/markets/kalshi%3ACPIYOY-26SEP-T3.0");
+  await page.getByText("Source documents", { exact: true }).click();
+  await page.getByText("Extracted settlement terms", { exact: true }).click();
   await page
-    .getByRole("link", { name: /US CPI year-over-year above 3\.0%/ })
+    .getByText("Order-book depth and diagnostics", { exact: true })
     .click();
 
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -102,6 +112,10 @@ test("a market without depth says so rather than showing a blank book", async ({
   page,
 }) => {
   await page.goto("/markets/kalshi%3APAYROLLS-26OCT-T150");
+  await page
+    .getByText("Order-book depth and diagnostics", { exact: true })
+    .click();
+  await page.getByText("Extracted settlement terms", { exact: true }).click();
   await expect(page.getByText("No executable depth")).toBeVisible();
   await expect(page.getByText("Not supported")).toBeVisible();
 });
@@ -121,10 +135,13 @@ test("prediction cards show both venue prices together", async ({ page }) => {
     name: /US CPI year-over-year above/,
   });
   await expect(
-    prediction.getByRole("heading", { name: "Polymarket International", exact: true }),
+    prediction.getByRole("link", {
+      name: "Polymarket International",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
-    prediction.getByRole("heading", { name: "Kalshi", exact: true }),
+    prediction.getByRole("link", { name: "Kalshi", exact: true }),
   ).toBeVisible();
   await expect(prediction.getByText("Yes ask", { exact: true })).toHaveCount(2);
   await expect(prediction.getByText("No ask", { exact: true })).toHaveCount(2);

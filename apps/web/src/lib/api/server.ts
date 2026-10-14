@@ -94,6 +94,9 @@ function fromFixtures(
     category?: string | null;
     q?: string | null;
     classification?: string | null;
+    same_event?: boolean;
+    market_status?: string | null;
+    exclude_rejected?: boolean;
   };
   const fixtures = recordedDataset();
 
@@ -187,6 +190,24 @@ function fromFixtures(
       return paginate(
         fixtures.matches.filter(
           (entry) =>
+            (query.same_event === undefined ||
+              entry.comparison?.same_event ===
+                (String(query.same_event) === "true")) &&
+            (String(query.exclude_rejected) !== "true" ||
+              entry.status !== "rejected") &&
+            (!query.status || entry.status === query.status) &&
+            fixtures.markets.some(
+              (market) =>
+                [entry.left_id, entry.right_id].includes(market.id) &&
+                (!query.venue || market.venue === query.venue) &&
+                (!query.market_status ||
+                  market.status === query.market_status) &&
+                (!query.category || market.category === query.category) &&
+                (!query.q ||
+                  `${market.title} ${market.id} ${market.rules}`
+                    .toLowerCase()
+                    .includes(query.q.toLowerCase())),
+            ) &&
             (!query.market_id ||
               entry.left_id === query.market_id ||
               entry.right_id === query.market_id) &&

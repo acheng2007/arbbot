@@ -82,6 +82,10 @@ class CatalogQueries:
         limit=100,
         offset=0,
         status=None,
+        category=None,
+        same_event=None,
+        market_status=None,
+        exclude_rejected=False,
         evidence=None,
         classification=None,
         market_id=None,
@@ -115,12 +119,19 @@ class CatalogQueries:
             query = query.where(MatchRecord.payload["status"].as_string().in_({status, "verified"}))
         if evidence is not None:
             query = query.where(MatchRecord.evidence_complete.is_(evidence == "complete"))
-        if any(value is not None for value in (venue, family, q)):
+        if any(value is not None for value in (venue, family, q, market_status, category)):
             # All market-side filters must match the same leg. EXISTS avoids duplicated pairs.
             matching_leg = (
                 select(MarketRecord.key)
                 .where(
-                    *market_predicates(mode, venue=venue, family=family, q=q),
+                    *market_predicates(
+                        mode,
+                        venue=venue,
+                        family=family,
+                        q=q,
+                        status=market_status,
+                        category=category,
+                    ),
                     or_(
                         MarketRecord.id == MatchRecord.payload["left_id"].as_string(),
                         MarketRecord.id == MatchRecord.payload["right_id"].as_string(),
@@ -176,6 +187,12 @@ class CatalogQueries:
                     or (classification != "suggested" and advice.state != classification)
                 ):
                     continue
+                if exclude_rejected and match.status == "rejected":
+                    continue
+                if same_event is not None and (
+                    not match.comparison or match.comparison.same_event != same_event
+                ):
+                    continue
                 included.append(row.id)
                 rank = (
                     0
@@ -196,6 +213,13 @@ class CatalogQueries:
                     advisory["supports_candidate"].as_boolean().is_(True)
                     if classification == "suggested"
                     else func.coalesce(advisory["state"].as_string(), fallback) == classification,
+                )
+            if exclude_rejected:
+                ordinary = and_(ordinary, MatchRecord.payload["status"].as_string() != "rejected")
+            if same_event is not None:
+                ordinary = and_(
+                    ordinary,
+                    MatchRecord.payload["comparison"]["same_event"].as_boolean().is_(same_event),
                 )
             final = query.where(or_(MatchRecord.id.in_(included), ordinary))
             ordinary_rank = case(

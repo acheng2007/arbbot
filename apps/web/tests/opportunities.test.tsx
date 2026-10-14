@@ -75,7 +75,7 @@ describe("live update status", () => {
     const banner = screen.getByRole("status");
     expect(banner).toHaveTextContent("Live updates disconnected, retrying.");
     expect(banner).toHaveTextContent(/may no longer hold/);
-    expect(banner).toHaveTextContent("dropped 2 times");
+    expect(banner).toHaveTextContent("2 reconnects");
   });
 
   it("does not imply confirmation before the first event", () => {
@@ -149,4 +149,29 @@ describe("backend snapshot subscription", () => {
       vi.unstubAllGlobals();
     }
   });
+});
+
+it("labels a native short's summary price as collateral", async () => {
+  const { OpportunityCard } =
+    await import("@/features/opportunities/opportunity-card");
+  const markets = new Map(dataset.markets.map((market) => [market.id, market]));
+  render(
+    <OpportunityCard
+      markets={markets}
+      opportunity={{
+        ...opportunity,
+        legs: [
+          opportunity.legs[0],
+          {
+            ...opportunity.legs[1],
+            native_action: "short_instrument",
+            native_price: "0.47",
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByText(/Short YES \(NO\)/)).toBeVisible();
+  expect(screen.getByText("Collateral 53¢", { exact: true })).toBeVisible();
+  expect(screen.queryByText("Fee policy snapshot")).not.toBeInTheDocument();
 });

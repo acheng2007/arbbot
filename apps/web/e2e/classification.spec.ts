@@ -41,6 +41,9 @@ test("advisory findings and captured evidence remain separate from review", asyn
     await route.fulfill({ response: result, json: body });
   });
   await page.goto("/matches/match-payrolls-2026-10");
+  await page
+    .getByText("AI classification and matching rationale", { exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "AI suggests same event" }),
   ).toBeVisible();
@@ -82,6 +85,9 @@ test("pending, stale and unavailable states stay readable", async ({
       await route.fulfill({ response: result, json: body });
     });
     await page.goto("/matches/match-payrolls-2026-10");
+    await page
+      .getByText("AI classification and matching rationale", { exact: true })
+      .click();
     await expect(
       page.getByRole("heading", { name: `AI classification ${state}` }),
     ).toBeVisible();

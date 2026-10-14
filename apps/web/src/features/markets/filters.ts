@@ -3,6 +3,7 @@ import type { Market } from "@/lib/api/schema";
 export const PAGE_SIZE = 25;
 
 export type MarketFilters = {
+  view: "paired" | "all";
   /** Sent to the API; the backend filters by venue. */
   venue: Market["venue"] | "";
   /** Sent to the API before pagination. */
@@ -14,6 +15,7 @@ export type MarketFilters = {
 };
 
 export const EMPTY_FILTERS: MarketFilters = {
+  view: "paired",
   venue: "",
   status: "",
   search: "",
@@ -30,6 +32,7 @@ export function parseFilters(params: URLSearchParams): MarketFilters {
   const status = params.get("status") ?? "";
   const offset = Number.parseInt(params.get("offset") ?? "", 10);
   return {
+    view: params.get("view") === "all" ? "all" : "paired",
     venue: VENUES.includes(venue as Market["venue"])
       ? (venue as Market["venue"])
       : "",
@@ -45,6 +48,7 @@ export function parseFilters(params: URLSearchParams): MarketFilters {
 /** Writes filters back to the address bar so a view can be shared or reloaded. */
 export function serializeFilters(filters: MarketFilters) {
   const params = new URLSearchParams();
+  if (filters.view === "all") params.set("view", "all");
   if (filters.venue) params.set("venue", filters.venue);
   if (filters.status) params.set("status", filters.status);
   if (filters.search) params.set("q", filters.search);

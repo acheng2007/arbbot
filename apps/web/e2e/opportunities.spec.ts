@@ -8,8 +8,11 @@ async function patchOpportunities(
   await page.route("**/api/data/opportunit*", async (route) => {
     const response = await route.fetch();
     const body = await response.json();
-    await route.fulfill({ json: Array.isArray(body) ? patch(body) :
-      { ...body, opportunity: patch([body.opportunity])[0] } });
+    await route.fulfill({
+      json: Array.isArray(body)
+        ? patch(body)
+        : { ...body, opportunity: patch([body.opportunity])[0] },
+    });
   });
 }
 
@@ -18,14 +21,17 @@ test("an estimate is presented with its costs, evidence, and caveats", async ({
 }) => {
   await page.goto("/opportunities");
 
-  await expect(page.getByText("Recorded fixture data.")).toBeVisible();
-  await expect(page.getByText("Quote-supported estimate")).toBeVisible();
-  await expect(page.getByText(/not guaranteed profit/)).toBeVisible();
+  await expect(page.getByText(/Recorded fixture data/)).toBeVisible();
+  await expect(page.getByText("Estimated net profit")).toBeVisible();
+  await expect(page.getByText(/Estimates after costs/)).toBeVisible();
 
   await page
-    .getByRole("link", { name: /Full calculation and assumptions/ })
+    .getByRole("link", { name: /View calculation and assumptions/ })
     .click();
 
+  await page.getByText("Cost and result", { exact: true }).click();
+  await page.getByText("Settlement scenarios", { exact: true }).click();
+  await page.getByText("Execution assumptions", { exact: true }).click();
   // Costs must be separable, not rolled into one number.
   await expect(page.getByText("Executable depth cost")).toBeVisible();
   await expect(page.getByText("Fees", { exact: true })).toBeVisible();
@@ -44,6 +50,7 @@ test("an estimate is presented with its costs, evidence, and caveats", async ({
   await page
     .getByRole("link", { name: /Inspect the contract comparison/ })
     .click();
+  await page.getByText("Review evidence", { exact: true }).click();
   await expect(page.getByText("Recorded review")).toBeVisible();
 });
 
@@ -106,7 +113,7 @@ test("the stream reconnects and confirms the data again", async ({ page }) => {
 
 test("pairs that produced no opportunity explain why", async ({ page }) => {
   await page.goto("/opportunities");
-  await expect(page.getByText("Evaluated but not tradable")).toBeVisible();
+  await page.getByText("Evaluated but not tradable", { exact: true }).click();
   await expect(
     page.getByText(/rejected in review; settlement is not equivalent/),
   ).toBeVisible();
@@ -168,7 +175,7 @@ test("a backend snapshot refreshes displayed opportunities", async ({
     });
   });
   await page.goto("/opportunities");
-  await expect(page.getByText("Quote-supported estimate")).toBeVisible();
+  await expect(page.getByText("Estimated net profit")).toBeVisible();
   const initialReads = reads;
   changed = true;
   sendSnapshot();
@@ -208,6 +215,7 @@ test("comparison details load a pair and contracts beyond catalog pages", async 
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "US CPI year-over-year",
   );
+  await page.getByText("Source documents", { exact: true }).click();
   await expect(page.getByText("Kalshi original terms")).toBeVisible();
   await expect(
     page.getByText("Polymarket International original terms"),

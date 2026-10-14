@@ -837,6 +837,10 @@ export interface ApiOperations {
       status?: "candidate" | "verified" | "rejected" | null;
       family?: string | null;
       q?: string | null;
+      category?: string | null;
+      same_event?: boolean | null;
+      market_status?: "open" | "closed" | null;
+      exclude_rejected?: boolean;
       evidence?: "complete" | "incomplete" | null;
       classification?:
         | "suggested"
@@ -1187,6 +1191,10 @@ export const API_OPERATIONS = {
       "status",
       "family",
       "q",
+      "category",
+      "same_event",
+      "market_status",
+      "exclude_rejected",
       "evidence",
       "classification",
       "market_id",

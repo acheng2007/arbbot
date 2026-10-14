@@ -1,9 +1,31 @@
 "use client";
+import type { Book } from "@/lib/api/schema";
 import { QuoteAge } from "@/components/freshness";
 import { useApi } from "@/lib/query/hooks";
 import { formatPrice, formatQuantity } from "@/lib/decimal";
 
-export function MarketPrices({ marketId }: { marketId: string }) {
+export function MarketPrices({
+  marketId,
+  shortNo = false,
+  providedBook,
+}: {
+  marketId: string;
+  shortNo?: boolean;
+  providedBook?: Book;
+}) {
+  return providedBook ? (
+    <PriceDisplay quote={providedBook} shortNo={shortNo} />
+  ) : (
+    <QueriedPrices marketId={marketId} shortNo={shortNo} />
+  );
+}
+function QueriedPrices({
+  marketId,
+  shortNo,
+}: {
+  marketId: string;
+  shortNo: boolean;
+}) {
   const book = useApi(
     "book",
     { params: { market_id: marketId } },
@@ -21,18 +43,23 @@ export function MarketPrices({ marketId }: { marketId: string }) {
         Prices unavailable. Open market for details.
       </p>
     );
-  const quote = book.data.data;
+  return <PriceDisplay quote={book.data.data} shortNo={shortNo} />;
+}
+function PriceDisplay({ quote, shortNo }: { quote: Book; shortNo: boolean }) {
   return (
-    <div className="mt-4 space-y-3 border-t border-border pt-3">
+    <div className="space-y-2">
       <dl className="grid grid-cols-2 gap-4">
         {[
           { label: "Yes ask", level: quote.yes_asks[0] },
-          { label: "No ask", level: quote.no_asks[0] },
+          {
+            label: shortNo ? "NO short collateral" : "No ask",
+            level: quote.no_asks[0],
+          },
         ].map(({ label, level }) => {
           return (
             <div key={label}>
               <dt className="text-xs text-muted-foreground">{label}</dt>
-              <dd className="mt-1 text-lg font-semibold tabular-nums">
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-primary">
                 {level ? formatPrice(level.price) : "No offers"}
               </dd>
               {level && (
@@ -44,7 +71,11 @@ export function MarketPrices({ marketId }: { marketId: string }) {
           );
         })}
       </dl>
-      <QuoteAge sourceAt={quote.source_at} receivedAt={quote.received_at} />
+      <QuoteAge
+        sourceAt={quote.source_at}
+        receivedAt={quote.received_at}
+        compact
+      />
     </div>
   );
 }

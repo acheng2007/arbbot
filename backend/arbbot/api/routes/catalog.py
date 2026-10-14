@@ -120,6 +120,10 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         status: Literal["candidate", "verified", "rejected"] | None = None,
         family: Family = None,
         q: Search = None,
+        category: Family = None,
+        same_event: bool | None = None,
+        market_status: Literal["open", "closed"] | None = None,
+        exclude_rejected: bool = False,
         evidence: Literal["complete", "incomplete"] | None = None,
         classification: Literal[
             "suggested", "fresh", "pending", "stale", "unavailable", "unconfigured", "disabled"
@@ -135,6 +139,10 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
             status=status,
             family=family,
             q=q,
+            category=category,
+            same_event=same_event,
+            market_status=market_status,
+            exclude_rejected=exclude_rejected,
             evidence=evidence,
             classification=classification,
             market_id=market_id,

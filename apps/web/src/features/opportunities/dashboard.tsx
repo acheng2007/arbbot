@@ -1,4 +1,5 @@
 "use client";
+import { Disclosure } from "@/components/disclosure";
 import type { Evaluation } from "@/lib/api/schema";
 import Link from "next/link";
 import { EmptyState } from "@/components/states";
@@ -18,7 +19,23 @@ function BlockedEvaluations() {
   const blocked = (evaluations.data?.data ?? []).filter(
     (evaluation) => evaluation.blocked_reasons.length > 0,
   );
-  if (blocked.length === 0) return null;
+  if (evaluations.isPending || evaluations.error)
+    return (
+      <QueryState
+        isPending={evaluations.isPending}
+        error={evaluations.error}
+        loadingLabel="Loading evaluations"
+        onRetry={() => void evaluations.refetch()}
+      >
+        {null}
+      </QueryState>
+    );
+  if (blocked.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground">
+        No blocked evaluations recorded.
+      </p>
+    );
 
   return (
     <section aria-labelledby="blocked-heading">
@@ -30,7 +47,9 @@ function BlockedEvaluations() {
         recorded rather than hidden.
       </p>
       <ul className="space-y-3">
-        {blocked.map((evaluation) => <EvaluationRow key={evaluation.match_id} evaluation={evaluation} />)}
+        {blocked.map((evaluation) => (
+          <EvaluationRow key={evaluation.match_id} evaluation={evaluation} />
+        ))}
       </ul>
     </section>
   );
@@ -38,24 +57,49 @@ function BlockedEvaluations() {
 
 function EvaluationRow({ evaluation }: { evaluation: Evaluation }) {
   const match = useApi("match", { params: { match_id: evaluation.match_id } });
-  const { index } = useMarketIndex(match.data ? [match.data.data.left_id, match.data.data.right_id] : []);
+  const { index } = useMarketIndex(
+    match.data ? [match.data.data.left_id, match.data.data.right_id] : [],
+  );
   const pair = match.data?.data;
-  const title = pair ? `${index.get(pair.left_id)?.title ?? pair.left_id} against ${index.get(pair.right_id)?.title ?? pair.right_id}` : evaluation.match_id;
-  return <li className="rounded-lg border border-border bg-card p-4 sm:p-5">
-    <Link href={`/matches/${encodeURIComponent(evaluation.match_id)}`} className="text-sm font-medium text-primary">{title}</Link>
-    <p className="mt-2 text-sm capitalize">{evaluation.status ?? "blocked"}</p>
-    {evaluation.best_calculation && <p className="mt-2 text-sm">
-      Best estimated net result: {formatMoney(evaluation.best_calculation.net_profit)} on {formatQuantity(evaluation.best_calculation.quantity)} contracts.
-    </p>}
-    <ul className="mt-2.5 list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground">
-      {evaluation.blocked_reasons.map((reason) => <li key={reason} className="break-words">{reason}</li>)}
-    </ul>
-  </li>;
+  const title = pair
+    ? `${index.get(pair.left_id)?.title ?? pair.left_id} against ${index.get(pair.right_id)?.title ?? pair.right_id}`
+    : evaluation.match_id;
+  return (
+    <li className="rounded-lg border border-border bg-card p-4 sm:p-5">
+      <Link
+        href={`/matches/${encodeURIComponent(evaluation.match_id)}`}
+        className="text-sm font-medium text-primary"
+      >
+        {title}
+      </Link>
+      <p className="mt-2 text-sm capitalize">
+        {evaluation.status ?? "blocked"}
+      </p>
+      {evaluation.best_calculation && (
+        <p className="mt-2 text-sm">
+          Best estimated net result:{" "}
+          {formatMoney(evaluation.best_calculation.net_profit)} on{" "}
+          {formatQuantity(evaluation.best_calculation.quantity)} contracts.
+        </p>
+      )}
+      <ul className="mt-2.5 list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground">
+        {evaluation.blocked_reasons.map((reason) => (
+          <li key={reason} className="break-words">
+            {reason}
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
 }
 
 export function OpportunityDashboard() {
   const opportunities = useApi("opportunities", { query: { limit: 100 } });
-  const { index } = useMarketIndex(opportunities.data?.data.flatMap((o) => o.legs.map((leg) => leg.market_id)) ?? []);
+  const { index } = useMarketIndex(
+    opportunities.data?.data.flatMap((o) =>
+      o.legs.map((leg) => leg.market_id),
+    ) ?? [],
+  );
   const stream = useOpportunityStream();
   const access = useApi("accessSummary");
 
@@ -65,16 +109,16 @@ export function OpportunityDashboard() {
         <OriginBanner origin={opportunities.data.origin} />
       )}
       <StreamStatusBanner state={stream} />
-      {opportunities.data?.origin !== "fixtures" && <p className="rounded-lg border border-border p-4 text-sm">
-        Installation access: {access.data?.data.status ?? "unknown"}.
-        Balances and inventory remain unverified assumptions.
-      </p>}
+      {opportunities.data?.origin !== "fixtures" && (
+        <p className="rounded-lg border border-border p-4 text-sm">
+          Installation access: {access.data?.data.status ?? "unknown"}. Balances
+          and inventory remain unverified assumptions.
+        </p>
+      )}
 
-      <p className="rounded-lg border border-border bg-card p-4 text-sm leading-6">
-        Figures below are calculated by the backend from executable quotes and
-        reviewed fee schedules. They are conditional estimates, not guaranteed
-        profit: the two legs settle on separate venues, fills are not atomic,
-        and quotes can move or disappear before an order reaches either book.
+      <p className="text-xs text-muted-foreground">
+        Estimates after costs. Quotes can change and cross-venue fills are not
+        atomic.
       </p>
 
       <QueryState
@@ -91,7 +135,9 @@ export function OpportunityDashboard() {
         ) : (
           <ul className="space-y-5">
             {opportunities.data?.data.map((opportunity) => (
-              <li key={`${opportunity.match_id}:${opportunity.legs.map((leg) => `${leg.market_id}:${leg.outcome}`).join("|")}`}>
+              <li
+                key={`${opportunity.match_id}:${opportunity.legs.map((leg) => `${leg.market_id}:${leg.outcome}`).join("|")}`}
+              >
                 <OpportunityCard opportunity={opportunity} markets={index} />
               </li>
             ))}
@@ -99,8 +145,12 @@ export function OpportunityDashboard() {
         )}
       </QueryState>
 
-      <BlockedEvaluations />
-      <RecentHistory />
+      <Disclosure title="Evaluated but not tradable">
+        <BlockedEvaluations />
+      </Disclosure>
+      <Disclosure title="Recently expired">
+        <RecentHistory />
+      </Disclosure>
     </div>
   );
 }
@@ -108,7 +158,23 @@ export function OpportunityDashboard() {
 function RecentHistory() {
   const history = useApi("history", { query: { limit: 20 } });
   const entries = history.data?.data ?? [];
-  if (entries.length === 0) return null;
+  if (history.isPending || history.error)
+    return (
+      <QueryState
+        isPending={history.isPending}
+        error={history.error}
+        loadingLabel="Loading history"
+        onRetry={() => void history.refetch()}
+      >
+        {null}
+      </QueryState>
+    );
+  if (entries.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground">
+        No expired opportunities recorded.
+      </p>
+    );
 
   return (
     <section aria-labelledby="history-heading">

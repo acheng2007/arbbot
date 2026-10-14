@@ -11,15 +11,11 @@ export const metadata: Metadata = {
 
 export default function MarketsPage() {
   return (
-    <div className="space-y-7">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Markets
         </h1>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
-          One prediction, both exchanges. Compare Polymarket and Kalshi
-          prices together, then inspect each contract’s depth and source terms.
-        </p>
       </header>
       {/* useSearchParams needs a boundary so the shell can render before filters resolve. */}
       <Suspense fallback={<LoadingState label="Loading markets" />}>

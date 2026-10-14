@@ -16,8 +16,6 @@ import {
   venueLabel,
 } from "@/features/shared/status";
 
-import { ClassificationLabel } from "./classification-panel";
-
 function unresolvedCount(match: Match) {
   return (match.comparison?.differences ?? []).filter(
     (difference) => difference.status !== "equal",
@@ -46,36 +44,38 @@ export function MatchList() {
   return (
     <div className="space-y-6">
       {matches.data && <OriginBanner origin={matches.data.origin} />}
-      <label className="block text-sm font-medium">
-        Search comparisons
-        <input
-          type="search"
-          value={search}
-          maxLength={200}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setOffset(0);
-          }}
-          className="mt-2 block h-11 w-full rounded-md border border-border bg-card px-3"
-        />
-      </label>
-      <label className="block text-sm font-medium">
-        AI classification filter
-        <select
-          value={classification}
-          onChange={(event) => {
-            setClassification(event.target.value as typeof classification);
-            setOffset(0);
-          }}
-          className="mt-2 block h-11 w-full rounded-md border border-border bg-card px-3"
-        >
-          <option value="">All classifications</option>
-          <option value="suggested">AI suggests same event</option>
-          <option value="pending">Pending</option>
-          <option value="stale">Stale</option>
-          <option value="unavailable">Unavailable</option>
-        </select>
-      </label>
+      <div className="grid gap-3 sm:grid-cols-[1fr_240px]">
+        <label className="block text-sm font-medium">
+          Search comparisons
+          <input
+            type="search"
+            value={search}
+            maxLength={200}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setOffset(0);
+            }}
+            className="mt-2 block h-11 w-full rounded-md border border-border bg-card px-3"
+          />
+        </label>
+        <label className="block text-sm font-medium">
+          AI classification filter
+          <select
+            value={classification}
+            onChange={(event) => {
+              setClassification(event.target.value as typeof classification);
+              setOffset(0);
+            }}
+            className="mt-2 block h-11 w-full rounded-md border border-border bg-card px-3"
+          >
+            <option value="">All classifications</option>
+            <option value="suggested">AI suggests same event</option>
+            <option value="pending">Pending</option>
+            <option value="stale">Stale</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
+        </label>
+      </div>
       <QueryState
         isPending={matches.isPending}
         error={matches.error}
@@ -106,9 +106,6 @@ export function MatchList() {
                           status={match.comparison.status}
                         />
                       )}
-                      <span className="text-xs text-muted-foreground">
-                        <ClassificationLabel advice={match.classification} />
-                      </span>
                       <ModeBadge
                         mode={match.mode}
                         feedOrigin={match.feed_origin}
@@ -135,12 +132,7 @@ export function MatchList() {
                         </div>
                       ))}
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                      {match.reason}
-                    </p>
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Title similarity {match.similarity.toFixed(2)}, a
-                      discovery signal only.{" "}
                       {unresolved > 0
                         ? `${unresolved} settlement ${unresolved === 1 ? "field" : "fields"} still differ or are unknown.`
                         : "All compared settlement fields agree."}

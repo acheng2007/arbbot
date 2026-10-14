@@ -111,3 +111,38 @@ Frontend units passed 65, fixture browsers passed 56, and connected desktop/mobi
 Type, lint, generated-contract, and webpack production-build checks passed.
 See [the Jev handoff](jev-handoff.md) for worker/storage validation, artifacts, benchmark coverage, and the absent live key.
 Next action: configure the backend OpenRouter key and run the documented live benchmark before assessing model quality.
+
+
+## October 14 market dashboard redesign
+
+Branch: `backend/completion`; no PR or push.
+The home route now opens the paired-market dashboard.
+The frontend uses a light horizontal navigation shell, green price accents, compact market cards, and responsive layouts.
+Paired markets and All markets have shareable URL state with catalog-wide search, venue, status, category, and pagination controls.
+The matches API gained optional same-event, rejection-exclusion, category, and market-status filters applied before pagination, including revalidated reviews.
+OpenAPI and the generated TypeScript client were updated.
+Market cards display aligned venue asks, depth at the best price, quote freshness, review status, and explicit US short-collateral labels.
+Mixed recording origins and unsupported instruments remain visible.
+Opportunity summaries show event, directions, estimated net result, return, capital, and size without detailed fee or audit data.
+Calculations, settlement scenarios, AI rationale, source documents, review evidence, and diagnostics are expandable.
+Blocked evaluations, history, and extracted evidence load on demand.
+Connection, stale-data, simulation, missing-depth, and invalidation states remain explicit.
+An outdated connection-page message claiming market data was absent was also corrected.
+
+### Validation
+
+Playwright MCP inspected the original interface and Kalshi reference, then the redesigned desktop and mobile dashboard, comparisons, and opportunity screens.
+The original interface was reproduced using recorded fixtures because the previously documented live demo servers were unavailable.
+The first paired card's four prices fit within the 1440x900 desktop and 390x844 mobile viewports.
+The complete fixture browser suite passed 62 tests; the final dashboard suite passed 10 tests, including four added US-label and unverified-pair cases.
+Frontend unit tests passed 66 tests.
+Type checking, lint, generated-client drift checks, the webpack production build, backend Ruff checks, and whitespace checks passed.
+The backend catalog, API, and classification suite passed 52 tests against the local test database.
+Connected PostgreSQL/worker acceptance tests were adapted to the expandable interface but were not rerun in this redesign session.
+No live exchange behavior or financial calculation logic was changed.
+Screenshots and browser traces remain local inspection artifacts rather than committed application assets.
+Unrelated staged research and untracked fee work were preserved.
+
+### Next action
+
+Run the redesigned paired dashboard against the live Kalshi/Polymarket US stack and inspect real counterpart coverage and quote-health states on desktop and mobile.

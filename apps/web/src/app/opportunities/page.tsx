@@ -9,15 +9,11 @@ export const metadata: Metadata = {
 
 export default function OpportunitiesPage() {
   return (
-    <div className="space-y-7">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Opportunities
         </h1>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
-          Verified contract pairs whose current executable quotes support a
-          positive net result after fees, depth costs, and slippage allowance.
-        </p>
       </header>
       <OpportunityDashboard />
     </div>

@@ -232,3 +232,46 @@ async def test_summary_projection_filters_before_pagination(database, fixture_ma
         assert len(rows) == 1 and rows[0]["id"] == "kalshi:SUMMARY-204"
         assert not {"raw", "rules", "settlement_details"}.intersection(rows[0])
         assert (await client.get("/api/v1/markets/kalshi:SUMMARY-204")).json()["rules"]
+
+
+async def test_paired_dashboard_filters_before_pagination(catalog_data):
+    settings, db, _, _, _ = catalog_data
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        params = {"same_event": "true", "exclude_rejected": "true", "limit": 1}
+        rows = (await client.get("/api/v1/matches", params=params)).json()
+        assert [row["id"] for row in rows] == ["pair-1"]
+        assert (await client.get("/api/v1/matches", params={**params, "offset": 1})).json() == []
+        # The closed contract belongs to a rejected pair and must not leak into the dashboard.
+        assert (
+            await client.get("/api/v1/matches", params={**params, "market_status": "closed"})
+        ).json() == []
+        assert (
+            await client.get("/api/v1/matches", params={**params, "category": "missing"})
+        ).json() == []
+
+
+async def test_paired_dashboard_market_filters_match_one_leg(catalog_data):
+    settings, db, repository, markets, _ = catalog_data
+    await repository.save_market(
+        markets[3].model_copy(update={"status": "closed", "category": "paired-test"})
+    )
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        params = {
+            "same_event": "true",
+            "exclude_rejected": "true",
+            "market_status": "closed",
+            "category": "paired-test",
+        }
+        assert [
+            m["id"]
+            for m in (
+                await client.get("/api/v1/matches", params={**params, "venue": "polymarket"})
+            ).json()
+        ] == ["pair-1"]
+        assert (
+            await client.get("/api/v1/matches", params={**params, "venue": "kalshi"})
+        ).json() == []

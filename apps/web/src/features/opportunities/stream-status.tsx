@@ -25,7 +25,7 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
         </Badge>
         {confirmedAgo && (
           <span className="text-xs text-muted-foreground">
-            Last snapshot {confirmedAgo}. Quote freshness is shown separately.
+            Snapshot {confirmedAgo}
           </span>
         )}
       </div>
@@ -46,8 +46,7 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
         {confirmedAgo
           ? `The last snapshot arrived ${confirmedAgo}. Quotes may no longer hold.`
           : "No snapshot has arrived yet. Quote freshness is shown separately."}
-        {state.drops > 0 &&
-          ` The connection has dropped ${state.drops} ${state.drops === 1 ? "time" : "times"} since this page loaded.`}
+        {state.drops > 0 && ` ${state.drops} reconnects.`}
       </p>
     </div>
   );

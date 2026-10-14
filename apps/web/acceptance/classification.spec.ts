@@ -13,6 +13,9 @@ test("persistent recorded classifications expose evidence without approval", asy
     return;
   }
   await page.goto(`/matches/${match.id}`);
+  await page
+    .getByText("AI classification and matching rationale", { exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "AI suggests same event" }),
   ).toBeVisible();
@@ -43,11 +46,9 @@ test("persistent recorded classifications expose evidence without approval", asy
     path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-classification.png`,
     fullPage: true,
   });
-  await page
-    .getByRole("region", { name: "AI classification" })
-    .screenshot({
-      path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-classification-panel.png`,
-    });
+  await page.getByRole("region", { name: "AI classification" }).screenshot({
+    path: `${process.env.ARBBOT_ACCEPTANCE_OUTPUT}/${test.info().project.name}-classification-panel.png`,
+  });
   await page.goto("/matches");
   await page.getByLabel("AI classification filter").selectOption("suggested");
   await expect(
