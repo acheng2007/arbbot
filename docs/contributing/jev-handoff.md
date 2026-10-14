@@ -61,6 +61,7 @@ No synthetic decisions are presented as observed model accuracy.
 ## Preserved local work
 
 The pre-existing staged `docs/arbitrage-research-2026-09.md`, untracked `.specstory/`, and untracked `backend/arbbot/fees/kalshi.py` were left untouched and excluded from these commits.
+Additional browser-debug artifacts under `.playwright-mcp/` were also excluded.
 
 ## Next action
 

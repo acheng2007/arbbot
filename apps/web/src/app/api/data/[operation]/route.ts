@@ -18,6 +18,7 @@ const EXPOSED = [
   "snapshot",
   "matches",
   "match",
+  "classificationDetail",
   "sourceText",
   "opportunities",
   "opportunity",

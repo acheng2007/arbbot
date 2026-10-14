@@ -97,3 +97,17 @@ See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for artifac
 Next action: inspect the completed acceptance artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.
 
 Exact historical opportunity details now show current invalidation reasons, including changed quotes, reviews, sources, access, fees, and venue health.
+
+## October 14 advisory classification workflow
+
+Branch: `backend/completion`; no PR or push.
+Comparison lists and details now distinguish AI event suggestions from established event evidence and reviewed verification.
+They display clause findings, captured quotations, model confidence/probability scores, coverage limitations, lifecycle states, and recorded-response labels.
+Classification filtering uses the paginated backend API; snapshot updates refresh advice.
+Withdrawn AI-only pairs retain readable stale advice through the classification endpoint.
+OpenAPI and TypeScript contracts were regenerated.
+Visual inspection corrected hidden skip-link capture artifacts without removing keyboard access and improved quotation-caption wrapping.
+Frontend units passed 65, fixture browsers passed 56, and connected desktop/mobile browsers passed six.
+Type, lint, generated-contract, and webpack production-build checks passed.
+See [the Jev handoff](jev-handoff.md) for worker/storage validation, artifacts, benchmark coverage, and the absent live key.
+Next action: configure the backend OpenRouter key and run the documented live benchmark before assessing model quality.

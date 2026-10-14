@@ -48,7 +48,7 @@ export function useOpportunityStream(enabled = true) {
       void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] }, { cancelRefetch: false });
       void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] }, { cancelRefetch: false });
       void client.invalidateQueries({ queryKey: ["arbbot", "history"] }, { cancelRefetch: false });
-      for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "book", "status"])
+      for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "classificationDetail", "book", "status"])
         void client.invalidateQueries({ queryKey: ["arbbot", operation] }, { cancelRefetch: false });
     });
 

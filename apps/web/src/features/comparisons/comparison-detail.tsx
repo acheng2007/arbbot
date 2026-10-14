@@ -11,6 +11,7 @@ import {
   MatchStatusBadge,
   venueLabel,
 } from "@/features/shared/status";
+import { ClassificationPanel } from "./classification-panel";
 import { DifferenceTable } from "./difference-table";
 import { ReviewPanel } from "./review-panel";
 import { SourceTerms } from "./source-terms";
@@ -35,6 +36,13 @@ function UnresolvedAssumptions({ issues }: { issues: string[] }) {
 export function ComparisonDetail({ matchId }: { matchId: string }) {
   const matches = useApi("match", { params: { match_id: matchId } });
   const match = matches.data?.data;
+  const withdrawnAdvice = useApi(
+    "classificationDetail",
+    { params: { match_id: matchId } },
+    {
+      enabled: matches.error?.failure === "not_found",
+    },
+  );
   const { index } = useMarketIndex(
     match ? [match.left_id, match.right_id] : [],
   );
@@ -58,10 +66,15 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
         onRetry={() => void matches.refetch()}
       >
         {!match ? (
-          <EmptyState
-            title="This pair is not available"
-            description="The proposed pair may have been withdrawn, or the identifier in the address may be wrong."
-          />
+          <div className="space-y-5">
+            <EmptyState
+              title="This pair is not available"
+              description="The proposed pair may have been withdrawn, or the identifier in the address may be wrong."
+            />
+            {withdrawnAdvice.data && (
+              <ClassificationPanel advice={withdrawnAdvice.data.data} />
+            )}
+          </div>
         ) : (
           (() => {
             const left = index.get(match.left_id);
@@ -93,6 +106,8 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
                     of equivalent settlement. {match.reason}
                   </p>
                 </header>
+
+                <ClassificationPanel advice={match.classification} />
 
                 {match.comparison?.same_event === false && (
                   <div

@@ -17,7 +17,9 @@ import { recordedDataset } from "./fixtures";
 export function dataOrigin(): DataOrigin {
   return process.env.ARBBOT_WEB_DATA_SOURCE === "fixtures"
     ? "fixtures"
-    : process.env.ARBBOT_WEB_DATA_SOURCE === "recorded_backend" ? "recorded_backend" : "backend";
+    : process.env.ARBBOT_WEB_DATA_SOURCE === "recorded_backend"
+      ? "recorded_backend"
+      : "backend";
 }
 
 const TIMEOUT_MS = 8000;
@@ -91,6 +93,7 @@ function fromFixtures(
     status?: string | null;
     category?: string | null;
     q?: string | null;
+    classification?: string | null;
   };
   const fixtures = recordedDataset();
 
@@ -101,7 +104,12 @@ function fromFixtures(
     case "status":
       return { mode: "simulation", venues: ["kalshi", "polymarket"] };
     case "accessSummary":
-      return { status: "unknown", revision_id: null, permitted_venues: [], expires_at: null };
+      return {
+        status: "unknown",
+        revision_id: null,
+        permitted_venues: [],
+        expires_at: null,
+      };
     case "venues":
       return [
         {
@@ -125,11 +133,18 @@ function fromFixtures(
       const filtered = venue
         ? fixtures.markets.filter((market) => market.venue === venue)
         : fixtures.markets;
-      return paginate(filtered.filter((market) =>
-        (!query.status || market.status === query.status) &&
-        (!query.category || market.category === query.category) &&
-        (!query.q || `${market.title} ${market.id} ${market.external_id} ${market.rules}`
-          .toLowerCase().includes(String(query.q).toLowerCase()))), query);
+      return paginate(
+        filtered.filter(
+          (market) =>
+            (!query.status || market.status === query.status) &&
+            (!query.category || market.category === query.category) &&
+            (!query.q ||
+              `${market.title} ${market.id} ${market.external_id} ${market.rules}`
+                .toLowerCase()
+                .includes(String(query.q).toLowerCase())),
+        ),
+        query,
+      );
     }
     case "market":
       return required(
@@ -161,20 +176,39 @@ function fromFixtures(
         fixtures.matches.find((entry) => entry.id === params.match_id),
         "Match",
       );
+    case "classificationDetail": {
+      const match = required(
+        fixtures.matches.find((entry) => entry.id === params.match_id),
+        "Match",
+      );
+      return match.classification ?? { state: "unconfigured" };
+    }
     case "matches":
       return paginate(
         fixtures.matches.filter(
           (entry) =>
-            !query.market_id ||
-            entry.left_id === query.market_id ||
-            entry.right_id === query.market_id,
+            (!query.market_id ||
+              entry.left_id === query.market_id ||
+              entry.right_id === query.market_id) &&
+            (!query.classification ||
+              (query.classification === "suggested"
+                ? entry.classification?.supports_candidate
+                : (entry.classification?.state ?? "unconfigured") ===
+                  query.classification)),
         ),
         query,
       );
     case "opportunity": {
-      const current = fixtures.opportunities.find((entry) => entry.id === params.opportunity_id);
-      const entry = current ?? fixtures.history.find((entry) => entry.id === params.opportunity_id);
-      return { opportunity: required(entry, "Opportunity"), eligible: Boolean(current) };
+      const current = fixtures.opportunities.find(
+        (entry) => entry.id === params.opportunity_id,
+      );
+      const entry =
+        current ??
+        fixtures.history.find((entry) => entry.id === params.opportunity_id);
+      return {
+        opportunity: required(entry, "Opportunity"),
+        eligible: Boolean(current),
+      };
     }
     case "opportunities":
       return paginate(fixtures.opportunities, query);

@@ -88,6 +88,26 @@ export type Citation = {
   quotation: string;
 };
 
+export type ClassificationSummary = {
+  state:
+    "pending" | "fresh" | "stale" | "unavailable" | "unconfigured" | "disabled";
+  run_id?: string | null;
+  input_hash?: string | null;
+  event?: Finding | null;
+  clauses?: Partial<Record<string, Finding>>;
+  evidence?: Array<EvidenceSpan>;
+  requested_model?: string;
+  returned_model?: string | null;
+  question_version?: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  expires_at?: string | null;
+  limitations?: Array<string>;
+  error?: string | null;
+  recorded?: boolean;
+  supports_candidate?: boolean;
+};
+
 export type Comparison = {
   status: "compatible" | "conflict" | "incomplete";
   same_event: boolean;
@@ -310,6 +330,18 @@ export type Evaluation = {
   opportunities: Array<Opportunity>;
 };
 
+export type EvidenceSpan = {
+  id: string;
+  side: "left" | "right";
+  clause: string;
+  quotation: string;
+  artifact_id?: string | null;
+  page?: number | null;
+  start: number;
+  end: number;
+  applicability?: string;
+};
+
 export type ExecutableFeePolicyInput = {
   kind?: "fees";
   market_id: string;
@@ -392,6 +424,18 @@ export type Fact = {
   source: "title" | "rules" | "settlement_details";
   source_key?: string | null;
   quote: string;
+};
+
+export type Finding = {
+  choice:
+    | "same_event"
+    | "different_event"
+    | "same_meaning"
+    | "different_meaning"
+    | "insufficient_evidence";
+  confidence: number;
+  probabilities: Partial<Record<string, number>>;
+  evidence_ids?: Array<string>;
 };
 
 export type HTTPValidationError = {
@@ -487,6 +531,8 @@ export type MarketSummary = {
 };
 
 export type Match = {
+  classification?: ClassificationSummary | null;
+  ai_only?: boolean;
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   retrieval_limited?: boolean;
   retrieval_limit?: number | null;
@@ -792,6 +838,15 @@ export interface ApiOperations {
       family?: string | null;
       q?: string | null;
       evidence?: "complete" | "incomplete" | null;
+      classification?:
+        | "suggested"
+        | "fresh"
+        | "pending"
+        | "stale"
+        | "unavailable"
+        | "unconfigured"
+        | "disabled"
+        | null;
       market_id?: string | null;
     };
     response: Array<Match>;
@@ -805,6 +860,18 @@ export interface ApiOperations {
     };
     query: Record<string, never>;
     response: Match;
+  };
+  classificationDetail: {
+    route: "/api/v1/matches/{match_id}/classification";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      run_id?: string | null;
+    };
+    response: ClassificationSummary;
   };
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources";
@@ -1121,6 +1188,7 @@ export const API_OPERATIONS = {
       "family",
       "q",
       "evidence",
+      "classification",
       "market_id",
     ],
   },
@@ -1129,6 +1197,12 @@ export const API_OPERATIONS = {
     method: "GET",
     params: ["match_id"],
     query: [],
+  },
+  classificationDetail: {
+    route: "/api/v1/matches/{match_id}/classification",
+    method: "GET",
+    params: ["match_id"],
+    query: ["run_id"],
   },
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources",

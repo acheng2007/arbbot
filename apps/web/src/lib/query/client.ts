@@ -17,6 +17,7 @@ export type BrowserOperation = Extract<
   | "snapshot"
   | "matches"
   | "match"
+  | "classificationDetail"
   | "sourceText"
   | "opportunities"
   | "opportunity"
