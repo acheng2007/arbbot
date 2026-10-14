@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field, model_validator
 
+from arbbot.matching.classification_models import ClassificationSummary
 from arbbot.matching.contracts import Comparison
 
 NonNegative = Annotated[Decimal, Field(ge=0, allow_inf_nan=False)]
@@ -297,6 +298,8 @@ class Review(Model):
 
 
 class Match(Model):
+    classification: ClassificationSummary | None = None
+    ai_only: bool = False
     feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     retrieval_limited: bool = False
     retrieval_limit: int | None = None

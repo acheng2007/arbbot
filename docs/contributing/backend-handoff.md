@@ -61,3 +61,12 @@ The updated full SQLite and PostgreSQL suites each passed 497 tests.
 The full recorded acceptance passed again under `/tmp/arbbot-acceptance-final-contract`, including restricted-access reasons returned for the withdrawn estimate.
 Generated OpenAPI and TypeScript contracts match the additive response.
 Next action: inspect the final artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.
+
+## October 14 Jev integration
+
+The persistent worker now classifies counterpart events and settlement-clause meanings through advisory Jev decisions.
+Durable jobs, immutable runs, semantic caching, source invalidation, guarded completion, API filtering/ranking, and independent provider health are implemented.
+Existing database reviews and financial gates retain authority.
+SQLite and PostgreSQL each passed 526 tests; connected recorded acceptance passed all six desktop/mobile browser tests.
+See [the Jev handoff](jev-handoff.md) for configuration, evidence, coverage limitations, and the absent OpenRouter key.
+Next action: configure the backend OpenRouter key and collect the documented 30-pair live benchmark results.

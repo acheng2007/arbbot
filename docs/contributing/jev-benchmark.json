@@ -1,0 +1,17 @@
+{
+  "authentic_pairs": 30,
+  "positive_labels": 9,
+  "baseline_recall": 0.8888888888888888,
+  "jev_assisted_recall": null,
+  "incorrect_suggestions": null,
+  "abstentions": null,
+  "model_response_coverage": 0.0,
+  "insufficient_clause_evidence_cases": 30,
+  "limitations": [
+    "Authentic October 1 catalog snapshot, not a representative statistical sample.",
+    "Complete metadata has no uncertain event-identity gold cases.",
+    "Insufficient-evidence labels cover missing applicable settlement documents.",
+    "No synthetic or scripted model answers enter accuracy metrics.",
+    "Absent authentic model responses leave assisted metrics unmeasured."
+  ]
+}

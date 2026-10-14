@@ -221,3 +221,32 @@ class ConfigurationHeadRecord(Base):
     __tablename__ = "execution_configuration_heads"
     key: Mapped[str] = mapped_column(String, primary_key=True)
     revision_id: Mapped[str] = mapped_column(ForeignKey("execution_configuration_revisions.id"))
+
+
+class ClassificationRunRecord(Base):
+    __tablename__ = "classification_runs"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class ClassificationJobRecord(Base):
+    __tablename__ = "classification_jobs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String)
+    request: Mapped[dict] = mapped_column(Document)
+    semantic_inputs: Mapped[dict] = mapped_column(Document, default=dict)
+    state: Mapped[str] = mapped_column(String)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("classification_runs.id"), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ClassificationSchedulerRecord(Base):
+    __tablename__ = "classification_scheduler"
+    mode: Mapped[str] = mapped_column(String, primary_key=True)
+    payload: Mapped[dict] = mapped_column(Document)

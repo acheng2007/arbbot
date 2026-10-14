@@ -13,6 +13,8 @@ from arbbot.exchanges.simulation import simulation_reviews
 from arbbot.execution.repository import ExecutionRepository
 from arbbot.fees.refresh import FeeRefresh
 from arbbot.ingestion.monitoring import PairMonitor
+from arbbot.matching.classification import ClassificationService, configured_state
+from arbbot.matching.classification_models import ClassificationSummary
 from arbbot.matching.contracts import ContractDefinition
 from arbbot.matching.extraction import extract_contract
 from arbbot.matching.service import match_markets
@@ -47,6 +49,9 @@ class Pipeline:
         self.current_matches = []
         self.evaluation_ready = asyncio.Event()
         self.reported_candidates = {}
+        self.classifications = ClassificationService(
+            settings, repository.database, catalog.changed if catalog else None
+        )
 
     async def ingest_venue(self, adapter, selected=None):
         mode = self.settings.mode
@@ -256,13 +261,24 @@ class Pipeline:
             supplied[market.id] if market.id in supplied else extract_contract(market).definition
             for market in markets
         ]
+        advice = (
+            await self.classifications.advice(self.settings.mode)
+            if configured_state(self.settings) == "pending"
+            else {}
+        )
         with self.tracing.span("matching", market_count=len(markets)):
             matches = (
-                await self.review_provider.matches(self.settings.mode, markets)
+                await self.review_provider.matches(self.settings.mode, markets, advice)
                 if self.settings.mode == "live" and self.settings.review_source == "database"
-                else await asyncio.to_thread(match_markets, markets, reviews, definitions)
+                else await asyncio.to_thread(match_markets, markets, reviews, definitions, advice)
             )
-        return matches
+        fallback = configured_state(self.settings)
+        return [
+            m
+            if m.classification
+            else m.model_copy(update={"classification": ClassificationSummary(state=fallback)})
+            for m in matches
+        ]
 
     async def run(self, stop):
         """Supervise independent nonoverlapping quote, matching, and evaluation loops."""
@@ -453,6 +469,7 @@ class Pipeline:
                 group.create_task(matching_loop()),
                 group.create_task(evaluation()),
                 group.create_task(periodic(fees, self.settings.fee_refresh_seconds)),
+                group.create_task(self.classifications.run(stop, catalog_markets)),
             ]
             await stop.wait()
             for task in tasks:

@@ -1,0 +1,33 @@
+{
+  "schema": "arbbot_acceptance_bf89ca0edf514b4185d1e16d5717cf5b",
+  "checks": [
+    "API and migrations ready",
+    "Four reviewed pairs: profitable, unprofitable, blocked, invalid",
+    "Eligible positive estimate is publicly readable",
+    "Catalog pagination, >200 counterparts, exact lookup, authentic pair unapproved",
+    "Published estimate delivered through FastAPI SSE",
+    "Publication recheck price movement eliminates preliminary profit",
+    "Quotes recover with a newly calculated estimate",
+    "Fee-provider outage publishes unavailable policies and withdraws",
+    "Fee-provider recovery retrieves fresh immutable policies",
+    "Scripted Decisions response adds a differently worded unreviewed candidate",
+    "Classification provider outage is exposed independently",
+    "Books advance during provider outage",
+    "Book polling continues during Decisions provider outage",
+    "Provider recovery reclassifies changed sources",
+    "Access revision withdrawal and renewed evaluation",
+    "Review revision withdrawal and renewed evaluation",
+    "Fresh fee snapshot before timed expiry",
+    "Fee-policy expiry withdraws estimate",
+    "Fee-policy renewal recalculates estimate",
+    "Source revision withdrawal cannot replay old approval; renewed review recovers",
+    "Fresh estimate before worker restart",
+    "Quote expiry withdraws while worker is stopped",
+    "Worker restart resumes persisted catalog and monitoring",
+    "Venue outage withdraws affected estimates",
+    "Venue recovery recalculates rather than replaying old estimates",
+    "Pair-aware budget rotation monitors multiple books on both venues",
+    "Next.js connected to recorded PostgreSQL backend",
+    "Desktop/mobile browser workflow and SSE recovery"
+  ]
+}

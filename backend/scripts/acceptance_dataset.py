@@ -199,8 +199,11 @@ def create_recording(directory):
             "content_base64": base64.b64encode(content).decode(),
         }
 
-    for index in range(1, 5):
+    for index in range(1, 6):
         raw_k, raw_u = kalshi(index), us(index)
+        if index == 5:
+            raw_k["title"] = "SYNTHETIC: Crimson club takes the seasonal crown"
+            raw_u["title"] = "Harbor team celebrates the final victory"
         for venue, raw, identifier, url in (
             (
                 "kalshi",

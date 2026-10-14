@@ -15,9 +15,11 @@ Search = Annotated[str | None, Query(min_length=1, max_length=200)]
 Family = Annotated[str | None, Query(min_length=1, max_length=100)]
 
 
-def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
+def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, settings=None):
     router = APIRouter(prefix="/api/v1")
-    catalog = CatalogQueries(database, allow_file_reviews=allow_file_reviews, venues=venues)
+    catalog = CatalogQueries(
+        database, allow_file_reviews=allow_file_reviews, venues=venues, settings=settings
+    )
 
     from arbbot.execution.models import AccessSummary
     from arbbot.execution.repository import ExecutionRepository
@@ -119,6 +121,10 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
         family: Family = None,
         q: Search = None,
         evidence: Literal["complete", "incomplete"] | None = None,
+        classification: Literal[
+            "suggested", "fresh", "pending", "stale", "unavailable", "unconfigured", "disabled"
+        ]
+        | None = None,
         market_id: Annotated[str | None, Query(min_length=1, max_length=200)] = None,
     ):
         return await catalog.matches(
@@ -130,6 +136,7 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
             family=family,
             q=q,
             evidence=evidence,
+            classification=classification,
             market_id=market_id,
         )
 
@@ -139,5 +146,47 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None):
         if not rows:
             raise HTTPException(404, "Current match not found")
         return rows[0]
+
+    from arbbot.matching.classification import summary
+    from arbbot.matching.classification_models import ClassificationRun, ClassificationSummary
+    from arbbot.storage.models import ClassificationJobRecord, ClassificationRunRecord
+
+    @router.get("/matches/{match_id}/classification", response_model=ClassificationSummary)
+    async def classification_detail(
+        match_id: str,
+        run_id: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
+    ):
+        async with database.sessions() as session:
+            if run_id:
+                row = await session.get(ClassificationRunRecord, run_id)
+                if not row or row.mode != mode or row.match_id != match_id:
+                    raise HTTPException(404, "Classification run not found")
+                value = ClassificationRun.model_validate(row.payload).summary
+                return value.model_copy(
+                    update={
+                        "state": "stale",
+                        "supports_candidate": False,
+                        "limitations": (
+                            *value.limitations,
+                            "Explicit historical result; not current advice.",
+                        ),
+                    }
+                )
+            job = await session.get(ClassificationJobRecord, f"{mode}:{match_id}")
+            if job:
+                value = await summary(session, job)
+                if settings:
+                    from arbbot.matching.classification import configured_state
+
+                    state = configured_state(settings)
+                    if state != "pending":
+                        value = value.model_copy(
+                            update={"state": state, "supports_candidate": False}
+                        )
+                return value
+        rows = await catalog.matches(mode, match_id=match_id, limit=1)
+        if not rows:
+            raise HTTPException(404, "Current match not found")
+        return rows[0].classification or ClassificationSummary(state="unconfigured")
 
     return router

@@ -36,7 +36,7 @@ def free_port():
 
 
 class Harness:
-    def __init__(self, directory, database_url):
+    def __init__(self, directory, database_url, classification=False):
         self.directory, self.admin_url = directory, database_url
         self.schema = "arbbot_acceptance_" + uuid4().hex
         self.url = database_url + "?options=-csearch_path%3D" + self.schema
@@ -51,7 +51,7 @@ class Harness:
             ARBBOT_ENABLED_VENUES='["kalshi","polymarket_us"]',
             ARBBOT_DISCOVERY_MODE="broad",
             ARBBOT_DISCOVERY_LIMIT="2",
-            ARBBOT_POLL_SECONDS="1",
+            ARBBOT_POLL_SECONDS="2",
             ARBBOT_FEE_REFRESH_SECONDS="10",
             ARBBOT_CATALOG_REFRESH_SECONDS="10",
             ARBBOT_CATALOG_TIMEOUT_SECONDS="20",
@@ -63,6 +63,12 @@ class Harness:
             BACKEND_URL=f"http://127.0.0.1:{self.api_port}",
             ARBBOT_WEB_DATA_SOURCE="recorded_backend",
         )
+        self.classification = classification
+        self.classification_recording = directory / "decisions.json"
+        if classification:
+            self.env["ARBBOT_CLASSIFICATION_RECORDING_FILE"] = str(self.classification_recording)
+        else:
+            self.env["ARBBOT_CLASSIFICATION_ENABLED"] = "false"
         self.processes, self.logs = {}, []
         self.results = []
         (directory / "runtime.json").write_text(
@@ -75,7 +81,7 @@ class Harness:
             _env_file=None,
             **{
                 key.removeprefix("ARBBOT_").lower(): json.loads(value)
-                if key == "ARBBOT_ENABLED_VENUES"
+                if key in ("ARBBOT_ENABLED_VENUES", "ARBBOT_CLASSIFICATION_ENABLED")
                 else value
                 for key, value in self.env.items()
                 if key.startswith("ARBBOT_")
@@ -141,6 +147,10 @@ class Harness:
         )
         self.db = Database(self.settings)
         self.seeded = await seed(self.settings, self.db)
+        if self.classification:
+            from acceptance_classification import write_recording
+
+            await write_recording(self.db, self.classification_recording)
         self.configuration, self.reviews = ExecutionRepository(self.db), ReviewRepository(self.db)
         self.start(
             "api",
@@ -269,6 +279,10 @@ class Harness:
             await self.wait(
                 "Fee-provider recovery retrieves fresh immutable policies", self.positive
             )
+            if self.classification:
+                from acceptance_classification import verify
+
+                await verify(self, api)
             await self.withdrawals()
             await self.wait("Fresh estimate before worker restart", self.positive)
             before = self.last_positive[0]
@@ -413,29 +427,61 @@ class Harness:
             ACTOR,
         )
         await self.wait("Review revision withdrawal and renewed evaluation", self.positive)
-        async with self.db.sessions() as session:
-            fee = await self.configuration.current(session, "live:fees:kalshi:SYN-1")
         from datetime import timedelta
 
-        expired_fee = await self.configuration.save(
-            "live",
-            ConfigurationWrite(
-                expected_revision_id=fee.id,
-                value=fee.value.model_copy(update={"expires_at": utcnow() + timedelta(seconds=1)}),
-                reason="Synthetic fee-policy expiry",
-            ),
-            ACTOR,
+        from arbbot.reviews.models import RevisionConflict
+
+        async with self.db.sessions() as session:
+            previous_fee = await self.configuration.current(session, "live:fees:kalshi:SYN-1")
+
+        async def freshly_refreshed_fee():
+            async with self.db.sessions() as session:
+                current = await self.configuration.current(session, "live:fees:kalshi:SYN-1")
+                return current.id != previous_fee.id
+
+        await self.wait(
+            "Fresh fee snapshot before timed expiry", freshly_refreshed_fee, deadline_seconds=40
         )
+        # The persistent fee refresher may legitimately update this optimistic
+        # revision between the test's read and write. Retry the operator action.
+        for attempt in range(5):
+            async with self.db.sessions() as session:
+                fee = await self.configuration.current(session, "live:fees:kalshi:SYN-1")
+            try:
+                expired_fee = await self.configuration.save(
+                    "live",
+                    ConfigurationWrite(
+                        expected_revision_id=fee.id,
+                        value=fee.value.model_copy(
+                            update={"expires_at": utcnow() + timedelta(seconds=5)}
+                        ),
+                        reason="Synthetic fee-policy expiry",
+                    ),
+                    ACTOR,
+                )
+                break
+            except RevisionConflict:
+                if attempt == 4:
+                    raise
+        await asyncio.sleep(max(0, (expired_fee.value.expires_at - utcnow()).total_seconds()) + 0.1)
         await self.wait("Fee-policy expiry withdraws estimate", absent)
-        await self.configuration.save(
-            "live",
-            ConfigurationWrite(
-                expected_revision_id=expired_fee.id,
-                value=fee.value,
-                reason="Restore documented synthetic instrument policy",
-            ),
-            ACTOR,
-        )
+        for attempt in range(5):
+            async with self.db.sessions() as session:
+                current_fee = await self.configuration.current(session, "live:fees:kalshi:SYN-1")
+            try:
+                await self.configuration.save(
+                    "live",
+                    ConfigurationWrite(
+                        expected_revision_id=current_fee.id,
+                        value=fee.value,
+                        reason="Restore documented synthetic instrument policy",
+                    ),
+                    ACTOR,
+                )
+                break
+            except RevisionConflict:
+                if attempt == 4:
+                    raise
         await self.wait("Fee-policy renewal recalculates estimate", self.positive)
 
         from acceptance_dataset import definition
@@ -554,7 +600,7 @@ class Harness:
 
 async def main(args):
     directory = args.output or Path(tempfile.mkdtemp(prefix="arbbot-acceptance-"))
-    harness = Harness(directory, args.database_url)
+    harness = Harness(directory, args.database_url, args.classification)
     try:
         await harness.run(browser=not args.no_browser)
         print(json.dumps({"acceptance": "passed", "artifacts": str(directory)}), flush=True)
@@ -575,4 +621,5 @@ if __name__ == "__main__":
     )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--classification", action="store_true")
     asyncio.run(main(parser.parse_args()))

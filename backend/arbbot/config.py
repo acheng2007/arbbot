@@ -14,6 +14,16 @@ from arbbot.sources.models import MAX_CONTENT_BYTES
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="ARBBOT_", env_file=".env", extra="ignore")
 
+    openrouter_api_key: SecretStr | None = Field(
+        default=None, validation_alias="OPENROUTER_API_KEY"
+    )
+    classification_enabled: bool = True
+    classification_model: Literal["typesafe/jev-1.13"] = "typesafe/jev-1.13"
+    classification_requests_per_second: float = Field(default=2, gt=0, le=2)
+    classification_probability: float = Field(default=0.80, ge=0, le=1)
+    classification_confidence: float = Field(default=0.80, ge=0, le=1)
+    classification_recording_file: Path | None = None
+
     database_url: SecretStr = SecretStr("postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot")
     mode: Literal["simulation", "live"] = "simulation"
     poll_seconds: float = Field(default=5, ge=1, le=3600)

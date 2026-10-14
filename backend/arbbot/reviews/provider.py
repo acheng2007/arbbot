@@ -15,13 +15,20 @@ class ReviewProvider:
     def __init__(self, database):
         self.reviews = ReviewRepository(database)
 
-    async def matches(self, mode, markets):
+    async def matches(self, mode, markets, classifications=None):
         definitions, states = await self.reviews.snapshot(mode, [m.id for m in markets])
         supplied = {d.market_id: d for d in definitions}
         definitions = [supplied.get(m.id) or extract_contract(m).definition for m in markets]
         approvals = [state.revision.review for state in states if state.eligible]
         indexed = {frozenset((s.revision.left_id, s.revision.right_id)): s for s in states}
-        matches = await asyncio.to_thread(match_markets, markets, approvals, definitions)
+        matches = await asyncio.to_thread(
+            match_markets,
+            markets,
+            approvals,
+            definitions,
+            classifications,
+            [s.revision for s in states],
+        )
         results = []
         for match in matches:
             state = indexed.get(frozenset((match.left_id, match.right_id)))

@@ -88,6 +88,7 @@ def create_app(
             settings.mode,
             allow_file_reviews=settings.review_source == "files",
             venues=settings.enabled_venues,
+            settings=settings,
         )
     )
     app.include_router(sources_router(db, settings.mode))
@@ -152,12 +153,15 @@ def create_app(
     async def venues():
         return venue_info(settings)
 
+    from arbbot.matching.classification import classification_health
+
     @app.get("/api/v1/status")
     async def status():
         health = await repository.health(settings.mode, settings.health_timeout_seconds)
         health = [h for h in health if h["venue"] in settings.enabled_venues]
         return {
             "mode": settings.mode,
+            "classification": await classification_health(db, settings),
             "exchanges": health,
             "ingestion_healthy": len(health) == len(settings.enabled_venues)
             and all(h["status"] == "healthy" for h in health),

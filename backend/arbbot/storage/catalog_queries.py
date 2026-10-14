@@ -1,4 +1,4 @@
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, case, func, or_, select
 
 from arbbot.domain import Market, MarketSummary, Match, restore
 from arbbot.storage.models import MarketRecord, MatchRecord
@@ -33,8 +33,9 @@ def market_predicates(
 
 
 class CatalogQueries:
-    def __init__(self, database, *, allow_file_reviews=False, venues=None):
+    def __init__(self, database, *, allow_file_reviews=False, venues=None, settings=None):
         self.database = database
+        self.settings = settings
         self.venues = venues
         self.allow_file_reviews = allow_file_reviews
 
@@ -82,6 +83,7 @@ class CatalogQueries:
         offset=0,
         status=None,
         evidence=None,
+        classification=None,
         market_id=None,
         match_id=None,
         venue=None,
@@ -127,34 +129,100 @@ class CatalogQueries:
                 .exists()
             )
             query = query.where(matching_leg)
+        from arbbot.matching.classification import configured_state, summary
+        from arbbot.matching.classification_models import ClassificationSummary
         from arbbot.reviews.provider import refresh_match
         from arbbot.reviews.repository import ReviewRepository
+        from arbbot.storage.models import ClassificationJobRecord
 
+        fallback = configured_state(self.settings) if self.settings else "unconfigured"
         reviews = ReviewRepository(self.database)
-        results, skipped, cursor = [], 0, None
+        special, included, ranks = {}, [], {0: [], 1: [], 2: [], 3: []}
+        advisory = MatchRecord.payload["classification"]
+        requires_validation = or_(
+            MatchRecord.payload["status"].as_string() == "verified",
+            advisory["run_id"].as_string().is_not(None),
+            advisory["supports_candidate"].as_boolean().is_(True),
+            MatchRecord.payload["ai_only"].as_boolean().is_(True),
+        )
         async with reviews._read() as session:
-            # Revalidate before filtering/pagination. Keyset batches bound memory
-            # even when a requested page follows many invalidated approvals.
-            while len(results) < limit:
-                page = query.where(MatchRecord.id > cursor) if cursor else query
-                rows = (await session.scalars(page.order_by(MatchRecord.id).limit(200))).all()
-                if not rows:
-                    break
-                for row in rows:
-                    match = await refresh_match(
-                        reviews,
-                        session,
-                        mode,
-                        Match.model_validate(row.payload),
-                        allow_file_reviews=self.allow_file_reviews,
+            session.info["classification_identity_cache"] = {}
+            rows = (await session.scalars(query.where(requires_validation))).all()
+            # Revalidate only approvals and actual advisory results. Ordinary title
+            # suggestions need no per-row evidence reads to rank or paginate.
+            for row in rows:
+                match = await refresh_match(
+                    reviews,
+                    session,
+                    mode,
+                    Match.model_validate(row.payload),
+                    allow_file_reviews=self.allow_file_reviews,
+                )
+                job = await session.get(ClassificationJobRecord, f"{mode}:{match.id}")
+                advice = await summary(session, job) if job else match.classification
+                if fallback != "pending" and self.settings:
+                    advice = (advice or ClassificationSummary(state=fallback)).model_copy(
+                        update={"state": fallback, "supports_candidate": False}
                     )
-                    if status is not None and match.status != status:
-                        continue
-                    if skipped < offset:
-                        skipped += 1
-                    else:
-                        results.append(match)
-                        if len(results) == limit:
-                            break
-                cursor = rows[-1].id
-        return results
+                match = match.model_copy(update={"classification": advice})
+                special[row.id] = match
+                if match.ai_only and (not advice or not advice.supports_candidate):
+                    continue
+                if status is not None and match.status != status:
+                    continue
+                if classification and (
+                    not advice
+                    or (classification == "suggested" and not advice.supports_candidate)
+                    or (classification != "suggested" and advice.state != classification)
+                ):
+                    continue
+                included.append(row.id)
+                rank = (
+                    0
+                    if match.status == "verified"
+                    else 1
+                    if match.comparison and match.comparison.same_event
+                    else 2
+                    if advice and advice.supports_candidate
+                    else 3
+                )
+                ranks[rank].append(row.id)
+            ordinary = MatchRecord.id.not_in(special)
+            if status is not None:
+                ordinary = and_(ordinary, MatchRecord.payload["status"].as_string() == status)
+            if classification:
+                ordinary = and_(
+                    ordinary,
+                    advisory["supports_candidate"].as_boolean().is_(True)
+                    if classification == "suggested"
+                    else func.coalesce(advisory["state"].as_string(), fallback) == classification,
+                )
+            final = query.where(or_(MatchRecord.id.in_(included), ordinary))
+            ordinary_rank = case(
+                (MatchRecord.payload["status"].as_string() == "verified", 0),
+                (MatchRecord.payload["comparison"]["same_event"].as_boolean().is_(True), 1),
+                (advisory["supports_candidate"].as_boolean().is_(True), 2),
+                else_=3,
+            )
+            rank = (
+                case(
+                    *[(MatchRecord.id.in_(ids), value) for value, ids in ranks.items() if ids],
+                    else_=ordinary_rank,
+                )
+                if included
+                else ordinary_rank
+            )
+            rows = (
+                await session.scalars(
+                    final.order_by(rank, MatchRecord.id).limit(limit).offset(offset)
+                )
+            ).all()
+            results = []
+            for row in rows:
+                match = special.get(row.id) or Match.model_validate(row.payload)
+                if not match.classification:
+                    match = match.model_copy(
+                        update={"classification": ClassificationSummary(state=fallback)}
+                    )
+                results.append(match)
+            return results

@@ -517,6 +517,31 @@
             }
           },
           {
+            "name": "classification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "suggested",
+                    "fresh",
+                    "pending",
+                    "stale",
+                    "unavailable",
+                    "unconfigured",
+                    "disabled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Classification"
+            }
+          },
+          {
             "name": "market_id",
             "in": "query",
             "required": false,
@@ -585,6 +610,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matches/{match_id}/classification": {
+      "get": {
+        "summary": "Classification Detail",
+        "operationId": "classification_detail_api_v1_matches__match_id__classification_get",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Match Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassificationSummary"
                 }
               }
             }
@@ -2360,6 +2442,162 @@
         ],
         "title": "Citation"
       },
+      "ClassificationSummary": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "fresh",
+              "stale",
+              "unavailable",
+              "unconfigured",
+              "disabled"
+            ],
+            "title": "State"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "input_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Hash"
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Finding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "clauses": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "object",
+            "title": "Clauses",
+            "default": {}
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceSpan"
+            },
+            "type": "array",
+            "title": "Evidence",
+            "default": []
+          },
+          "requested_model": {
+            "type": "string",
+            "title": "Requested Model",
+            "default": "typesafe/jev-1.13"
+          },
+          "returned_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned Model"
+          },
+          "question_version": {
+            "type": "string",
+            "title": "Question Version",
+            "default": "counterparts-v1"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "default": []
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "recorded": {
+            "type": "boolean",
+            "title": "Recorded",
+            "default": false
+          },
+          "supports_candidate": {
+            "type": "boolean",
+            "title": "Supports Candidate",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "ClassificationSummary"
+      },
       "Comparison": {
         "properties": {
           "status": {
@@ -3499,6 +3737,76 @@
         ],
         "title": "Evaluation"
       },
+      "EvidenceSpan": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "title": "Side"
+          },
+          "clause": {
+            "type": "string",
+            "title": "Clause"
+          },
+          "quotation": {
+            "type": "string",
+            "title": "Quotation"
+          },
+          "artifact_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Id"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "start": {
+            "type": "integer",
+            "title": "Start"
+          },
+          "end": {
+            "type": "integer",
+            "title": "End"
+          },
+          "applicability": {
+            "type": "string",
+            "title": "Applicability",
+            "default": "unverified"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "side",
+          "clause",
+          "quotation",
+          "start",
+          "end"
+        ],
+        "title": "EvidenceSpan"
+      },
       "ExecutableFeePolicy-Input": {
         "properties": {
           "kind": {
@@ -3926,6 +4234,52 @@
           "quote"
         ],
         "title": "Fact"
+      },
+      "Finding": {
+        "properties": {
+          "choice": {
+            "type": "string",
+            "enum": [
+              "same_event",
+              "different_event",
+              "same_meaning",
+              "different_meaning",
+              "insufficient_evidence"
+            ],
+            "title": "Choice"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0
+            },
+            "type": "object",
+            "title": "Probabilities"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Ids",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "choice",
+          "confidence",
+          "probabilities"
+        ],
+        "title": "Finding"
       },
       "HTTPValidationError": {
         "properties": {
@@ -4504,6 +4858,21 @@
       },
       "Match": {
         "properties": {
+          "classification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClassificationSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ai_only": {
+            "type": "boolean",
+            "title": "Ai Only",
+            "default": false
+          },
           "feed_origin": {
             "type": "string",
             "enum": [
