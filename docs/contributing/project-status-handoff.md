@@ -3,7 +3,7 @@
 ## Status: October 15, 2026
 
 Branch: `backend/completion`.
-The implementation through `aba2da5` was published to `origin/backend/completion`; this documentation reconciliation follows that baseline.
+The roadmap and system design through `f424a04` were published to `origin/backend/completion`; the recruiter-facing README update follows that baseline.
 No remote issue or PR status was inspected or changed for this update.
 The [roadmap](../implementation-roadmap.md) and new [system design](../system-design.md) are the current product direction.
 They supersede review-first sequencing and obsolete uncommitted-status claims in older workstream entries.
@@ -21,6 +21,25 @@ The existing browser supports paired-market browsing, catalog-wide filtering, co
 Human review APIs remain optional and historical payloads stay readable.
 No application code or API contract changed in this documentation task.
 
+## Recruiter-facing documentation update
+
+Rewrote the README as an engineering showcase with a real dashboard capture, implementation highlights, a rendered Mermaid pipeline, Jev's bounded advisory role, architecture, quick start, validation evidence, and explicit remaining work.
+Moved detailed setup and verification commands into [the development guide](../development.md).
+The screenshot uses existing frontend fixtures with data-origin, simulation, venue, and recorded-review labels intact; only the built-in Next.js developer indicator was hidden through its Preferences UI.
+No source data, application behavior, generated API contracts, license, or repository visibility changed.
+Jev is presented as an interesting constrained classification integration, without an unsupported uniqueness, accuracy, recall, or profitability claim.
+Corrected outdated descriptions of US polling, the separate International WebSocket smoke, and the standalone generated-client check.
+
+Fresh documentation-task validation passed local link/image checks, Markdown fences, whitespace/writing checks, and actual Markdown/Mermaid rendering with desktop/mobile width checks.
+The current fixture dashboard was visually inspected on desktop/mobile without horizontal overflow or page errors.
+Both Compose configurations validated.
+Fresh backend and default frontend container builds succeeded, migrations completed, and the documented simulation smoke passed.
+The actual Compose web/API/worker stack rendered All markets and the $1.61 synthetic opportunity on desktop/mobile without page errors or overflow.
+The first browser assertion exposed that the minimal simulation fixture is excluded by the default paired-market filter; quick-start links now open Opportunities and All markets, with that limitation stated in the development guide.
+The automatic/authentic settlement suites and live Jev measurements were not rerun for this documentation task.
+Temporary rendering/smoke artifacts are under `/tmp/arbbot-readme-*`; the committed dashboard capture is `docs/images/dashboard.png`.
+Containers started for verification were stopped and removed afterward, preserving the pre-existing database and frontend fixture server.
+
 ## Remaining product gaps
 
 The separate potential feed and full automatic qualification inspection are available through APIs but not yet implemented as browser workflows.
@@ -36,7 +55,7 @@ Production latency, broader US streaming, hosted checks for the current publicat
 The [automatic acceptance report](automatic-qualification-acceptance-2026-10-14.json) records 566 passing tests on SQLite and PostgreSQL separately, supplemental source/pagination checks, 18 final financial/gating checks, 66 frontend unit tests, and 66 desktop/mobile fixture tests.
 Type, lint, generated-contract, build, and the recorded PostgreSQL automatic worker/API acceptance passed at that implementation scope.
 Connected Jev browser acceptance is earlier evidence; a full automatic qualification/potential browser workflow still requires implementation and connected tests.
-These product checks were not rerun for this documentation-only change.
+The historical full suites were not rerun for this documentation-only change; fresh targeted checks are listed above.
 Documentation validation checks local links, whitespace, preserved historical issue tables, consistency with implementation boundaries, scoped changes, and commit identity.
 
 The pre-existing staged research document and untracked `.specstory/`, `.playwright-mcp/`, and `backend/arbbot/fees/kalshi.py` remain outside this task.

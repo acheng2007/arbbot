@@ -1,245 +1,174 @@
 # Arbbot
 
-Arbbot is a fullstack prediction-market arbitrage discovery platform.
-The backend continuously ingests Kalshi, Polymarket US, and separately identified Polymarket International data, discovers counterpart contracts, automatically qualifies supported settlement evidence, and calculates conditional opportunity estimates.
-Human approval and private account connections are not required for public discovery.
-Potential price gaps and qualified estimates have separate APIs; the browser currently exposes the existing paired-market and opportunity workflows.
-Authentic automatic qualification coverage remains limited by source applicability and supported contract language.
-The web interface includes live market prices, order-book depth, contract comparisons, and conditional opportunity estimates.
+**Prediction-market arbitrage discovery, from contract semantics to executable-depth calculations.**
 
-## Live-price demo
+Two markets can ask nearly the same question and still pay out differently.
+Arbbot continuously discovers contracts across exchanges, compares their settlement evidence, and evaluates price differences using available order-book depth, fees, and conservative payout scenarios.
+It brings the market-data pipeline, matching logic, financial engine, audit history, and web interface into one application.
 
-Start Docker Desktop, then run this from the repository root:
+The current integration focus is **Kalshi and Polymarket US**, with a separate Polymarket International adapter and research identity.
+Public discovery runs without a connected trading account or mandatory human approval.
+The project is under active development; real-contract qualification coverage and production operations remain unfinished.
+It discovers conditional estimates and does not place trades.
 
-```sh
-docker compose -p arbbot-demo --env-file infra/demo.env up --build -d
+[System design](docs/system-design.md) · [Roadmap](docs/implementation-roadmap.md) · [Development guide](docs/development.md)
+
+![Arbbot paired-market dashboard showing venue asks, available depth, quote age, and comparison navigation, with fixture and simulation labels visible.](docs/images/dashboard.png)
+
+*Current dashboard using development fixtures, including an International comparison and a recorded review badge. Prices and verification states are illustrative, not live findings or evidence of real-market equivalence.*
+
+## Engineering highlights
+
+- **Settlement-aware matching.** Compare event definitions, reporting periods, thresholds, resolution sources, cancellation, fallback, and ambiguity policies rather than equating similar titles.
+- **Constrained model assistance.** Jev supplies typed event and clause findings grounded in captured evidence references; deterministic rules and financial checks retain authority.
+- **Depth-aware economics.** Python `Decimal` calculations account for size, public fee policies, rounding, slippage reserves, order constraints, collateral, and worst-case supported settlement payouts.
+- **Reproducible decisions.** Versioned terms, immutable source artifacts, book snapshots, model runs, assessments, and evaluation history retain the inputs behind a result.
+- **Continuous, recoverable processing.** Independently supervised worker tasks use bounded queues, durable cursors, retries, backoff, caching, and input invalidation without tying ingestion to browser sessions.
+- **Extensible venue boundaries.** Registered adapters and evidence, fee, and instrument capabilities support additional platforms without putting exchange-specific branches in the financial evaluator.
+- **Typed backend-to-browser contracts.** FastAPI's OpenAPI schema generates the TypeScript client; financial values travel as exact decimal strings.
+
+## From markets to opportunities
+
+```mermaid
+flowchart TD
+    A[Discover markets and capture source terms] --> B[Retrieve counterpart candidates]
+    B --> J[Optional Jev event and clause advice]
+    J --> B
+    B --> C[Automatic source-backed settlement assessment]
+    B --> P[Potential ordinary-outcome price gaps]
+    C --> D[Evaluate depth, fees, capital, and payout scenarios]
+    Q[Fresh order books and public fee policies] --> P
+    Q --> D
+    D --> E[Recheck both quotes and current input identities]
+    E --> F[Publish qualified conditional estimates]
+    P --> API[Persist results and expose API feeds]
+    F --> API
+    API --> UI[Snapshot SSE and browser query refresh]
 ```
 
-Open <http://localhost:3000/markets> and allow the first ingestion cycle to finish.
-Choose a venue, inspect the best YES/NO asks, and open a market for full depth and original settlement terms.
-Prices refresh every five seconds while the page is visible.
-The worker independently polls Kalshi and subscribes to Polymarket's public WebSocket `book` and `price_change` events for the discovered YES/NO tokens.
-Polymarket stream state is persisted and evaluated on each worker cycle; the browser does not connect directly to the exchange.
-This is real exchange data, with no credentials required for the public endpoints tested, and never falls back to simulation.
-The demo monitors up to 20 supported markets per venue, not the entire exchange.
-Some books can be stale, empty, or unavailable; timestamps and unavailable states remain explicit.
-An empty qualified-opportunity dashboard is expected when captured settlement evidence or supported interpretation is incomplete.
-Automatic trading is not implemented.
+1. **Discover and normalize.** Traverse supported catalogs while preserving original terms, venue identifiers, native instrument semantics, and source/receipt timestamps. Catalog coverage and quote-monitoring budgets are separate.
+2. **Find counterparts.** Use structured event identities and deterministic retrieval, supplemented by optional Jev suggestions for differently worded contracts. Title similarity alone does not establish equivalence.
+3. **Qualify settlement evidence.** Versioned providers check applicable documents, supported definitions, clause conflicts, and exceptional outcomes. Unknown language and missing evidence produce explicit incomplete states.
+4. **Calculate the economics.** Size complementary exposure against actual depth, apply supported costs and capital constraints, and evaluate the minimum payoff across modeled settlement scenarios.
+5. **Publish and invalidate.** Recheck both books and exact input revisions before publishing qualified estimates. Changed terms, sources, fees, stale quotes, or venue failures can withdraw dependent results.
 
-The demo uses its own `arbbot-demo` Compose project and PostgreSQL volume, with PostgreSQL on localhost port 55433.
-Web and API use ports 3000 and 8000; stop other local web/API processes on those ports first.
-Do not run the default simulation stack and demo stack on these same ports simultaneously.
+Semantic assessments are cached independently of price updates, so changing quotes do not require another model request or settlement interpretation.
+Both result feeds are implemented in the backend:
 
-```sh
-docker compose -p arbbot-demo --env-file infra/demo.env logs --tail=50 worker
-docker compose -p arbbot-demo --env-file infra/demo.env down
-```
+| Feed | Meaning | Current interface |
+| --- | --- | --- |
+| Potential price gaps | Positive ordinary-outcome spreads supported by fresh depth; settlement or financial inputs may remain unresolved, with unknown costs kept nullable | `/api/v1/potential-opportunities`; dedicated browser view planned |
+| Qualified estimates | Positive modeled worst-case net estimates supported by current automatic assessments, public fees, instrument constraints, and rechecked quotes | `/api/v1/opportunities` and existing opportunity screens |
 
-Stopping preserves the database volume.
-After installing frontend development dependencies and Playwright Chromium, verify real quotes through the browser with:
+Account eligibility, prefunded balances, borrowing, and account-specific charges remain disclosed assumptions.
+Neither feed establishes atomic fills or guaranteed profit.
 
-```sh
-cd apps/web
-node scripts/smoke-live.mjs
-```
+## Why Jev?
 
-This opt-in check requires fresh live depth from both venues, Polymarket WebSocket provenance, and distinct worker snapshots reaching desktop and mobile screens without navigation.
-Screenshots are saved under `apps/web/test-results/live-*.png`.
+The integration uses **`typesafe/jev-1.13` through OpenRouter's Decisions API** to classify whether contracts describe the same event and whether supplied settlement clauses have the same meaning.
+Typed choices include explicit insufficient-evidence outcomes.
+The model selects supplied span IDs; the application reconstructs quotations from captured text rather than accepting invented quotations.
 
-## Run the backend
+The interesting engineering decision is the model's boundary: it can surface candidates that deterministic wording comparisons miss, but its confidence cannot qualify settlement compatibility, invent missing evidence, or bypass financial gates.
+Numerical thresholds, dates, rounding, and payout comparisons stay in Python.
 
-Install Docker with Compose, then run from this directory:
+The provider runs independently of book polling with a two-request-per-second limit, bounded concurrency, transient retries, durable jobs, and semantic caching.
+Changed inputs invalidate current advice, and late responses remain audit history.
+Missing credentials leave deterministic matching operational.
+There is no daily spending cap; the provider key is optional and backend-only.
+
+**Live Jev accuracy and recall improvement have not yet been measured.**
+Recorded provider responses test the integration and failure handling, not model quality.
+The [Jev guide](docs/jev-classification.md) documents evidence constraints, configuration, the benchmark, and recovery behavior.
+
+## Architecture
+
+A modular monolith with three runtime processes keeps the system integrated while separating responsibilities:
+
+- **Web:** Next.js/React interface, same-origin API proxy, TanStack Query state, and snapshot-driven refresh.
+- **API:** FastAPI/Pydantic reads for markets, comparisons, current results, evidence, health, and history, plus authenticated optional operator mutations.
+- **Worker:** Persistent asyncio tasks for catalog discovery, sources, matching, Jev, qualification, books, fees, and evaluation.
+
+PostgreSQL stores durable inputs, jobs, current pointers, and immutable history through SQLAlchemy and Alembic.
+A PostgreSQL advisory lock currently permits one active ingestion worker per database; its supervised tasks run concurrently.
+Redis and distributed workers are not part of the current deployment model.
+
+| Layer | Technology |
+| --- | --- |
+| Web | Next.js, React, TypeScript, Tailwind CSS, shadcn-style primitives |
+| Browser data | TanStack Query and Table, generated TypeScript API client, SSE |
+| Backend | Python, FastAPI, Pydantic, asyncio, HTTPX, WebSocket clients |
+| Persistence | PostgreSQL, SQLAlchemy, Alembic |
+| Verification | pytest, Vitest, Playwright, recorded exchange/provider transports |
+| Local infrastructure and diagnostics | Docker Compose, structured logs, API Prometheus metrics, opt-in OpenTelemetry tracing |
+
+See the [system design](docs/system-design.md) for component ownership, cache identities, invalidation, failure isolation, venue extension, and scaling constraints.
+
+## Run locally
+
+Install Docker with Compose, then run from the repository root:
 
 ```sh
 docker compose up --build -d
 ```
 
-This starts PostgreSQL, applies migrations, and launches separate web, API, and worker containers.
-The default is **simulation mode**, with two synthetic contracts and a reproducible opportunity.
-Simulation data is labeled in API responses and isolated from live data.
+Open **<http://localhost:3000/opportunities>** for the simulated opportunity and **<http://localhost:8000/docs>** for interactive API documentation.
+The default stack starts PostgreSQL, migrations, API, worker, and web in explicitly labeled **simulation mode** with synthetic contracts and a reproducible opportunity.
+It requires no exchange or OpenRouter credentials.
+Inspect its underlying quotes in [All markets](http://localhost:3000/markets?view=all); the minimal simulation fixture is not included by the default paired-market filter.
+The screenshot above uses the separate frontend fixture mode, which provides a richer recorded UI dataset without a backend.
 
-- API documentation: <http://localhost:8000/docs>
-- API readiness: <http://localhost:8000/health/ready>
-- Ingestion status: <http://localhost:8000/api/v1/status>
-- Current opportunities: <http://localhost:8000/api/v1/opportunities>
-- Live updates: <http://localhost:8000/api/v1/stream>
-
-Verify the complete running workflow:
+Verify the running simulation after the first worker cycle:
 
 ```sh
 docker compose exec -T api python scripts/smoke.py
 ```
 
-Inspect logs and stop services without deleting stored data:
+Inspect logs or stop the stack while retaining the database volume:
 
 ```sh
-docker compose logs --tail=100 api worker
+docker compose logs --tail=50 api worker
 docker compose down
 ```
 
-The Compose credentials are local development defaults and services bind to localhost.
-Public market and result endpoints are read-only; optional operator review and veto mutations use authenticated APIs.
-Production deployment needs managed secrets, restricted database access, TLS, and an authenticated gateway.
-
-## Python development
-
-Python 3.14 is used by the tested container configuration.
-Run these commands from the repository root:
+For **live public data**, stop the simulation stack first, then use the isolated US demo configuration:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r backend/requirements-dev.lock
-.venv/bin/python -m pip install --no-deps -e backend
-docker compose up -d db
-.venv/bin/alembic -c backend/alembic.ini upgrade head
+docker compose -p arbbot-demo --env-file infra/demo.env up --build -d
 ```
 
-Start the API and worker in separate terminals:
+This configuration polls Kalshi and Polymarket US, with broad catalog discovery and a monitoring budget of 20 contracts per venue.
+It never falls back to simulation; unavailable or stale books remain explicit.
+An empty qualified feed is expected when settlement evidence or supported interpretation is incomplete.
+Live endpoint availability depends on the venues; see the [development guide](docs/development.md) for verification, optional Jev configuration, ports, and separate International streaming support.
+Local Compose credentials are development defaults, not a production deployment configuration.
 
-```sh
-.venv/bin/uvicorn arbbot.api.app:app --host 127.0.0.1 --port 8000 --reload
-```
+## Validation and current limits
 
-```sh
-.venv/bin/arbbot-worker
-```
+The [October 15 implementation verification record](docs/contributing/automatic-qualification-acceptance-2026-10-14.json) reports **566 tests passing on each of SQLite and PostgreSQL**, **66 frontend unit tests**, and **66 desktop/mobile fixture browser tests**, plus supplemental source, pagination, financial, contract-generation, lint, type, and build checks.
+These are recorded implementation results, not a claim that every check has been rerun for each documentation commit.
 
-For a single ingestion and evaluation cycle, use `.venv/bin/arbbot-worker --once`.
-Do not run a local worker alongside the Compose worker against the same database.
-A PostgreSQL advisory lock enforces one active ingestion worker per database.
+The automatic PostgreSQL/worker/API acceptance covers zero required human records, separate potential results, source-change invalidation, fee outage/recovery, continuing book polling, and worker restart.
+Its positive examples use synthetic complete contracts and synthetic document bindings with recorded public fee documents.
+Earlier connected browser acceptance covers the review-driven and Jev workflows; it does not establish completion of the new automatic browser flow.
+Backend and frontend [CI definitions](.github/workflows) provide repeatable checks; historical passing runs do not establish the status of a newer commit.
 
-Copy `.env.example` to `.env` to customize local Python processes.
-Configuration uses the `ARBBOT_` prefix and is validated at startup.
-Compose explicitly configures its database URL and mode; other host environment variables are not automatically forwarded to containers.
-See [backend operations](docs/backend.md) for live configuration and current boundaries.
+Remaining work is explicit:
 
-## Checks
+- **Authentic settlement coverage:** all 30 authentic Kalshi/US benchmark pairs currently remain incomplete for automatic settlement qualification. Complete interpretation uses a closed source-language grammar; general natural-language settlement understanding is not implemented.
+- **Browser completion:** the separate potential feed and full automatic qualification inspection exist as APIs but await dedicated browser workflows.
+- **Model evaluation:** live Jev-assisted recall, incorrect suggestions, and abstentions remain unmeasured.
+- **Production operations:** production deployment, broader US streaming, measured production latency, backup/recovery rehearsal, and the forward paper study remain open.
 
-```sh
-.venv/bin/ruff check backend
-.venv/bin/ruff format --check backend
-.venv/bin/pytest -q backend/tests
-.venv/bin/alembic -c backend/alembic.ini check
-```
+## Explore the repository
 
-Unit and integration tests use isolated temporary SQLite databases and mocked exchange HTTP responses.
-To exercise the same persistence and API tests against local PostgreSQL, run:
-
-```sh
-ARBBOT_TEST_DATABASE_URL=postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot .venv/bin/pytest -q backend/tests
-```
-
-Each PostgreSQL test creates and removes its own uniquely named schema without modifying application tables.
-The Docker smoke test exercises real PostgreSQL, the independent worker, REST endpoints, historical source records, and SSE over HTTP.
-Live exchange reads are separate from deterministic tests.
-
-## Repository
-
-```text
-backend/
-  arbbot/
-    api/          FastAPI endpoints and schema export
-    arbitrage/    Pure depth, cost, capital, and payoff calculations
-    exchanges/    Kalshi, Polymarket, and simulation adapters
-    ingestion/    Ingestion and evaluation orchestration
-    matching/     Candidate matching and advisory Jev classification
-    qualification/ Automatic evidence assessment and potential price gaps
-    fees/         Public fee policies and calculation inputs
-    execution/    Publication guards and invalidation, without order placement
-    storage/      SQLAlchemy models and repositories
-    workers/      Continuous worker and single-cycle entry point
-  migrations/     Alembic schema history
-  scripts/        Running-system verification
-  tests/          Deterministic automated tests
-infra/            Backend container definition
-docs/             Operations, API, and review documentation
-```
-
-Runtime and development dependencies are pinned separately in `backend/requirements.lock` and `backend/requirements-dev.lock`.
-The backend is one Python package with separate runtime processes, preserving a modular monolith architecture.
-
-Start with the [system design](docs/system-design.md) for the automatic source-to-opportunity workflow and extension boundaries.
-See [automatic qualification](docs/automatic-qualification.md) for configuration, evidence requirements, and current coverage.
-[Structured contract matching](docs/contract-matching.md) documents canonical definitions and the optional historical review path.
-
-Automatic partial US CPI definitions are available at `GET /api/v1/markets/{market_id}/extraction` and feed candidate matching.
-Unsupported and missing terms remain explicit; automatic qualification requires complete supported settlement evidence and does not infer equivalence from partial extraction.
-
-Track completed work and upcoming dependencies in the [implementation roadmap](docs/implementation-roadmap.md).
-See [recorded contract validation](docs/recorded-contracts.md) for real metadata fixtures and extraction coverage.
-
-Contributors: start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [modular issue index](docs/contributing/README.md).
-
-## Frontend development
-
-The Next.js foundation lives in `apps/web` and requires Node.js 22.13 or newer.
-Use the npm version pinned in `apps/web/package.json` so clean installs reproduce the committed lockfile.
-Install the pinned dependencies and start it locally:
-
-```bash
-cd apps/web
-npm ci
-cp .env.example .env.local
-npm run dev
-```
-
-Open http://localhost:3000.
-Set `BACKEND_URL` in `apps/web/.env.local` to the backend HTTP(S) base URL, defaulting to `http://localhost:8000`, and restart Next.js after changing it.
-The server reads this value at runtime; it is never included in browser bundles.
-The browser talks only to same-origin routes under `/api`, which proxy the backend server-side.
-Start the backend using the Docker Compose instructions above to verify the connection.
-The connection page reports backend liveness and its reported simulation/live mode, not exchange readiness.
-
-### Working without a backend
-
-Set `ARBBOT_WEB_DATA_SOURCE=fixtures` to serve every screen from the recorded dataset in `src/lib/api/fixtures.ts`:
-
-```bash
-ARBBOT_WEB_DATA_SOURCE=fixtures npm run dev
-```
-
-Fixture mode is opt-in, and any other value reads the real backend, so recorded data can never stand in for live data by accident.
-Every screen served this way carries a `Recorded fixture data` banner stating that no exchange or backend was contacted.
-Browser tests always run in this mode, so they need no database, backend, or exchange credentials.
-
-### Generated API client
-
-`src/lib/api/schema.ts` is generated from the committed `docs/openapi.json` and must not be edited by hand:
-
-```bash
-npm run generate:api
-npm run generate:api:check
-```
-
-The check fails if the committed client has drifted from the OpenAPI document, and `npm test` runs it.
-Monetary and quantity fields are generated as `DecimalString` and stay exact strings from the API through to the rendered page; nothing converts them to a JavaScript number.
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npx playwright install chromium
-npm run test:e2e
-```
-
-Playwright runs desktop and mobile Chromium checks against a local web server on port 3100 backed by recorded fixtures.
-No exchange, backend, or database is contacted.
-Use `npm run build` followed by `npm start` to run the production application.
-Shared shadcn-style primitives and theme tokens live in `src/components/ui` and `src/app/globals.css`; `components.json` configures future shadcn additions.
-Feature screens live under `src/features`, with routes in `src/app`.
-
-The frontend workflow in `.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks.
-It retains Playwright traces and screenshots when a browser job fails.
-These checks use recorded fixtures and require no exchange credentials.
-The fixture-backed workflow does not replace the future seeded-backend review-to-opportunity test.
-
-| Route | Purpose |
+| Resource | What to inspect |
 | --- | --- |
-| `/opportunities` | Backend-calculated estimates with costs, payout scenarios, expiry, and live connection status |
-| `/matches` | Proposed contract pairs with side-by-side settlement terms and source quotations |
-| `/markets` | Discovered markets with original terms, extracted facts, and quote health |
-
-Authenticated draft editing and review actions are not implemented; those depend on the backend review APIs.
-
-See [the integrated Kalshi/Polymarket US workflow](docs/arbitrage-workflow.md) for operator review, execution gates, recorded acceptance, and operational limits.
+| [System design](docs/system-design.md) | Architecture, data flow, correctness boundaries, and extension model |
+| [Automatic qualification](docs/automatic-qualification.md) | Evidence rules, result feeds, scheduling, and authentic coverage limits |
+| [Jev classification](docs/jev-classification.md) | Typed model decisions, captured evidence, provider resilience, and benchmark |
+| [Financial engine](backend/arbbot/arbitrage/engine.py) | Depth-dependent sizing, costs, capital, and settlement payoff arithmetic |
+| [Development guide](docs/development.md) | Local Python/web setup, tests, recorded acceptance, live demos, and generated contracts |
+| [Backend operations](docs/backend.md) | Configuration, ingestion, persistence, and historical review tooling |
+| [Implementation roadmap](docs/implementation-roadmap.md) | Delivered scope, next milestones, and acceptance criteria |
+| [Contributing](CONTRIBUTING.md) | Contribution boundaries and engineering conventions |
