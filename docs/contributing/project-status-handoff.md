@@ -9,6 +9,16 @@ See [the consolidation handoff](branch-consolidation-handoff.md) for retained hi
 The [roadmap](../implementation-roadmap.md) and new [system design](../system-design.md) are the current product direction.
 They supersede review-first sequencing and obsolete uncommitted-status claims in older workstream entries.
 
+## Accepted direction: show suggestions, verify independently
+
+The user approved [the candidate-visibility decision](../decisions/candidate-visibility.md) as the development policy.
+Every valid fresh Jev same-event suggestion should be visible as Unverified without a model-score admission cutoff; scores rank and explain suggestions.
+Automatic settlement checks determine Verified or Mismatch, independently of current profitability, and financial/freshness checks still gate arbitrage estimates.
+Updated repository instructions, system design, roadmap, README, provider/qualification guides, and contributor priorities to make this direction explicit.
+This task changed documentation only; code, configuration, API schemas, and the historical benchmark remain unchanged.
+The current implementation still applies both 0.80 gates and does not yet expose all such pairs through the default paired browser.
+Documentation checks cover local links, whitespace, writing conventions, historical artifact preservation, and scoped changes; full product suites were not rerun.
+
 ## Completed
 
 Reconciled the roadmap with committed automatic qualification, Jev advice, public fee integration, quote rechecks, persisted potential results, venue extension boundaries, and the redesigned paired dashboard.
@@ -84,5 +94,5 @@ The pre-existing staged research document and untracked `.specstory/`, `.playwri
 
 ## Single clearest next action
 
-Extend production applicability and source interpretation for one authentic Kalshi/US family using original captured specifications, amendments, and exceptional policies, then publish qualification coverage and blocker counts without per-pair human approval.
-The browser work can proceed independently against the existing potential and qualification APIs and labeled fixtures.
+Implement the accepted candidate-visibility policy across current matching/storage, API filtering, monitoring, and browser comparison labels, then validate a low-score suggestion as Unverified and an independently qualified match as Verified through connected desktop/mobile acceptance.
+Continue authentic settlement-evidence coverage without making incomplete interpretation a prerequisite for showing suggestions.

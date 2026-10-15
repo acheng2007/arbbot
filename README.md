@@ -82,6 +82,10 @@ Assisted retrieval stayed at 8 of 9 labeled counterparts; this small sample does
 Scripted provider responses in integration tests exercise failure handling separately from these actual model results.
 The [Jev guide](docs/jev-classification.md) documents evidence constraints, configuration, the benchmark, and recovery behavior.
 
+The accepted [candidate-visibility direction](docs/decisions/candidate-visibility.md) will expose all valid current Jev same-event suggestions as Unverified, with scores used for ranking.
+Automatic settlement checks will distinguish Verified from Mismatch, while financial checks independently determine whether an arbitrage estimate exists.
+The current implementation still uses the benchmarked score cutoffs; this visibility change is planned, not yet delivered.
+
 ## Architecture
 
 A modular monolith with three runtime processes keeps the system integrated while separating responsibilities:

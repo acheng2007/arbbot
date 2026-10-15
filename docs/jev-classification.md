@@ -9,6 +9,14 @@ See the [system design](system-design.md) for the distinction between model advi
 A model finding never writes a reviewed definition, approves equivalence, rejects an existing deterministic proposal, or places an order.
 Confidence is a model score, not measured accuracy.
 
+## Accepted visibility policy and current behavior
+
+The [accepted candidate-visibility decision](decisions/candidate-visibility.md) supersedes score-based admission as the development direction.
+Future behavior exposes every valid fresh `same_event` suggestion as Unverified, uses model scores for ranking, and derives Verified or Mismatch from automatic settlement checks.
+Verification and positive financial opportunity publication remain separate.
+The implementation described below still enforces both 0.80 candidate cutoffs; no settings or runtime behavior changed when this decision was documented.
+Treat the threshold settings and initial benchmark as current/historical implementation evidence rather than requirements for future candidate visibility.
+
 ## Configuration
 
 Set `OPENROUTER_API_KEY` in the backend environment or backend process's `.env` file.
@@ -45,7 +53,7 @@ Event choices are `same_event`, `different_event`, and `insufficient_evidence`.
 Separate questions compare outcomes, resolution sources, cancellation, fallback, ambiguity, and revision clauses.
 Clause choices are `same_meaning`, `different_meaning`, and `insufficient_evidence`.
 Numerical thresholds, dates, rounding, payout semantics, and explicit reference-period contradictions remain Python decisions.
-Only a fresh same-event result meeting both configured thresholds can add an otherwise excluded candidate.
+The current implementation only admits an otherwise excluded candidate when fresh same-event advice meets both configured thresholds; migrating this gate to the accepted visibility policy remains open.
 Monitoring preserves verified, established-event, and watchlist priorities, then fresh AI-supported suggestions, other title suggestions, and unpaired markets.
 Each priority tier rotates fairly.
 
@@ -149,4 +157,4 @@ Request-level latency was not instrumented by the harness.
 All 30 pairs still lack sufficient applicable exceptional-settlement evidence.
 The smoke harness loads recorded primary market metadata without supplementary captured document artifacts, so raw clause answers cannot establish clause accuracy or automatic qualification.
 No thresholds or production behavior changed.
-Next evaluation should add authentic uncertain/ambiguous identities and applicable clause evidence before any threshold calibration.
+Next evaluation should add authentic uncertain/ambiguous identities and applicable clause evidence, measuring retrieval and ranking separately from verification under the accepted visibility policy.

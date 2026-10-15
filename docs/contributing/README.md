@@ -13,11 +13,12 @@ GitHub issue/PR status was not refreshed in this documentation update.
 The published tables below preserve historical scope and ownership boundaries; review-first dependencies are superseded by the current roadmap.
 Do not restart implemented foundation work or make human review/account setup a prerequisite for public discovery.
 
-1. Expand authentic source applicability and settlement interpretation for one Kalshi/US family, reporting qualification coverage and blockers.
-2. Surface separate potential gaps and qualified estimates in the browser, with automatic qualification evidence and connected desktop/mobile acceptance.
-3. Measure warm latency, cold-start stages, monitoring coverage, and live Jev quality; improve streaming and scheduling from those measurements.
-4. Add venues and event families through registered adapters, evidence/fee providers, and instrument capabilities.
-5. Complete staging, operational recovery, hosted checks, and the seven-day forward paper study.
+1. Implement [the accepted candidate-visibility policy](../decisions/candidate-visibility.md) across matching, APIs, monitoring, and browser comparisons; show low-score suggestions as Unverified without human approval.
+2. Expand authentic source applicability and settlement interpretation for one Kalshi/US family, reporting qualification coverage and blockers.
+3. Surface separate potential gaps and qualified estimates in the browser, with automatic qualification evidence and connected desktop/mobile acceptance.
+4. Measure warm latency, cold-start stages, monitoring coverage, and live Jev quality; improve streaming and scheduling from those measurements.
+5. Add venues and event families through registered adapters, evidence/fee providers, and instrument capabilities.
+6. Complete staging, operational recovery, hosted checks, and the seven-day forward paper study.
 
 Automatic qualification, public fee refresh, native sizing, immediate quote rechecks, catalog-wide filters, and counterpart pagination are implemented.
 The new potential feed and detailed qualification browser workflow remain planned.
@@ -29,9 +30,9 @@ No workstream authorizes trading, custody, or transfers.
 
 | Workstream | Current handoff | Next work |
 | --- | --- | --- |
-| Integrated product | [Project status](project-status-handoff.md) | Authentic automatic coverage, then complete source-to-browser discovery |
+| Integrated product | [Project status](project-status-handoff.md) | Visible suggestions with independent verification, then authentic coverage |
 | Automatic backend | [Automatic qualification](automatic-qualification-handoff.md) | Production applicability and interpretation from authentic sources |
-| Jev | [Advisory classification](jev-handoff.md) | Configured live smoke and authentic quality/coverage measurement |
+| Jev | [Advisory classification](jev-handoff.md) | Replace score-based suggestion admission; extend authentic quality measurement |
 | Frontend | [Frontend](frontend-handoff.md) | Separate potential/qualified views and automatic evidence inspection |
 | Existing backend | [Backend](backend-handoff.md) | Integrate coverage, freshness, and measured latency improvements |
 | Sources and expansion | [Data](data-handoff.md), [US venues](us-expansion-handoff.md) | Authentic rules and capability evidence; older review requirements are superseded |

@@ -18,6 +18,16 @@ The system provides both, with explicit provenance and current validity.
 Human reviews remain optional historical/operator functionality, and an explicit operator veto remains effective until cleared.
 No component places orders, holds funds, or transfers money.
 
+## Accepted candidate-visibility direction
+
+The [candidate-visibility decision](decisions/candidate-visibility.md) is authoritative for subsequent matching and presentation work.
+Every valid, fresh Jev `same_event` suggestion should be visible as an Unverified match without minimum model-score admission thresholds.
+Scores rank and explain suggestions; automatic settlement evidence alone grants Verified, explicit contradictions produce Mismatch, and positive current financial checks produce a separate arbitrage estimate.
+Missing evidence and unavailable checks expose reasons without hiding the suggestion.
+Verification is independent of profitability, and no human review is required.
+The current code still gates additional candidates at both 0.80 scores; implementing the accepted visibility policy across storage, matching, API queries, monitoring, and the browser remains open.
+Descriptions of threshold behavior below record current implementation, not the future product policy.
+
 ## Runtime architecture
 
 Keep a modular monolith in one repository with separately runnable web, API, and persistent worker processes.
@@ -85,7 +95,8 @@ Production adapters still require their own authentic evidence and capability te
 Catalog changes and captured source generations trigger deterministic counterpart retrieval, advisory classification, and automatic qualification.
 Retrieval uses established event identities, existing reviewed pairs, title indexes, and a bounded nearby-date/category supplement.
 Deduplicate pairs and disclose traversal and retrieval limits instead of implying exhaustive all-pairs comparison.
-Different reference periods, seasons, thresholds, or explicit event contradictions cannot be overcome by title similarity or model confidence.
+Explicit event, reference-period, season, or contract-definition contradictions cannot be overridden by title similarity or model confidence to obtain verification.
+Under the accepted visibility policy, retain a conflicting suggestion and its evidence as Mismatch rather than silently hiding it.
 
 Jev evaluates event identity and clause meaning from supplied public metadata and captured span IDs.
 It can add a candidate that title retrieval would exclude, but does not create a settlement model or grant qualification.
@@ -123,7 +134,7 @@ A semantic qualification can remain valid while a price result expires or become
 | Result | What it establishes | What it does not establish |
 | --- | --- | --- |
 | Candidate pair | A retrieved possible counterpart, with deterministic or advisory rationale | Settlement equivalence |
-| Jev same-event suggestion | A current model finding meeting configured candidate thresholds | Measured accuracy, qualification, or profitability |
+| Jev same-event suggestion | Target: any valid fresh same-event finding is visible as Unverified; current code still requires configured candidate thresholds | Measured accuracy, qualification, or profitability |
 | Potential price gap | Fresh depth and a positive gross ordinary-outcome spread, with known costs where available | Complete exceptional payouts or executable arbitrage |
 | Automatic qualification | Supported compatible source-backed settlement definitions and payout scenarios | Positive economics, available balances, or guaranteed execution |
 | Qualified estimate | Positive modeled worst-case net result after supported costs and fresh quote rechecks | Atomic fills, account eligibility, or realized profit |

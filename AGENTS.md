@@ -84,6 +84,12 @@ Do not infer equivalence from similar titles alone.
 Compare outcomes, payout structures, event definitions, time zones, deadlines, resolution sources, cancellation rules, and exceptional settlement conditions.
 Retain the source terms and the rationale for each proposed match.
 Distinguish candidate matches, verified equivalence, and rejected matches.
+Follow [the accepted candidate-visibility decision](docs/decisions/candidate-visibility.md) when developing matching and presentation.
+Expose valid, fresh Jev same-event suggestions as unverified without a probability or confidence admission cutoff; use model scores for ranking and explanation.
+Only current automatic evidence and settlement checks can mark a relationship verified, independently of price profitability or financial-input availability.
+Explicit contradictions are mismatches; missing evidence remains unverified with reasons.
+Keep potential price gaps separate from qualified arbitrage estimates, and retain financial, freshness, source-invalidation, and operator-veto gates.
+This is the required development direction; do not claim its implementation is complete until matching, APIs, monitoring, and browser acceptance demonstrate it.
 Exclude unresolved semantic differences from opportunities presented as executable arbitrage.
 
 # Opportunity Evaluation

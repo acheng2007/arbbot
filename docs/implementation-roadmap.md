@@ -27,6 +27,14 @@ Neither feed promises a fill or guaranteed profit.
 A model suggestion alone cannot produce a qualified estimate.
 An empty qualified feed is a valid result, but persistent low coverage is a product gap to measure and address.
 
+## Accepted direction: visible suggestions with automatic verification
+
+The [candidate-visibility decision](decisions/candidate-visibility.md) governs future development.
+Expose every valid current Jev same-event suggestion as Unverified, use scores for ranking rather than admission, mark complete compatible automatic settlement evidence Verified, and show explicit contradictions as Mismatch.
+Qualified arbitrage estimates additionally require positive current financial checks; verification alone does not imply profitability.
+The current threshold gate and established-event-only browser filtering have not yet been migrated to this policy.
+This documentation records an accepted direction, not newly delivered functionality.
+
 ## Implemented baseline
 
 Checked items describe implemented scope, not proof of live profitability or unrestricted venue support.
@@ -64,8 +72,12 @@ Broader venue streaming, production latency measurements, staging operations, an
 ## Milestone 1: useful automatic discovery on authentic contracts
 
 Make the current automation useful with real source evidence and expose its results clearly through the browser.
-Evidence/provider work is the first backend priority; the browser can proceed against existing APIs and labeled recordings.
+The first integrated delivery is the accepted suggestion-visibility policy across matching, APIs, monitoring, and the browser.
+Continue authentic evidence/provider coverage alongside it; visible Unverified comparisons do not depend on achieving complete settlement interpretation first.
 
+- [ ] Replace score-based Jev suggestion admission across current-result storage, matching, monitoring, and APIs; retain validity, deterministic independence, contradictions, and veto handling.
+- [ ] Display all current suggested comparisons as Unverified or Verified with explicit Mismatch and stale/history inspection; use scores only for ranking and explanation, and apply status filters before pagination.
+- [ ] Prove low-score suggestion visibility, independent automatic verification/profitability, incomplete/provider states, and financial-gate preservation through connected desktop/mobile acceptance.
 - [ ] Capture authentic instrument-to-specification relationships, rulebooks, amendments, and authoritative resolution evidence for an initial supported Kalshi/US family.
 - [ ] Extend versioned applicability providers and source-language interpretation using captured authentic wording, including changed-document and unknown-clause abstention.
 - [ ] Report qualification coverage and blocker counts over the authentic corpus, including incompatible and incomplete pairs; do not silently drop difficult cases.
@@ -92,7 +104,7 @@ Do not wait for Jev or source interpretation to refresh already qualified prices
 - [ ] Improve bounded change-triggered evaluation and add supported US streaming adapters where official capabilities permit, preserving REST resynchronization and independent task supervision.
 - [ ] Measure monitored counterpart coverage, time since each pair was refreshed, queue age, and starvation; preserve complete-pair scheduling and tier rotation.
 - [x] Run the initial live Jev smoke and 30-pair authentic recorded benchmark, retaining actual answers, model identity, retrieval results, and provider usage.
-- [ ] Extend live Jev evaluation with authentic ambiguous identities and applicable clause evidence, and instrument latency and omitted-context effects before calibrating thresholds.
+- [ ] Extend live Jev evaluation with authentic ambiguous identities and applicable clause evidence, and instrument latency and omitted-context effects to assess ranking quality without restoring a score-based suggestion-visibility cutoff.
 - [ ] Expand the labeled corpus with authentic uncertain event identity, differing seasons/thresholds, cancellation conflicts, and source amendments; keep synthetic edge cases separate.
 
 **Exit criteria:** repeatable load and outage runs satisfy declared latency/freshness targets without weakening settlement or financial checks, and coverage/quality reports include failures and exclusions.
@@ -140,4 +152,4 @@ Do not introduce Redis, a second generative model, or additional services withou
 Historical issue scopes in the [contributor index](contributing/README.md) remain traceability records; their review-first dependencies no longer define the critical path.
 Optional review tooling and private execution-readiness work do not block public discovery.
 
-**Next action:** extend production applicability and source interpretation for one authentic Kalshi/US family, using original captured documents and explicit exceptional policies, and publish its qualification/blocker coverage report.
+**Next action:** implement the accepted candidate-visibility decision across matching, APIs, monitoring, and browser comparisons, then demonstrate low-score Unverified suggestions alongside independently Verified matches and financially gated estimates.

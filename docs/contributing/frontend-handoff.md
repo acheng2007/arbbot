@@ -167,3 +167,12 @@ The corrected scenario passed ten local desktop/mobile repetitions with two conc
 The final hosted frontend run passed all 66 desktop/mobile tests, 66 unit tests, generated-client/type/lint checks, and the production build.
 All completed branches were retained in main and removed; see [the consolidation handoff](branch-consolidation-handoff.md).
 Next action: when frontend work is requested, implement separate potential and qualified views against the existing APIs, preserving the current evidence and assumption boundaries.
+
+## Accepted suggestion-visibility direction
+
+Branch: `main`; documentation decision only.
+The user approved [candidate visibility with independent automatic verification](../decisions/candidate-visibility.md).
+Display valid current Jev same-event suggestions as Unverified regardless of their model scores; use scores for ordering and explanation.
+Distinguish Verified settlement relationships, explicit Mismatch, stale/history, and separately gated arbitrage estimates.
+The current score-based eligibility and established-event-only paired filtering still require implementation changes; do not document them as delivered.
+Next action: integrate the accepted policy with backend eligibility/filtering and connected desktop/mobile checks, including a low-score suggestion that remains visible while settlement evidence is incomplete.

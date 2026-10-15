@@ -22,7 +22,7 @@ Only successfully applied runs can be reused from the 24-hour cache; late respon
 CPU retrieval runs off the event loop.
 
 Matching classifies retrieved pairs before the title cutoff and adds a bounded category/date supplement.
-Both 0.80 probability and 0.80 confidence thresholds are required for additional candidates.
+Both 0.80 probability and 0.80 confidence thresholds are required by the current implementation for additional candidates; the accepted visibility policy below supersedes that requirement for future development.
 Explicit reference-period contradictions prevent additions.
 Negative or uncertain advice never removes deterministic or previously reviewed pairs and never writes definitions or approvals.
 Current API and monitoring reads suppress stale AI-only proposals.
@@ -84,6 +84,9 @@ The README, classification guide, roadmap, and integrated handoff now distinguis
 The pre-existing staged `docs/arbitrage-research-2026-09.md`, untracked `.specstory/`, and untracked `backend/arbbot/fees/kalshi.py` were left untouched and excluded from these commits.
 Additional browser-debug artifacts under `.playwright-mcp/` were also excluded.
 
-## Next action
+## Accepted candidate visibility and next action
 
-Expand the authentic evaluation with uncertain/ambiguous event identities and applicable clause evidence, then assess held-out candidate-threshold calibration without weakening deterministic contradictions or settlement qualification.
+The [accepted decision](../decisions/candidate-visibility.md) requires every valid fresh same-event suggestion to remain visible as Unverified without score-based admission.
+Use scores for ranking/explanation, and preserve independent automatic verification, explicit Mismatch, current-input validity, deterministic proposals, and operator vetoes.
+This documentation change does not implement the new behavior or rewrite the old benchmark.
+Next action: replace threshold-derived suggestion eligibility consistently across matching, current projections, APIs, monitoring, and browser queries, then add connected low-score visibility acceptance.
