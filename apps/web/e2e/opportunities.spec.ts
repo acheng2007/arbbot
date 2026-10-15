@@ -50,6 +50,11 @@ test("an estimate is presented with its costs, evidence, and caveats", async ({
   await page
     .getByRole("link", { name: /Inspect the contract comparison/ })
     .click();
+  // Both routes have this disclosure; wait until the destination is rendered.
+  await expect(page).toHaveURL(/\/matches\/match-cpi-2026-09$/);
+  await expect(
+    page.getByRole("link", { name: "All proposed pairs" }),
+  ).toBeVisible();
   await page.getByText("Review evidence", { exact: true }).click();
   await expect(page.getByText("Recorded review")).toBeVisible();
 });

@@ -15,7 +15,9 @@ Retained the histories of `backend/2-source-artifacts` at `fa24676`, `data/3-4-s
 Their integrated replacements already exist in the landed source repository, current enrichment modules, source tests, and `ce70c95`.
 The alternate `fdba615a5e84` and `b73c12904a61` migrations must not be restored alongside the current `d0cc5e73c848` lineage.
 All original commits and human authorship remain in ancestry.
-The application tree after these merges is byte-for-byte identical to `51a9a21`; only this organization handoff is added afterward.
+The application tree after the history merges is byte-for-byte identical to `51a9a21`.
+Hosted browser validation then exposed a test navigation race, corrected by waiting for the destination URL and comparison-only link before opening a disclosure shared with the previous route.
+Only test synchronization and this organization handoff differ from that application baseline; production behavior is unchanged.
 
 All other existing local and remote branch heads were verified as ancestors of the consolidated history.
 This covers the historical backend foundation branches, data source branch, live-price demo, frontend foundation/read-only/CI branches, and frontend workstream.
@@ -24,7 +26,13 @@ The user's staged research, untracked fee module, browser/session artifacts, and
 
 ## Validation and cleanup
 
-Create a consolidation PR against main and require current hosted backend/frontend checks before merging.
+Consolidation PR: [#57](https://github.com/acheng2007/arbbot/pull/57).
+The initial hosted frontend generated-client, lint, type, unit, and production-build job passed.
+The browser job passed 65 of 66 tests and failed the mobile review-evidence navigation assertion.
+The downloaded trace proves the click occurred on the old opportunity URL before comparison navigation finished; the failure screenshot was inspected.
+The test now waits for the destination URL and a comparison-only link, retaining all evidence assertions.
+The corrected scenario passed ten local runs across desktop and mobile, with two concurrent workers.
+Require current hosted backend/frontend checks before merging.
 The checks cover both database suites, migrations, schema drift, generated contracts, frontend units/types/lint/build, and desktop/mobile fixture browsers.
 The earlier implementation results remain documented at their original scope; they are not substituted for the consolidation head's checks.
 After merge, verify each branch head is reachable from remote main before deleting its remote or local ref.

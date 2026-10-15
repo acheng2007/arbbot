@@ -155,3 +155,13 @@ Existing match badges identify automatic qualification accurately, and opportuni
 The user selected backend/API implementation only, so no new potential-opportunity view or qualification inspection flow was implemented.
 See [the backend automatic qualification handoff](automatic-qualification-handoff.md) for API semantics and source-coverage limits.
 Next action: when frontend work is requested, add separate potential and qualified result views using the new APIs without mixing ordinary-outcome spread with qualified worst-case estimates.
+
+## October 15 consolidation validation
+
+Branch: `chore/consolidate-main`; PR [#57](https://github.com/acheng2007/arbbot/pull/57).
+Hosted validation reproduced a mobile evidence-test race: the test clicked Review evidence on the old opportunity route before comparison navigation completed.
+The downloaded trace and screenshot were inspected before editing.
+The assertion now waits for the destination URL and comparison-only navigation link, then opens the destination disclosure.
+No UI behavior, evidence assertions, or timeout limits were changed.
+The corrected scenario passed ten local desktop/mobile repetitions with two concurrent workers.
+Next action: finish hosted validation of the consolidation, merge to main, and remove only branch heads retained in main's ancestry.
