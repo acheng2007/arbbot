@@ -1,0 +1,6431 @@
+{
+  "checked_at": "2026-10-15T07:08:08.277713+00:00",
+  "evaluation_type": "live_provider_on_recorded_authentic_public_metadata",
+  "requested_model": "typesafe/jev-1.13",
+  "returned_models": [
+    "typesafe/jev-1.13-20260917"
+  ],
+  "question_set_version": "counterparts-v1",
+  "fixture": "backend/tests/fixtures/jev/benchmark.json",
+  "fixture_sha256": "59654fc6f47543be7fb5f765844059f27dcdd0be057fd238c64763641fdaa0c1",
+  "requests_per_second": 2,
+  "concurrency": 4,
+  "thresholds": {
+    "same_event_probability": 0.8,
+    "model_confidence": 0.8
+  },
+  "smoke": {
+    "successful_responses": 1,
+    "errors": {},
+    "usage": {
+      "input_tokens": 5062,
+      "output_tokens": 1156,
+      "provider_reported_cost": "0.000212604"
+    }
+  },
+  "benchmark": {
+    "authentic_pairs": 30,
+    "positive_labels": 9,
+    "baseline_recall": 0.8888888888888888,
+    "jev_assisted_recall": 0.8888888888888888,
+    "incorrect_suggestions": 0,
+    "abstentions": 0,
+    "model_response_coverage": 1.0,
+    "insufficient_clause_evidence_cases": 30,
+    "limitations": [
+      "Authentic October 1 catalog snapshot, not a representative statistical sample.",
+      "Complete metadata has no uncertain event-identity gold cases.",
+      "Insufficient-evidence labels cover missing applicable settlement documents.",
+      "No synthetic or scripted model answers enter accuracy metrics.",
+      "Absent authentic model responses leave assisted metrics unmeasured."
+    ]
+  },
+  "observations": {
+    "raw_event_choices_correct": 30,
+    "raw_event_choices_total": 30,
+    "same_event_findings_passing_thresholds": 0,
+    "additional_candidates": 0,
+    "event_choices": {
+      "same_event": 9,
+      "different_event": 21
+    }
+  },
+  "usage": {
+    "input_tokens": 151882,
+    "output_tokens": 35365,
+    "provider_reported_cost": "0.006379044"
+  },
+  "errors": {},
+  "interpretation": [
+    "All 30 raw event choices agree with the existing labels on this small recorded sample.",
+    "No same-event finding passes the existing 0.80 probability and confidence thresholds; assisted recall does not improve.",
+    "Raw classification agreement is distinct from retrieval recall, confidence calibration, and settlement equivalence.",
+    "All 30 pairs lack sufficient applicable exceptional-settlement evidence; none is established as qualified by this benchmark.",
+    "The smoke harness supplies recorded market metadata without captured supplementary document artifacts; this is not a full live worker or clause-quality evaluation.",
+    "No uncertain event-identity gold cases occur in the fixture.",
+    "Provider-reported usage/cost is retained as returned; billing and production latency were not independently measured.",
+    "No synthetic or scripted model answers were used; thresholds and application behavior were not changed."
+  ],
+  "pairs": [
+    {
+      "pair_id": "authentic-00-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-TB",
+        "polymarket_us:tec-mlb-champ-2026-09-27-tb"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "8ba640a2ef707ec035d01118860a766d6f3c1cdec36639a456c77b775f915e13",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.14,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.01
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.69,
+          "probabilities": {
+            "650d855fed25063799bbad48": 0.79,
+            "ad5955b927d34a3e17ccce2e": 0.15,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_event": 0.09,
+            "insufficient_evidence": 0.23,
+            "same_event": 0.6799999999999999
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.8,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "3fbc80457f44257ea137e97d",
+          "confidence": 0.64,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.76,
+            "4e7ed415b099da54d8ce5166": 0.12,
+            "none": 0.12
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.12
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.88,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "3fbc80457f44257ea137e97d",
+          "confidence": 0.27,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.51,
+            "4e7ed415b099da54d8ce5166": 0.07,
+            "none": 0.42
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.08
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.61,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.74,
+            "none": 0.26
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.09
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.78,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.89,
+            "none": 0.11
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5062,
+        "output_tokens": 1177,
+        "cost": 0.000212604
+      }
+    },
+    {
+      "pair_id": "authentic-01-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-SD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-sd"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "c676ad516f8a639935c98af6347eed9f59c4f9367de1614ea817e1c1e2ba24b0",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.67,
+          "probabilities": {
+            "different_meaning": 0.15,
+            "insufficient_evidence": 0.78,
+            "same_meaning": 0.07
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.76,
+          "probabilities": {
+            "799d0cf1bd25c32bfab5c590": 0.84,
+            "b6bffde5d988fbf8b3eff45b": 0.11,
+            "none": 0.05
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_event": 0.16,
+            "insufficient_evidence": 0.3,
+            "same_event": 0.54
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.78,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.55,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.15,
+            "ea0c2a535af56862652fdf48": 0.7,
+            "none": 0.15
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.28,
+          "probabilities": {
+            "different_meaning": 0.38,
+            "insufficient_evidence": 0.52,
+            "same_meaning": 0.1
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.9,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.49,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.08,
+            "ea0c2a535af56862652fdf48": 0.66,
+            "none": 0.26
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.07,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.1
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.49,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.66,
+            "none": 0.34
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.14
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.84,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5048,
+        "output_tokens": 1163,
+        "cost": 0.000212016
+      }
+    },
+    {
+      "pair_id": "authentic-02-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-PHI",
+        "polymarket_us:tec-mlb-champ-2026-09-27-phi"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "8cec0b9f2d64434cb52dac966e3864b730c32b3f245e8cb37e8d6ef29d31e28d",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.14,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "938dc062569ead4b76a170db",
+          "confidence": 0.79,
+          "probabilities": {
+            "21134eb6788d6005962acd2a": 0.08,
+            "938dc062569ead4b76a170db": 0.86,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_event": 0.14,
+            "insufficient_evidence": 0.32,
+            "same_event": 0.54
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.78,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.62,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.13,
+            "af1dcc8685df55c218e74de2": 0.75,
+            "none": 0.12
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.56,
+            "same_meaning": 0.13
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.9,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.31,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.1,
+            "af1dcc8685df55c218e74de2": 0.54,
+            "none": 0.36
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.08
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "de4d8e96dd7b669506279b51",
+          "confidence": 0.49,
+          "probabilities": {
+            "80480826c7345df035e05e6b": 0.0,
+            "de4d8e96dd7b669506279b51": 0.66,
+            "none": 0.34
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.37,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.58,
+            "same_meaning": 0.12
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "6ad79e8fb0f45c2eaa1f0a17",
+          "confidence": 0.8,
+          "probabilities": {
+            "6ad79e8fb0f45c2eaa1f0a17": 0.9,
+            "none": 0.1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5055,
+        "output_tokens": 1173,
+        "cost": 0.00021231
+      }
+    },
+    {
+      "pair_id": "authentic-03-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-NYY",
+        "polymarket_us:tec-mlb-champ-2026-09-27-nyy"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "d491f7c44b4f88ae8315895e4958e9ec6b6ce939dd415b5e73f1d8251521a1cf",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.73,
+          "probabilities": {
+            "045a3ace2c6a954b4e2ca4e7": 0.13,
+            "799d0cf1bd25c32bfab5c590": 0.82,
+            "none": 0.05
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_event": 0.07,
+            "insufficient_evidence": 0.28,
+            "same_event": 0.65
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.8,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.69,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.1,
+            "5759fd43c5638292691e87f6": 0.79,
+            "none": 0.11
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.4,
+          "probabilities": {
+            "different_meaning": 0.26,
+            "insufficient_evidence": 0.6,
+            "same_meaning": 0.14
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.9,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.4,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.08,
+            "5759fd43c5638292691e87f6": 0.6,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.83,
+          "probabilities": {
+            "different_meaning": 0.05,
+            "insufficient_evidence": 0.89,
+            "same_meaning": 0.06
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.45,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.0,
+            "7ae3b8495c3f9b8f1a1820e4": 0.63,
+            "none": 0.37
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.55,
+          "probabilities": {
+            "different_meaning": 0.2,
+            "insufficient_evidence": 0.7,
+            "same_meaning": 0.1
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.84,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5058,
+        "output_tokens": 1176,
+        "cost": 0.000212436
+      }
+    },
+    {
+      "pair_id": "authentic-04-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-MIL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-mil"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "ebc800881712a5802451b65b1622424b102caca9e61303ed69841ef433a8893a",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.73,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.82,
+            "a3a2d267fc28ac7dfd82046a": 0.12,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.61,
+          "probabilities": {
+            "different_event": 0.07,
+            "insufficient_evidence": 0.19,
+            "same_event": 0.74
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.84,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.92,
+            "none": 0.08
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.69,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.1,
+            "dc2d0feabd1caa6e33a8e4c9": 0.79,
+            "none": 0.11
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.4,
+          "probabilities": {
+            "different_meaning": 0.26,
+            "insufficient_evidence": 0.6,
+            "same_meaning": 0.14
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.9,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.45,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.07,
+            "dc2d0feabd1caa6e33a8e4c9": 0.63,
+            "none": 0.3
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.07,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.1
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.59,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.73,
+            "none": 0.27
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.82,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5070,
+        "output_tokens": 1185,
+        "cost": 0.00021294
+      }
+    },
+    {
+      "pair_id": "authentic-05-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-LAD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-lad"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "37aade03aa22c11095229e1215ed9e70a3406514f38af5dc309ec2cc829517fd",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.15,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.74,
+          "probabilities": {
+            "3f3769c0090b65deb29dbcdc": 0.11,
+            "89839a6c3804c6b9b0b477a1": 0.83,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.67,
+          "probabilities": {
+            "different_event": 0.06,
+            "insufficient_evidence": 0.16,
+            "same_event": 0.78
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.8,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.7,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.1,
+            "981e0ded3d269211c744a618": 0.8,
+            "none": 0.1
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.17
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.88,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.4,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.08,
+            "981e0ded3d269211c744a618": 0.6,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_meaning": 0.09,
+            "insufficient_evidence": 0.79,
+            "same_meaning": 0.12
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "257be8a5f72c79651b5798a5",
+          "confidence": 0.38,
+          "probabilities": {
+            "257be8a5f72c79651b5798a5": 0.59,
+            "31ab0a1c9167c68ff816748d": 0.01,
+            "none": 0.4
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.23,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.84,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5071,
+        "output_tokens": 1184,
+        "cost": 0.000212982
+      }
+    },
+    {
+      "pair_id": "authentic-06-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-CWS",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cws"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "f089d9daf5b4af397ad9edf12162cada2f09c3634dca964f5d7fefb1ec93eebb",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_meaning": 0.16,
+            "insufficient_evidence": 0.79,
+            "same_meaning": 0.05
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.74,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.83,
+            "4acd47856515d986eeb3bba0": 0.13,
+            "none": 0.04
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.67,
+          "probabilities": {
+            "different_event": 0.06,
+            "insufficient_evidence": 0.16,
+            "same_event": 0.78
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.78,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.61,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.74,
+            "60352b3bf8ee2965a0444f0c": 0.14,
+            "none": 0.12
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.56,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.71,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.33,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.55,
+            "same_meaning": 0.13
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.88,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.35,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.57,
+            "60352b3bf8ee2965a0444f0c": 0.11,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.07,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.08
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.58,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.0,
+            "7ae3b8495c3f9b8f1a1820e4": 0.72,
+            "none": 0.28
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.25,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.82,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5063,
+        "output_tokens": 1187,
+        "cost": 0.000212646
+      }
+    },
+    {
+      "pair_id": "authentic-07-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-CLE",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cle"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "646097a3c286de2b05f0ff851d8b533df37969ee900294e3fa5d32f07add95a6",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.01
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.82,
+          "probabilities": {
+            "646d4387549dd04aa049bb24": 0.07,
+            "89839a6c3804c6b9b0b477a1": 0.88,
+            "none": 0.05
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_event": 0.09,
+            "insufficient_evidence": 0.22,
+            "same_event": 0.69
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.84,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.92,
+            "none": 0.08
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.62,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.14,
+            "f699a65e6306e54bc5ff9b92": 0.75,
+            "none": 0.11
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.35,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.57,
+            "same_meaning": 0.16
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.86,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.93,
+            "none": 0.07
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.25,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.11,
+            "f699a65e6306e54bc5ff9b92": 0.5,
+            "none": 0.39
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.73,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.82,
+            "same_meaning": 0.1
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.52,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.68,
+            "none": 0.32
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.21,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.17
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.82,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5073,
+        "output_tokens": 1195,
+        "cost": 0.000213066
+      }
+    },
+    {
+      "pair_id": "authentic-09-0",
+      "market_ids": [
+        "kalshi:KXMLB-26-ATL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-atl"
+      ],
+      "event_label": "same_event",
+      "baseline_candidate": true,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "f846d426825fe6e2d46e2397f1571b2c74be565242f99bb9b78b183e4bfdd47f",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.36,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.61,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.74,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.7,
+          "probabilities": {
+            "450565912418fd51f797e1f7": 0.14,
+            "650d855fed25063799bbad48": 0.8,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "same_event",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_event": 0.15,
+            "insufficient_evidence": 0.23,
+            "same_event": 0.62
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.8,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.72,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.81,
+            "f8b67ebcc579c37fd5896986": 0.06,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.37,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.12
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.88,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.23,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.49,
+            "f8b67ebcc579c37fd5896986": 0.07,
+            "none": 0.44
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.79,
+            "same_meaning": 0.1
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7977c3df998232d26fd4d367",
+          "confidence": 0.41,
+          "probabilities": {
+            "7977c3df998232d26fd4d367": 0.61,
+            "dd8964710607eaa2d0f6e261": 0.01,
+            "none": 0.38
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.28,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.52,
+            "same_meaning": 0.15
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.82,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5062,
+        "output_tokens": 1182,
+        "cost": 0.000212604
+      }
+    },
+    {
+      "pair_id": "authentic-00-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-TB",
+        "polymarket_us:tec-mlb-champ-2026-09-27-atl"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "9e88641fde4c0243fb745278ad3a2f2a76f146b2e1f4138a2a0bade35aaeb419",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.02
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.72,
+          "probabilities": {
+            "different_meaning": 0.17,
+            "insufficient_evidence": 0.81,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.77,
+          "probabilities": {
+            "450565912418fd51f797e1f7": 0.09,
+            "650d855fed25063799bbad48": 0.85,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_event": 0.69,
+            "insufficient_evidence": 0.08,
+            "same_event": 0.23
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.78,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.7,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.8,
+            "f8b67ebcc579c37fd5896986": 0.05,
+            "none": 0.15
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.35,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.01
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.47,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.86,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.93,
+            "none": 0.07
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.22,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.45,
+            "f8b67ebcc579c37fd5896986": 0.07,
+            "none": 0.48
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.1,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.05
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.52,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.68,
+            "none": 0.32
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.09
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.84,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5063,
+        "output_tokens": 1158,
+        "cost": 0.000212646
+      }
+    },
+    {
+      "pair_id": "authentic-01-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-SD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-tb"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "ca67715e179b23d8431a7ff093d4b6c6655d4d7c30f57e62bc5481115f5bce57",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.35,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.12,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.58,
+          "probabilities": {
+            "650d855fed25063799bbad48": 0.72,
+            "ad5955b927d34a3e17ccce2e": 0.21,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.59,
+          "probabilities": {
+            "different_event": 0.73,
+            "insufficient_evidence": 0.12,
+            "same_event": 0.15
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.76,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "3fbc80457f44257ea137e97d",
+          "confidence": 0.59,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.73,
+            "4e7ed415b099da54d8ce5166": 0.13,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.35,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.25,
+          "probabilities": {
+            "different_meaning": 0.47,
+            "insufficient_evidence": 0.5,
+            "same_meaning": 0.03
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.88,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "3fbc80457f44257ea137e97d",
+          "confidence": 0.22,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.48,
+            "4e7ed415b099da54d8ce5166": 0.07,
+            "none": 0.45
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.06
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.55,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.7,
+            "none": 0.3
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.12
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.82,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5062,
+        "output_tokens": 1177,
+        "cost": 0.000212604
+      }
+    },
+    {
+      "pair_id": "authentic-02-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-PHI",
+        "polymarket_us:tec-mlb-champ-2026-09-27-sd"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "3ed5c277a0d94e2dc5a29ec13e41df287762699b487ebef993231318302ef029",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.12,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.73,
+          "probabilities": {
+            "799d0cf1bd25c32bfab5c590": 0.82,
+            "b6bffde5d988fbf8b3eff45b": 0.11,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_event": 0.66,
+            "insufficient_evidence": 0.08,
+            "same_event": 0.26
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.78,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.56,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.16,
+            "ea0c2a535af56862652fdf48": 0.71,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.04
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.28,
+          "probabilities": {
+            "different_meaning": 0.46,
+            "insufficient_evidence": 0.52,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.88,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.35,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.09,
+            "ea0c2a535af56862652fdf48": 0.57,
+            "none": 0.34
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.8,
+          "probabilities": {
+            "different_meaning": 0.07,
+            "insufficient_evidence": 0.87,
+            "same_meaning": 0.06
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "de4d8e96dd7b669506279b51",
+          "confidence": 0.53,
+          "probabilities": {
+            "80480826c7345df035e05e6b": 0.0,
+            "de4d8e96dd7b669506279b51": 0.69,
+            "none": 0.31
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.23,
+            "insufficient_evidence": 0.54,
+            "same_meaning": 0.23
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.82,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5053,
+        "output_tokens": 1171,
+        "cost": 0.000212226
+      }
+    },
+    {
+      "pair_id": "authentic-03-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-NYY",
+        "polymarket_us:tec-mlb-champ-2026-09-27-phi"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "a7d0fb4affb7da97df1e56458f135ba85cdde9853a167270ce546591409cf93a",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.12,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.05
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "938dc062569ead4b76a170db",
+          "confidence": 0.79,
+          "probabilities": {
+            "21134eb6788d6005962acd2a": 0.07,
+            "938dc062569ead4b76a170db": 0.86,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.59,
+          "probabilities": {
+            "different_event": 0.73,
+            "insufficient_evidence": 0.07,
+            "same_event": 0.2
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.8,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.58,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.15,
+            "af1dcc8685df55c218e74de2": 0.72,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.05
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.42,
+            "insufficient_evidence": 0.54,
+            "same_meaning": 0.04
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.9,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.25,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.06,
+            "af1dcc8685df55c218e74de2": 0.5,
+            "none": 0.44
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.8,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.87,
+            "same_meaning": 0.05
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.52,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.0,
+            "7ae3b8495c3f9b8f1a1820e4": 0.68,
+            "none": 0.32
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.4,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.6,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "6ad79e8fb0f45c2eaa1f0a17",
+          "confidence": 0.82,
+          "probabilities": {
+            "6ad79e8fb0f45c2eaa1f0a17": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5061,
+        "output_tokens": 1176,
+        "cost": 0.000212562
+      }
+    },
+    {
+      "pair_id": "authentic-04-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-MIL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-nyy"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "cf8d9c3e250e64e3c414929a9a4409f7f351f83245c506f9544871bb0092ec52",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.67,
+          "probabilities": {
+            "045a3ace2c6a954b4e2ca4e7": 0.16,
+            "799d0cf1bd25c32bfab5c590": 0.78,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.64,
+          "probabilities": {
+            "different_event": 0.76,
+            "insufficient_evidence": 0.08,
+            "same_event": 0.16
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.8,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.56,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.16,
+            "5759fd43c5638292691e87f6": 0.71,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.3,
+          "probabilities": {
+            "different_meaning": 0.45,
+            "insufficient_evidence": 0.53,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.88,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.41,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.07,
+            "5759fd43c5638292691e87f6": 0.61,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.07
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.52,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.68,
+            "none": 0.32
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.41,
+          "probabilities": {
+            "different_meaning": 0.25,
+            "insufficient_evidence": 0.61,
+            "same_meaning": 0.14
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.86,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.93,
+            "none": 0.07
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5056,
+        "output_tokens": 1177,
+        "cost": 0.000212352
+      }
+    },
+    {
+      "pair_id": "authentic-05-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-LAD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-mil"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "eef0780238ffe74a684f8dcd19e6156c913c19f1ac83ba3ca15c16af48916e5e",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.07
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.7,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.8,
+            "same_meaning": 0.07
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.74,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.83,
+            "a3a2d267fc28ac7dfd82046a": 0.1,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.56,
+          "probabilities": {
+            "different_event": 0.71,
+            "insufficient_evidence": 0.04,
+            "same_event": 0.25
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.82,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.91,
+            "none": 0.09
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.61,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.12,
+            "dc2d0feabd1caa6e33a8e4c9": 0.74,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.07
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.45,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.04
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.88,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.31,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.08,
+            "dc2d0feabd1caa6e33a8e4c9": 0.54,
+            "none": 0.38
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_meaning": 0.09,
+            "insufficient_evidence": 0.79,
+            "same_meaning": 0.12
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "257be8a5f72c79651b5798a5",
+          "confidence": 0.34,
+          "probabilities": {
+            "257be8a5f72c79651b5798a5": 0.56,
+            "31ab0a1c9167c68ff816748d": 0.01,
+            "none": 0.43
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.5599999999999999,
+            "same_meaning": 0.17
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.82,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5064,
+        "output_tokens": 1174,
+        "cost": 0.000212688
+      }
+    },
+    {
+      "pair_id": "authentic-06-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-CWS",
+        "polymarket_us:tec-mlb-champ-2026-09-27-lad"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "e4249a51cfb87af48f87036073a2b83c765a189f7de82290f434319543f56f17",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.06
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.79,
+          "probabilities": {
+            "3f3769c0090b65deb29dbcdc": 0.08,
+            "89839a6c3804c6b9b0b477a1": 0.86,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.35,
+          "probabilities": {
+            "different_event": 0.57,
+            "insufficient_evidence": 0.11,
+            "same_event": 0.32
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.76,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.64,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.11,
+            "981e0ded3d269211c744a618": 0.76,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.43,
+            "insufficient_evidence": 0.54,
+            "same_meaning": 0.03
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.88,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.41,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.05,
+            "981e0ded3d269211c744a618": 0.61,
+            "none": 0.34
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.09
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.49,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.01,
+            "7ae3b8495c3f9b8f1a1820e4": 0.66,
+            "none": 0.33
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.35,
+          "probabilities": {
+            "different_meaning": 0.23,
+            "insufficient_evidence": 0.57,
+            "same_meaning": 0.2
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.82,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5063,
+        "output_tokens": 1186,
+        "cost": 0.000212646
+      }
+    },
+    {
+      "pair_id": "authentic-07-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-CLE",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cws"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "3a7ea17f683ecd1510336db02ee5e8acf77b6d7dcf12a551a672901dfa071e3f",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.52,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.68,
+            "same_meaning": 0.02
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.01
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.67,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.78,
+            "4acd47856515d986eeb3bba0": 0.17,
+            "none": 0.05
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_event": 0.79,
+            "insufficient_evidence": 0.08,
+            "same_event": 0.13
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.74,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.87,
+            "none": 0.13
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.51,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.67,
+            "60352b3bf8ee2965a0444f0c": 0.19,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.01
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.48,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.01
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.88,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.33,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.55,
+            "60352b3bf8ee2965a0444f0c": 0.11,
+            "none": 0.34
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.07,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.07
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.49,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.66,
+            "none": 0.34
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.25,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.11
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.8,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.9,
+            "none": 0.1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5081,
+        "output_tokens": 1200,
+        "cost": 0.000213402
+      }
+    },
+    {
+      "pair_id": "authentic-09-1",
+      "market_ids": [
+        "kalshi:KXMLB-26-ATL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cle"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "cd4179c21d544ae68e565ffa45b78bd992f5754ebac645a01e56e3117f9f5720",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.69,
+          "probabilities": {
+            "different_meaning": 0.14,
+            "insufficient_evidence": 0.79,
+            "same_meaning": 0.07
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.69,
+          "probabilities": {
+            "646d4387549dd04aa049bb24": 0.13,
+            "89839a6c3804c6b9b0b477a1": 0.79,
+            "none": 0.08
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_event": 0.56,
+            "insufficient_evidence": 0.12,
+            "same_event": 0.32
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.8,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.58,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.15,
+            "f699a65e6306e54bc5ff9b92": 0.72,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.04
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_meaning": 0.4,
+            "insufficient_evidence": 0.56,
+            "same_meaning": 0.04
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.88,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.37,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.09,
+            "f699a65e6306e54bc5ff9b92": 0.58,
+            "none": 0.33
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.07
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7977c3df998232d26fd4d367",
+          "confidence": 0.37,
+          "probabilities": {
+            "7977c3df998232d26fd4d367": 0.58,
+            "dd8964710607eaa2d0f6e261": 0.01,
+            "none": 0.41
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.56,
+            "same_meaning": 0.2
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.76,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.88,
+            "none": 0.12
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5059,
+        "output_tokens": 1182,
+        "cost": 0.000212478
+      }
+    },
+    {
+      "pair_id": "authentic-00-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-TB",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cle"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "9815e6280f259d4d4206fee870814646be0e8208139caed2b351f8a1e7d90bf4",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.02
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.16,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.01
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.76,
+          "probabilities": {
+            "646d4387549dd04aa049bb24": 0.08,
+            "89839a6c3804c6b9b0b477a1": 0.84,
+            "none": 0.08
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.62,
+          "probabilities": {
+            "different_event": 0.75,
+            "insufficient_evidence": 0.09,
+            "same_event": 0.16
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.76,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.56,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.15,
+            "f699a65e6306e54bc5ff9b92": 0.71,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "different_meaning",
+          "confidence": 0.3,
+          "probabilities": {
+            "different_meaning": 0.53,
+            "insufficient_evidence": 0.45,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.86,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.93,
+            "none": 0.07
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.35,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.07,
+            "f699a65e6306e54bc5ff9b92": 0.57,
+            "none": 0.36
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.8,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.87,
+            "same_meaning": 0.05
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.58,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.01,
+            "e823453a3de577cd4508d13a": 0.72,
+            "none": 0.27
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.34,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.56,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.84,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5060,
+        "output_tokens": 1176,
+        "cost": 0.00021252
+      }
+    },
+    {
+      "pair_id": "authentic-01-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-SD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-atl"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "2c5e8ca65553c4fedd562b24e4ff13ecd631e5d3fda5794779ce86213b9957c8",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.03
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.12,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.71,
+          "probabilities": {
+            "450565912418fd51f797e1f7": 0.12,
+            "650d855fed25063799bbad48": 0.8099999999999999,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_event": 0.84,
+            "insufficient_evidence": 0.05,
+            "same_event": 0.11
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.76,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.64,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.76,
+            "f8b67ebcc579c37fd5896986": 0.08,
+            "none": 0.16
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.3,
+          "probabilities": {
+            "different_meaning": 0.44,
+            "insufficient_evidence": 0.53,
+            "same_meaning": 0.03
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.88,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.2,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.47,
+            "f8b67ebcc579c37fd5896986": 0.08,
+            "none": 0.45
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.7,
+          "probabilities": {
+            "different_meaning": 0.09,
+            "insufficient_evidence": 0.8,
+            "same_meaning": 0.11
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.53,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.69,
+            "none": 0.31
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.86,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.93,
+            "none": 0.07
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5063,
+        "output_tokens": 1179,
+        "cost": 0.000212646
+      }
+    },
+    {
+      "pair_id": "authentic-02-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-PHI",
+        "polymarket_us:tec-mlb-champ-2026-09-27-tb"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "10cf520432801904e105427e80fde9dba78dad34bdbe6d2a1bbbed03d055f88d",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.13,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.62,
+          "probabilities": {
+            "650d855fed25063799bbad48": 0.75,
+            "ad5955b927d34a3e17ccce2e": 0.19,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.58,
+          "probabilities": {
+            "different_event": 0.72,
+            "insufficient_evidence": 0.09,
+            "same_event": 0.19
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.8,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "3fbc80457f44257ea137e97d",
+          "confidence": 0.61,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.74,
+            "4e7ed415b099da54d8ce5166": 0.14,
+            "none": 0.12
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.47,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.88,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.19,
+          "probabilities": {
+            "3fbc80457f44257ea137e97d": 0.44,
+            "4e7ed415b099da54d8ce5166": 0.1,
+            "none": 0.46
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.07
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "de4d8e96dd7b669506279b51",
+          "confidence": 0.59,
+          "probabilities": {
+            "80480826c7345df035e05e6b": 0.0,
+            "de4d8e96dd7b669506279b51": 0.73,
+            "none": 0.27
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.26,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.11
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.82,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5067,
+        "output_tokens": 1164,
+        "cost": 0.000212814
+      }
+    },
+    {
+      "pair_id": "authentic-03-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-NYY",
+        "polymarket_us:tec-mlb-champ-2026-09-27-sd"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "29e91ea2333d85a9c9daa294d0c08e7dffb9d747568b8f1867bb768b41598913",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.48,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.65,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.73,
+          "probabilities": {
+            "different_meaning": 0.14,
+            "insufficient_evidence": 0.82,
+            "same_meaning": 0.04
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.74,
+          "probabilities": {
+            "799d0cf1bd25c32bfab5c590": 0.83,
+            "b6bffde5d988fbf8b3eff45b": 0.11,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.67,
+          "probabilities": {
+            "different_event": 0.78,
+            "insufficient_evidence": 0.07,
+            "same_event": 0.15
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.8,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.58,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.16,
+            "ea0c2a535af56862652fdf48": 0.72,
+            "none": 0.12
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.49,
+          "probabilities": {
+            "different_meaning": 0.3,
+            "insufficient_evidence": 0.66,
+            "same_meaning": 0.04
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.46,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.03
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "46ef084a028517f1a23f9566",
+          "confidence": 0.9,
+          "probabilities": {
+            "46ef084a028517f1a23f9566": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "ea0c2a535af56862652fdf48",
+          "confidence": 0.31,
+          "probabilities": {
+            "4a1c09f413424393c2aff38b": 0.05,
+            "ea0c2a535af56862652fdf48": 0.54,
+            "none": 0.41
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.06
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.35,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.01,
+            "7ae3b8495c3f9b8f1a1820e4": 0.57,
+            "none": 0.42
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.35,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.57,
+            "same_meaning": 0.14
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.84,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5059,
+        "output_tokens": 1174,
+        "cost": 0.000212478
+      }
+    },
+    {
+      "pair_id": "authentic-04-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-MIL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-phi"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "229ed77c8e97e4910b02eca50b2a759741ca5ff1beb9d8d14920c481364688e9",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.31,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.02
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.14,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "938dc062569ead4b76a170db",
+          "confidence": 0.83,
+          "probabilities": {
+            "21134eb6788d6005962acd2a": 0.05,
+            "938dc062569ead4b76a170db": 0.89,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.55,
+          "probabilities": {
+            "different_event": 0.7,
+            "insufficient_evidence": 0.06,
+            "same_event": 0.24
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.8,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.56,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.16,
+            "af1dcc8685df55c218e74de2": 0.71,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.02
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "different_meaning",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.54,
+            "insufficient_evidence": 0.45,
+            "same_meaning": 0.01
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "c71a29db717f70c912117629",
+          "confidence": 0.88,
+          "probabilities": {
+            "c71a29db717f70c912117629": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "af1dcc8685df55c218e74de2",
+          "confidence": 0.35,
+          "probabilities": {
+            "a638e2507f558ffbc92f9e5f": 0.09,
+            "af1dcc8685df55c218e74de2": 0.57,
+            "none": 0.34
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.82,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.88,
+            "same_meaning": 0.04
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.55,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.7,
+            "none": 0.3
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.4,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.6,
+            "same_meaning": 0.11
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "6ad79e8fb0f45c2eaa1f0a17",
+          "confidence": 0.84,
+          "probabilities": {
+            "6ad79e8fb0f45c2eaa1f0a17": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5059,
+        "output_tokens": 1174,
+        "cost": 0.000212478
+      }
+    },
+    {
+      "pair_id": "authentic-05-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-LAD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-nyy"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "2115fa2f94c58d7d7857c7a5711e0013914b0c07eb8254d3e1763b259e47d63e",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.37,
+          "probabilities": {
+            "different_meaning": 0.37,
+            "insufficient_evidence": 0.58,
+            "same_meaning": 0.05
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.06
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "799d0cf1bd25c32bfab5c590",
+          "confidence": 0.7,
+          "probabilities": {
+            "045a3ace2c6a954b4e2ca4e7": 0.13,
+            "799d0cf1bd25c32bfab5c590": 0.8,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.8,
+          "probabilities": {
+            "different_event": 0.87,
+            "insufficient_evidence": 0.04,
+            "same_event": 0.09
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.8,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.64,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.11,
+            "5759fd43c5638292691e87f6": 0.76,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.34,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.04
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.23,
+          "probabilities": {
+            "different_meaning": 0.49,
+            "insufficient_evidence": 0.49,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "f14eaa3163e36ddc30ecd22b",
+          "confidence": 0.9,
+          "probabilities": {
+            "f14eaa3163e36ddc30ecd22b": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "5759fd43c5638292691e87f6",
+          "confidence": 0.48,
+          "probabilities": {
+            "0e28dc42a4addcc24adc7a61": 0.07,
+            "5759fd43c5638292691e87f6": 0.65,
+            "none": 0.28
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.08,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.09
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "257be8a5f72c79651b5798a5",
+          "confidence": 0.45,
+          "probabilities": {
+            "257be8a5f72c79651b5798a5": 0.63,
+            "31ab0a1c9167c68ff816748d": 0.0,
+            "none": 0.37
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.21,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.2
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f99cfefd2ea3c7dc95dd6ac",
+          "confidence": 0.82,
+          "probabilities": {
+            "3f99cfefd2ea3c7dc95dd6ac": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5050,
+        "output_tokens": 1166,
+        "cost": 0.0002121
+      }
+    },
+    {
+      "pair_id": "authentic-06-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-CWS",
+        "polymarket_us:tec-mlb-champ-2026-09-27-mil"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "aa9c41b821557565b633b73a8dc0c7a93f865ada818a4e1428e59783c362c913",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.53,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.69,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.85,
+            "same_meaning": 0.04
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.77,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.85,
+            "a3a2d267fc28ac7dfd82046a": 0.09,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.28,
+          "probabilities": {
+            "different_event": 0.52,
+            "insufficient_evidence": 0.09,
+            "same_event": 0.39
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.78,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.62,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.12,
+            "dc2d0feabd1caa6e33a8e4c9": 0.75,
+            "none": 0.13
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.55,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.7,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.33,
+          "probabilities": {
+            "different_meaning": 0.39,
+            "insufficient_evidence": 0.55,
+            "same_meaning": 0.06
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "846e2088aa898f8ec18153db",
+          "confidence": 0.9,
+          "probabilities": {
+            "846e2088aa898f8ec18153db": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "dc2d0feabd1caa6e33a8e4c9",
+          "confidence": 0.3,
+          "probabilities": {
+            "55251685b46d36a2c5a661b1": 0.08,
+            "dc2d0feabd1caa6e33a8e4c9": 0.53,
+            "none": 0.39
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.06,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.1
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7ae3b8495c3f9b8f1a1820e4",
+          "confidence": 0.33,
+          "probabilities": {
+            "2ede91edd75f2808a0c4c928": 0.01,
+            "7ae3b8495c3f9b8f1a1820e4": 0.55,
+            "none": 0.44
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.41,
+          "probabilities": {
+            "different_meaning": 0.27,
+            "insufficient_evidence": 0.61,
+            "same_meaning": 0.12
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.78,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.89,
+            "none": 0.11
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5056,
+        "output_tokens": 1176,
+        "cost": 0.000212352
+      }
+    },
+    {
+      "pair_id": "authentic-07-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-CLE",
+        "polymarket_us:tec-mlb-champ-2026-09-27-lad"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "e0e4132833624b8930ca6f33bac330dc134efa6b5056df42c6ab3ae6f3a7c9b5",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.15,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.02
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.8,
+          "probabilities": {
+            "3f3769c0090b65deb29dbcdc": 0.07,
+            "89839a6c3804c6b9b0b477a1": 0.87,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.72,
+          "probabilities": {
+            "different_event": 0.81,
+            "insufficient_evidence": 0.08,
+            "same_event": 0.11
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.76,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.66,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.12,
+            "981e0ded3d269211c744a618": 0.77,
+            "none": 0.11
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "different_meaning",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.51,
+            "insufficient_evidence": 0.47,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "36d8c2b667d71f263a83d35d",
+          "confidence": 0.88,
+          "probabilities": {
+            "36d8c2b667d71f263a83d35d": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "981e0ded3d269211c744a618",
+          "confidence": 0.43,
+          "probabilities": {
+            "4e881b9626ba36f75b2f6967": 0.06,
+            "981e0ded3d269211c744a618": 0.62,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.76,
+          "probabilities": {
+            "different_meaning": 0.12,
+            "insufficient_evidence": 0.84,
+            "same_meaning": 0.04
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.49,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.66,
+            "none": 0.34
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.3,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.53,
+            "same_meaning": 0.19
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.78,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.89,
+            "none": 0.11
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5081,
+        "output_tokens": 1196,
+        "cost": 0.000213402
+      }
+    },
+    {
+      "pair_id": "authentic-09-2",
+      "market_ids": [
+        "kalshi:KXMLB-26-ATL",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cws"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "d5cfbc1b39a344933b62072f66cf75d72bba795781d56a3c33759c67b6acd1c5",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.32,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.61,
+          "probabilities": {
+            "different_meaning": 0.2,
+            "insufficient_evidence": 0.74,
+            "same_meaning": 0.06
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.64,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.76,
+            "4acd47856515d986eeb3bba0": 0.19,
+            "none": 0.05
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.7,
+          "probabilities": {
+            "different_event": 0.8,
+            "insufficient_evidence": 0.1,
+            "same_event": 0.1
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.72,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.86,
+            "none": 0.14
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.52,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.6799999999999999,
+            "60352b3bf8ee2965a0444f0c": 0.16,
+            "none": 0.16
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.43,
+          "probabilities": {
+            "different_meaning": 0.35,
+            "insufficient_evidence": 0.62,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.28,
+          "probabilities": {
+            "different_meaning": 0.45,
+            "insufficient_evidence": 0.52,
+            "same_meaning": 0.03
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "4500c316cde593de5f2c54cd",
+          "confidence": 0.88,
+          "probabilities": {
+            "4500c316cde593de5f2c54cd": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.37,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.58,
+            "60352b3bf8ee2965a0444f0c": 0.1,
+            "none": 0.32
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.72,
+          "probabilities": {
+            "different_meaning": 0.1,
+            "insufficient_evidence": 0.81,
+            "same_meaning": 0.09
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "7977c3df998232d26fd4d367",
+          "confidence": 0.49,
+          "probabilities": {
+            "7977c3df998232d26fd4d367": 0.66,
+            "dd8964710607eaa2d0f6e261": 0.01,
+            "none": 0.33
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.37,
+          "probabilities": {
+            "different_meaning": 0.23,
+            "insufficient_evidence": 0.58,
+            "same_meaning": 0.19
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.8,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.9,
+            "none": 0.1
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5067,
+        "output_tokens": 1187,
+        "cost": 0.000212814
+      }
+    },
+    {
+      "pair_id": "authentic-00-3",
+      "market_ids": [
+        "kalshi:KXMLB-26-TB",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cws"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "fca30513e6fdcb7d5987db2e3736c9c4eef28902a768cec939151b7098e4e6a4",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.51,
+          "probabilities": {
+            "different_meaning": 0.29,
+            "insufficient_evidence": 0.67,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.7,
+          "probabilities": {
+            "different_meaning": 0.17,
+            "insufficient_evidence": 0.8,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "2d5c6d5ae808b39db90e5b65",
+          "confidence": 0.69,
+          "probabilities": {
+            "2d5c6d5ae808b39db90e5b65": 0.79,
+            "4acd47856515d986eeb3bba0": 0.15,
+            "none": 0.06
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.72,
+          "probabilities": {
+            "different_event": 0.81,
+            "insufficient_evidence": 0.05,
+            "same_event": 0.14
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.8,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.9,
+            "none": 0.1
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.51,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.67,
+            "60352b3bf8ee2965a0444f0c": 0.18,
+            "none": 0.15
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.46,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.64,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.27,
+          "probabilities": {
+            "different_meaning": 0.45,
+            "insufficient_evidence": 0.51,
+            "same_meaning": 0.04
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cf333b3ec0cd8bf53076d648",
+          "confidence": 0.88,
+          "probabilities": {
+            "cf333b3ec0cd8bf53076d648": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "56b95f79eaa2430245c318a6",
+          "confidence": 0.34,
+          "probabilities": {
+            "56b95f79eaa2430245c318a6": 0.56,
+            "60352b3bf8ee2965a0444f0c": 0.1,
+            "none": 0.33
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.06,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.08
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.55,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.7,
+            "none": 0.3
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.38,
+          "probabilities": {
+            "different_meaning": 0.28,
+            "insufficient_evidence": 0.59,
+            "same_meaning": 0.13
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "b32c3adce07e186e2e3fb39a",
+          "confidence": 0.82,
+          "probabilities": {
+            "b32c3adce07e186e2e3fb39a": 0.91,
+            "none": 0.09
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5068,
+        "output_tokens": 1184,
+        "cost": 0.000212856
+      }
+    },
+    {
+      "pair_id": "authentic-01-3",
+      "market_ids": [
+        "kalshi:KXMLB-26-SD",
+        "polymarket_us:tec-mlb-champ-2026-09-27-cle"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "6afc74ed25157a99c968626e8131a8298ebd750008cf52dbab636d85ae13dc35",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.4,
+          "probabilities": {
+            "different_meaning": 0.36,
+            "insufficient_evidence": 0.6,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.64,
+          "probabilities": {
+            "different_meaning": 0.16,
+            "insufficient_evidence": 0.76,
+            "same_meaning": 0.08
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "89839a6c3804c6b9b0b477a1",
+          "confidence": 0.77,
+          "probabilities": {
+            "646d4387549dd04aa049bb24": 0.08,
+            "89839a6c3804c6b9b0b477a1": 0.85,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.77,
+          "probabilities": {
+            "different_event": 0.85,
+            "insufficient_evidence": 0.06,
+            "same_event": 0.09
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.76,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.88,
+            "none": 0.12
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.61,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.12,
+            "f699a65e6306e54bc5ff9b92": 0.74,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.33,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.04
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.42,
+            "insufficient_evidence": 0.54,
+            "same_meaning": 0.04
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "cad9cbf4933d3e1787ba4c8f",
+          "confidence": 0.88,
+          "probabilities": {
+            "cad9cbf4933d3e1787ba4c8f": 0.94,
+            "none": 0.06
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "f699a65e6306e54bc5ff9b92",
+          "confidence": 0.41,
+          "probabilities": {
+            "9c439996addd9d11b1fa2ae5": 0.06,
+            "f699a65e6306e54bc5ff9b92": 0.61,
+            "none": 0.33
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.8,
+          "probabilities": {
+            "different_meaning": 0.06,
+            "insufficient_evidence": 0.87,
+            "same_meaning": 0.07
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "e823453a3de577cd4508d13a",
+          "confidence": 0.54,
+          "probabilities": {
+            "87b0e28450a015efc39c133b": 0.0,
+            "e823453a3de577cd4508d13a": 0.6900000000000001,
+            "none": 0.31
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.36,
+          "probabilities": {
+            "different_meaning": 0.25,
+            "insufficient_evidence": 0.5700000000000001,
+            "same_meaning": 0.18
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "3f0bfd2438fb312fb1927402",
+          "confidence": 0.88,
+          "probabilities": {
+            "3f0bfd2438fb312fb1927402": 0.94,
+            "none": 0.06
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5060,
+        "output_tokens": 1179,
+        "cost": 0.00021252
+      }
+    },
+    {
+      "pair_id": "authentic-02-3",
+      "market_ids": [
+        "kalshi:KXMLB-26-PHI",
+        "polymarket_us:tec-mlb-champ-2026-09-27-atl"
+      ],
+      "event_label": "different_event",
+      "baseline_candidate": false,
+      "passes_candidate_thresholds_and_period_guard": false,
+      "input_sha256": "94f1e42c431b224186d6453e90889573f2d9909d4877ca5aadc32c919dd471b4",
+      "returned_model": "typesafe/jev-1.13-20260917",
+      "answers": {
+        "ambiguity": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.58,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.72,
+            "same_meaning": 0.04
+          }
+        },
+        "ambiguity_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "ambiguity_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.79,
+          "probabilities": {
+            "different_meaning": 0.11,
+            "insufficient_evidence": 0.86,
+            "same_meaning": 0.03
+          }
+        },
+        "cancellation_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "cancellation_right_evidence": {
+          "type": "choice",
+          "choice": "650d855fed25063799bbad48",
+          "confidence": 0.64,
+          "probabilities": {
+            "450565912418fd51f797e1f7": 0.17,
+            "650d855fed25063799bbad48": 0.76,
+            "none": 0.07
+          }
+        },
+        "event": {
+          "type": "choice",
+          "choice": "different_event",
+          "confidence": 0.66,
+          "probabilities": {
+            "different_event": 0.77,
+            "insufficient_evidence": 0.04,
+            "same_event": 0.19
+          }
+        },
+        "event_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.78,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.89,
+            "none": 0.11
+          }
+        },
+        "event_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.69,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.79,
+            "f8b67ebcc579c37fd5896986": 0.07,
+            "none": 0.14
+          }
+        },
+        "fallback": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.59,
+          "probabilities": {
+            "different_meaning": 0.24,
+            "insufficient_evidence": 0.73,
+            "same_meaning": 0.03
+          }
+        },
+        "fallback_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "fallback_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "outcomes": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.31,
+          "probabilities": {
+            "different_meaning": 0.44,
+            "insufficient_evidence": 0.54,
+            "same_meaning": 0.02
+          }
+        },
+        "outcomes_left_evidence": {
+          "type": "choice",
+          "choice": "11e3cb380a4f6787158f52fb",
+          "confidence": 0.9,
+          "probabilities": {
+            "11e3cb380a4f6787158f52fb": 0.95,
+            "none": 0.05
+          }
+        },
+        "outcomes_right_evidence": {
+          "type": "choice",
+          "choice": "c0709f5960af49c03cb362c3",
+          "confidence": 0.23,
+          "probabilities": {
+            "c0709f5960af49c03cb362c3": 0.49,
+            "f8b67ebcc579c37fd5896986": 0.05,
+            "none": 0.46
+          }
+        },
+        "resolution_source": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.74,
+          "probabilities": {
+            "different_meaning": 0.09,
+            "insufficient_evidence": 0.83,
+            "same_meaning": 0.08
+          }
+        },
+        "resolution_source_left_evidence": {
+          "type": "choice",
+          "choice": "de4d8e96dd7b669506279b51",
+          "confidence": 0.55,
+          "probabilities": {
+            "80480826c7345df035e05e6b": 0.0,
+            "de4d8e96dd7b669506279b51": 0.7,
+            "none": 0.3
+          }
+        },
+        "resolution_source_right_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision": {
+          "type": "choice",
+          "choice": "insufficient_evidence",
+          "confidence": 0.45,
+          "probabilities": {
+            "different_meaning": 0.22,
+            "insufficient_evidence": 0.63,
+            "same_meaning": 0.15
+          }
+        },
+        "revision_left_evidence": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 1.0,
+          "probabilities": {
+            "none": 1.0
+          }
+        },
+        "revision_right_evidence": {
+          "type": "choice",
+          "choice": "59996237f819fb78300621cb",
+          "confidence": 0.84,
+          "probabilities": {
+            "59996237f819fb78300621cb": 0.92,
+            "none": 0.08
+          }
+        }
+      },
+      "usage": {
+        "input_tokens": 5068,
+        "output_tokens": 1187,
+        "cost": 0.000212856
+      }
+    }
+  ]
+}

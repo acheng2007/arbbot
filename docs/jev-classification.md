@@ -132,4 +132,21 @@ The baseline retrieves eight of nine labeled counterparts using the current extr
 These complete metadata records do not provide authentic uncertain event-identity gold cases; that portion of benchmark coverage remains a limitation.
 The baseline is a small recorded sample, not a measured population accuracy estimate.
 A live smoke check writes an explicit skipped result when credentials are absent.
-Run `classification_smoke --limit 30` with a configured key to collect actual provider responses and assisted metrics before assessing model quality.
+## Initial live-provider results: October 15, 2026
+
+A configured backend key successfully completed one smoke request and 30 benchmark requests against the pinned model; the provider returned `typesafe/jev-1.13-20260917` without errors.
+The [sanitized benchmark record](contributing/jev-live-benchmark-2026-10-15.json) retains labels, input fingerprints, answers, model scores, returned model identity, and usage without credentials.
+These are live model responses on the original recorded public market metadata, not live exchange discovery or scripted responses.
+
+Raw event choices agreed with all 30 labels: nine same-event and 21 different-event cases.
+None of the nine same-event answers met both 0.80 thresholds, so no candidate was added and assisted recall remained eight of nine, matching the deterministic baseline.
+There were zero threshold-qualified incorrect suggestions and zero raw event abstentions.
+This is one small, nonrepresentative sample without uncertain event-identity labels; it does not establish confidence calibration or population accuracy.
+
+The benchmark reported 151,882 input tokens, 35,365 output tokens, and provider-reported cost of `0.006379044`; the separate smoke reported `0.000212604`.
+These values are provider usage fields, not an independent billing audit or a production cost forecast.
+Request-level latency was not instrumented by the harness.
+All 30 pairs still lack sufficient applicable exceptional-settlement evidence.
+The smoke harness loads recorded primary market metadata without supplementary captured document artifacts, so raw clause answers cannot establish clause accuracy or automatic qualification.
+No thresholds or production behavior changed.
+Next evaluation should add authentic uncertain/ambiguous identities and applicable clause evidence before any threshold calibration.

@@ -56,7 +56,8 @@ Positive automatic acceptance examples are explicitly synthetic complete contrac
 They establish workflow correctness, not real-pair qualification coverage.
 
 The Jev benchmark records eight of nine labeled same-event counterparts retrieved by the deterministic baseline, 21 different-event pairs, and insufficient exceptional-settlement evidence across all 30 pairs.
-There is no measured live Jev improvement yet; no OpenRouter key was configured for the recorded validation.
+The [October 15 live-provider benchmark](contributing/jev-live-benchmark-2026-10-15.json) completed all 30 pairs without errors and matched every raw event label, but added no candidates at the current thresholds; assisted recall stayed eight of nine.
+This is a small recorded sample, not proof of general accuracy or settlement compatibility.
 The corpus also lacks authentic uncertain event-identity labels.
 Broader venue streaming, production latency measurements, staging operations, and a forward paper study remain unfinished.
 
@@ -90,7 +91,8 @@ Do not wait for Jev or source interpretation to refresh already qualified prices
 - [ ] Measure receipt-to-browser latency and set a browser delivery budget from the observed SSE/query path rather than claiming the two-second backend target is end to end.
 - [ ] Improve bounded change-triggered evaluation and add supported US streaming adapters where official capabilities permit, preserving REST resynchronization and independent task supervision.
 - [ ] Measure monitored counterpart coverage, time since each pair was refreshed, queue age, and starvation; preserve complete-pair scheduling and tier rotation.
-- [ ] Run the live Jev smoke and authentic benchmark with a configured backend key, reporting assisted recall, incorrect suggestions, abstentions, omitted context, latency, and usage.
+- [x] Run the initial live Jev smoke and 30-pair authentic recorded benchmark, retaining actual answers, model identity, retrieval results, and provider usage.
+- [ ] Extend live Jev evaluation with authentic ambiguous identities and applicable clause evidence, and instrument latency and omitted-context effects before calibrating thresholds.
 - [ ] Expand the labeled corpus with authentic uncertain event identity, differing seasons/thresholds, cancellation conflicts, and source amendments; keep synthetic edge cases separate.
 
 **Exit criteria:** repeatable load and outage runs satisfy declared latency/freshness targets without weakening settlement or financial checks, and coverage/quality reports include failures and exclusions.
@@ -129,6 +131,7 @@ Operational instrumentation starts with the earlier milestones; production rollo
 
 The [automatic acceptance report](contributing/automatic-qualification-acceptance-2026-10-14.json) records 566 passing tests on each backend database, supplemental source/pagination checks, 66 frontend unit tests, and 66 desktop/mobile fixture tests.
 It also records type, lint, generated-contract, build, and recorded automatic worker/API results.
+The subsequent October 15 live Jev benchmark is separate evidence for event classification on recorded metadata; it does not extend settlement qualification coverage.
 Those checks were run for the implementation, not rerun for this documentation update.
 Connected Jev browser coverage predates the automatic backend addition; full automatic browser acceptance remains Milestone 1 work.
 

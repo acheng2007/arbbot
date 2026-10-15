@@ -77,8 +77,9 @@ Changed inputs invalidate current advice, and late responses remain audit histor
 Missing credentials leave deterministic matching operational.
 There is no daily spending cap; the provider key is optional and backend-only.
 
-**Live Jev accuracy and recall improvement have not yet been measured.**
-Recorded provider responses test the integration and failure handling, not model quality.
+**An initial [live-provider benchmark](docs/contributing/jev-live-benchmark-2026-10-15.json) returned matching raw event labels on 30 of 30 recorded authentic pairs, but produced no additional candidates at the configured thresholds.**
+Assisted retrieval stayed at 8 of 9 labeled counterparts; this small sample does not establish general accuracy, calibrated confidence, or settlement compatibility.
+Scripted provider responses in integration tests exercise failure handling separately from these actual model results.
 The [Jev guide](docs/jev-classification.md) documents evidence constraints, configuration, the benchmark, and recovery behavior.
 
 ## Architecture
@@ -157,7 +158,7 @@ Remaining work is explicit:
 
 - **Authentic settlement coverage:** all 30 authentic Kalshi/US benchmark pairs currently remain incomplete for automatic settlement qualification. Complete interpretation uses a closed source-language grammar; general natural-language settlement understanding is not implemented.
 - **Browser completion:** the separate potential feed and full automatic qualification inspection exist as APIs but await dedicated browser workflows.
-- **Model evaluation:** live Jev-assisted recall, incorrect suggestions, and abstentions remain unmeasured.
+- **Model evaluation:** the initial 30-pair live run showed no retrieval lift at current thresholds. Broader evaluation, uncertain event labels, and confidence calibration remain open.
 - **Production operations:** production deployment, broader US streaming, measured production latency, backup/recovery rehearsal, and the forward paper study remain open.
 
 ## Explore the repository

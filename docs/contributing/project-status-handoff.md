@@ -40,6 +40,15 @@ The automatic/authentic settlement suites and live Jev measurements were not rer
 Temporary rendering/smoke artifacts are under `/tmp/arbbot-readme-*`; the committed dashboard capture is `docs/images/dashboard.png`.
 Containers started for verification were stopped and removed afterward, preserving the pre-existing database and frontend fixture server.
 
+## October 15 configured Jev key and live check
+
+Confirmed the configured key without revealing it and completed one real OpenRouter smoke request plus the 30-pair live-provider benchmark on recorded public metadata.
+All raw event choices agreed with labels, but same-event scores did not meet both 0.80 thresholds; assisted recall stayed eight of nine.
+Recorded sanitized answers, input hashes, labels, returned model identity, and provider usage in the linked live benchmark artifact.
+Updated current documentation to remove the now-outdated claim that no live measurement exists while preserving authentic settlement and population-quality limitations.
+No application code, thresholds, exchange data, or worker runtime changed.
+See [the Jev handoff](jev-handoff.md) for artifacts and the focused evaluation next step.
+
 ## Remaining product gaps
 
 The separate potential feed and full automatic qualification inspection are available through APIs but not yet implemented as browser workflows.
@@ -47,7 +56,9 @@ The previous backend-only scope remains respected; this update plans those scree
 Complete automatic interpretation currently uses a closed explicit source-language grammar.
 All 30 authentic benchmark pairs remain incomplete due to interpretation or applicable exceptional-evidence gaps.
 Synthetic positive acceptance demonstrates orchestration and gates, not authentic compatibility or live profitability.
-No OpenRouter key was configured in the recorded implementation checks, so live Jev improvement remains unmeasured.
+The original implementation checks had no key.
+The [October 15 live Jev run](jev-live-benchmark-2026-10-15.json) now records 30 successful responses with matching raw event labels, but no candidate additions or retrieval improvement at current thresholds.
+Generalization, uncertain identities, clause quality, and calibration remain unmeasured.
 Production latency, broader US streaming, hosted checks for the current publication head, staging recovery, and the forward paper study remain open.
 
 ## Validation and evidence
