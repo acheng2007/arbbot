@@ -1,8 +1,10 @@
 # Kalshi and Polymarket US workflow
 
-The integrated workflow discovers catalogs, proposes counterpart contracts, monitors complete pairs, calculates reviewed executable estimates, and publishes eligible positive results through FastAPI and SSE to Next.js.
-A proposed counterpart is not settlement equivalence.
-Missing evidence, access, fees, quotes, or supported settlement outcomes blocks calculation or publication.
+The integrated workflow discovers catalogs, proposes counterpart contracts, monitors complete pairs, and publishes conditional results through FastAPI and SSE to Next.js.
+Live mode now defaults to automatic source-backed qualification without human records or account setup.
+See the [system design](system-design.md) and [automatic qualification guide](automatic-qualification.md) for the current path and its separate potential/qualified feeds.
+A proposed counterpart is not settlement equivalence; incomplete settlement evidence prevents qualified estimates while eligible potential gaps remain inspectable.
+Public access and balance assumptions are disclosed rather than verified for an individual user.
 The platform does not place orders, connect private trading accounts, hold funds, or transfer money.
 Browser OIDC and browser review editing remain deferred.
 
@@ -50,7 +52,10 @@ The API keeps native price, short proceeds, gross collateral, net buying power, 
 Capital reserves gross US short collateral conservatively.
 Balances, inventory, full fills, and non-atomic execution remain explicit assumptions.
 
-## Operator review
+## Optional legacy operator review
+
+This section describes the review-driven path selected with `ARBBOT_AUTOMATIC_QUALIFICATION=false`.
+Its imported applicability and account-access requirements are not prerequisites for the default automatic public-discovery path.
 
 Use the existing authenticated reviewer APIs or the local operator CLI.
 Local records identify the operating-system user; remote records identify the authenticated bearer principal.

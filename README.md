@@ -1,7 +1,10 @@
 # Arbbot
 
 Arbbot is a fullstack prediction-market arbitrage discovery platform.
-The backend provides continuous read-only Kalshi and Polymarket ingestion, candidate matching, reviewed settlement equivalence, conservative opportunity evaluation, durable audit history, and a web-ready API.
+The backend continuously ingests Kalshi, Polymarket US, and separately identified Polymarket International data, discovers counterpart contracts, automatically qualifies supported settlement evidence, and calculates conditional opportunity estimates.
+Human approval and private account connections are not required for public discovery.
+Potential price gaps and qualified estimates have separate APIs; the browser currently exposes the existing paired-market and opportunity workflows.
+Authentic automatic qualification coverage remains limited by source applicability and supported contract language.
 The web interface includes live market prices, order-book depth, contract comparisons, and conditional opportunity estimates.
 
 ## Live-price demo
@@ -20,7 +23,7 @@ Polymarket stream state is persisted and evaluated on each worker cycle; the bro
 This is real exchange data, with no credentials required for the public endpoints tested, and never falls back to simulation.
 The demo monitors up to 20 supported markets per venue, not the entire exchange.
 Some books can be stale, empty, or unavailable; timestamps and unavailable states remain explicit.
-No live settlement pairs are approved by this demo configuration, so an empty opportunity dashboard is expected.
+An empty qualified-opportunity dashboard is expected when captured settlement evidence or supported interpretation is incomplete.
 Automatic trading is not implemented.
 
 The demo uses its own `arbbot-demo` Compose project and PostgreSQL volume, with PostgreSQL on localhost port 55433.
@@ -75,7 +78,7 @@ docker compose down
 ```
 
 The Compose credentials are local development defaults and services bind to localhost.
-The current API is read-only and does not implement user accounts or authorization.
+Public market and result endpoints are read-only; optional operator review and veto mutations use authenticated APIs.
 Production deployment needs managed secrets, restricted database access, TLS, and an authenticated gateway.
 
 ## Python development
@@ -139,7 +142,10 @@ backend/
     arbitrage/    Pure depth, cost, capital, and payoff calculations
     exchanges/    Kalshi, Polymarket, and simulation adapters
     ingestion/    Ingestion and evaluation orchestration
-    matching/     Candidate matching and settlement review
+    matching/     Candidate matching and advisory Jev classification
+    qualification/ Automatic evidence assessment and potential price gaps
+    fees/         Public fee policies and calculation inputs
+    execution/    Publication guards and invalidation, without order placement
     storage/      SQLAlchemy models and repositories
     workers/      Continuous worker and single-cycle entry point
   migrations/     Alembic schema history
@@ -152,10 +158,12 @@ docs/             Operations, API, and review documentation
 Runtime and development dependencies are pinned separately in `backend/requirements.lock` and `backend/requirements-dev.lock`.
 The backend is one Python package with separate runtime processes, preserving a modular monolith architecture.
 
-See [structured contract matching](docs/contract-matching.md) for evidence-backed event definitions, settlement comparisons, and the live review workflow.
+Start with the [system design](docs/system-design.md) for the automatic source-to-opportunity workflow and extension boundaries.
+See [automatic qualification](docs/automatic-qualification.md) for configuration, evidence requirements, and current coverage.
+[Structured contract matching](docs/contract-matching.md) documents canonical definitions and the optional historical review path.
 
 Automatic partial US CPI definitions are available at `GET /api/v1/markets/{market_id}/extraction` and feed candidate matching.
-Unsupported and missing terms remain explicit; live approval still requires a human-reviewed complete definition.
+Unsupported and missing terms remain explicit; automatic qualification requires complete supported settlement evidence and does not infer equivalence from partial extraction.
 
 Track completed work and upcoming dependencies in the [implementation roadmap](docs/implementation-roadmap.md).
 See [recorded contract validation](docs/recorded-contracts.md) for real metadata fixtures and extraction coverage.

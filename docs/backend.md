@@ -5,7 +5,8 @@
 Live discovery now uses evidence-based automatic qualification by default, without required human reviews or account setup.
 Qualified conditional estimates and separate potential price gaps are available through the API.
 See [automatic qualification](automatic-qualification.md) for current source-language coverage, public fee/account assumptions, extension interfaces, and the recorded worker/API acceptance command.
-The historical review-driven workflow below remains available with `ARBBOT_AUTOMATIC_QUALIFICATION=false`.
+The [system design](system-design.md) and [roadmap](implementation-roadmap.md) define the current runtime boundaries and delivery priorities.
+Historical review-file, approval, and access-profile instructions below apply to the optional path selected with `ARBBOT_AUTOMATIC_QUALIFICATION=false`; they do not gate default automatic discovery.
 
 ## Ingestion
 
@@ -71,7 +72,8 @@ ARBBOT_REVIEWS_FILE=/absolute/path/to/reviews.json
 ```
 
 Omit watchlists to use paginated discovery.
-Omit the review file to ingest markets and discover unverified candidates without producing live opportunities.
+Automatic mode does not require a review file; it can publish qualified estimates only when complete supported evidence and financial inputs are available.
+With automatic qualification disabled, omitting reviews leaves discovery operational but cannot supply settlement approval.
 Use a separate database for production and simulation even though queries isolate modes.
 
 The Kalshi adapter supports optional RSA signing through `ARBBOT_KALSHI_KEY_ID` and `ARBBOT_KALSHI_PRIVATE_KEY_PATH`.

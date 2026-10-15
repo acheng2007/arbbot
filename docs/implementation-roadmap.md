@@ -1,148 +1,140 @@
 # Implementation roadmap
 
-Remaining work is split into [modular contributor issues](contributing/README.md), with a [GitHub master tracker](https://github.com/acheng2007/arbbot/issues/41).
-The issue index retains published dependencies and file boundaries; GitHub issue/PR status has not been rechecked for this documentation update.
+Updated October 15, 2026 against the committed implementation on `backend/completion`.
+This roadmap describes one integrated product: continuously find cross-exchange prediction-market opportunities, explain their economics and uncertainty, and surface useful results without waiting for human approval.
+The [system design](system-design.md) defines component boundaries and the target workflow.
+The [project status handoff](contributing/project-status-handoff.md) records implementation evidence and the next action.
 
-This checklist tracks one integrated product, organized by workstream.
-Checked items are implemented and locally validated; unchecked items remain work to do.
-A narrow implementation is marked complete only at its stated scope.
-Status was reconciled against the repository and local checks on October 11, 2026.
-Items labeled **local, uncommitted** exist in the working tree and pass the current automated suite, but are not a committed or live-validated release.
-See the [integrated status handoff](contributing/project-status-handoff.md) for validation limits and the [historical handoffs](contributing/history/README.md) for prior delivery evidence.
+## Product direction
 
-## Active direction: US-accessible market comparison
+Prioritize Kalshi and Polymarket US, with an architecture that admits additional venues through registered capabilities and adapters.
+Keep Polymarket International as a distinct integration and research route; never present it as Polymarket US.
+Discover broadly, monitor complete counterpart pairs within explicit budgets, and disclose the coverage those budgets permit.
+Venue count is driven by useful overlap, supported instruments, source evidence, and operating reliability.
 
-The October 1 direction supersedes the Opinion/Limitless four-venue expansion plan.
-Compare all discovered supported contracts across eligible US trading venues, find equivalent outcomes, and calculate price differences after fees and available depth.
-Venue count is evidence-driven, with no fixed four-venue requirement.
-See [the US venue expansion plan](us-venue-expansion.md) for sequencing, eligibility gates, and the first implementation milestone.
-Opinion and Limitless are excluded from this milestone.
-The existing Polymarket adapter is International and must not be treated as Polymarket US or as an eligible US execution route.
-Local enabled-venue filtering and a distinct Polymarket US discovery adapter exist.
-Account/product eligibility filtering remains unfinished; enabled venues do not establish trading eligibility.
+Human review is optional operator tooling, not a prerequisite for discovery, settlement qualification, or public conditional estimates.
+No account connection or balance verification is required to browse public results.
+Public results disclose account access, capital, borrowing, and fee-class assumptions; they do not establish a particular user's ability to execute.
+Known restrictions must remain visible.
+Order placement, custody, transfers, and private account integration remain outside this roadmap.
 
-## Exchange integrations
+The product has two result feeds:
 
-- [x] Kalshi and Polymarket International REST market and order-book adapters.
-- [x] Explicit market watchlists, bounded discovery, pacing, retries, and concurrent book reads.
-- [x] Source metadata preservation and explicit simulation mode.
-- [x] Initial recorded corpus of nine real contracts with capture timestamps, URLs, and labels.
-- [x] Targeted discovery of supported same-event candidates across CPI and Fed rate-hike families.
-- [x] Kalshi series metadata and linked contract/source enrichment.
-- [ ] A reviewed, supported live cross-exchange pair.
-- [x] Polymarket International market-specific fee normalization and provider with recorded policy evidence; not yet consumed by evaluation.
-- [ ] Complete tested Kalshi and Polymarket US fee providers, metadata refresh, and automatic evaluation integration; a Kalshi provider exists locally but is unfinished.
-- [x] Polymarket International WebSocket books, reconnects, disconnected-feed invalidation, periodic snapshots, and worker lifecycle integration.
-- [ ] Kalshi and eligible US venue streaming plus immediate event publication/revalidation.
-- [x] Negative-risk assessment with recorded evidence and regression tests; continued exclusion is the decision, not implementation of support.
-- [x] Initial Polymarket US catalog/book/fee/restriction recordings and rule-backed World Series overlap candidate with Kalshi (**local, uncommitted**).
-- [x] Separate Polymarket US discovery/book adapter with invalid-book rejection and explicit evaluation blocking (**local, uncommitted**).
-- [ ] Complete the Polymarket US capability assessment with rulebook/clarification evidence, fee semantics, eligibility inputs, and fresh integrated validation.
-- [ ] Assess Crypto.com Predictions/CDNA and ForecastEx/CME independently before implementing additional adapters.
-- [x] Remove the uncommitted Opinion and Limitless expansion and defer both venues outside the US milestone.
-- [x] Stable venue registration, configured adapter construction, venue metadata API, and enabled-venue catalog filtering (**local, uncommitted**).
-- [ ] Complete capability/eligibility-aware multi-venue ingestion, matching, evaluation, and API contracts, preserving historical International identities and reviews.
+- **Potential price gaps:** fresh depth supports an ordinary-outcome spread, with unresolved settlement or financial inputs stated explicitly.
+- **Qualified estimates:** automatic source-backed settlement assessment, complete supported payout scenarios, current public fees, instrument constraints, and immediately rechecked quotes support a positive worst-case conditional estimate.
 
-## Backend matching
+Neither feed promises a fill or guaranteed profit.
+A model suggestion alone cannot produce a qualified estimate.
+An empty qualified feed is a valid result, but persistent low coverage is a product gap to measure and address.
 
-- [x] Structured contract definitions and quotation validation.
-- [x] Shared-event candidate retrieval with title-similarity fallback.
-- [x] Field-level settlement comparisons, unknowns, and conflicts.
-- [x] Human approval bound to source terms and definition hashes.
-- [x] Narrow deterministic CPI drafts and extraction inspection endpoint.
-- [x] Initial real-contract replay, labeled coverage report, and near-match rejection tests.
-- [x] Recorded Kalshi primary-rule grammar for threshold and reporting-period drafts.
-- [x] Broader labeled corpus with supported same-event candidate pairs and material settlement negatives.
-- [x] Version 2 canonical measurement fields for seasonal adjustment, rounding, revision selection, and observation boundaries, with legacy approval invalidation.
-- [x] Narrow deterministic Fed rate-hike drafts; unresolved wording differences remain candidates/conflicts.
-- [x] Rule-backed World Series event identities and team/year negatives (**local, uncommitted**); incomplete settlement evidence prevents approval.
-- [ ] Expand extraction across supported real contract wording.
-- [ ] Evaluate structured LLM extraction for cases deterministic parsers cannot handle.
+## Implemented baseline
 
-## Backend arbitrage
+Checked items describe implemented scope, not proof of live profitability or unrestricted venue support.
 
-- [x] Complementary YES/NO strategies with depth-based whole-contract sizing.
-- [x] Reviewed fee and conversion bounds, slippage reserve, and capital limits.
-- [x] Minimum payout across supplied settlement scenarios.
-- [x] Quote freshness, identity, timing, and review validity checks.
-- [ ] Consume evidence-backed venue fee quotes during depth-dependent sizing, including rounding, unknown/stale policies, and supported slippage assumptions.
-- [x] Explicit YES/NO payouts, source-backed cancellation/fallback/ambiguous-resolution inventories, and scenario mapping/completeness validation.
-- [ ] Validate semantic completeness and reachable joint exceptional outcomes against supported real US pairs; declared-inventory coverage does not prove all outcomes are modeled.
-- [ ] Immediate opportunity rechecks with live books.
-- [ ] Evidence-backed account/product eligibility gates for actionable US estimates, with unknown access blocking publication.
-- [ ] Venue access, balance, and inventory validation if execution is later authorized.
+- [x] Separate Next.js web, FastAPI API, persistent asyncio worker, PostgreSQL storage, and additive Alembic migrations.
+- [x] Kalshi, Polymarket US, and separate Polymarket International adapters; registered venue identities and capabilities.
+- [x] Broad catalog traversal, durable continuation, bounded pair monitoring, watchlist priorities, and fair rotation within monitoring tiers.
+- [x] Immutable captured sources, document generations, original terms, quote provenance, and missing-evidence states.
+- [x] Deterministic event retrieval and partial CPI, core CPI, Fed, and MLB family interpretation.
+- [x] Jev advisory counterpart and clause classification with bounded retrieval, durable jobs, caching, source invalidation, and independent provider health.
+- [x] Automatic qualification without human records, with immutable assessments, versioned evidence rules, durable jobs, expiry, and guarded publication.
+- [x] Separate persisted potential-price-gap and qualified-estimate APIs, current/history access, filtering before pagination, and snapshot notifications.
+- [x] Public fee refresh, Decimal depth-based sizing, native short/collateral semantics, conservative exceptional payouts, and immediate pre-publication quote rechecks.
+- [x] Publication and read-time checks for changed sources, assessments, fees, quotes, vetoes, and venue health.
+- [x] Compact paired-market dashboard, catalog-wide filters, paginated counterparts, exact-ID comparisons, source inspection, and advisory Jev details.
+- [x] Existing opportunity screens tolerate automatic assessments and identify their basis correctly.
+- [x] Authenticated historical review APIs and optional operator veto/clear actions.
+- [x] Recorded worker/API acceptance, SQLite/PostgreSQL suites, generated API contracts, frontend units, and desktop/mobile fixture browser coverage.
+- [x] Structured logging, API metrics, opt-in tracing, Docker Compose, and CI workflow definitions.
 
-## Backend API and storage
+## Current delivery limits
 
-- [x] PostgreSQL models, migrations, source versions, snapshots, and evaluation history.
-- [x] Immutable settlement source artifacts with explicit retrieval failures, bounded documents, and audit history.
-- [x] Read-only market, matching, extraction, opportunity, health, and audit APIs.
-- [x] Pagination, SSE updates, and published OpenAPI schemas.
-- [x] Per-market feed health and suppression of affected opportunities.
-- [x] Persistent editable draft and review records replacing the file-only workflow by default.
-- [x] Authentication and authorization for mutations.
-- [x] Review APIs with concurrent-edit protection and audit history.
-- [x] Search and filtering suitable for the dashboard.
-- [x] Database approval consumption and publication/read-time rechecks of exact review revisions, evidence, and expiry.
+The automatic backend/API exists, but the browser does not yet expose the separate potential feed or full qualification inspection workflow.
+Complete settlement interpretation currently accepts a closed explicit source-language grammar.
+All 30 authentic Kalshi/US benchmark pairs remain incomplete because supported interpretation or applicable exceptional-settlement evidence is missing.
+Positive automatic acceptance examples are explicitly synthetic complete contracts with synthetic instrument/document bindings and recorded public fee documents.
+They establish workflow correctness, not real-pair qualification coverage.
 
-## Frontend
+The Jev benchmark records eight of nine labeled same-event counterparts retrieved by the deterministic baseline, 21 different-event pairs, and insufficient exceptional-settlement evidence across all 30 pairs.
+There is no measured live Jev improvement yet; no OpenRouter key was configured for the recorded validation.
+The corpus also lacks authentic uncertain event-identity labels.
+Broader venue streaming, production latency measurements, staging operations, and a forward paper study remain unfinished.
 
-- [x] Next.js application and generated TypeScript API client.
-- [x] Market browser with source rules and ingestion status.
-- [x] Side-by-side contract comparison and evidence inspection.
-- [ ] Review queue, draft editing, approval, and rejection.
-- [x] Read-only opportunity dashboard/details with depth, reviewed costs, payoff scenarios, freshness, and opportunity SSE.
-- [ ] Integrate automatic fees, US eligibility, and immediate quote-recheck results into actionable presentation.
-- [x] Accessible loading, empty, error/retry, stale, and stream reconnect states for existing read-only screens, with prior browser validation.
-- [x] Vitest and Playwright coverage for existing read-only screens, including prior visual review.
-- [x] Venue API-driven selection/panels and distinct Polymarket US labeling (**local, uncommitted**).
-- [ ] Complete all-counterpart pagination and independent venue-pair presentation; remove the first-200-match and one-pair-per-market limits.
-- [ ] Connect catalog-wide search/status controls to existing backend filters instead of filtering only the loaded page.
-- [ ] Complete responsive multi-venue comparison and opportunity flows with explicit access, provenance, and venue-specific costs.
+## Milestone 1: useful automatic discovery on authentic contracts
 
-## Infrastructure and QA
+Make the current automation useful with real source evidence and expose its results clearly through the browser.
+Evidence/provider work is the first backend priority; the browser can proceed against existing APIs and labeled recordings.
 
-- [x] Docker Compose services and pinned backend dependencies.
-- [x] Backend unit and integration tests on SQLite and PostgreSQL.
-- [x] Local Docker smoke workflow for worker, API, PostgreSQL, audit records, and SSE.
-- [x] GitHub Actions workflow definition for tests, lint, migrations, corpus, and schema drift.
-- [x] Historical successful hosted backend CI evidence recorded in `docs/ci.md` and fixture-backed frontend CI evidence in the frontend handoff history.
-- [x] Frontend CI definition for generated contracts, lint, types, unit tests, build, and desktop/mobile fixture browser tests.
-- [ ] Hosted checks for the finished US milestone; older successful runs do not validate the current uncommitted tree.
-- [x] Structured worker logging and API Prometheus metrics.
-- [x] Fixture-backed desktop/mobile browser workflow and historical real live-price smoke checks.
-- [ ] Seeded PostgreSQL browser workflow from authenticated draft/review actions through worker evaluation, publication, invalidation, and recovery.
-- [ ] Production deployment, secrets management, backup and recovery validation.
-- [x] Opt-in OpenTelemetry/OTLP tracing across ingestion, matching, evaluation, publication, and API requests, with trace-correlated logs.
-- [ ] Worker health metrics, dashboards, alerts, and real staging collector verification.
-- [ ] Seven-day forward paper study with fixed budgets, quote rechecks, rejected candidates, coverage, and opportunity lifetimes.
+- [ ] Capture authentic instrument-to-specification relationships, rulebooks, amendments, and authoritative resolution evidence for an initial supported Kalshi/US family.
+- [ ] Extend versioned applicability providers and source-language interpretation using captured authentic wording, including changed-document and unknown-clause abstention.
+- [ ] Report qualification coverage and blocker counts over the authentic corpus, including incompatible and incomplete pairs; do not silently drop difficult cases.
+- [ ] Add separate Potential and Qualified browser views, qualification reasons, evidence/history inspection, and pending/stale/unavailable states.
+- [ ] Keep original terms and model advice accessible, with model suggestions visually distinct from automatic qualification and legacy human review.
+- [ ] Connect both feeds to snapshot refresh and server-side filtering/pagination without resetting navigation or selected comparisons.
+- [ ] Extend the recorded PostgreSQL/worker/API/Next.js browser harness to the new automatic workflow on desktop and mobile with zero required human review records.
+- [ ] Validate source-change invalidation, fee/provider outage and recovery, quote expiry, veto clearing, and independent book polling through the rendered UI.
 
-## Implementation order
+**Exit criteria:** a reproducible authentic family is processed without per-pair human setup, every result has source-backed status and understandable blockers, and the UI faithfully separates potential from qualified results.
+Demonstrate authentic qualification when complete compatible evidence permits it; otherwise record the exact unresolved clauses and keep expansion of real coverage open.
+A synthetic positive fixture or an incompatible pair does not establish this coverage milestone.
+A profitable real pair is not required.
 
-1. Finish the existing Kalshi/Polymarket US discovery milestone: restore Docker, validate worker/API/PostgreSQL and desktop/mobile quotes, review recorded evidence, document capability/access blockers, and commit the focused implementation.
-2. Establish complete source-backed settlement definitions and reachable exceptional outcomes for a supported US pair, and implement account/product eligibility gates.
-3. Complete Kalshi/Polymarket US fee providers and automatic sizing integration, alongside authenticated browser draft editing, approval/rejection/revocation, and conflict handling.
-4. Add immediate quote rechecks and a seeded PostgreSQL browser review-to-estimate workflow, including suppression after changed terms, stale books, unknown access, or unavailable fees.
-5. Complete counterpart pagination and catalog-wide frontend filters, then assess additional US venues and categories with coverage reports and category-specific settlement evidence.
-6. Run the seven-day forward paper study, then complete eligible venue streaming, operational monitoring, staging identity/secrets/collector validation, and backup/recovery rehearsal.
+## Milestone 2: speed and coverage that can be measured
 
-Acceptance requires a reproducible and correctly gated workflow, not a positive opportunity.
-If the recorded candidate has incompatible settlement terms, retain the conflict and assess another supported pair.
+Optimize the existing persistent pipeline around changed inputs and useful complete pairs.
+Do not wait for Jev or source interpretation to refresh already qualified prices.
 
-No phase authorizes automatic trading, custody, or transfers.
-Two-leg comparison remains the initial strategy boundary.
+- [ ] Measure cold discovery, source capture, queue wait, interpretation, warm recalculation, publication, API, and browser render separately.
+- [ ] Establish p50/p95/p99 latency and throughput under a declared catalog size, monitoring budget, and provider latency profile.
+- [ ] Target warm stored-book potential publication and assessment-completion-to-publication within two seconds at p95 under the declared workload; retain independent quote age/skew gates.
+- [ ] Measure receipt-to-browser latency and set a browser delivery budget from the observed SSE/query path rather than claiming the two-second backend target is end to end.
+- [ ] Improve bounded change-triggered evaluation and add supported US streaming adapters where official capabilities permit, preserving REST resynchronization and independent task supervision.
+- [ ] Measure monitored counterpart coverage, time since each pair was refreshed, queue age, and starvation; preserve complete-pair scheduling and tier rotation.
+- [ ] Run the live Jev smoke and authentic benchmark with a configured backend key, reporting assisted recall, incorrect suggestions, abstentions, omitted context, latency, and usage.
+- [ ] Expand the labeled corpus with authentic uncertain event identity, differing seasons/thresholds, cancellation conflicts, and source amendments; keep synthetic edge cases separate.
 
-## Current validation and next task
+**Exit criteria:** repeatable load and outage runs satisfy declared latency/freshness targets without weakening settlement or financial checks, and coverage/quality reports include failures and exclusions.
+The existing two-second synthetic warm assertions are regression evidence only, not a production service-level claim.
 
-The integrated baseline includes live-price ingestion, source enrichment, version 2 definitions, persistent reviews, authenticated review APIs, read-only opportunity screens, stream infrastructure, and tracing.
-The current uncommitted US work adds discovery, a venue registry/API, candidate extraction, and venue-aware browser panels; these are not a completed US evaluation release.
-Browser review editing, account/product eligibility, automatic fee integration, and all-counterpart pagination remain unfinished.
-Existing Polymarket International fixtures remain useful for historical regression tests but do not establish US trading eligibility.
-The abandoned expansion was uncommitted and was removed without changing the database or existing historical reviews.
+## Milestone 3: add venues and families through capabilities
 
-October 11 local validation passed 430 SQLite backend tests, 56 frontend tests, frontend types/lint/generated-client drift, and backend lint/format.
-Docker is unavailable, so fresh PostgreSQL, migration, live API, production build, and browser validation have not been performed for the current US tree.
-Historical PostgreSQL, browser, and hosted CI results remain evidence for their recorded scopes and commits only.
+Expand useful supported overlap after the initial authentic workflow is measurable.
+Do not add a platform solely to increase the venue count.
 
-Next action: restore Docker and finish integrated validation of the existing Kalshi/Polymarket US discovery work before enabling evaluation or adding another venue.
-See the [US expansion handoff](contributing/us-expansion-handoff.md) for the focused acceptance criteria.
+- [ ] Assess each proposed venue's public data, native instruments, source applicability, fees, access restrictions, depth semantics, and recovery behavior using current official evidence.
+- [ ] Implement catalog/books/source adapters, versioned fee and evidence providers, and declared execution constraints through existing registry boundaries.
+- [ ] Register family-specific interpretation separately from venue-specific data retrieval so shared event semantics do not create pairwise venue branches.
+- [ ] Exercise a new venue against every relevant existing venue through generic retrieval, qualification, sizing, storage, API, and browser contracts.
+- [ ] Require recorded positive/negative cases, authentic evidence coverage, outage/resync tests, migration preservation, and generated-contract checks before enabling supported evaluation.
+- [ ] Keep discovery-only support explicit when settlement, fees, or instruments are unsupported.
+
+**Exit criteria:** adding a venue requires no venue-specific branch in the financial evaluator or browser result model, and its supported capabilities and coverage limits are inspectable.
+The existing test-only fourth venue demonstrates the extension path; it is not a live exchange integration.
+Opinion and Limitless remain outside the current US priority; other candidates require their own capability assessment.
+
+## Milestone 4: operate and evaluate the product continuously
+
+Operational instrumentation starts with the earlier milestones; production rollout waits for measured behavior and recovery evidence.
+
+- [ ] Verify hosted CI for the publication head rather than relying on historical successful runs.
+- [ ] Add worker queue/coverage metrics, provider health, stale-feed and withdrawal alerts, and dashboards for the full source-to-browser path.
+- [ ] Deploy reproducible staging with backend-only secrets, TLS, restricted database access, and authentication for operator mutations.
+- [ ] Rehearse migrations, rollback-compatible deployment, backup restore, worker restart, source failure, and partial venue outage.
+- [ ] Run a seven-day forward paper study with fixed monitoring/capital/slippage settings and complete records of candidates, rejected results, quote rechecks, withdrawals, and opportunity lifetimes.
+- [ ] Report qualification coverage, conditional estimated value, fee sensitivity, freshness, and missed coverage without treating paper estimates as realized returns.
+
+**Exit criteria:** the deployed stack recovers without manual reapproval, its results can be reproduced from stored inputs, and the paper-study report separates observed prices from hypothetical fills.
+
+## Validation baseline and planning rules
+
+The [automatic acceptance report](contributing/automatic-qualification-acceptance-2026-10-14.json) records 566 passing tests on each backend database, supplemental source/pagination checks, 66 frontend unit tests, and 66 desktop/mobile fixture tests.
+It also records type, lint, generated-contract, build, and recorded automatic worker/API results.
+Those checks were run for the implementation, not rerun for this documentation update.
+Connected Jev browser coverage predates the automatic backend addition; full automatic browser acceptance remains Milestone 1 work.
+
+Keep the agreed stack and a modular monolith with independently supervised worker tasks.
+Do not introduce Redis, a second generative model, or additional services without an observed coordination or throughput need.
+Historical issue scopes in the [contributor index](contributing/README.md) remain traceability records; their review-first dependencies no longer define the critical path.
+Optional review tooling and private execution-readiness work do not block public discovery.
+
+**Next action:** extend production applicability and source interpretation for one authentic Kalshi/US family, using original captured documents and explicit exceptional policies, and publish its qualification/blocker coverage report.

@@ -5,50 +5,42 @@ Each implementation issue is scoped to one PR; the tracker itself is not a singl
 GitHub is authoritative for current status and assignees.
 This index records dependency and file boundaries at publication time.
 
-## Current priorities: October 11, 2026
+## Current priorities: October 15, 2026
 
-The [implementation roadmap](../implementation-roadmap.md) is the reconciled product checklist.
-The [integrated status handoff](project-status-handoff.md) records the current branch, checks, blockers, and single next action.
-Issue numbers below identify the published work breakdown; implemented scope is not a claim that an entire issue is closed or that a remote PR has merged.
-Remote issue/PR states were not refreshed during this documentation reconciliation.
+The [implementation roadmap](../implementation-roadmap.md) defines the current delivery order, and the [system design](../system-design.md) defines the automatic discovery architecture.
+The [project status handoff](project-status-handoff.md) records the committed baseline, coverage limits, and next action.
+GitHub issue/PR status was not refreshed in this documentation update.
+The published tables below preserve historical scope and ownership boundaries; review-first dependencies are superseded by the current roadmap.
+Do not restart implemented foundation work or make human review/account setup a prerequisite for public discovery.
 
-The current baseline already includes source storage/enrichment, canonical version 2 definitions, discovery/corpus foundations, fee/stream contracts, authentication, persistent reviews and mutation APIs, catalog filtering, read-only frontend screens, tracing, and historical hosted CI evidence.
-Do not restart those foundation tasks based on old handoff instructions.
-Local uncommitted Polymarket US work adds recordings, discovery/books, World Series candidates, venue registration/API metadata, and browser venue panels.
-It is not a completed US evaluation release.
+1. Expand authentic source applicability and settlement interpretation for one Kalshi/US family, reporting qualification coverage and blockers.
+2. Surface separate potential gaps and qualified estimates in the browser, with automatic qualification evidence and connected desktop/mobile acceptance.
+3. Measure warm latency, cold-start stages, monitoring coverage, and live Jev quality; improve streaming and scheduling from those measurements.
+4. Add venues and event families through registered adapters, evidence/fee providers, and instrument capabilities.
+5. Complete staging, operational recovery, hosted checks, and the seven-day forward paper study.
 
-1. Finish the existing Kalshi/Polymarket US discovery milestone with running worker/API/PostgreSQL and desktop/mobile validation.
-2. Complete source/exception evidence and account/product eligibility for a supported US pair, with human settlement review.
-3. Complete US venue fees and automatic sizing integration alongside authenticated browser review actions.
-4. Add immediate quote rechecks and a seeded PostgreSQL browser review-to-estimate workflow.
-5. Complete counterpart pagination and frontend catalog-wide filtering, then assess additional US venues/categories.
-6. Run the forward paper study and finish monitoring, staging, and recovery validation.
-
-Backend review APIs and approval consumption already exist, so frontend review UI work is no longer blocked on their original absence.
-Automatic fees, US eligibility, and real-pair evidence still block actionable estimates.
-A positive opportunity is not required; conflict, unavailable access, and unprofitable results must remain visible.
-Keep focused PR boundaries and check GitHub ownership before overlapping implementation work.
+Automatic qualification, public fee refresh, native sizing, immediate quote rechecks, catalog-wide filters, and counterpart pagination are implemented.
+The new potential feed and detailed qualification browser workflow remain planned.
+All 30 authentic benchmark pairs remain incomplete; synthetic positive acceptance does not establish real settlement compatibility.
+Optional historical review tooling does not block automatic discovery.
+No workstream authorizes trading, custody, or transfers.
 
 ## Current workstream handoffs
 
 | Workstream | Current handoff | Next work |
 | --- | --- | --- |
-| Integrated product | [Project status](project-status-handoff.md) | Validate and finish the current US discovery baseline |
-| Backend | [Backend](backend-handoff.md) | Evidence/eligibility gates and fee-aware, rechecked evaluation |
-| Frontend | [Frontend](frontend-handoff.md) | US browser validation, authenticated reviews, complete comparisons/filters |
-| Data | [Data](data-handoff.md) | Complete US rulebook/clarification and exceptional-settlement evidence |
-| Catalog | [Catalog](catalog-handoff.md) | Full counterpart pagination and API-backed browser filtering |
-| Fees | [Fees](fees-handoff.md) | Tested Kalshi/US policies and automatic sizing integration |
-| Authentication | [Authentication](auth-handoff.md) | Browser identity/session and real provider validation |
-| Streams | [Streams](backend-streams-handoff.md), [live data](live-data-handoff.md) | Fresh US quotes, quote rechecks, eligible venue event publication |
-| CI | [CI](backend-ci-handoff.md) | Hosted checks for the exact finished US milestone head |
-| Observability | [Tracing](backend-tracing-handoff.md) | Worker metrics/alerts and real collector validation |
-| US expansion | [US venues](us-expansion-handoff.md) | Finish discovery capability assessment before another venue |
-| Research | [Research](research-handoff.md) | Real-pair evidence first, then the seven-day paper study |
+| Integrated product | [Project status](project-status-handoff.md) | Authentic automatic coverage, then complete source-to-browser discovery |
+| Automatic backend | [Automatic qualification](automatic-qualification-handoff.md) | Production applicability and interpretation from authentic sources |
+| Jev | [Advisory classification](jev-handoff.md) | Configured live smoke and authentic quality/coverage measurement |
+| Frontend | [Frontend](frontend-handoff.md) | Separate potential/qualified views and automatic evidence inspection |
+| Existing backend | [Backend](backend-handoff.md) | Integrate coverage, freshness, and measured latency improvements |
+| Sources and expansion | [Data](data-handoff.md), [US venues](us-expansion-handoff.md) | Authentic rules and capability evidence; older review requirements are superseded |
+| Operations | [CI](backend-ci-handoff.md), [Tracing](backend-tracing-handoff.md) | Current hosted checks, worker metrics, staging, recovery |
+| Historical delivery | [History](history/README.md) | Preserve prior validation evidence without reviving obsolete next steps |
 
-Prior PR/branch instructions and validation records are retained under [history](history/README.md).
-The published issue tables below preserve original scope, dependency keys, and proposed file ownership; they are not a current ready-work queue.
-Negative-risk support remains excluded, and execution-readiness does not authorize orders, custody, or transfers.
+Dated workstream entries remain implementation history.
+When their next steps conflict with the October 15 roadmap, use the roadmap and current integrated status.
+Check existing GitHub ownership before beginning overlapping implementation; do not republish issues or change remote scopes from this local index alone.
 
 ## Published issue scopes and original dependencies
 

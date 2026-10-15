@@ -3,7 +3,9 @@
 Jev proposes event counterparts and compares clause meanings through OpenRouter's [Decisions API](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request).
 The model is pinned to `typesafe/jev-1.13`.
 Requests contain `model`, `state`, and typed `questions` directly, without chat messages or another generative model.
-Existing Python settlement comparisons, database approvals, source applicability, and financial gates retain authority.
+Python settlement comparisons, source applicability, automatic qualification, and financial gates retain authority.
+Historical database approvals remain supported in the optional review-driven path; the default automatic workflow does not require them.
+See the [system design](system-design.md) for the distinction between model advice, automatic qualification, and conditional estimates.
 A model finding never writes a reviewed definition, approves equivalence, rejects an existing deterministic proposal, or places an order.
 Confidence is a model score, not measured accuracy.
 
