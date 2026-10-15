@@ -158,10 +158,12 @@ Next action: when frontend work is requested, add separate potential and qualifi
 
 ## October 15 consolidation validation
 
-Branch: `chore/consolidate-main`; PR [#57](https://github.com/acheng2007/arbbot/pull/57).
+Branch: `main`; consolidation PR [#57](https://github.com/acheng2007/arbbot/pull/57) is merged.
 Hosted validation reproduced a mobile evidence-test race: the test clicked Review evidence on the old opportunity route before comparison navigation completed.
 The downloaded trace and screenshot were inspected before editing.
 The assertion now waits for the destination URL and comparison-only navigation link, then opens the destination disclosure.
 No UI behavior, evidence assertions, or timeout limits were changed.
 The corrected scenario passed ten local desktop/mobile repetitions with two concurrent workers.
-Next action: finish hosted validation of the consolidation, merge to main, and remove only branch heads retained in main's ancestry.
+The final hosted frontend run passed all 66 desktop/mobile tests, 66 unit tests, generated-client/type/lint checks, and the production build.
+All completed branches were retained in main and removed; see [the consolidation handoff](branch-consolidation-handoff.md).
+Next action: when frontend work is requested, implement separate potential and qualified views against the existing APIs, preserving the current evidence and assumption boundaries.

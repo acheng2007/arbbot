@@ -148,6 +148,7 @@ Local Compose credentials are development defaults, not a production deployment 
 
 The [October 15 implementation verification record](docs/contributing/automatic-qualification-acceptance-2026-10-14.json) reports **566 tests passing on each of SQLite and PostgreSQL**, **66 frontend unit tests**, and **66 desktop/mobile fixture browser tests**, plus supplemental source, pagination, financial, contract-generation, lint, type, and build checks.
 These are recorded implementation results, not a claim that every check has been rerun for each documentation commit.
+The subsequent [main consolidation checks](docs/contributing/branch-consolidation-handoff.md) passed 567 tests on each backend database, 66 frontend unit tests, all 66 desktop/mobile fixture tests, migrations/contracts, and the production build.
 
 The automatic PostgreSQL/worker/API acceptance covers zero required human records, separate potential results, source-change invalidation, fee outage/recovery, continuing book polling, and worker restart.
 Its positive examples use synthetic complete contracts and synthetic document bindings with recorded public fee documents.

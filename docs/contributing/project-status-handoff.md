@@ -2,9 +2,10 @@
 
 ## Status: October 15, 2026
 
-Branch: `backend/completion`.
-The roadmap and system design through `f424a04` were published to `origin/backend/completion`; the recruiter-facing README update follows that baseline.
-No remote issue or PR status was inspected or changed for this update.
+Branch: `main`.
+The completed application and all original feature-branch histories were consolidated through [PR #57](https://github.com/acheng2007/arbbot/pull/57) at `529dbed`.
+PRs #45 and #56 are also merged, there are no open PRs, and only main remains locally and remotely.
+See [the consolidation handoff](branch-consolidation-handoff.md) for retained history, current hosted verification, branch cleanup, and preserved local work.
 The [roadmap](../implementation-roadmap.md) and new [system design](../system-design.md) are the current product direction.
 They supersede review-first sequencing and obsolete uncommitted-status claims in older workstream entries.
 
@@ -48,6 +49,16 @@ Recorded sanitized answers, input hashes, labels, returned model identity, and p
 Updated current documentation to remove the now-outdated claim that no live measurement exists while preserving authentic settlement and population-quality limitations.
 No application code, thresholds, exchange data, or worker runtime changed.
 See [the Jev handoff](jev-handoff.md) for artifacts and the focused evaluation next step.
+
+## October 15 completed branch consolidation
+
+Verified all previous branch heads are retained in main, removed seven remote feature branches and 18 local branches, and returned the original checkout to main.
+Preserved the current generated client and integrated source implementation instead of restoring obsolete branch schemas or duplicate migrations.
+Hosted validation exposed a test navigation race, fixed by waiting for the comparison URL and comparison-only link before opening the shared evidence disclosure.
+Production application behavior is unchanged.
+The corrected consolidation head passed 567 tests on each backend database, 66 frontend unit tests, all 66 desktop/mobile fixture tests, migrations/schema/contracts, lint/types, and production build.
+The merge tree matches the validated consolidation head; handoff-only edits do not claim another full-suite run.
+The root ignored environment, staged research, and untracked files were preserved.
 
 ## Remaining product gaps
 
