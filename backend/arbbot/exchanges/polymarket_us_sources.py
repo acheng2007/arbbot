@@ -43,7 +43,7 @@ async def enrich_polymarket_us(market, repository, fetcher):
         else:
             evidence[path + "_index"] = index
     # A filename or matching title is insufficient to establish instrument identity.
-    # A reviewer must establish applicable specifications and amendments explicitly.
+    # Exact instrument/product bindings must establish specifications and amendments.
     collector.issues.extend(
         ("product_specification_applicability_unverified", "clarification_applicability_unverified")
     )

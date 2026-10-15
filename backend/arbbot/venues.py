@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from arbbot.domain import Model, Venue
+from arbbot.qualification.providers import Capabilities, PublicEvidence
 
 
 class VenueInfo(Model):
@@ -46,21 +47,47 @@ class Registration:
     factory: object
     evaluation: bool
     access_note: str
+    capabilities: Capabilities | None = None
 
 
 VENUES = {
-    "kalshi": Registration("Kalshi", kalshi, True, "Account and product eligibility required"),
+    "kalshi": Registration(
+        "Kalshi",
+        kalshi,
+        True,
+        "Account and product eligibility are unverified",
+        Capabilities(
+            PublicEvidence(
+                (
+                    "kalshi.com",
+                    "www.kalshi.com",
+                    "external-api.kalshi.com",
+                    "assets.kalshi.com",
+                    "kalshi-public-docs.s3.amazonaws.com",
+                    "kalshi-public-docs.s3.us-east-1.amazonaws.com",
+                    "www.bls.gov",
+                    "bls.gov",
+                    "www.federalreserve.gov",
+                )
+            ),
+            "direct",
+        ),
+    ),
     "polymarket": Registration(
         "Polymarket International",
         international,
         True,
         "International research feed; not a US trading route",
+        Capabilities(PublicEvidence(("polymarket.com", "gamma-api.polymarket.com"))),
     ),
     "polymarket_us": Registration(
         "Polymarket US",
         polymarket_us,
         True,
-        "Requires reviewed settlement, installation access, and current fee evidence",
+        "Public conditional estimates; account eligibility and balances are unverified",
+        Capabilities(
+            PublicEvidence(("polymarketexchange.com", "gateway.polymarket.us")), "standard", True
+        ),
     ),
 }
 

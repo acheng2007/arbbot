@@ -47,6 +47,7 @@ class Harness:
         self.env.update(
             ARBBOT_DATABASE_URL=self.url,
             ARBBOT_MODE="live",
+            ARBBOT_AUTOMATIC_QUALIFICATION="false",
             ARBBOT_RECORDING_FILE=str(self.recording),
             ARBBOT_ENABLED_VENUES='["kalshi","polymarket_us"]',
             ARBBOT_DISCOVERY_MODE="broad",

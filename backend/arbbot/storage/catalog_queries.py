@@ -88,6 +88,7 @@ class CatalogQueries:
         exclude_rejected=False,
         evidence=None,
         classification=None,
+        qualification=None,
         market_id=None,
         match_id=None,
         venue=None,
@@ -116,7 +117,12 @@ class CatalogQueries:
                     .exists()
                 )
         if status is not None:
-            query = query.where(MatchRecord.payload["status"].as_string().in_({status, "verified"}))
+            query = query.where(
+                or_(
+                    MatchRecord.payload["status"].as_string().in_({status, "verified"}),
+                    MatchRecord.payload["qualification"]["status"].as_string().is_not(None),
+                )
+            )
         if evidence is not None:
             query = query.where(MatchRecord.evidence_complete.is_(evidence == "complete"))
         if any(value is not None for value in (venue, family, q, market_status, category)):
@@ -152,6 +158,7 @@ class CatalogQueries:
         advisory = MatchRecord.payload["classification"]
         requires_validation = or_(
             MatchRecord.payload["status"].as_string() == "verified",
+            MatchRecord.payload["qualification"]["status"].as_string().is_not(None),
             advisory["run_id"].as_string().is_not(None),
             advisory["supports_candidate"].as_boolean().is_(True),
             MatchRecord.payload["ai_only"].as_boolean().is_(True),
@@ -187,6 +194,10 @@ class CatalogQueries:
                     or (classification != "suggested" and advice.state != classification)
                 ):
                     continue
+                if qualification and (
+                    not match.qualification or match.qualification.status != qualification
+                ):
+                    continue
                 if exclude_rejected and match.status == "rejected":
                     continue
                 if same_event is not None and (
@@ -205,6 +216,11 @@ class CatalogQueries:
                 )
                 ranks[rank].append(row.id)
             ordinary = MatchRecord.id.not_in(special)
+            if qualification:
+                ordinary = and_(
+                    ordinary,
+                    MatchRecord.payload["qualification"]["status"].as_string() == qualification,
+                )
             if status is not None:
                 ordinary = and_(ordinary, MatchRecord.payload["status"].as_string() == status)
             if classification:

@@ -50,7 +50,16 @@ async def invalidation_reasons(repository, settings, opportunity):
                 reasons.append(f"venue_feed_unavailable:{market.venue}")
             elif not feed or feed["status"] != "healthy":
                 reasons.append(f"quote_feed_unavailable:{market.id}")
-        if opportunity.review_revision_id:
+        automatic = opportunity.qualification is not None
+        if automatic:
+            from arbbot.qualification.service import current
+
+            summary, _ = await current(session, settings.mode, opportunity.match_id)
+            if summary.status != "qualified" or (
+                summary.assessment_id != opportunity.qualification.assessment_id
+            ):
+                reasons.append("qualification_changed_or_expired")
+        elif opportunity.review_revision_id:
             review = await ReviewRepository(repository.database).decision_in_session(
                 session, settings.mode, opportunity.review.left_id, opportunity.review.right_id
             )
@@ -60,11 +69,16 @@ async def invalidation_reasons(repository, settings, opportunity):
                 reasons.extend(review.blocked_reasons)
         elif settings.mode == "live" and not repository.allow_file_reviews:
             reasons.append("approval_unverified")
-        if opportunity.review.expires_at <= now:
+        if opportunity.review and opportunity.review.expires_at <= now:
             reasons.append("approval_expired")
-        if settings.mode == "live" and any(m.venue == "polymarket_us" for m in markets):
-            context = await ExecutionRepository(repository.database).context(
-                session, settings.mode, markets
+        from arbbot.qualification.providers import requires_context
+
+        if settings.mode == "live" and (automatic or requires_context(markets)):
+            configuration = ExecutionRepository(repository.database)
+            context = await (
+                configuration.public_context(session, settings.mode, markets)
+                if automatic
+                else configuration.context(session, settings.mode, markets)
             )
             reasons.extend(context.blocked_reasons)
             for label, current, bound in (

@@ -28,7 +28,7 @@
           "items": {
             "$ref": "#/$defs/Permission"
           },
-          "maxItems": 3,
+          "maxItems": 64,
           "minItems": 1,
           "title": "Permissions",
           "type": "array"
@@ -182,10 +182,7 @@
           "type": "string"
         },
         "venue": {
-          "enum": [
-            "kalshi",
-            "polymarket_us"
-          ],
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
           "title": "Venue",
           "type": "string"
         },
@@ -195,10 +192,7 @@
           "type": "string"
         },
         "formula": {
-          "enum": [
-            "kalshi_quadratic",
-            "us_standard"
-          ],
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
           "title": "Formula",
           "type": "string"
         },
@@ -317,11 +311,7 @@
       "additionalProperties": false,
       "properties": {
         "venue": {
-          "enum": [
-            "kalshi",
-            "polymarket",
-            "polymarket_us"
-          ],
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
           "title": "Venue",
           "type": "string"
         },

@@ -96,7 +96,7 @@ export function PredictionCard({
     >
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <ModeBadge mode={market.mode} feedOrigin={market.feed_origin} />
-        {match && <MatchStatusBadge status={match.status} />}
+        {match && <MatchStatusBadge status={match.status} qualification={match.qualification} />}
       </div>
       <h2 className="mb-4 text-lg font-semibold leading-6 tracking-tight">
         <Link

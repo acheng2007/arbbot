@@ -240,8 +240,13 @@ class ReviewRepository:
                 current = head.revision_id if head else None
                 if current != request.expected_revision_id:
                     raise RevisionConflict("Review changed; reload the current decision", current)
-                if request.action == "revoked" and head is None:
-                    raise ReviewValidationError(["no_previous_decision_to_revoke"])
+                if request.action in ("revoked", "cleared") and head is None:
+                    raise ReviewValidationError(
+                        [
+                            "no_previous_decision_to_"
+                            + ("revoke" if request.action == "revoked" else "clear")
+                        ]
+                    )
                 review = request.review
                 if request.action == "verified":
                     issues = []

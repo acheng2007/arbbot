@@ -100,7 +100,7 @@ export function MatchList() {
                     className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <MatchStatusBadge status={match.status} />
+                      <MatchStatusBadge status={match.status} qualification={match.qualification} />
                       {match.comparison && (
                         <ComparisonStatusBadge
                           status={match.comparison.status}

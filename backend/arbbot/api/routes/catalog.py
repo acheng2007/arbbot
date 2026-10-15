@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from arbbot.discovery.models import CatalogObservation
 from arbbot.domain import Market, MarketSummary, Match, Venue
+from arbbot.qualification.summary import QualificationStatus
 from arbbot.storage.catalog_queries import CatalogQueries
 from arbbot.storage.models import CatalogInventoryRecord, CatalogObservationRecord
 from arbbot.storage.repository import aware
@@ -125,6 +126,7 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         market_status: Literal["open", "closed"] | None = None,
         exclude_rejected: bool = False,
         evidence: Literal["complete", "incomplete"] | None = None,
+        qualification: QualificationStatus | None = None,
         classification: Literal[
             "suggested", "fresh", "pending", "stale", "unavailable", "unconfigured", "disabled"
         ]
@@ -145,6 +147,7 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
             exclude_rejected=exclude_rejected,
             evidence=evidence,
             classification=classification,
+            qualification=qualification,
             market_id=market_id,
         )
 

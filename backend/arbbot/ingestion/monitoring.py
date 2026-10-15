@@ -31,6 +31,10 @@ class PairMonitor:
             paired = set()
             for row in rows:
                 match = Match.model_validate(row.payload)
+                if match.qualification is not None:
+                    from arbbot.qualification.service import refresh_match
+
+                    match = await refresh_match(session, match)
                 if match.status == "rejected" or any(
                     mid not in indexed for mid in (match.left_id, match.right_id)
                 ):

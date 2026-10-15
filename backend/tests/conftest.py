@@ -43,7 +43,9 @@ async def database(tmp_path):
         ).render_as_string(hide_password=False)
     else:
         database_url = f"sqlite+aiosqlite:///{tmp_path}/test.db"
-    settings = Settings(database_url=database_url, _env_file=None)
+    # Existing review-path tests deliberately exercise historical compatibility.
+    # Automatic qualification integration tests explicitly enable the new default.
+    settings = Settings(database_url=database_url, automatic_qualification=False, _env_file=None)
     db = Database(settings)
     try:
         async with db.engine.begin() as connection:

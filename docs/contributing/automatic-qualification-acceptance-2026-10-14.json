@@ -1,0 +1,54 @@
+{
+  "results": [
+    "API and additive migrations ready",
+    "Automatic qualified estimates without review/account setup",
+    "Zero human drafts and decision revisions",
+    "Incomplete settlement remains separate potential price gap",
+    "Qualification filtering precedes pagination",
+    "Fee outage withdraws qualified estimates",
+    "Book polling continues during public fee outage",
+    "Public fee provider recovers automatically",
+    "Source amendment invalidates qualification",
+    "Restored supported sources requalify without human action",
+    "Persistent worker restart retains automatic workflow"
+  ],
+  "feed_origin": "synthetic_recording",
+  "human_review_records": 0,
+  "account_profile": "unknown",
+  "scope": "Backend/API only; no browser workflow added",
+  "authentic_recordings": "Preserved; missing settlement applicability remains incomplete",
+  "completed_at_epoch": 1792035166.963865,
+  "verification": {
+    "verified_at": "2026-10-15T03:43:32.629812+00:00",
+    "sqlite_full_suite_passed": 566,
+    "postgresql_full_suite_passed": 566,
+    "supplemental_source_checks_passed_per_database": 3,
+    "supplemental_streaming_pagination_passed_per_database": 1,
+    "final_financial_guards_passed": 18,
+    "frontend_unit_tests_passed": 66,
+    "desktop_mobile_fixture_tests_passed": 66,
+    "typecheck": "passed",
+    "lint": "passed",
+    "ruff": "passed",
+    "generated_contracts": "passed",
+    "production_build": "passed using webpack",
+    "live_openrouter": "not configured; no live model measurement",
+    "notes": [
+      "Two browser failures under concurrent startup load passed isolated reruns and the final complete serial suite.",
+      "Warm timing assertions measure stored-book publication and assessment-completion-to-publication, excluding cold source capture.",
+      "Source capture in test setup waits for bounded recorded-provider recovery before unrelated financial assertions.",
+      "Supplemental source-policy and streaming-read checks were run after the full-suite collection."
+    ],
+    "artifacts": {
+      "persistent_acceptance": "/tmp/arbbot-auto-final/",
+      "sqlite_suite": "/tmp/arbbot-auto-sqlite-release.log",
+      "postgresql_suite": "/tmp/arbbot-auto-postgres-release.log",
+      "fixture_browsers": "/tmp/arbbot-auto-browser-complete.log"
+    }
+  },
+  "coverage_limitations": [
+    "Complete interpretation uses a closed explicit source-language grammar.",
+    "All 30 authentic benchmark pairs remain incomplete; synthetic positive scenarios do not establish live pair compatibility.",
+    "New dashboard workflows are deferred; only existing-client compatibility was updated."
+  ]
+}

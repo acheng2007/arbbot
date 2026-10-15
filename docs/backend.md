@@ -1,5 +1,12 @@
 # Backend behavior and operations
 
+## Automatic live qualification
+
+Live discovery now uses evidence-based automatic qualification by default, without required human reviews or account setup.
+Qualified conditional estimates and separate potential price gaps are available through the API.
+See [automatic qualification](automatic-qualification.md) for current source-language coverage, public fee/account assumptions, extension interfaces, and the recorded worker/API acceptance command.
+The historical review-driven workflow below remains available with `ARBBOT_AUTOMATIC_QUALIFICATION=false`.
+
 ## Ingestion
 
 The worker discovers a bounded set of markets, polls Kalshi REST order books, consumes Polymarket WebSocket books, persists normalized results, discovers candidates, evaluates verified pairs, and publishes a coherent opportunity view.

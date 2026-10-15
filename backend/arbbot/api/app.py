@@ -19,6 +19,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from arbbot.api.routes.catalog import catalog_router
+from arbbot.api.routes.qualification import qualification_router
 from arbbot.api.routes.reviews import reviews_router
 from arbbot.api.routes.sources import sources_router
 from arbbot.auth.dependencies import require_viewer
@@ -91,6 +92,7 @@ def create_app(
             settings=settings,
         )
     )
+    app.include_router(qualification_router(repository, settings))
     app.include_router(sources_router(db, settings.mode))
     app.include_router(reviews_router(db, settings.mode))
     app.add_middleware(
@@ -154,6 +156,7 @@ def create_app(
         return venue_info(settings)
 
     from arbbot.matching.classification import classification_health
+    from arbbot.qualification.service import health as qualification_health
 
     @app.get("/api/v1/status")
     async def status():
@@ -162,6 +165,7 @@ def create_app(
         return {
             "mode": settings.mode,
             "classification": await classification_health(db, settings),
+            "qualification": await qualification_health(db, settings.mode),
             "exchanges": health,
             "ingestion_healthy": len(health) == len(settings.enabled_venues)
             and all(h["status"] == "healthy" for h in health),
@@ -270,6 +274,8 @@ def create_app(
             settings.mode, limit, offset, history=history, match_id=match_id, status=status
         )
 
+    from arbbot.qualification.potential import query as potential_query
+
     @app.get("/api/v1/stream", response_class=StreamingResponse)
     async def stream(request: Request):
         async def events():
@@ -288,6 +294,11 @@ def create_app(
                     "as_of": utcnow().isoformat(),
                     "opportunities": [row.model_dump(mode="json") for row in rows],
                     "exchanges": health,
+                    "qualification": await qualification_health(db, settings.mode),
+                    "potential_opportunities": [
+                        row.model_dump(mode="json")
+                        for row in await potential_query(repository, settings, limit=200)
+                    ],
                     "limit": 200,
                 }
                 yield "event: snapshot\ndata: " + json.dumps(payload) + "\n\n"

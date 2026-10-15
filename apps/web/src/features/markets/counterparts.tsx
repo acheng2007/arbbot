@@ -46,7 +46,7 @@ export function Counterparts({ marketId }: { marketId: string }) {
                   key={row.id}
                   className="rounded-lg border border-border p-4"
                 >
-                  <MatchStatusBadge status={row.status} />
+                  <MatchStatusBadge status={row.status} qualification={row.qualification} />
                   <Link
                     href={`/matches/${encodeURIComponent(row.id)}`}
                     className="mt-2 block font-medium text-primary"

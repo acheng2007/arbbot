@@ -31,7 +31,7 @@ class AccessProfile(Model):
     kind: Literal["access"] = "access"
     jurisdiction: str = Field(min_length=2, max_length=100)
     status: Literal["verified", "restricted", "unknown"]
-    permissions: tuple[Permission, ...] = Field(min_length=1, max_length=3)
+    permissions: tuple[Permission, ...] = Field(min_length=1, max_length=64)
     supporting_evidence: tuple[str, ...] = Field(min_length=1, max_length=32)
     expires_at: AwareDatetime
 
@@ -58,9 +58,9 @@ class Applicability(Model):
 class ExecutableFeePolicy(Model):
     kind: Literal["fees"] = "fees"
     market_id: str = Field(min_length=1, max_length=512)
-    venue: Literal["kalshi", "polymarket_us"]
+    venue: Venue
     terms_hash: Hash
-    formula: Literal["kalshi_quadratic", "us_standard"]
+    formula: str = Field(pattern=r"^[a-z][a-z0-9_]{0,63}$")
     coefficient: Decimal = Field(ge=0, le=7, allow_inf_nan=False)
     minimum_execution_quantity: Decimal | None = Field(default=None, gt=0, allow_inf_nan=False)
     balance_precision: Literal["0.0001", "0.01"] | None = None
@@ -103,6 +103,11 @@ class ExecutableFeePolicy(Model):
             or self.account_class != "standard"
         ):
             raise ValueError("Only documented standard US policies are supported")
+        from arbbot.fees.executable import FORMULAS
+
+        if self.formula not in FORMULAS:
+            raise ValueError("Fee formula must be registered")
+        FORMULAS[self.formula].validate(self)
         return self
 
 
@@ -141,6 +146,8 @@ class ConfigurationRevision(Model):
 
 
 class ExecutionContext(Model):
+    public_discovery: bool = False
+    assumptions: tuple[str, ...] = ()
     access_revision_id: str | None = None
     applicability_revision_ids: tuple[str, ...] = ()
     fee_revision_ids: tuple[str, ...] = ()

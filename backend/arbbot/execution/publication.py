@@ -69,11 +69,18 @@ async def guard_execution(
                 ):
                     reasons.append("quote_expired_or_unsynchronized_before_publication")
                     continue
-                if mode == "live" and any(m.venue == "polymarket_us" for m in markets):
-                    if not opportunity.review_revision_id:
+                from arbbot.qualification.providers import requires_context
+
+                automatic = opportunity.qualification is not None
+                if mode == "live" and (automatic or requires_context(markets)):
+                    if not automatic and not opportunity.review_revision_id:
                         reasons.append("database_approval_required_before_publication")
                         continue
-                    context = await configuration.context(session, mode, markets, lock=True)
+                    context = await (
+                        configuration.public_context(session, mode, markets, lock=True)
+                        if automatic
+                        else configuration.context(session, mode, markets, lock=True)
+                    )
                     if context.blocked_reasons or (
                         context.access_revision_id != opportunity.access_revision_id
                         or context.applicability_revision_ids

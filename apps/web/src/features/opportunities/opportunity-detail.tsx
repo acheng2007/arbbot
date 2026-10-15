@@ -214,13 +214,15 @@ export function OpportunityDetail({
                   </ul>
                 </Disclosure>
 
-                <Disclosure title="Review evidence">
-                  <ReviewPanel
-                    review={opportunity.review}
-                    left={index.get(opportunity.review.left_id)}
-                    right={index.get(opportunity.review.right_id)}
-                  />
-                </Disclosure>
+                {opportunity.review && (
+                  <Disclosure title="Review evidence">
+                    <ReviewPanel
+                      review={opportunity.review}
+                      left={index.get(opportunity.review.left_id)}
+                      right={index.get(opportunity.review.right_id)}
+                    />
+                  </Disclosure>
+                )}
 
                 {opportunity.comparison && (
                   <Disclosure title="Settlement terms behind this pair">

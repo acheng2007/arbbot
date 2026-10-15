@@ -1,9 +1,11 @@
 """Pure conservative order bounds. Depth levels are not individual executions."""
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from decimal import ROUND_CEILING, ROUND_HALF_EVEN, Decimal, localcontext
 
 
-def fee_bound(policy, fills, now):
+def _binary_bound(policy, fills, now):
     if not policy.effective_at <= now < policy.expires_at or policy.observed_at > now:
         return None
     with localcontext() as context:
@@ -31,3 +33,34 @@ def fee_bound(policy, fills, now):
         # the order ends with a residual accumulator below one precision unit.
         bound = exact + executions * (Decimal("0.000001") + Decimal(precision))
         return bound.quantize(Decimal("0.000001"), rounding=ROUND_CEILING)
+
+
+@dataclass(frozen=True)
+class FeeFormula:
+    validate: Callable
+    bound: Callable
+
+
+def _validate_binary(policy):
+    # Built-in policy constraints are checked by ExecutableFeePolicy.
+    return None
+
+
+FORMULAS = {
+    "kalshi_quadratic": FeeFormula(_validate_binary, _binary_bound),
+    "us_standard": FeeFormula(_validate_binary, _binary_bound),
+}
+
+
+def fee_bound(policy, fills, now):
+    provider = FORMULAS.get(policy.formula)
+    if (
+        not provider
+        or not policy.effective_at <= now < policy.expires_at
+        or policy.observed_at > now
+    ):
+        return None
+    value = provider.bound(policy, fills, now)
+    if value is None or not isinstance(value, Decimal) or not value.is_finite() or value < 0:
+        return None
+    return value

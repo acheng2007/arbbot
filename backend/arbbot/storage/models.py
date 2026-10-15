@@ -250,3 +250,38 @@ class ClassificationSchedulerRecord(Base):
     __tablename__ = "classification_scheduler"
     mode: Mapped[str] = mapped_column(String, primary_key=True)
     payload: Mapped[dict] = mapped_column(Document)
+
+
+class QualificationRunRecord(Base):
+    __tablename__ = "qualification_runs"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class QualificationJobRecord(Base):
+    __tablename__ = "qualification_jobs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String)
+    pair: Mapped[list] = mapped_column(Document)
+    state: Mapped[str] = mapped_column(String, index=True)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("qualification_runs.id"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PotentialRecord(Base):
+    __tablename__ = "potential_opportunities"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    gross_spread: Mapped[Decimal] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal | None] = mapped_column(Numeric())
+    active: Mapped[bool] = mapped_column(Boolean, index=True)
+    payload: Mapped[dict] = mapped_column(Document)

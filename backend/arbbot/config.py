@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     openrouter_api_key: SecretStr | None = Field(
         default=None, validation_alias="OPENROUTER_API_KEY"
     )
+    automatic_qualification: bool = True
     classification_enabled: bool = True
     classification_model: Literal["typesafe/jev-1.13"] = "typesafe/jev-1.13"
     classification_requests_per_second: float = Field(default=2, gt=0, le=2)
@@ -85,6 +86,10 @@ class Settings(BaseSettings):
             raise ValueError("Recorded exchange replay requires the public Kalshi/US adapter path")
         if self.recording_file and (self.kalshi_key_id or self.kalshi_private_key_path):
             raise ValueError("Offline recording mode cannot use private exchange credentials")
+        from arbbot.venues import VENUES
+
+        if any(venue not in VENUES for venue in self.enabled_venues):
+            raise ValueError("Enabled venues must be registered")
         if len(set(self.enabled_venues)) != len(self.enabled_venues):
             raise ValueError("Enabled venues must be unique")
         if (

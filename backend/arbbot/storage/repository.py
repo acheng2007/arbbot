@@ -441,7 +441,8 @@ class Repository:
                     if mode == "simulation" or self.allow_file_reviews
                     else false()
                 )
-                query = query.where(or_(legacy, revision.in_(eligible)))
+                automatic = OpportunityRecord.payload["qualification"]["assessment_id"].as_string()
+                query = query.where(or_(legacy, revision.in_(eligible), automatic.is_not(None)))
                 from arbbot.execution.repository import ExecutionRepository
 
                 configuration = ExecutionRepository(self.database)
@@ -449,17 +450,31 @@ class Repository:
                 current = []
                 for row in rows:
                     opportunity = Opportunity.model_validate(row.payload)
-                    if mode == "live" and any(
-                        leg.market_id.startswith("polymarket_us:") for leg in opportunity.legs
-                    ):
-                        markets = []
-                        for leg in opportunity.legs:
-                            market_row = await session.get(MarketRecord, f"{mode}:{leg.market_id}")
-                            if market_row:
-                                markets.append(restore(Market, market_row.payload))
+                    from arbbot.qualification.providers import requires_context
+                    from arbbot.qualification.service import current as qualification_current
+
+                    automatic = opportunity.qualification is not None
+                    if automatic:
+                        summary, _ = await qualification_current(
+                            session, mode, opportunity.match_id
+                        )
+                        if summary.status != "qualified" or (
+                            summary.assessment_id != opportunity.qualification.assessment_id
+                        ):
+                            continue
+                    markets = []
+                    for leg in opportunity.legs:
+                        market_row = await session.get(MarketRecord, f"{mode}:{leg.market_id}")
+                        if market_row:
+                            markets.append(restore(Market, market_row.payload))
+                    if mode == "live" and (automatic or requires_context(markets)):
                         if len(markets) != 2:
                             continue
-                        context = await configuration.context(session, mode, markets)
+                        context = await (
+                            configuration.public_context(session, mode, markets)
+                            if automatic
+                            else configuration.context(session, mode, markets)
+                        )
                         if context.blocked_reasons or (
                             opportunity.access_revision_id != context.access_revision_id
                             or opportunity.applicability_revision_ids

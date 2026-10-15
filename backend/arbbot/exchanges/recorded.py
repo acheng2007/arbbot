@@ -19,6 +19,7 @@ class RecordedExchange:
         self.journal = Path(self.recording["journal_file"])
         self.epoch, self.counts = None, {}
         self.transport = httpx.MockTransport(self.handle)
+        self.qualification_bindings = self.recording.get("qualification_bindings", {})
 
     def handle(self, request):
         if request.method != "GET":
@@ -104,8 +105,9 @@ class RecordedExchange:
 class RecordedAdapter:
     """Production adapter delegation with explicit provenance on normalized markets."""
 
-    def __init__(self, adapter):
+    def __init__(self, adapter, qualification_bindings=None):
         self.adapter = adapter
+        self.qualification_bindings = qualification_bindings or {}
 
     def __getattr__(self, name):
         return getattr(self.adapter, name)
@@ -122,6 +124,26 @@ class RecordedAdapter:
 
     async def discover(self, limit):
         return [self.normalize_market(m.raw) for m in await self.adapter.discover(limit)]
+
+    async def enrich_sources(self, market, repository, fetcher):
+        binding = self.qualification_bindings.get(market.id)
+        if not binding:
+            return await self.adapter.enrich_sources(market, repository, fetcher)
+        if market.feed_origin != "synthetic_recording":
+            raise ValueError("Recorded applicability bindings are only for synthetic contracts")
+        from arbbot.sources.fetch import EvidenceCollector
+
+        collector = EvidenceCollector(market, repository, fetcher)
+        for url in binding["specifications"]:
+            await collector.get(url, label="contract_terms")
+        return collector.finish(
+            {
+                "recorded_synthetic_instrument": market.external_id,
+                "applicability_transport": (
+                    "explicit synthetic recording binding; not a live finding"
+                ),
+            }
+        )
 
     async def fetch_book(self, market):
         book = await self.adapter.fetch_book(market)

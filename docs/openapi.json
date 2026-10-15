@@ -60,12 +60,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "kalshi",
-                    "polymarket",
-                    "polymarket_us"
-                  ],
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,63}$"
                 },
                 {
                   "type": "null"
@@ -155,12 +151,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "kalshi",
-                    "polymarket",
-                    "polymarket_us"
-                  ],
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,63}$"
                 },
                 {
                   "type": "null"
@@ -290,12 +282,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "kalshi",
-                    "polymarket",
-                    "polymarket_us"
-                  ],
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,63}$"
                 },
                 {
                   "type": "null"
@@ -425,12 +413,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "kalshi",
-                    "polymarket",
-                    "polymarket_us"
-                  ],
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,63}$"
                 },
                 {
                   "type": "null"
@@ -578,6 +562,30 @@
                 }
               ],
               "title": "Evidence"
+            }
+          },
+          {
+            "name": "qualification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "qualified",
+                    "incomplete",
+                    "incompatible",
+                    "stale",
+                    "unavailable"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Qualification"
             }
           },
           {
@@ -731,6 +739,237 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ClassificationSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matches/{match_id}/qualification": {
+      "get": {
+        "summary": "Qualification",
+        "operationId": "qualification_api_v1_matches__match_id__qualification_get",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Match Id"
+            }
+          },
+          {
+            "name": "assessment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assessment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualificationSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matches/{match_id}/qualification/history": {
+      "get": {
+        "summary": "Qualification History",
+        "operationId": "qualification_history_api_v1_matches__match_id__qualification_history_get",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Match Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Assessment"
+                  },
+                  "title": "Response Qualification History Api V1 Matches  Match Id  Qualification History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/potential-opportunities": {
+      "get": {
+        "summary": "Potential Opportunities",
+        "operationId": "potential_opportunities_api_v1_potential_opportunities_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PotentialOpportunity"
+                  },
+                  "title": "Response Potential Opportunities Api V1 Potential Opportunities Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/potential-opportunities/{potential_id}": {
+      "get": {
+        "summary": "Potential Opportunity",
+        "operationId": "potential_opportunity_api_v1_potential_opportunities__potential_id__get",
+        "parameters": [
+          {
+            "name": "potential_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Potential Id"
+            }
+          },
+          {
+            "name": "historical",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Historical"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PotentialOpportunity"
                 }
               }
             }
@@ -1980,7 +2219,7 @@
               "$ref": "#/components/schemas/Permission"
             },
             "type": "array",
-            "maxItems": 3,
+            "maxItems": 64,
             "minItems": 1,
             "title": "Permissions"
           },
@@ -2036,11 +2275,7 @@
           "permitted_venues": {
             "items": {
               "type": "string",
-              "enum": [
-                "kalshi",
-                "polymarket",
-                "polymarket_us"
-              ]
+              "pattern": "^[a-z][a-z0-9_]{0,63}$"
             },
             "type": "array",
             "title": "Permitted Venues",
@@ -2176,6 +2411,86 @@
         ],
         "title": "Applicability"
       },
+      "Assessment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "pair": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Pair"
+          },
+          "input_hash": {
+            "type": "string",
+            "title": "Input Hash"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/QualificationSummary"
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Comparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settlement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SettlementModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Inputs"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "match_id",
+          "mode",
+          "pair",
+          "input_hash",
+          "summary",
+          "started_at",
+          "inputs"
+        ],
+        "title": "Assessment"
+      },
       "Book": {
         "properties": {
           "feed_origin": {
@@ -2259,11 +2574,7 @@
         "properties": {
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "external_id": {
@@ -2350,11 +2661,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "status": {
@@ -3288,7 +3595,8 @@
             "enum": [
               "verified",
               "rejected",
-              "revoked"
+              "revoked",
+              "cleared"
             ],
             "title": "Action"
           },
@@ -3392,7 +3700,8 @@
             "enum": [
               "verified",
               "rejected",
-              "revoked"
+              "revoked",
+              "cleared"
             ],
             "title": "Action"
           },
@@ -3887,10 +4196,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "terms_hash": {
@@ -3900,10 +4206,7 @@
           },
           "formula": {
             "type": "string",
-            "enum": [
-              "kalshi_quadratic",
-              "us_standard"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Formula"
           },
           "coefficient": {
@@ -4032,10 +4335,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "terms_hash": {
@@ -4045,10 +4345,7 @@
           },
           "formula": {
             "type": "string",
-            "enum": [
-              "kalshi_quadratic",
-              "us_standard"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Formula"
           },
           "coefficient": {
@@ -4692,11 +4989,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "external_id": {
@@ -4848,11 +5141,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "external_id": {
@@ -4922,6 +5211,26 @@
       },
       "Match": {
         "properties": {
+          "qualification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QualificationSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settlement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SettlementModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "classification": {
             "anyOf": [
               {
@@ -5200,7 +5509,34 @@
             "title": "Scenario Payouts"
           },
           "review": {
-            "$ref": "#/components/schemas/Review-Output"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Review-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "qualification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QualificationSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settlement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SettlementModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "review_revision_id": {
             "anyOf": [
@@ -5249,7 +5585,6 @@
           "net_profit",
           "return_on_capital",
           "scenario_payouts",
-          "review",
           "assumptions"
         ],
         "title": "Opportunity"
@@ -5293,11 +5628,7 @@
         "properties": {
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "market_ids": {
@@ -5332,6 +5663,217 @@
           "fee_account_class"
         ],
         "title": "Permission"
+      },
+      "PotentialOpportunity": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "simulation",
+              "live"
+            ],
+            "title": "Mode"
+          },
+          "feed_origin": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "synthetic_recording",
+              "recorded_exchange"
+            ],
+            "title": "Feed Origin"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Evaluated At"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid Until"
+          },
+          "market_ids": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Market Ids"
+          },
+          "book_ids": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Book Ids"
+          },
+          "terms_hashes": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Terms Hashes"
+          },
+          "fee_revision_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fee Revision Ids",
+            "default": []
+          },
+          "outcomes": {
+            "prefixItems": [
+              {
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no"
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Outcomes"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Quantity"
+          },
+          "acquisition_cost": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Acquisition Cost"
+          },
+          "ordinary_payout_assumption": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Ordinary Payout Assumption"
+          },
+          "gross_spread": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Gross Spread"
+          },
+          "fee_bound": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee Bound"
+          },
+          "estimated_net_spread": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Net Spread"
+          },
+          "capital_required": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capital Required"
+          },
+          "qualification": {
+            "$ref": "#/components/schemas/QualificationSummary"
+          },
+          "unresolved_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unresolved Reasons"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions",
+            "default": [
+              "Assumes complementary ordinary outcomes; exceptional settlement is not qualified.",
+              "Account access, balances, borrowing, and account-specific costs are unverified.",
+              "Both legs must fill; this gap is not a guaranteed payout or qualified profit."
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "match_id",
+          "mode",
+          "feed_origin",
+          "evaluated_at",
+          "valid_until",
+          "market_ids",
+          "book_ids",
+          "terms_hashes",
+          "outcomes",
+          "quantity",
+          "acquisition_cost",
+          "ordinary_payout_assumption",
+          "gross_spread",
+          "qualification",
+          "unresolved_reasons"
+        ],
+        "title": "PotentialOpportunity",
+        "description": "A conditional price gap, never a settlement-qualified opportunity."
       },
       "PriceBand": {
         "properties": {
@@ -5402,6 +5944,105 @@
           "audit_id"
         ],
         "title": "Principal"
+      },
+      "QualificationSummary": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "qualified",
+              "incomplete",
+              "incompatible",
+              "stale",
+              "unavailable"
+            ],
+            "title": "Status",
+            "default": "pending"
+          },
+          "basis": {
+            "type": "string",
+            "const": "automatic_rules",
+            "title": "Basis",
+            "default": "automatic_rules"
+          },
+          "assessment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessment Id"
+          },
+          "input_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Hash"
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Version"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "blocked_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blocked Reasons",
+            "default": []
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Ids",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "QualificationSummary"
       },
       "Review-Input": {
         "properties": {
@@ -5933,6 +6574,84 @@
         ],
         "title": "SettlementMapping"
       },
+      "SettlementModel": {
+        "properties": {
+          "left_id": {
+            "type": "string",
+            "title": "Left Id"
+          },
+          "right_id": {
+            "type": "string",
+            "title": "Right Id"
+          },
+          "left_terms_hash": {
+            "type": "string",
+            "title": "Left Terms Hash"
+          },
+          "right_terms_hash": {
+            "type": "string",
+            "title": "Right Terms Hash"
+          },
+          "left_definition_hash": {
+            "type": "string",
+            "title": "Left Definition Hash"
+          },
+          "right_definition_hash": {
+            "type": "string",
+            "title": "Right Definition Hash"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/Scenario-Output"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          },
+          "settlement_mappings": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementMapping"
+            },
+            "type": "array",
+            "title": "Settlement Mappings",
+            "default": []
+          },
+          "joint_settlement_cases": {
+            "items": {
+              "$ref": "#/components/schemas/JointSettlementCase"
+            },
+            "type": "array",
+            "title": "Joint Settlement Cases",
+            "default": []
+          },
+          "left_costs": {
+            "$ref": "#/components/schemas/CostPolicy-Output"
+          },
+          "right_costs": {
+            "$ref": "#/components/schemas/CostPolicy-Output"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left_id",
+          "right_id",
+          "left_terms_hash",
+          "right_terms_hash",
+          "left_definition_hash",
+          "right_definition_hash",
+          "expires_at",
+          "scenarios",
+          "left_costs",
+          "right_costs"
+        ],
+        "title": "SettlementModel",
+        "description": "Calculation inputs established by rules, without human approval provenance."
+      },
       "SettlementPolicy-Input": {
         "properties": {
           "kind": {
@@ -6100,11 +6819,7 @@
           },
           "venue": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Venue"
           },
           "mode": {
@@ -6384,11 +7099,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "enum": [
-              "kalshi",
-              "polymarket",
-              "polymarket_us"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
             "title": "Id"
           },
           "name": {

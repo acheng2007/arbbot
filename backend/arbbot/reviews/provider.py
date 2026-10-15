@@ -45,6 +45,10 @@ class ReviewProvider:
 
 
 async def refresh_match(reviews, session, mode, match, *, allow_file_reviews=False):
+    if match.qualification is not None:
+        from arbbot.qualification.service import refresh_match as automatic_match
+
+        return await automatic_match(session, match)
     if match.status != "verified":
         return match
     if match.review_revision_id:
@@ -69,6 +73,41 @@ async def refresh_match(reviews, session, mode, match, *, allow_file_reviews=Fal
 
 
 async def guard_publication(database, session, mode, matches, evaluations):
+    from arbbot.qualification.service import current
+
+    automatic = any(o.qualification is not None for r in evaluations for o in r.opportunities)
+    if automatic and database.engine.dialect.name == "sqlite":
+        await session.execute(text("BEGIN IMMEDIATE"))
+    for result in evaluations:
+        retained = []
+        for opportunity in result.opportunities:
+            if opportunity.qualification is not None:
+                summary, assessment = await current(session, mode, result.match_id, lock=True)
+                if (
+                    summary.status != "qualified"
+                    or not assessment
+                    or summary.assessment_id != opportunity.qualification.assessment_id
+                    or opportunity.settlement != assessment.settlement
+                    or tuple(leg.market_id for leg in opportunity.legs) != assessment.pair
+                ):
+                    continue
+            retained.append(opportunity)
+        if len(retained) != len(result.opportunities):
+            evaluations = [
+                r.model_copy(
+                    update={
+                        "opportunities": tuple(retained),
+                        "status": "invalid",
+                        "blocked_reasons": (
+                            *r.blocked_reasons,
+                            "qualification_changed_before_publication",
+                        ),
+                    }
+                )
+                if r.match_id == result.match_id
+                else r
+                for r in evaluations
+            ]
     positive_ids = {result.match_id for result in evaluations if result.opportunities}
     guarded = [
         match
@@ -77,7 +116,7 @@ async def guard_publication(database, session, mode, matches, evaluations):
     ]
     if not guarded:
         return matches, evaluations
-    if database.engine.dialect.name == "sqlite":
+    if database.engine.dialect.name == "sqlite" and not automatic:
         await session.execute(text("BEGIN IMMEDIATE"))
     # Review, draft, source and market mutations all serialize through these rows.
     for market_id in sorted({m for match in guarded for m in (match.left_id, match.right_id)}):

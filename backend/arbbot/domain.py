@@ -6,15 +6,34 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Annotated, Literal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field, model_validator
+from pydantic import (
+    AfterValidator,
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    model_validator,
+)
 
 from arbbot.matching.classification_models import ClassificationSummary
 from arbbot.matching.contracts import Comparison
+from arbbot.qualification.summary import QualificationSummary
 
 NonNegative = Annotated[Decimal, Field(ge=0, allow_inf_nan=False)]
 Positive = Annotated[Decimal, Field(gt=0, allow_inf_nan=False)]
 Probability = Annotated[Decimal, Field(ge=0, le=1, allow_inf_nan=False)]
-Venue = Literal["kalshi", "polymarket", "polymarket_us"]
+
+
+def registered_venue(value):
+    from arbbot.venues import VENUES
+
+    if value not in VENUES:
+        raise ValueError("Venue must be registered")
+    return value
+
+
+Venue = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]{0,63}$"), AfterValidator(registered_venue)]
 Mode = Literal["simulation", "live"]
 Outcome = Literal["yes", "no"]
 
@@ -180,7 +199,7 @@ class MarketHealth(Model):
 
 
 class CostPolicy(Model):
-    # Reviewed conservative fee envelope, not a hard-coded exchange fee schedule.
+    # Legacy conservative envelope; automatic estimates require separate public fee policies.
     fee_per_contract: NonNegative
     fixed_fee: NonNegative
     min_order_size: Positive
@@ -265,6 +284,23 @@ class JointSettlementCase(Model):
         return self
 
 
+class SettlementModel(Model):
+    """Calculation inputs established by rules, without human approval provenance."""
+
+    left_id: str
+    right_id: str
+    left_terms_hash: str
+    right_terms_hash: str
+    left_definition_hash: str
+    right_definition_hash: str
+    expires_at: AwareDatetime
+    scenarios: tuple[Scenario, ...]
+    settlement_mappings: tuple[SettlementMapping, ...] = ()
+    joint_settlement_cases: tuple[JointSettlementCase, ...] = ()
+    left_costs: CostPolicy
+    right_costs: CostPolicy
+
+
 class Review(Model):
     left_id: str
     right_id: str
@@ -298,6 +334,8 @@ class Review(Model):
 
 
 class Match(Model):
+    qualification: QualificationSummary | None = None
+    settlement: SettlementModel | None = None
     classification: ClassificationSummary | None = None
     ai_only: bool = False
     feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
@@ -370,7 +408,9 @@ class Opportunity(Model):
     net_profit: Positive
     return_on_capital: Positive
     scenario_payouts: dict[str, Decimal]
-    review: Review
+    review: Review | None = None
+    qualification: QualificationSummary | None = None
+    settlement: SettlementModel | None = None
     review_revision_id: str | None = None
     comparison: Comparison | None = None
     assumptions: tuple[str, ...]
@@ -421,3 +461,36 @@ def restore(model, payload):
     return model.model_validate(
         {k: v for k, v in payload.items() if k not in model.model_computed_fields}
     )
+
+
+POTENTIAL_ASSUMPTIONS = (
+    "Assumes complementary ordinary outcomes; exceptional settlement is not qualified.",
+    "Account access, balances, borrowing, and account-specific costs are unverified.",
+    "Both legs must fill; this gap is not a guaranteed payout or qualified profit.",
+)
+
+
+class PotentialOpportunity(Model):
+    """A conditional price gap, never a settlement-qualified opportunity."""
+
+    id: str
+    match_id: str
+    mode: Mode
+    feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"]
+    evaluated_at: AwareDatetime
+    valid_until: AwareDatetime
+    market_ids: tuple[str, str]
+    book_ids: tuple[str, str]
+    terms_hashes: tuple[str, str]
+    fee_revision_ids: tuple[str, ...] = ()
+    outcomes: tuple[Outcome, Outcome]
+    quantity: Positive
+    acquisition_cost: NonNegative
+    ordinary_payout_assumption: Positive
+    gross_spread: Positive
+    fee_bound: NonNegative | None = None
+    estimated_net_spread: Decimal | None = None
+    capital_required: Positive | None = None
+    qualification: QualificationSummary
+    unresolved_reasons: tuple[str, ...]
+    assumptions: tuple[str, ...] = POTENTIAL_ASSUMPTIONS

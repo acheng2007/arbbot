@@ -70,3 +70,11 @@ Existing database reviews and financial gates retain authority.
 SQLite and PostgreSQL each passed 526 tests; connected recorded acceptance passed all six desktop/mobile browser tests.
 See [the Jev handoff](jev-handoff.md) for configuration, evidence, coverage limitations, and the absent OpenRouter key.
 Next action: configure the backend OpenRouter key and collect the documented 30-pair live benchmark results.
+
+## October 14 automatic qualification
+
+The live backend/API now qualifies supported evidence automatically and publishes potential price gaps separately, without required human review or account setup.
+Versioned platform capabilities, immutable assessments, durable scheduling, public fee refresh, exact publication guards, API/history/filtering, and generated contracts are implemented.
+Historical review workflows remain readable, and explicit operator vetoes can be cleared without an approval payload.
+See [the automatic qualification handoff](automatic-qualification-handoff.md) for verification and the limited authentic source-language/applicability coverage.
+Next action: extend production applicability and source parsers using authentic captured documents to increase automatic qualification coverage.

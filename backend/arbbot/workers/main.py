@@ -59,7 +59,10 @@ async def run(once=False):
                 ):
                     adapters = build_adapters(client, settings, once)
                     if recording:
-                        adapters = [RecordedAdapter(adapter) for adapter in adapters]
+                        adapters = [
+                            RecordedAdapter(adapter, recording.qualification_bindings)
+                            for adapter in adapters
+                        ]
                     source_fetcher = SourceFetcher(
                         transport=recording.transport if recording else None,
                         ttl=0 if recording else 300,

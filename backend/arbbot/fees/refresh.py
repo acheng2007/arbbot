@@ -5,6 +5,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 from decimal import Decimal
+from types import SimpleNamespace
 from urllib.parse import quote
 
 from arbbot.domain import digest, utcnow
@@ -113,9 +114,22 @@ class FeeRefresh:
         # Only approved installation products need fee work; bounded by monitoring budget.
         async with self.repository.database.sessions() as session:
             access = await self.configuration.current(session, "live:access:installation")
-        if not access or access.value.status != "verified" or access.value.expires_at <= utcnow():
+        from arbbot.qualification.providers import capabilities
+
+        if self.settings.automatic_qualification:
+            permissions = {
+                venue: SimpleNamespace(
+                    venue=venue,
+                    market_ids=tuple(m.id for m in markets if m.venue == venue),
+                    fee_account_class=cap.fee_account_class,
+                )
+                for venue in self.adapters
+                if (cap := capabilities(venue)) and cap.fee_account_class
+            }
+        elif access and access.value.status == "verified" and access.value.expires_at > utcnow():
+            permissions = {p.venue: p for p in access.value.permissions}
+        else:
             return
-        permissions = {p.venue: p for p in access.value.permissions}
         selected = []
         from arbbot.storage.models import DiscoveryProgressRecord
 
@@ -144,7 +158,11 @@ class FeeRefresh:
         async def refresh_one(market, permission):
             async with semaphore:
                 try:
-                    await self._refresh_market(market, permission)
+                    cap = capabilities(market.venue)
+                    if cap and cap.fee_refresh:
+                        await cap.fee_refresh(self, market, permission)
+                    else:
+                        await self._refresh_market(market, permission)
                 except Exception as exc:
                     logger.warning(
                         "fee_refresh_unavailable",

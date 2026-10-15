@@ -85,7 +85,7 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
               <div className="space-y-7">
                 <header className="space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <MatchStatusBadge status={match.status} />
+                    <MatchStatusBadge status={match.status} qualification={match.qualification} />
                     {match.comparison && (
                       <ComparisonStatusBadge status={match.comparison.status} />
                     )}

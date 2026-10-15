@@ -95,9 +95,12 @@ class ExecutionRepository:
                     source = artifact(row)
                     from urllib.parse import urlsplit
 
+                    from arbbot.qualification.providers import registered_source_hosts
                     from arbbot.sources.fetch import ALLOWED_HOSTS
 
-                    if mode == "live" and urlsplit(str(source.url)).hostname not in ALLOWED_HOSTS:
+                    if mode == "live" and urlsplit(str(source.url)).hostname not in (
+                        ALLOWED_HOSTS | registered_source_hosts()
+                    ):
                         issues.append("configuration_source_host_unverified")
                     if source.content_digest != citation.content_hash:
                         issues.append("configuration_source_hash_changed")
@@ -319,6 +322,63 @@ class ExecutionRepository:
             fee_revision_ids=tuple(fee_ids),
             policies=tuple(policies),
             blocked_reasons=tuple(reasons),
+            valid_until=min(deadlines) if deadlines else None,
+            short_allowed_market_ids=tuple(shorts),
+        )
+
+    async def public_context(self, session, mode, markets, *, lock=False):
+        """Public conditional calculation, with no assertion of account permission."""
+        from arbbot.qualification.providers import capabilities
+
+        now, policies, fee_ids, deadlines, reasons, shorts = utcnow(), [], [], [], [], []
+        assumptions = [
+            "Account access, balances, borrowing availability and account limits are unverified.",
+            "Public fee classes are assumptions; account-specific surcharges are unverified.",
+        ]
+        access = await self.current(session, f"{mode}:access:installation", lock=lock)
+        if access and (access.value.status == "restricted" or access.value.expires_at <= now):
+            assumptions.append("Installation access is restricted or expired; not user-executable.")
+        for market in markets:
+            cap = capabilities(market.venue)
+            if not cap:
+                reasons.append(f"unsupported_execution_provider:{market.venue}")
+                continue
+            reasons.extend(f"{issue}:{market.id}" for issue in cap.execution_issues(market))
+            if market.execution_semantics and (
+                market.execution_semantics.no_action == "short_instrument"
+            ):
+                shorts.append(market.id)
+                assumptions.append(f"Short availability is assumed for {market.id}.")
+            fee = await self.current(session, f"{mode}:fees:{market.id}", lock=lock)
+            if (
+                not fee
+                or fee.value.kind != "fees"
+                or (
+                    fee.value.terms_hash != market.terms_hash
+                    or not fee.value.effective_at <= now < fee.value.expires_at
+                    or fee.value.observed_at > now
+                    or fee.value.account_class != cap.fee_account_class
+                )
+            ):
+                reasons.append(f"fee_policy_unavailable:{market.id}")
+                continue
+            issues = await self.reviews._source_issues(
+                session,
+                market,
+                tuple(c.artifact_id for c in (fee.value.source, *fee.value.supporting_sources)),
+                lock=lock,
+            )
+            reasons.extend(issues)
+            policies.append(fee.value)
+            fee_ids.append(fee.id)
+            deadlines.append(fee.value.expires_at)
+            assumptions.append(f"Public fee class {fee.value.account_class} for {market.venue}.")
+        return ExecutionContext(
+            public_discovery=True,
+            assumptions=tuple(assumptions),
+            policies=tuple(policies),
+            fee_revision_ids=tuple(fee_ids),
+            blocked_reasons=tuple(sorted(set(reasons))),
             valid_until=min(deadlines) if deadlines else None,
             short_allowed_market_ids=tuple(shorts),
         )

@@ -15,7 +15,7 @@ export type AccessProfile = {
 export type AccessSummary = {
   status: "unknown" | "verified" | "restricted" | "expired";
   revision_id?: string | null;
-  permitted_venues?: Array<"kalshi" | "polymarket" | "polymarket_us">;
+  permitted_venues?: Array<string>;
   expires_at?: string | null;
 };
 
@@ -38,6 +38,19 @@ export type Applicability = {
   expires_at: string;
 };
 
+export type Assessment = {
+  id: string;
+  match_id: string;
+  mode: string;
+  pair: [string, string];
+  input_hash: string;
+  summary: QualificationSummary;
+  comparison?: Comparison | null;
+  settlement?: SettlementModel | null;
+  started_at: string;
+  inputs: Partial<Record<string, unknown>>;
+};
+
 export type Book = {
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   market_id: string;
@@ -51,7 +64,7 @@ export type Book = {
 };
 
 export type CatalogObservation = {
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   external_id: string;
   observation_id: string;
   market_id: string | null;
@@ -65,7 +78,7 @@ export type CatalogReport = {
   discovery_mode?: "focused" | "broad";
   query_scope?: string | null;
   mode: "simulation" | "live";
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   status: "ready" | "degraded" | "failed" | "stale";
   started_at: string;
   completed_at: string;
@@ -247,7 +260,7 @@ export type DecisionRevision = {
   right_id: string;
   left_draft_id: string;
   right_draft_id: string;
-  action: "verified" | "rejected" | "revoked";
+  action: "verified" | "rejected" | "revoked" | "cleared";
   reason: string;
   review: Review | null;
   actor: Actor;
@@ -264,7 +277,7 @@ export type DecisionWrite = {
   expected_revision_id?: string | null;
   left_draft_id: string;
   right_draft_id: string;
-  action: "verified" | "rejected" | "revoked";
+  action: "verified" | "rejected" | "revoked" | "cleared";
   reason: string;
   review?: ReviewInput | null;
 };
@@ -345,9 +358,9 @@ export type EvidenceSpan = {
 export type ExecutableFeePolicyInput = {
   kind?: "fees";
   market_id: string;
-  venue: "kalshi" | "polymarket_us";
+  venue: string;
   terms_hash: string;
-  formula: "kalshi_quadratic" | "us_standard";
+  formula: string;
   coefficient: number | DecimalString;
   minimum_execution_quantity?: number | DecimalString | null;
   balance_precision?: "0.0001" | "0.01" | null;
@@ -364,9 +377,9 @@ export type ExecutableFeePolicyInput = {
 export type ExecutableFeePolicy = {
   kind?: "fees";
   market_id: string;
-  venue: "kalshi" | "polymarket_us";
+  venue: string;
   terms_hash: string;
-  formula: "kalshi_quadratic" | "us_standard";
+  formula: string;
   coefficient: DecimalString;
   minimum_execution_quantity?: DecimalString | null;
   balance_precision?: "0.0001" | "0.01" | null;
@@ -497,7 +510,7 @@ export type Market = {
   source_revision?: number;
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   external_id: string;
   mode: "simulation" | "live";
   title: string;
@@ -519,7 +532,7 @@ export type MarketSummary = {
   ingestion_issues?: Array<string>;
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   external_id: string;
   mode: "simulation" | "live";
   title: string;
@@ -531,6 +544,8 @@ export type MarketSummary = {
 };
 
 export type Match = {
+  qualification?: QualificationSummary | null;
+  settlement?: SettlementModel | null;
   classification?: ClassificationSummary | null;
   ai_only?: boolean;
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
@@ -570,7 +585,9 @@ export type Opportunity = {
   net_profit: DecimalString;
   return_on_capital: DecimalString;
   scenario_payouts: Partial<Record<string, DecimalString>>;
-  review: Review;
+  review?: Review | null;
+  qualification?: QualificationSummary | null;
+  settlement?: SettlementModel | null;
   review_revision_id?: string | null;
   comparison?: Comparison | null;
   assumptions: Array<string>;
@@ -584,10 +601,34 @@ export type OpportunityState = {
 };
 
 export type Permission = {
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   market_ids: Array<string>;
   short_allowed: boolean;
   fee_account_class: "direct" | "non_direct" | "standard";
+};
+
+export type PotentialOpportunity = {
+  id: string;
+  match_id: string;
+  mode: "simulation" | "live";
+  feed_origin: "exchange" | "synthetic_recording" | "recorded_exchange";
+  evaluated_at: string;
+  valid_until: string;
+  market_ids: [string, string];
+  book_ids: [string, string];
+  terms_hashes: [string, string];
+  fee_revision_ids?: Array<string>;
+  outcomes: ["yes" | "no", "yes" | "no"];
+  quantity: DecimalString;
+  acquisition_cost: DecimalString;
+  ordinary_payout_assumption: DecimalString;
+  gross_spread: DecimalString;
+  fee_bound?: DecimalString | null;
+  estimated_net_spread?: DecimalString | null;
+  capital_required?: DecimalString | null;
+  qualification: QualificationSummary;
+  unresolved_reasons: Array<string>;
+  assumptions?: Array<string>;
 };
 
 export type PriceBand = {
@@ -602,6 +643,24 @@ export type Principal = {
   client_id: string;
   roles: Array<"viewer" | "reviewer">;
   audit_id: string;
+};
+
+export type QualificationSummary = {
+  status?:
+    | "pending"
+    | "qualified"
+    | "incomplete"
+    | "incompatible"
+    | "stale"
+    | "unavailable";
+  basis?: "automatic_rules";
+  assessment_id?: string | null;
+  input_hash?: string | null;
+  policy_version?: string | null;
+  completed_at?: string | null;
+  expires_at?: string | null;
+  blocked_reasons?: Array<string>;
+  evidence_ids?: Array<string>;
 };
 
 export type ReviewInput = {
@@ -683,6 +742,21 @@ export type SettlementMapping = {
   scenarios: Array<string>;
 };
 
+export type SettlementModel = {
+  left_id: string;
+  right_id: string;
+  left_terms_hash: string;
+  right_terms_hash: string;
+  left_definition_hash: string;
+  right_definition_hash: string;
+  expires_at: string;
+  scenarios: Array<Scenario>;
+  settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
+  left_costs: CostPolicy;
+  right_costs: CostPolicy;
+};
+
 export type SettlementPolicyInput = {
   kind: "cancellation" | "fallback" | "ambiguous_resolution";
   status: "modeled" | "not_applicable" | "unknown";
@@ -711,7 +785,7 @@ export type SignedCalculation = {
 
 export type SourceArtifactSummary = {
   id: string;
-  venue: "kalshi" | "polymarket" | "polymarket_us";
+  venue: string;
   mode: "simulation" | "live";
   market_id: string;
   url: string;
@@ -765,7 +839,7 @@ export type ValidationError = {
 };
 
 export type VenueInfo = {
-  id: "kalshi" | "polymarket" | "polymarket_us";
+  id: string;
   name: string;
   enabled: boolean;
   evaluation_enabled: boolean;
@@ -790,7 +864,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      venue?: string | null;
       supported?: boolean | null;
     };
     response: Array<CatalogObservation>;
@@ -803,7 +877,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      venue?: string | null;
       status?: "open" | "closed" | null;
       category?: string | null;
       q?: string | null;
@@ -818,7 +892,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      venue?: string | null;
       status?: "open" | "closed" | null;
       family?: string | null;
       q?: string | null;
@@ -833,7 +907,7 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | "polymarket_us" | null;
+      venue?: string | null;
       status?: "candidate" | "verified" | "rejected" | null;
       family?: string | null;
       q?: string | null;
@@ -842,6 +916,14 @@ export interface ApiOperations {
       market_status?: "open" | "closed" | null;
       exclude_rejected?: boolean;
       evidence?: "complete" | "incomplete" | null;
+      qualification?:
+        | "pending"
+        | "qualified"
+        | "incomplete"
+        | "incompatible"
+        | "stale"
+        | "unavailable"
+        | null;
       classification?:
         | "suggested"
         | "fresh"
@@ -876,6 +958,54 @@ export interface ApiOperations {
       run_id?: string | null;
     };
     response: ClassificationSummary;
+  };
+  qualification: {
+    route: "/api/v1/matches/{match_id}/qualification";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      assessment_id?: string | null;
+    };
+    response: QualificationSummary;
+  };
+  qualificationHistory: {
+    route: "/api/v1/matches/{match_id}/qualification/history";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<Assessment>;
+  };
+  potentialOpportunities: {
+    route: "/api/v1/potential-opportunities";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<PotentialOpportunity>;
+  };
+  potentialOpportunity: {
+    route: "/api/v1/potential-opportunities/{potential_id}";
+    method: "GET";
+    body: never;
+    params: {
+      potential_id: string;
+    };
+    query: {
+      historical?: boolean;
+    };
+    response: PotentialOpportunity;
   };
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources";
@@ -1196,6 +1326,7 @@ export const API_OPERATIONS = {
       "market_status",
       "exclude_rejected",
       "evidence",
+      "qualification",
       "classification",
       "market_id",
     ],
@@ -1211,6 +1342,30 @@ export const API_OPERATIONS = {
     method: "GET",
     params: ["match_id"],
     query: ["run_id"],
+  },
+  qualification: {
+    route: "/api/v1/matches/{match_id}/qualification",
+    method: "GET",
+    params: ["match_id"],
+    query: ["assessment_id"],
+  },
+  qualificationHistory: {
+    route: "/api/v1/matches/{match_id}/qualification/history",
+    method: "GET",
+    params: ["match_id"],
+    query: ["limit", "offset"],
+  },
+  potentialOpportunities: {
+    route: "/api/v1/potential-opportunities",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset"],
+  },
+  potentialOpportunity: {
+    route: "/api/v1/potential-opportunities/{potential_id}",
+    method: "GET",
+    params: ["potential_id"],
+    query: ["historical"],
   },
   sourceHistory: {
     route: "/api/v1/markets/{market_id}/sources",

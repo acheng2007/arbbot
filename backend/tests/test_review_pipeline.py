@@ -363,3 +363,48 @@ async def test_new_unsupported_catalog_observation_withdraws_cached_estimate(rev
         adapter = KalshiAdapter(ExchangeHTTP(source, interval=0), pipeline.settings)
         await CatalogInventory(pipeline.settings, pipeline.repository).scan(adapter)
     assert (await client.get("/api/v1/opportunities")).json() == []
+
+
+@pytest.mark.parametrize("action", ["rejected", "revoked"])
+async def test_explicit_operator_veto_survives_automatic_mode(reviewed_pipeline, action):
+    from arbbot.qualification.service import refresh_match
+
+    pipeline, reviews, request, _, _, _, _ = reviewed_pipeline
+    if action == "revoked":
+        previous = await reviews.save_decision("live", request, ACTOR)
+        request = request.model_copy(update={"expected_revision_id": previous.id})
+    decision = await reviews.save_decision(
+        "live", request.model_copy(update={"action": action, "review": None}), ACTOR
+    )
+    pipeline.settings = pipeline.settings.model_copy(update={"automatic_qualification": True})
+    markets = [(await adapter.discover(1))[0] for adapter in pipeline.adapters]
+    matches = await pipeline.match_catalog(markets)
+    assert matches and matches[0].status == "rejected"
+    assert matches[0].qualification.blocked_reasons == ("explicit_operator_veto",)
+    async with reviews.database.sessions() as session:
+        assert (await refresh_match(session, matches[0])).status == "rejected"
+    assert decision.action == action
+
+
+async def test_veto_can_be_cleared_without_a_human_approval_payload(reviewed_pipeline):
+    pipeline, reviews, request, _, _, _, _ = reviewed_pipeline
+    rejected = await reviews.save_decision(
+        "live", request.model_copy(update={"action": "rejected", "review": None}), ACTOR
+    )
+    cleared = await reviews.save_decision(
+        "live",
+        request.model_copy(
+            update={
+                "expected_revision_id": rejected.id,
+                "action": "cleared",
+                "review": None,
+            }
+        ),
+        ACTOR,
+    )
+    assert cleared.action == "cleared" and cleared.review is None
+    pipeline.settings = pipeline.settings.model_copy(update={"automatic_qualification": True})
+    markets = [(await adapter.discover(1))[0] for adapter in pipeline.adapters]
+    matches = await pipeline.match_catalog(markets)
+    assert matches and matches[0].status != "rejected"
+    assert "explicit_operator_veto" not in matches[0].qualification.blocked_reasons

@@ -8,6 +8,7 @@ from time import monotonic
 import httpx
 
 from arbbot.domain import utcnow
+from arbbot.qualification.providers import registered_source_hosts
 from arbbot.sources.models import MAX_CONTENT_BYTES, SourceCapture, SourceFailure
 from arbbot.sources.text import derive_text
 
@@ -56,7 +57,7 @@ class SourceFetcher:
             raise EvidenceError("invalid_source_url") from exc
         if (
             parsed.scheme != "https"
-            or parsed.host not in ALLOWED_HOSTS
+            or parsed.host not in (ALLOWED_HOSTS | registered_source_hosts())
             or parsed.port not in (None, 443)
             or parsed.userinfo
             or parsed.query

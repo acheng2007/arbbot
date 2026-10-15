@@ -16,6 +16,7 @@ from arbbot.fees.executable import fee_bound
 from arbbot.fees.models import Fill
 from arbbot.matching.contracts import compare_contracts
 from arbbot.matching.settlement import settlement_issues
+from arbbot.qualification.providers import is_short, native_price, requires_context
 from arbbot.quality import book_issue
 
 ZERO = Decimal(0)
@@ -64,20 +65,31 @@ def evaluate(
     execution=None,
 ) -> Evaluation:
     reasons = []
-    review = match.review
-    if match.status != "verified" or review is None or review.status != "verified":
+    automatic = match.qualification is not None
+    review = match.settlement if automatic else match.review
+    live_context = match.mode == "live" and (automatic or requires_context((left, right)))
+    if (
+        match.status != "verified"
+        or review is None
+        or (automatic and match.qualification.status != "qualified")
+        or (not automatic and review.status != "verified")
+    ):
         reasons.append("settlement_equivalence_unverified")
     elif (
         review.expires_at <= now
         or review.left_terms_hash != left.terms_hash
         or review.right_terms_hash != right.terms_hash
     ):
-        reasons.append("review_invalid_or_expired")
+        reasons.append(
+            "qualification_invalid_or_expired" if automatic else "review_invalid_or_expired"
+        )
     if match.mode == "live":
-        if any(m.venue == "polymarket_us" for m in (left, right)):
+        if live_context:
             if execution is None:
                 reasons.extend(
-                    (
+                    ("public_execution_context_unavailable", "fee_policy_unavailable")
+                    if automatic
+                    else (
                         "installation_access_unknown",
                         "source_applicability_unverified",
                         "fee_policy_unavailable",
@@ -94,7 +106,7 @@ def evaluate(
                     reasons.append("fee_policy_identity_mismatch")
                 if len(execution.policies) != 2:
                     reasons.append("fee_policy_unavailable")
-        if any(m.venue == "polymarket_us" for m in (left, right)):
+        if live_context:
             for market in (left, right):
                 if market.instrument_constraints is None or market.execution_semantics is None:
                     reasons.append(f"native_constraints_unverified:{market.id}")
@@ -102,8 +114,8 @@ def evaluate(
                     reasons.append(f"unsupported_unit_payout:{market.id}")
                 semantics = market.execution_semantics
                 if (
-                    market.venue == "polymarket_us"
-                    and semantics
+                    semantics
+                    and semantics.no_action == "short_instrument"
                     and (
                         semantics.yes_action != "buy_instrument"
                         or semantics.no_action != "short_instrument"
@@ -124,7 +136,12 @@ def evaluate(
             match.comparison.left if match.comparison else None,
             match.comparison.right if match.comparison else None,
         )
-        reasons.extend(settlement_issues(review, comparison.left, comparison.right))
+        reasons.extend(
+            "settlement_model_unavailable"
+            if automatic and issue == "settlement_payouts_unreviewed"
+            else issue
+            for issue in settlement_issues(review, comparison.left, comparison.right)
+        )
         if (
             comparison.status != "compatible"
             or review is None
@@ -176,11 +193,10 @@ def evaluate(
     opportunities = []
     best_calculation = None
     unavailable_fees = False
-    live_us = match.mode == "live" and any(m.venue == "polymarket_us" for m in (left, right))
     for sides in (("yes", "no"), ("no", "yes")):
-        if live_us and any(
+        if live_context and any(
             side == "no"
-            and market.venue == "polymarket_us"
+            and is_short(market, side)
             and market.id not in execution.short_allowed_market_ids
             for market, side in zip((left, right), sides, strict=True)
         ):
@@ -206,7 +222,7 @@ def evaluate(
             if any(f[0] < p.min_notional for f, p in zip(fills, policies, strict=True)):
                 continue
             constraints = [m.instrument_constraints for m in (left, right)]
-            if live_us and any(c is None for c in constraints):
+            if live_context and any(c is None for c in constraints):
                 continue
             if any(
                 c
@@ -216,9 +232,7 @@ def evaluate(
                     or any(
                         not valid_price(
                             c,
-                            1 - level.price
-                            if market.venue == "polymarket_us" and side == "no"
-                            else level.price,
+                            native_price(market, side, level.price),
                         )
                         for level in ladder
                     )
@@ -235,7 +249,7 @@ def evaluate(
                 )
                 for p in policies
             ]
-            if live_us:
+            if live_context:
                 fees = [
                     fee_bound(p, consume(ladder, quantity), now)
                     for p, ladder in zip(execution.policies, ladders, strict=True)
@@ -251,9 +265,7 @@ def evaluate(
             # displayed depth implies a lower volume-weighted acquisition cost.
             capital = (
                 sum(
-                    quantity
-                    * (Decimal(1) if market.venue == "polymarket_us" and side == "no" else f[1])
-                    * p.cost_fx
+                    quantity * (Decimal(1) if is_short(market, side) else f[1]) * p.cost_fx
                     for market, side, f, p in zip(
                         (left, right), sides, fills, policies, strict=True
                     )
@@ -296,17 +308,11 @@ def evaluate(
                     )
                     if market.execution_semantics
                     else None,
-                    native_price=1 - f[1]
-                    if market.venue == "polymarket_us" and side == "no"
-                    else f[1],
-                    short_proceeds=quantity - f[0]
-                    if market.venue == "polymarket_us" and side == "no"
-                    else ZERO,
-                    gross_collateral=quantity
-                    if market.venue == "polymarket_us" and side == "no"
-                    else ZERO,
+                    native_price=native_price(market, side, f[1]),
+                    short_proceeds=quantity - f[0] if is_short(market, side) else ZERO,
+                    gross_collateral=quantity if is_short(market, side) else ZERO,
                     net_buying_power=quantity * f[1] + fee,
-                    fee_policy_id=execution.fee_revision_ids[index] if live_us else None,
+                    fee_policy_id=execution.fee_revision_ids[index] if live_context else None,
                 )
                 for index, (market, side, book, f, cost, fee) in enumerate(
                     zip((left, right), sides, (a, b), fills, costs, fees, strict=True)
@@ -341,9 +347,11 @@ def evaluate(
                 ),
                 match_id=match.id,
                 review_revision_id=match.review_revision_id,
-                access_revision_id=execution.access_revision_id if live_us else None,
-                applicability_revision_ids=execution.applicability_revision_ids if live_us else (),
-                fee_revision_ids=execution.fee_revision_ids if live_us else (),
+                access_revision_id=execution.access_revision_id if live_context else None,
+                applicability_revision_ids=execution.applicability_revision_ids
+                if live_context
+                else (),
+                fee_revision_ids=execution.fee_revision_ids if live_context else (),
                 mode=match.mode,
                 feed_origin=match.feed_origin,
                 classification="simulation"
@@ -357,7 +365,7 @@ def evaluate(
                     left.closes_at,
                     right.closes_at,
                     review.expires_at,
-                    execution.valid_until if live_us else review.expires_at,
+                    execution.valid_until if live_context else review.expires_at,
                 ),
                 quantity=quantity,
                 legs=legs,
@@ -369,15 +377,17 @@ def evaluate(
                 net_profit=profit,
                 return_on_capital=profit / capital,
                 scenario_payouts=payouts,
-                review=review,
+                review=None if automatic else review,
+                settlement=review if automatic else None,
+                qualification=match.qualification,
                 comparison=match.comparison,
                 assumptions=(
                     "Both legs fill in full; execution is not atomic.",
-                    "Reviewed installation access must remain effective; prefunded balances "
-                    "and account limits are unverified."
-                    if live_us
-                    else "Venue access, prefunded balances, and account limits are unverified.",
-                    "Reviewed fee bounds, conversion bounds, and settlement scenarios hold.",
+                    "Venue access, prefunded balances, and account limits are unverified.",
+                    "Public fee bounds and automatic settlement rules hold."
+                    if automatic
+                    else "Reviewed fee and settlement bounds hold.",
+                    *(execution.assumptions if execution and automatic else ()),
                     "Whole-contract sizes only; optimum is within configured size/capital bounds.",
                     "Quotes may change; estimated profit is not guaranteed.",
                 ),
@@ -397,7 +407,7 @@ def evaluate(
         ),
         status="profitable" if opportunities else "unprofitable" if best_calculation else "blocked",
         best_calculation=best_calculation,
-        access_revision_id=execution.access_revision_id if live_us else None,
-        fee_revision_ids=execution.fee_revision_ids if live_us else (),
+        access_revision_id=execution.access_revision_id if live_context else None,
+        fee_revision_ids=execution.fee_revision_ids if live_context else (),
         opportunities=tuple(opportunities),
     )

@@ -146,3 +146,12 @@ Unrelated staged research and untracked fee work were preserved.
 ### Next action
 
 Run the redesigned paired dashboard against the live Kalshi/Polymarket US stack and inspect real counterpart coverage and quote-health states on desktop and mobile.
+
+## October 14 backend automatic qualification compatibility
+
+Branch: `backend/completion`.
+Generated contracts include automatic assessment summaries, settlement models, optional human reviews, separate potential APIs, and optional veto clearing.
+Existing match badges identify automatic qualification accurately, and opportunity details tolerate a missing human review.
+The user selected backend/API implementation only, so no new potential-opportunity view or qualification inspection flow was implemented.
+See [the backend automatic qualification handoff](automatic-qualification-handoff.md) for API semantics and source-coverage limits.
+Next action: when frontend work is requested, add separate potential and qualified result views using the new APIs without mixing ordinary-outcome spread with qualified worst-case estimates.

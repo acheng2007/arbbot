@@ -54,7 +54,7 @@ class DecisionWrite(Model):
     expected_revision_id: RevisionId | None = None
     left_draft_id: RevisionId
     right_draft_id: RevisionId
-    action: Literal["verified", "rejected", "revoked"]
+    action: Literal["verified", "rejected", "revoked", "cleared"]
     reason: Reason
     review: Review | None = None
 
@@ -63,7 +63,7 @@ class DecisionWrite(Model):
         if self.action == "verified" and (self.review is None or self.review.status != "verified"):
             raise ValueError("Verification requires a complete approval payload")
         if self.action != "verified" and self.review is not None:
-            raise ValueError("Rejection and revocation use a reason, not an approval payload")
+            raise ValueError("Non-approval actions use a reason, not an approval payload")
         if self.left_draft_id == self.right_draft_id:
             raise ValueError("A decision must bind two different drafts")
         return self
@@ -80,7 +80,7 @@ class DecisionRevision(Model):
     right_id: str
     left_draft_id: RevisionId
     right_draft_id: RevisionId
-    action: Literal["verified", "rejected", "revoked"]
+    action: Literal["verified", "rejected", "revoked", "cleared"]
     reason: Reason
     review: Review | None
     actor: Actor
