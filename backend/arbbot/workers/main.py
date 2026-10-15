@@ -3,19 +3,20 @@ import asyncio
 import json
 import logging
 import signal
+from contextlib import AsyncExitStack
 
 import httpx
 from sqlalchemy import text
 
 from arbbot.config import Settings
-from arbbot.exchanges.base import ExchangeHTTP
-from arbbot.exchanges.kalshi import KalshiAdapter
-from arbbot.exchanges.polymarket import PolymarketAdapter
-from arbbot.exchanges.simulation import SimulationAdapter
+from arbbot.discovery.service import CatalogService
+from arbbot.exchanges.recorded import RecordedAdapter, RecordedExchange
 from arbbot.ingestion.pipeline import Pipeline, safe_error
 from arbbot.observability.tracing import correlation_fields, create_tracing
+from arbbot.sources.fetch import SourceFetcher
 from arbbot.storage.database import Database
 from arbbot.storage.repository import Repository
+from arbbot.venues import build_adapters
 
 
 class JSONFormatter(logging.Formatter):
@@ -45,23 +46,59 @@ async def run(once=False):
                 if not locked:
                     raise RuntimeError("Another ingestion worker holds the database lock")
             try:
-                async with httpx.AsyncClient(
-                    timeout=httpx.Timeout(15), follow_redirects=False
-                ) as client:
-                    if settings.mode == "simulation":
-                        adapters = [SimulationAdapter(venue) for venue in ("kalshi", "polymarket")]
-                    else:
+                recording = (
+                    RecordedExchange(settings.recording_file) if settings.recording_file else None
+                )
+                async with (
+                    AsyncExitStack() as resources,
+                    httpx.AsyncClient(
+                        timeout=httpx.Timeout(15),
+                        follow_redirects=False,
+                        transport=recording.transport if recording else None,
+                    ) as client,
+                ):
+                    adapters = build_adapters(client, settings, once)
+                    if recording:
                         adapters = [
-                            KalshiAdapter(ExchangeHTTP(client), settings),
-                            PolymarketAdapter(ExchangeHTTP(client), settings.polymarket_market_ids),
+                            RecordedAdapter(adapter, recording.qualification_bindings)
+                            for adapter in adapters
                         ]
-                    pipeline = Pipeline(settings, repository, adapters, tracing=tracing)
-                    while not stop.is_set():
+                    source_fetcher = SourceFetcher(
+                        transport=recording.transport if recording else None,
+                        ttl=0 if recording else 300,
+                    )
+                    for adapter in adapters:
+                        if hasattr(adapter, "aclose"):
+                            resources.push_async_callback(adapter.aclose)
+                    catalog = None
+                    if settings.mode == "live":
+                        catalog = CatalogService(
+                            settings, repository, adapters, source_fetcher=source_fetcher
+                        )
+                        resources.push_async_callback(catalog.aclose)
+                        if once:
+                            await asyncio.gather(
+                                *(catalog.refresh(adapter) for adapter in adapters)
+                            )
+                        else:
+                            await catalog.restore()
+                            catalog.start()
+                    pipeline = Pipeline(
+                        settings,
+                        repository,
+                        adapters,
+                        tracing=tracing,
+                        catalog=catalog,
+                        source_fetcher=source_fetcher,
+                    )
+                    if catalog is not None and not once:
+                        await pipeline.run(stop)
+                    while (catalog is None or once) and not stop.is_set():
                         try:
                             result = await pipeline.cycle()
                             print(json.dumps(result), flush=True)
                         except Exception as exc:
-                            for venue in ("kalshi", "polymarket"):
+                            for venue in settings.enabled_venues:
                                 await repository.set_health(
                                     settings.mode, venue, "degraded", error=safe_error(exc)
                                 )

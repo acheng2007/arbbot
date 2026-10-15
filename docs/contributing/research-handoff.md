@@ -1,29 +1,29 @@
 # Research workstream handoff
 
+## Current status: October 11, 2026
+
+Branch: `backend/completion`; no PR was opened or remote status rechecked during this cleanup.
+This update reconciles the local implementation and documented delivery evidence.
+See the [roadmap](../implementation-roadmap.md) for the integrated sequence and the [project status handoff](project-status-handoff.md) for the October 11 checks and limitations.
+Prior session details and validation evidence are preserved in [history](history/research-handoff.md).
+
 ## Completed
 
-[X01 #39](https://github.com/acheng2007/arbbot/issues/39) assessed negative-risk market support without enabling it.
-The assessment is in [docs/decisions/negative-risk.md](../decisions/negative-risk.md), with recorded group evidence in `backend/tests/fixtures/negative_risk/` and offline checks in `backend/tests/test_negative_risk.py`.
-Branch `research/39-negative-risk`.
-No support flag, discovery filter, or book rejection changed, and the tests assert those gates still hold.
+The September market-opportunity review is recorded in [arbitrage research](../arbitrage-research-2026-09.md).
+The negative-risk assessment is complete in [the decision record](../decisions/negative-risk.md), with immutable group fixtures and exclusion regressions.
+The decision remains continued exclusion of unsupported Polymarket International negative-risk markets.
+The current direction prioritizes US-accessible venues, with Opinion/Limitless deferred.
+Local Polymarket US evidence and a rule-backed Kalshi World Series overlap candidate now exist, but do not establish executable returns.
 
-The decision is continued exclusion of Polymarket negative-risk markets.
-Per-question payout is already expressible by the unit binary model, so the blocking problems are mutable outcome sets, unknowable placeholder and residual definitions, and the absence of ingested group evidence for a reviewer to judge.
+## Superseded gaps and remaining work
+
+Kalshi enrichment already retains `mutually_exclusive` and `collateral_return_type` in source evidence.
+The earlier request to capture those fields must not be treated as proof they are still absent.
+Validate their role in normalized definitions, source inspection, and joint settlement review before declaring the group-evidence workflow complete.
+No seven-day forward paper study has been run.
+The active initial strategy is two-leg comparison; the older basket-study suggestion does not expand the milestone.
 
 ## Next action
 
-Close the Kalshi group-evidence gap found during this assessment, as a new reviewed issue.
-
-Markets belonging to Kalshi events with `mutually_exclusive` set to true are ingested today.
-`mve_filter=exclude` removes multivariate combination events, not mutually exclusive groups, so all 17 recorded Kalshi markets pass the current binary unit-notional filter.
-`KalshiAdapter.normalize_market` does not copy `mutually_exclusive` or `collateral_return_type` into `settlement_details`, so a reviewer sees no evidence that an ingested market belongs to a group.
-
-Either ingest those group fields as settlement evidence or exclude mutually exclusive Kalshi events until they can be reviewed as groups.
-This is the highest priority follow-up because it affects markets the product already accepts, unlike the Polymarket side which is excluded.
-
-## Notes for the next agent
-
-Required model changes are enumerated in the decision document; items 1 through 5 are matching and review prerequisites, and items 6 and 7 are only needed to trade the Polymarket side or to claim reduced capital.
-Do not relax `PolymarketAdapter.supported` to admit negative-risk markets.
-Every recorded negative-risk question passes every other structural check, so clearing the flag would admit them silently rather than fail loudly.
-Recorded fixtures are immutable evidence with payload digests in `labels.json`; add new recordings rather than editing existing ones.
+Support the existing US capability/evidence assessment and real-pair settlement review first, then run seven actual days of paper observations with recorded depth, fees, timing, rejected candidates, and lifetime at the planned fixed budgets.
+A positive opportunity is not required; incomplete or conflicting settlement evidence remains a result rather than an approval.

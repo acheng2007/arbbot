@@ -13,7 +13,7 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
   const now = useNow();
   const confirmedAgo =
     now !== null && state.lastEventAt !== null
-      ? describeAge((now - state.lastEventAt) / 1000)
+      ? describeAge(Math.max(0, (now - state.lastEventAt) / 1000))
       : null;
 
   if (state.status === "open")
@@ -25,7 +25,7 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
         </Badge>
         {confirmedAgo && (
           <span className="text-xs text-muted-foreground">
-            Last confirmed {confirmedAgo}
+            Snapshot {confirmedAgo}
           </span>
         )}
       </div>
@@ -44,10 +44,9 @@ export function StreamStatusBanner({ state }: { state: StreamState }) {
             : "Live updates disconnected, retrying."}
         </span>{" "}
         {confirmedAgo
-          ? `Anything shown below was last confirmed ${confirmedAgo} and may no longer hold.`
-          : "Nothing below has been confirmed by a live update yet."}
-        {state.drops > 0 &&
-          ` The connection has dropped ${state.drops} ${state.drops === 1 ? "time" : "times"} since this page loaded.`}
+          ? `The last snapshot arrived ${confirmedAgo}. Quotes may no longer hold.`
+          : "No snapshot has arrived yet. Quote freshness is shown separately."}
+        {state.drops > 0 && ` ${state.drops} reconnects.`}
       </p>
     </div>
   );

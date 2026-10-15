@@ -1,153 +1,167 @@
 # Frontend workstream handoff
 
-The user requested that all frontend issues be picked up on a separate branch and continued in a new chat.
-Issues #21 through #26 and frontend QA issue #33 are assigned to `acheng2007`.
-Issue #21 is implemented on `frontend/21-web-foundation`; see the current delivery section below.
+## Current status: October 11, 2026
 
-## Workspace and branch
+Branch: `backend/completion`; no PR was opened or remote status rechecked during this cleanup.
+This update reconciles the local implementation and documented delivery evidence.
+See the [roadmap](../implementation-roadmap.md) for the integrated sequence and the [project status handoff](project-status-handoff.md) for the October 11 checks and limitations.
+Prior session details and validation evidence are preserved in [history](history/frontend-handoff.md).
 
-Repository: `/Users/adam/Project/arbbot`.
-Workstream branch: `frontend/workstream`, created from main at `03b91c2`.
-Read `AGENTS.md`, `CONTRIBUTING.md`, `docs/contributing/README.md`, and the current GitHub issue before editing.
-GitHub repository: https://github.com/acheng2007/arbbot.
+## Completed
 
-Use this branch as the frontend workstream starting point.
-Preserve the user's one-issue-per-PR requirement: create focused issue branches from the appropriate merged baseline, or explicitly stacked branches with a clear dependency base.
-Do not open one PR containing all frontend issues.
-Do not merge unreviewed issue branches into main.
-Keep commits focused and use only the user's configured Git identity.
+Next.js foundations, exact-string generated API contracts, same-origin reads, market/source screens, read-only comparisons, and opportunity dashboard/detail screens are implemented.
+The opportunity UI includes reviewed costs, settlement scenarios, freshness, blocked states, and SSE reconnect handling.
+Existing screens have unit tests, fixture-backed desktop/mobile Playwright coverage, prior visual inspection, and historical live-price smoke evidence.
+The frontend CI definition and historical successful fixture-backed hosted CI evidence exist.
+Local uncommitted US work adds venue API-driven selection/panels and distinct US price/access labels.
 
-## First task
+## Remaining work and dependencies
 
-Start with [#21](https://github.com/acheng2007/arbbot/issues/21): scaffold the Next.js application and shared UI foundation.
-Use Next.js, React, TypeScript, Tailwind, shadcn/ui, TanStack Query/Table, Vitest and Playwright as specified in AGENTS.md.
-Design can proceed while backend source enrichment is underway.
-Default feature ownership is `apps/web/`; explain any necessary backend or shared-file edits.
-Select and verify dependency versions at implementation time.
+Authenticated draft editing, approval, rejection, revocation, and conflict handling remain unfinished.
+Backend authentication, draft/review APIs, and worker approval consumption are already implemented; their former absence is no longer the blocker for review UI work.
+Browser identity/session integration and a seeded PostgreSQL full-workflow test remain required.
+The market browser loads only 200 matches, selects one pair per market, and applies search/status filters only to the loaded page despite backend filtering support.
+US evaluation presentation depends on complete rules, eligibility, automatic fees, and immediate quote rechecks.
 
-## Issue sequence
+## Next action
 
-| Issue | Work | Dependencies |
-| --- | --- | --- |
-| #21 | Application scaffold, layout and shared components | None |
-| #22 | Generated typed API client and data access | #21 |
-| #24 | Read-only comparison screen | #22 |
-| #23 | Market browser and source details | #22 and backend filtering #20 |
-| #25 | Authenticated draft editing and reviews | #24 and backend #18, #19 |
-| #26 | Opportunity dashboard | #22 and fee/slippage integration #15 |
-| #33 | Frontend CI and full browser workflow | #23, #25, #26 and hosted backend CI #32 |
+Validate the existing US desktop/mobile quote/comparison UI against the restored running stack, then build authenticated review actions against the existing API with evidence requirements and concurrent-edit conflicts preserved.
 
-Design and explicitly labeled mock states can advance before backend dependencies are complete.
-Do not claim a blocked issue is complete, invent backend response fields, or treat mock approval as a real approval.
-Keep mocks behind interfaces compatible with real API contracts.
-Read-only screens can integrate existing endpoints immediately where their contracts suffice.
+## October 11 snapshot integration update
 
-## Available backend contracts
+Branch: `backend/completion`.
+Browser and fixture streams now use backend `snapshot` events; current opportunity/evaluation/history queries refresh on delivery.
+Connectivity labels no longer assert quote freshness.
+Desktop/mobile opportunity Playwright passed (18 tests), frontend unit tests passed (57), and type/lint/generated-client checks passed.
+The actual PostgreSQL/worker/API/Next.js simulation workflow refreshed on both viewports; screenshots were inspected.
+Next action: continue the US vertical slice with durable broad catalog inventory, then evidence-linked review workflows.
+See [the implementation handoff](us-vertical-slice-handoff.md) for remaining stages.
 
-FastAPI exposes markets, books, extraction drafts, matches, opportunities, audit history, health, and SSE.
-`docs/openapi.json` is the committed schema for generating client types.
-The local Docker configuration defaults to simulation and serves the API at `http://localhost:8000` when running.
-Backend tests last passed with 75 tests on SQLite and PostgreSQL; do not assume a hosted CI run passed without checking.
-Review mutations, authentication, advanced filtering and automated fee integration remain dependent issues.
+## October 11 captured source text update
 
-## Required UX and financial presentation
+Source terms now expose captured document text in collapsible plain-text panels and display unresolved evidence gaps.
+Real captured US rulebook evidence was inspected in desktop/mobile browsers with no horizontal overflow.
+Next action: implement evidence-linked review editing and OIDC sessions after product-document applicability and review validation are ready.
 
-Present simulation/live, loading, empty, missing evidence, conflicting rules, unverified candidates, stale prices, errors and reconnect states explicitly.
-Keep financial calculations in the backend and preserve decimal strings in the browser.
-Show fees, executable depth costs and slippage allowance separately, with net profit after all costs.
-A quote-supported estimate is not a guaranteed profit or an atomic cross-exchange fill.
-No trade execution, custody or transfers are in scope.
-Validate responsive layouts, keyboard accessibility, and browser behavior; visually inspect the rendered screens.
+## October 11 counterpart browsing update
 
-## Current delivery: issue #21
+Comparison details load exact pair and contract identities beyond the first catalog page.
+Markets expose paginated counterparts, including multiple pairs for the same market.
+Desktop/mobile regression tests verify browsing beyond 200 pairs without horizontal overflow.
+Next action: implement the Stage 5 OIDC and evidence-linked review editor against the existing revision-aware review APIs.
+See [the vertical slice handoff](us-vertical-slice-handoff.md) for the joint-outcome schema and remaining blockers.
 
-Implemented the Next.js foundation with pinned dependencies, responsive navigation, Query provider, shadcn-compatible UI configuration/button, shared loading/error/empty/stale states, and Vitest/Playwright configuration.
-The overview is explicitly a preview with no market data or fabricated opportunities.
-The connection route reads server-side `BACKEND_URL` and validates the existing `/health/live` response, including simulation/live mode.
-No backend or feature-screen implementation is included.
+## October 11 interactive demo
 
-Issue branch: `frontend/21-web-foundation`.
-PR base: `frontend/workstream`, including the existing handoff and committed session-handoff instruction baseline at `01ace35`.
-Keep this issue as its own PR; do not merge it without review.
-Root `.gitignore` and `README.md` changes are the issue-authorized integration changes.
-This handoff update is required by the current `AGENTS.md` session instructions.
+The user requested a test demo; simulation is running at `http://127.0.0.1:3000/opportunities` and real Kalshi/US discovery at `http://127.0.0.1:3001/markets`.
+Desktop/mobile checks passed for simulation calculations, SSE refresh, real paired price refresh, and incomplete settlement/source labels.
+Screenshots are under `apps/web/test-results/test-demo-*.png`.
+The services are left running for inspection; see the vertical slice handoff for runtime details and session IDs.
+Next action: walk through the simulation calculation, then inspect the live Dodgers comparison before resuming Stage 5 implementation.
 
-Validation: lint, typecheck, production build, 10 Vitest checks, and desktop/mobile Chromium navigation checks pass.
-Desktop/mobile overview screenshots and the real-backend connection screen were visually inspected.
-The real FastAPI service on port 8011 was verified through the browser using a nondefault `BACKEND_URL`.
-Browser tests use labeled simulation responses and exercise a failed refresh with stale-state messaging.
-No hosted frontend CI claim is made; CI remains issue #33.
+## October 11 broader live demo
 
-Publication status: [PR #43](https://github.com/acheng2007/arbbot/pull/43) is merged into `main`, and issue #21 is closed.
+Removed the two-contract runtime watchlist from the live demo at `http://127.0.0.1:3001/markets`.
+More than 1,000 supported venue contracts were discovered during verification, with quote monitoring bounded separately to 20 per venue.
+Desktop/mobile checks passed for multiple contracts, pagination, and venue filtering without overflow.
+Next action: refresh the live demo and explore catalog pages; implementation then resumes at Stage 5.
 
-## Current delivery: issues #22, #23, #24, #26
+## Integrated workflow implementation follow-up
 
-Branch: `frontend/read-only-screens`, targeting `main` now that #21 is merged.
-The user asked for as much backend-free frontend as possible and explicitly allowed several issues in one pull request.
+Catalog-wide lightweight summaries now drive market browsing with API search, status, category, and venue filters.
+Comparison lists paginate and load contracts by exact ID.
+Cards resolve counterparts by market ID, and opportunity details resolve exact opportunity IDs.
+Blocked evaluations expose status and signed calculations; native US short actions and collateral breakdowns are displayed.
+Snapshot refresh covers catalog, comparisons, evaluations, opportunities, books, and status.
+The gross settlement payout table label was corrected during visual review.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for validation and remaining acceptance work.
+Next action: run the recorded PostgreSQL / worker / API / browser harness and verify US native short, signed-loss, withdrawal, and recovery states on desktop and mobile.
 
-Issue #22, generated client and data access.
-`apps/web/scripts/generate-api.mjs` generates `src/lib/api/schema.ts` from the committed `docs/openapi.json`.
-`openapi-typescript` was rejected because its peer range is TypeScript 5 and this package pins TypeScript 6; the generator has no runtime dependency and fails loudly on any OpenAPI construct it does not model.
-`npm run generate:api:check` detects drift and runs inside `npm test`.
-Monetary and quantity fields are generated as `DecimalString` and never converted to a number.
-The browser calls same-origin routes under `/api/data/[operation]`, which validate the operation against the generated registry and proxy server-side, so `BACKEND_URL` never reaches a browser bundle.
-`ApiError` models unreachable, timeout, cancelled, not-found, invalid-request, backend-error and invalid-response cases; TanStack Query supplies the abort signal and cancelled requests are not retried.
+## October 12 paused checkpoint
 
-Issue #24, read-only comparison screen at `/matches` and `/matches/[matchId]`.
-Similarity is labeled a discovery signal everywhere it appears and never a verification state.
-Differing and unknown fields sort above agreeing ones, each with the exact source quotation behind both sides.
-`same_event: false` shows an explicit statement that a price difference between the two is not arbitrage.
-The review panel flags an expired approval and flags reviewed terms hashes that no longer match the published ones.
+Work is paused at the user's request.
+The recorded PostgreSQL / worker / API / Next.js acceptance passed, including both desktop/mobile tests.
+The latest PostgreSQL suite passed 496 tests; SQLite has one unresolved evaluation-history scheduling test failure.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for saved implementation, exact verification status, and artifacts.
+Next action: reproduce and resolve the SQLite scheduling-history failure before resuming final acceptance review.
 
-Issue #23, market browser at `/markets` and source detail at `/markets/[marketId]`.
-Venue and pagination are sent to the API; status and text search narrow the loaded page only, and the interface says so, because catalog-wide filtering is backend issue #20.
-Filters round-trip through the address bar.
-Source detail shows the original rules text, extracted facts with quotations, undetermined fields, and order-book health with source and receipt timestamps kept separate.
+## October 12 completed integrated workflow
 
-Issue #26, opportunity dashboard at `/opportunities` and `/opportunities/[opportunityId]`.
-Fees, executable depth cost and slippage allowance are listed separately, with net profit stated as being after all costs.
-Payout is shown for every reviewed settlement outcome, alongside execution assumptions and a statement that no order is placed.
-`/api/stream` proxies backend Server-Sent Events and serves a fixture stream in fixture mode; a dropped connection states that the figures are no longer confirmed rather than leaving a stale success view.
-Evaluations with `blocked_reasons` and expired history entries are both surfaced.
+This supersedes the paused checkpoint.
+The requested Kalshi / Polymarket US workflow and full recorded acceptance passed.
+SQLite and PostgreSQL each passed 497 tests; frontend units passed 58, fixture browsers passed 50, and connected desktop/mobile browsers passed four.
+Type, lint, generated-contract, migration preservation, financial, and production build checks passed.
+The final UI fixes preserve opportunity navigation across refreshes, coalesce pending SSE-triggered reads, wrap mobile reviewer identifiers, and separate actual US fee policy snapshots from legacy review costs.
+Branch: `backend/completion`; no PR or push.
+See [the integrated workflow handoff](arbitrage-workflow-handoff.md) for artifacts, operational limits, and the live evidence observations.
+Next action: inspect the completed acceptance artifacts and prepare the first real candidate's reviewed evidence package using the operator CLI.
 
-Backend-free development: `ARBBOT_WEB_DATA_SOURCE=fixtures` serves every screen from a recorded dataset typed against the generated schema.
-Fixture mode is opt-in and any other value reads the real backend.
-Every fixture-served screen carries a banner stating that no exchange or backend was contacted.
+Exact historical opportunity details now show current invalidation reasons, including changed quotes, reviews, sources, access, fees, and venue health.
 
-Two defects found and fixed during browser testing.
-Next 16 returns dynamic route segments still percent-encoded, so market identifiers containing ":" were double-encoded and every market detail page reported "record does not exist"; `src/lib/routing.ts` decodes at the route boundary.
-`Intl.DateTimeFormat` threw at module scope because `timeZoneName` cannot combine with `dateStyle`/`timeStyle`.
+## October 14 advisory classification workflow
 
-Out-of-scope fixes, both mentioned as required: the overview page and header no longer describe a disconnected preview and now link to the real screens, and the sidebar navigation scrolls horizontally at mobile widths.
+Branch: `backend/completion`; no PR or push.
+Comparison lists and details now distinguish AI event suggestions from established event evidence and reviewed verification.
+They display clause findings, captured quotations, model confidence/probability scores, coverage limitations, lifecycle states, and recorded-response labels.
+Classification filtering uses the paginated backend API; snapshot updates refresh advice.
+Withdrawn AI-only pairs retain readable stale advice through the classification endpoint.
+OpenAPI and TypeScript contracts were regenerated.
+Visual inspection corrected hidden skip-link capture artifacts without removing keyboard access and improved quotation-caption wrapping.
+Frontend units passed 65, fixture browsers passed 56, and connected desktop/mobile browsers passed six.
+Type, lint, generated-contract, and webpack production-build checks passed.
+See [the Jev handoff](jev-handoff.md) for worker/storage validation, artifacts, benchmark coverage, and the absent live key.
+Next action: configure the backend OpenRouter key and run the documented live benchmark before assessing model quality.
 
-Validation run on this branch: `npm run lint`, `npm run typecheck`, `npm run generate:api:check`, `npm run build`, 55 Vitest checks, and 36 Playwright checks across desktop and mobile Chromium, all passing.
-Desktop and mobile screenshots of all ten routes were inspected with no horizontal overflow and no console errors; `e2e/inspect.mjs` reproduces that sweep.
-No hosted CI claim is made.
 
-## Not delivered
+## October 14 market dashboard redesign
 
-Issue #25, authenticated draft editing and review actions, is not started.
-It depends on backend review mutations and authorization (#18, #19) that do not exist, and mock approvals must not be presented as real approvals.
+Branch: `backend/completion`; no PR or push.
+The home route now opens the paired-market dashboard.
+The frontend uses a light horizontal navigation shell, green price accents, compact market cards, and responsive layouts.
+Paired markets and All markets have shareable URL state with catalog-wide search, venue, status, category, and pagination controls.
+The matches API gained optional same-event, rejection-exclusion, category, and market-status filters applied before pagination, including revalidated reviews.
+OpenAPI and the generated TypeScript client were updated.
+Market cards display aligned venue asks, depth at the best price, quote freshness, review status, and explicit US short-collateral labels.
+Mixed recording origins and unsupported instruments remain visible.
+Opportunity summaries show event, directions, estimated net result, return, capital, and size without detailed fee or audit data.
+Calculations, settlement scenarios, AI rationale, source documents, review evidence, and diagnostics are expandable.
+Blocked evaluations, history, and extracted evidence load on demand.
+Connection, stale-data, simulation, missing-depth, and invalidation states remain explicit.
+An outdated connection-page message claiming market data was absent was also corrected.
 
-Issue #33, frontend CI and the seeded full-workflow browser test, is only partially implemented.
-Hosted backend CI dependency #32 is closed, but the full contract still depends on #25 and requires authenticated review actions against a seeded backend rather than fixtures.
+### Validation
 
-Publication status: `frontend/read-only-screens` is published as [PR #53](https://github.com/acheng2007/arbbot/pull/53) into `main`.
-The GitHub CLI is authenticated as `acheng2007`.
+Playwright MCP inspected the original interface and Kalshi reference, then the redesigned desktop and mobile dashboard, comparisons, and opportunity screens.
+The original interface was reproduced using recorded fixtures because the previously documented live demo servers were unavailable.
+The first paired card's four prices fit within the 1440x900 desktop and 390x844 mobile viewports.
+The complete fixture browser suite passed 62 tests; the final dashboard suite passed 10 tests, including four added US-label and unverified-pair cases.
+Frontend unit tests passed 66 tests.
+Type checking, lint, generated-client drift checks, the webpack production build, backend Ruff checks, and whitespace checks passed.
+The backend catalog, API, and classification suite passed 52 tests against the local test database.
+Connected PostgreSQL/worker acceptance tests were adapted to the expandable interface but were not rerun in this redesign session.
+No live exchange behavior or financial calculation logic was changed.
+Screenshots and browser traces remain local inspection artifacts rather than committed application assets.
+Unrelated staged research and untracked fee work were preserved.
 
-Partial issue #33 work is on `frontend/33-ci-fixtures`, stacked on `frontend/read-only-screens`.
-It is published as [PR #54](https://github.com/acheng2007/arbbot/pull/54) and intentionally leaves #33 open.
-`.github/workflows/frontend.yml` runs generated-client drift detection, lint, typechecking, Vitest, a production build, and desktop/mobile Playwright checks in parallel jobs.
-The browser job installs Chromium with its system dependencies, uses recorded fixtures without credentials or a backend, and uploads `apps/web/test-results` for 14 days on failure.
-Playwright retains traces, screenshots, and video for failed checks.
-`apps/web/e2e/workspace.spec.ts` covers the integrated backend-free journey from market source evidence through the recorded comparison review to an opportunity's cost, payout, and execution assumptions on desktop and mobile Chromium.
-This does not complete #33 because its required authenticated review flow and seeded PostgreSQL backend remain blocked by #25.
+### Next action
 
-The first hosted PR #54 run failed during `npm ci` before tests because the runner used npm 10 against a lockfile generated by npm 11, and Node 22.12 was below the minimum required by pinned `jsdom`.
-The package now declares Node 22.13 or newer and npm 11.6.2, the workflow installs those exact versions, and the lockfile was regenerated.
-Local `npm ci` plus the full generated-client, lint, typecheck, Vitest and production-build sequence passes after the correction.
-The corrected hosted run `35695384493` passes both frontend jobs: generated client/lint/types/unit/build in 1m23s and desktop/mobile browser tests in 3m8s.
-The backend check on the same PR head also passes.
+Run the redesigned paired dashboard against the live Kalshi/Polymarket US stack and inspect real counterpart coverage and quote-health states on desktop and mobile.
 
-Next action: review and merge PR #53 first, then retarget PR #54 from `frontend/read-only-screens` to `main` before merging it.
-Issue #25 remains blocked on backend #18 and #19, and the remaining #33 workflow remains blocked on #25.
+## October 14 backend automatic qualification compatibility
+
+Branch: `backend/completion`.
+Generated contracts include automatic assessment summaries, settlement models, optional human reviews, separate potential APIs, and optional veto clearing.
+Existing match badges identify automatic qualification accurately, and opportunity details tolerate a missing human review.
+The user selected backend/API implementation only, so no new potential-opportunity view or qualification inspection flow was implemented.
+See [the backend automatic qualification handoff](automatic-qualification-handoff.md) for API semantics and source-coverage limits.
+Next action: when frontend work is requested, add separate potential and qualified result views using the new APIs without mixing ordinary-outcome spread with qualified worst-case estimates.
+
+## October 15 consolidation validation
+
+Branch: `chore/consolidate-main`; PR [#57](https://github.com/acheng2007/arbbot/pull/57).
+Hosted validation reproduced a mobile evidence-test race: the test clicked Review evidence on the old opportunity route before comparison navigation completed.
+The downloaded trace and screenshot were inspected before editing.
+The assertion now waits for the destination URL and comparison-only navigation link, then opens the destination disclosure.
+No UI behavior, evidence assertions, or timeout limits were changed.
+The corrected scenario passed ten local desktop/mobile repetitions with two concurrent workers.
+Next action: finish hosted validation of the consolidation, merge to main, and remove only branch heads retained in main's ancestry.

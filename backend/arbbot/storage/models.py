@@ -98,6 +98,16 @@ class EvaluationRecord(Base):
     mode: Mapped[str] = mapped_column(String, index=True)
     evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     payload: Mapped[dict] = mapped_column(Document)
+    status: Mapped[str | None] = mapped_column(String)
+    net_profit: Mapped[Decimal | None] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal | None] = mapped_column(Numeric())
+
+
+class EvaluationHeadRecord(Base):
+    __tablename__ = "evaluation_heads"
+    match_id: Mapped[str] = mapped_column(ForeignKey("matches.id"), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    evaluation_id: Mapped[str] = mapped_column(ForeignKey("evaluations.id"), unique=True)
 
 
 class OpportunityRecord(Base):
@@ -108,8 +118,8 @@ class OpportunityRecord(Base):
     active: Mapped[bool] = mapped_column(Boolean)
     evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    net_profit: Mapped[Decimal] = mapped_column(Numeric(30, 12))
-    capital_required: Mapped[Decimal] = mapped_column(Numeric(30, 12))
+    net_profit: Mapped[Decimal] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal] = mapped_column(Numeric())
     payload: Mapped[dict] = mapped_column(Document)
     __table_args__ = (Index("ix_opportunity_feed", "mode", "active", "valid_until"),)
 
@@ -121,4 +131,157 @@ class HealthRecord(Base):
     venue: Mapped[str] = mapped_column(String)
     status: Mapped[str] = mapped_column(String)
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class CatalogRecord(Base):
+    __tablename__ = "discovery_catalogs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    venue: Mapped[str] = mapped_column(String)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class DraftRevisionRecord(Base):
+    __tablename__ = "definition_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    previous_revision_id: Mapped[str | None] = mapped_column(ForeignKey("definition_revisions.id"))
+    revision: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class DraftHeadRecord(Base):
+    __tablename__ = "definition_heads"
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), primary_key=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"), unique=True)
+
+
+class DecisionRevisionRecord(Base):
+    __tablename__ = "review_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    pair_key: Mapped[str] = mapped_column(String(64), index=True)
+    previous_revision_id: Mapped[str | None] = mapped_column(ForeignKey("review_revisions.id"))
+    left_draft_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"))
+    right_draft_id: Mapped[str] = mapped_column(ForeignKey("definition_revisions.id"))
+    revision: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class DecisionHeadRecord(Base):
+    __tablename__ = "review_heads"
+    pair_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("review_revisions.id"), unique=True)
+
+
+class CatalogObservationRecord(Base):
+    """Immutable raw catalog content; repeat receipts update the projection only."""
+
+    __tablename__ = "catalog_observations"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    venue: Mapped[str] = mapped_column(String, index=True)
+    external_id: Mapped[str] = mapped_column(String, index=True)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class CatalogInventoryRecord(Base):
+    __tablename__ = "catalog_inventory"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String)
+    venue: Mapped[str] = mapped_column(String)
+    external_id: Mapped[str] = mapped_column(String)
+    observation_id: Mapped[str] = mapped_column(ForeignKey("catalog_observations.id"))
+    market_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    supported: Mapped[bool] = mapped_column(Boolean)
+    reason: Mapped[str] = mapped_column(String)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (Index("ix_inventory_fresh", "mode", "venue", "observed_at"),)
+
+
+class DiscoveryProgressRecord(Base):
+    __tablename__ = "discovery_progress"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String)
+    venue: Mapped[str] = mapped_column(String)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class ConfigurationRevisionRecord(Base):
+    __tablename__ = "execution_configuration_revisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    key: Mapped[str] = mapped_column(String, index=True)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class ConfigurationHeadRecord(Base):
+    __tablename__ = "execution_configuration_heads"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    revision_id: Mapped[str] = mapped_column(ForeignKey("execution_configuration_revisions.id"))
+
+
+class ClassificationRunRecord(Base):
+    __tablename__ = "classification_runs"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class ClassificationJobRecord(Base):
+    __tablename__ = "classification_jobs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String)
+    request: Mapped[dict] = mapped_column(Document)
+    semantic_inputs: Mapped[dict] = mapped_column(Document, default=dict)
+    state: Mapped[str] = mapped_column(String)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("classification_runs.id"), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ClassificationSchedulerRecord(Base):
+    __tablename__ = "classification_scheduler"
+    mode: Mapped[str] = mapped_column(String, primary_key=True)
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class QualificationRunRecord(Base):
+    __tablename__ = "qualification_runs"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    payload: Mapped[dict] = mapped_column(Document)
+
+
+class QualificationJobRecord(Base):
+    __tablename__ = "qualification_jobs"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    input_hash: Mapped[str] = mapped_column(String)
+    pair: Mapped[list] = mapped_column(Document)
+    state: Mapped[str] = mapped_column(String, index=True)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("qualification_runs.id"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PotentialRecord(Base):
+    __tablename__ = "potential_opportunities"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    match_id: Mapped[str] = mapped_column(String, index=True)
+    mode: Mapped[str] = mapped_column(String, index=True)
+    evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    gross_spread: Mapped[Decimal] = mapped_column(Numeric())
+    capital_required: Mapped[Decimal | None] = mapped_column(Numeric())
+    active: Mapped[bool] = mapped_column(Boolean, index=True)
     payload: Mapped[dict] = mapped_column(Document)

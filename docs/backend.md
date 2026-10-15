@@ -1,11 +1,48 @@
 # Backend behavior and operations
 
+## Automatic live qualification
+
+Live discovery now uses evidence-based automatic qualification by default, without required human reviews or account setup.
+Qualified conditional estimates and separate potential price gaps are available through the API.
+See [automatic qualification](automatic-qualification.md) for current source-language coverage, public fee/account assumptions, extension interfaces, and the recorded worker/API acceptance command.
+The [system design](system-design.md) and [roadmap](implementation-roadmap.md) define the current runtime boundaries and delivery priorities.
+Historical review-file, approval, and access-profile instructions below apply to the optional path selected with `ARBBOT_AUTOMATIC_QUALIFICATION=false`; they do not gate default automatic discovery.
+
 ## Ingestion
 
-The worker discovers a bounded set of markets, retrieves full REST order-book snapshots, persists normalized results, discovers candidates, evaluates verified pairs, and publishes a coherent opportunity view.
+The worker discovers a bounded set of markets, polls Kalshi REST order books, consumes Polymarket WebSocket books, persists normalized results, discovers candidates, evaluates verified pairs, and publishes a coherent opportunity view.
 Exchange requests use bounded concurrency, pacing, timeouts, and retries for transport errors, rate limits, and selected server failures.
-Every cycle reads complete snapshots, so recovery does not depend on replaying deltas.
-Exchange WebSocket ingestion and sequence reconciliation are not implemented yet.
+Kalshi reads complete REST snapshots each cycle.
+Polymarket keeps full snapshots plus absolute price-level changes in memory and publishes the latest complete state each cycle.
+Kalshi WebSocket ingestion is not implemented yet.
+
+### Polymarket WebSocket
+
+Continuous live workers connect to `wss://ws-subscriptions-clob.polymarket.com/ws/market` by default.
+Gamma REST discovery supplies condition IDs, YES/NO token IDs, and minimum order sizes.
+The public subscription is `{"assets_ids":["TOKEN_ID"],"type":"market"}` and requires no credentials.
+The listener consumes initial `book` snapshots and `price_change` batches, replacing the specified price level with its new absolute size or removing it when size is zero.
+BUY updates affect bids, SELL updates affect asks, and last-trade events never substitute for executable depth.
+
+Text `PING` frames are sent every ten seconds, and missing `PONG` replies terminate the connection after thirty seconds.
+Disconnects, malformed frames, identity mismatches, out-of-order timestamps, crossed books, and inconsistent best prices discard the in-memory books and trigger reconnection with capped exponential backoff and jitter.
+Subscription changes also clear the old generation.
+New deltas cannot be applied until a full snapshot for their token arrives.
+Full resubscription every five minutes bounds drift; the documented feed has no sequence number, so detecting every lost update is not guaranteed and the venue hash is retained as provenance rather than treated as a verified checksum.
+
+The existing worker cycle persists and evaluates the latest stream state, so this is continuous exchange ingestion with cycle-based publication, not per-event database writes.
+Stored snapshots retain reconstructed depth, per-outcome source/receipt times, and each outcome's latest raw event under `raw`, with `transport: websocket`.
+Intermediate deltas between worker cycles are not individually journaled.
+The 30-second default quote age and 10-second outcome skew checks still apply; heartbeats do not make old prices fresh.
+An unavailable stream yields `StreamNotReady` in ingestion health on the next cycle and blocks affected evaluations.
+Previously persisted books remain accessible for inspection with their original timestamps.
+
+Set `ARBBOT_POLYMARKET_WEBSOCKET=false` explicitly to use REST polling instead.
+The `--once` worker always uses REST snapshots because a one-cycle process cannot maintain a persistent stream.
+API status describes the configured continuous-worker transport.
+The browser still refreshes price queries every five seconds; opportunity updates use the existing SSE connection.
+
+Protocol verified against [Polymarket's official real-time data documentation](https://docs.polymarket.com/market-data/realtime-data) and live public messages on September 23, 2026.
 
 The default discovery limit is 50 supported markets per exchange, with at most 20 discovery pages per cycle.
 This is a monitored sample, not exhaustive exchange coverage.
@@ -35,7 +72,8 @@ ARBBOT_REVIEWS_FILE=/absolute/path/to/reviews.json
 ```
 
 Omit watchlists to use paginated discovery.
-Omit the review file to ingest markets and discover unverified candidates without producing live opportunities.
+Automatic mode does not require a review file; it can publish qualified estimates only when complete supported evidence and financial inputs are available.
+With automatic qualification disabled, omitting reviews leaves discovery operational but cannot supply settlement approval.
 Use a separate database for production and simulation even though queries isolate modes.
 
 The Kalshi adapter supports optional RSA signing through `ARBBOT_KALSHI_KEY_ID` and `ARBBOT_KALSHI_PRIVATE_KEY_PATH`.
@@ -43,7 +81,9 @@ Keys stay in local files and are never returned through the API.
 Kalshi's public tutorial and authenticated endpoint reference differ on authentication requirements; configure a key if public reads are rejected.
 Authentication failures appear in exchange health rather than triggering a simulation fallback.
 
-For live containers, use a local Compose override setting both API and worker to live mode, pass worker configuration explicitly, and mount credentials and review files read-only.
+For the public live-price demo, run `docker compose -p arbbot-demo --env-file infra/demo.env up --build -d`.
+This starts the web app, live API, worker, and an isolated PostgreSQL volume, with database port 55433.
+For custom watchlists or reviewed pairs, use a local Compose override, pass worker configuration explicitly, and mount credentials and review files read-only.
 Do not put secrets in images or source control.
 No adapter places orders or accesses account balances.
 

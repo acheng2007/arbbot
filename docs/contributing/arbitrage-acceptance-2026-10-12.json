@@ -1,0 +1,64 @@
+{
+  "schema": "arbbot_acceptance_3ea0b3b9f5d547ffabff965ea791e4a8",
+  "checks": [
+    "API and migrations ready",
+    "Four reviewed pairs: profitable, unprofitable, blocked, invalid",
+    "Eligible positive estimate is publicly readable",
+    "Catalog pagination, >200 counterparts, exact lookup, authentic pair unapproved",
+    "Published estimate delivered through FastAPI SSE",
+    "Publication recheck price movement eliminates preliminary profit",
+    "Quotes recover with a newly calculated estimate",
+    "Fee-provider outage publishes unavailable policies and withdraws",
+    "Fee-provider recovery retrieves fresh immutable policies",
+    "Access revision withdrawal and renewed evaluation",
+    "Review revision withdrawal and renewed evaluation",
+    "Fee-policy expiry withdraws estimate",
+    "Fee-policy renewal recalculates estimate",
+    "Source revision withdrawal cannot replay old approval; renewed review recovers",
+    "Fresh estimate before worker restart",
+    "Quote expiry withdraws while worker is stopped",
+    "Worker restart resumes persisted catalog and monitoring",
+    "Venue outage withdraws affected estimates",
+    "Venue recovery recalculates rather than replaying old estimates",
+    "Pair-aware budget rotation monitors multiple books on both venues",
+    "Next.js connected to recorded PostgreSQL backend",
+    "Desktop/mobile browser workflow and SSE recovery"
+  ],
+  "date": "2026-10-12",
+  "branch": "backend/completion",
+  "artifacts": "/tmp/arbbot-acceptance-final-contract",
+  "synthetic_profitability": true,
+  "authentic_contracts_approved": false,
+  "test_counts": {
+    "sqlite": 497,
+    "postgresql": 497,
+    "frontend_unit": 58,
+    "fixture_playwright": 50,
+    "connected_playwright": 4
+  },
+  "checks_passed": [
+    "backend lint",
+    "backend formatting",
+    "schema export comparison",
+    "generated TypeScript drift",
+    "frontend typecheck",
+    "frontend lint",
+    "production webpack build",
+    "SQLite/PostgreSQL migration preservation",
+    "Exact opportunity access invalidation and historical payload preservation"
+  ],
+  "live_observations": {
+    "catalog_records_per_venue": 100,
+    "books_per_venue": 3,
+    "us_supported": 49,
+    "us_excluded": 51,
+    "us_categories": [
+      "sports"
+    ],
+    "kalshi_continuation": true,
+    "kalshi_source_timestamp": null,
+    "same_event_candidate": "08b6abf41faeeeb60d3e77206a9b33fcedc03fb5761b0ce2625610dfbb8bd09d",
+    "candidate_approved": false,
+    "real_positive_opportunity_asserted": false
+  }
+}

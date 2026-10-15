@@ -191,3 +191,94 @@ async def test_ineligible_quotes_are_filtered_before_pagination(database):
         response = await client.get("/api/v1/opportunities?limit=1")
         assert response.status_code == 200
         assert [Opportunity.model_validate(row).id for row in response.json()] == [original.id]
+
+
+async def test_unrelated_venue_health_does_not_hide_current_pair(database):
+    settings, db, repository = database
+    await Pipeline(
+        settings, repository, [SimulationAdapter("kalshi"), SimulationAdapter("polymarket")]
+    ).cycle()
+    await repository.set_health("simulation", "polymarket_us", "healthy", market_health=[])
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        assert len((await client.get("/api/v1/opportunities")).json()) == 1
+        assert len((await client.get("/api/v1/opportunities/history")).json()) == 1
+
+
+async def test_unrelated_discovery_failure_does_not_invalidate_pair(database):
+    settings, _, repository = database
+    await Pipeline(
+        settings, repository, [SimulationAdapter("kalshi"), SimulationAdapter("polymarket")]
+    ).cycle()
+    await repository.set_health("simulation", "polymarket_us", "degraded", error="offline")
+    assert len(await repository.opportunities("simulation", 120)) == 1
+
+
+async def test_us_pair_publication_and_disabled_international_history(database):
+    # Synthetic publication contract only; this does not enable live US evaluation.
+    from arbbot.domain import MarketHealth
+
+    settings, db, repository = database
+    await Pipeline(
+        settings, repository, [SimulationAdapter("kalshi"), SimulationAdapter("polymarket")]
+    ).cycle()
+    original = (await repository.opportunities("simulation", 120))[0]
+    us_adapter = SimulationAdapter("polymarket_us")
+    market = (await us_adapter.discover(1))[0]
+    book = await us_adapter.fetch_book(market)
+    await repository.save_market(market)
+    await repository.save_book(book)
+    await repository.set_health(
+        "simulation",
+        "polymarket_us",
+        "healthy",
+        market_health=[
+            MarketHealth(
+                market_id=market.id,
+                status="healthy",
+                checked_at=utcnow(),
+                book_id=book.id,
+                quote_at=book.effective_at,
+                valid_until=original.valid_until,
+            )
+        ],
+    )
+    opportunity = original.model_copy(
+        update={
+            "id": "synthetic-us-publication",
+            "legs": (
+                original.legs[0],
+                original.legs[1].model_copy(
+                    update={
+                        "market_id": market.id,
+                        "book_id": book.id,
+                        "quote_at": book.effective_at,
+                    }
+                ),
+            ),
+        }
+    )
+    await repository.publish(
+        "simulation",
+        await repository.matches("simulation"),
+        [
+            Evaluation(
+                match_id=original.match_id,
+                mode="simulation",
+                evaluated_at=utcnow(),
+                blocked_reasons=(),
+                opportunities=(opportunity, original),
+            )
+        ],
+    )
+    settings = settings.model_copy(update={"enabled_venues": ("kalshi", "polymarket_us")})
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=create_app(settings, db)), base_url="http://test"
+    ) as client:
+        rows = (await client.get("/api/v1/opportunities")).json()
+        assert [row["id"] for row in rows] == [opportunity.id]
+        assert len((await client.get("/api/v1/opportunities/history")).json()) == 2
+        await repository.set_health("simulation", "polymarket_us", "degraded", error="offline")
+        assert (await client.get("/api/v1/opportunities")).json() == []
+        assert len((await client.get("/api/v1/opportunities/history")).json()) == 2

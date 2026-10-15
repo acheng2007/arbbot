@@ -1,193 +1,229 @@
 "use client";
-import Link from "next/link";
+import { useOpportunityStream } from "@/features/opportunities/use-stream";
+import { StreamStatusBanner } from "@/features/opportunities/stream-status";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
-import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/states";
 import { OriginBanner } from "@/components/data-origin";
-import { Age } from "@/components/freshness";
 import { useApi } from "@/lib/query/hooks";
 import { QueryState } from "@/features/shared/query-state";
-import { venueLabel } from "@/features/shared/status";
+import { PairedPrediction, PredictionCard } from "./prediction-card";
 import {
-  applyLocalFilters,
   PAGE_SIZE,
   parseFilters,
   serializeFilters,
   type MarketFilters,
 } from "./filters";
-
 const CONTROL =
-  "h-11 rounded-md border border-border bg-card px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
-
+  "h-10 rounded-lg border border-border bg-card px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring";
 export function MarketBrowser() {
+  const stream = useOpportunityStream();
   const router = useRouter();
   const params = useSearchParams();
   const filters = useMemo(
     () => parseFilters(new URLSearchParams(params.toString())),
     [params],
   );
-
-  const update = (changes: Partial<MarketFilters>) => {
-    const next = { ...filters, ...changes };
-    // Any filter change invalidates the current page position.
-    if (!("offset" in changes)) next.offset = 0;
-    router.replace(`/markets${serializeFilters(next)}`, { scroll: false });
+  const [expanded, setExpanded] = useState(false);
+  const paired = filters.view === "paired";
+  const update = (changes: Partial<MarketFilters>) =>
+    router.replace(
+      `/markets${serializeFilters({ ...filters, ...changes, offset: "offset" in changes ? changes.offset! : 0 })}`,
+      { scroll: false },
+    );
+  const common = {
+    limit: PAGE_SIZE,
+    offset: filters.offset,
+    ...(filters.venue ? { venue: filters.venue } : {}),
+    ...(filters.search.trim() ? { q: filters.search.trim() } : {}),
   };
-
-  const markets = useApi("markets", {
-    query: {
-      limit: PAGE_SIZE,
-      offset: filters.offset,
-      ...(filters.venue ? { venue: filters.venue } : {}),
+  const markets = useApi(
+    "marketSummaries",
+    {
+      query: {
+        ...common,
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(filters.category ? { category: filters.category } : {}),
+      },
     },
-  });
-
-  const loaded = markets.data?.data ?? [];
-  const visible = applyLocalFilters(loaded, filters);
-  const narrowed = Boolean(filters.status || filters.search.trim());
-  const page = Math.floor(filters.offset / PAGE_SIZE) + 1;
-
+    { enabled: !paired },
+  );
+  const matches = useApi(
+    "matches",
+    {
+      query: {
+        ...common,
+        same_event: true,
+        exclude_rejected: true,
+        ...(filters.status ? { market_status: filters.status } : {}),
+        ...(filters.category ? { category: filters.category } : {}),
+      },
+    },
+    { enabled: paired },
+  );
+  const venues = useApi("venues");
+  const query = paired ? matches : markets;
+  const count = query.data?.data.length ?? 0;
+  const narrowed = Boolean(
+    filters.venue || filters.status || filters.category || filters.search,
+  );
   return (
-    <div className="space-y-6">
-      {markets.data && <OriginBanner origin={markets.data.origin} />}
-
+    <div className="space-y-4">
+      <div
+        className="flex gap-6 border-b border-border"
+        aria-label="Market views"
+      >
+        {[
+          ["paired", "Paired markets"],
+          ["all", "All markets"],
+        ].map(([view, label]) => (
+          <button
+            key={view}
+            type="button"
+            aria-pressed={filters.view === view}
+            onClick={() => update({ view: view as MarketFilters["view"] })}
+            className={`border-b-2 pb-3 text-sm font-semibold ${filters.view === view ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <form
         role="search"
         aria-label="Filter markets"
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4 sm:p-5"
-        onSubmit={(event) => event.preventDefault()}
+        className="flex flex-wrap gap-2"
+        onSubmit={(e) => e.preventDefault()}
       >
-        <div className="flex min-w-[14rem] flex-1 flex-col gap-1.5">
-          <label htmlFor="market-search" className="text-xs font-semibold">
-            Search the loaded page
+        <div className="relative w-full sm:min-w-64 sm:flex-1">
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-3 size-4 text-muted-foreground"
+          />
+          <label htmlFor="market-search" className="sr-only">
+            Search all markets
           </label>
-          <div className="relative">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            />
+          <input
+            id="market-search"
+            type="search"
+            value={filters.search}
+            maxLength={200}
+            placeholder="Search markets"
+            onChange={(e) => update({ search: e.target.value })}
+            className={`${CONTROL} w-full pl-9`}
+          />
+        </div>
+        <label className="sr-only" htmlFor="market-venue">
+          Venue
+        </label>
+        <select
+          id="market-venue"
+          value={filters.venue}
+          onChange={(e) =>
+            update({ venue: e.target.value as MarketFilters["venue"] })
+          }
+          className={`${CONTROL} min-w-0 flex-1 sm:flex-none`}
+        >
+          <option value="">All venues</option>
+          {venues.data?.data
+            .filter((v) => v.enabled)
+            .map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name}
+              </option>
+            ))}
+        </select>
+        <Button
+          type="button"
+          variant="outline"
+          aria-expanded={expanded}
+          aria-controls="market-extra-filters"
+          onClick={() => setExpanded(!expanded)}
+        >
+          <SlidersHorizontal aria-hidden="true" className="size-4" />
+          Filters
+        </Button>
+        {(expanded || filters.status || filters.category) && (
+          <div
+            id="market-extra-filters"
+            className="flex w-full flex-wrap items-center gap-2 rounded-lg bg-muted p-3"
+          >
+            <label htmlFor="market-status" className="text-xs">
+              Status
+            </label>
+            <select
+              id="market-status"
+              value={filters.status}
+              onChange={(e) =>
+                update({ status: e.target.value as MarketFilters["status"] })
+              }
+              className={CONTROL}
+            >
+              <option value="">Any status</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+            <label htmlFor="market-category" className="text-xs">
+              Category
+            </label>
             <input
-              id="market-search"
-              type="search"
-              value={filters.search}
-              placeholder="Title or venue identifier"
-              onChange={(event) => update({ search: event.target.value })}
-              className={`${CONTROL} w-full pl-9`}
+              id="market-category"
+              value={filters.category}
+              placeholder="Exact category"
+              maxLength={100}
+              onChange={(e) => update({ category: e.target.value })}
+              className={`${CONTROL} min-w-0`}
             />
           </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="market-venue" className="text-xs font-semibold">
-            Venue
-          </label>
-          <select
-            id="market-venue"
-            value={filters.venue}
-            onChange={(event) =>
-              update({ venue: event.target.value as MarketFilters["venue"] })
-            }
-            className={CONTROL}
-          >
-            <option value="">All venues</option>
-            <option value="kalshi">Kalshi</option>
-            <option value="polymarket">Polymarket</option>
-          </select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="market-status" className="text-xs font-semibold">
-            Status
-          </label>
-          <select
-            id="market-status"
-            value={filters.status}
-            onChange={(event) =>
-              update({ status: event.target.value as MarketFilters["status"] })
-            }
-            className={CONTROL}
-          >
-            <option value="">Any status</option>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-        {(filters.venue || narrowed) && (
+        )}
+        {narrowed && (
           <Button
-            type="button"
             variant="outline"
-            onClick={() => router.replace("/markets", { scroll: false })}
+            type="button"
+            onClick={() =>
+              update({ venue: "", status: "", category: "", search: "" })
+            }
           >
             Clear filters
           </Button>
         )}
       </form>
-
-      <p className="text-sm leading-6 text-muted-foreground">
-        Venue and page position are applied by the API. Status and text search
-        narrow the {loaded.length} markets on this page only, because
-        catalog-wide filtering is not yet available from the backend.
-      </p>
-
+      {query.data && <OriginBanner origin={query.data.origin} />}
+      <StreamStatusBanner state={stream} />
       <QueryState
-        isPending={markets.isPending}
-        error={markets.error}
+        isPending={query.isPending}
+        error={query.error}
         loadingLabel="Loading markets"
-        onRetry={() => void markets.refetch()}
+        onRetry={() => void query.refetch()}
       >
-        {visible.length === 0 ? (
+        {count === 0 ? (
           <EmptyState
-            title={
-              narrowed
-                ? "No markets match these filters"
-                : "No markets on this page"
-            }
-            description={
-              narrowed
-                ? "Try a broader search, or clear the filters to see everything the API returned for this page."
-                : "The API returned no markets for this venue and page. Ingestion may not have discovered any yet."
-            }
+            title={paired ? "No paired markets found" : "No markets found"}
+            description="Try broader filters or browse All markets."
           />
         ) : (
-          <ul className="space-y-3">
-            {visible.map((market) => (
-              <li key={market.id}>
-                <Link
-                  href={`/markets/${encodeURIComponent(market.id)}`}
-                  className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="neutral">{venueLabel(market.venue)}</Badge>
-                    <Badge
-                      tone={market.status === "open" ? "positive" : "neutral"}
-                    >
-                      {market.status === "open" ? "Open" : "Closed"}
-                    </Badge>
-                    <Badge
-                      tone={market.mode === "live" ? "positive" : "caution"}
-                    >
-                      {market.mode === "live" ? "Live feed" : "Simulation"}
-                    </Badge>
-                    <Age at={market.observed_at} label="Observed" />
-                  </div>
-                  <p className="mt-3 font-medium leading-6">{market.title}</p>
-                  <p className="mt-2 font-mono text-xs break-all text-muted-foreground">
-                    {market.external_id}
-                  </p>
-                </Link>
-              </li>
-            ))}
+          <ul className="grid items-start gap-4 md:grid-cols-2">
+            {paired
+              ? matches.data?.data.map((match) => (
+                  <li key={match.id}>
+                    <PairedPrediction match={match} />
+                  </li>
+                ))
+              : markets.data?.data.map((market) => (
+                  <li key={market.id}>
+                    <PredictionCard market={market} pairingState="ready" />
+                  </li>
+                ))}
           </ul>
         )}
       </QueryState>
-
       <nav
         aria-label="Market pages"
-        className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5"
+        className="flex items-center justify-between gap-3 border-t border-border pt-4"
       >
-        <span className="text-sm text-muted-foreground">
-          Page {page}, showing {visible.length} of {loaded.length} loaded
+        <span className="text-xs text-muted-foreground">
+          Page {Math.floor(filters.offset / PAGE_SIZE) + 1}
         </span>
         <div className="flex gap-2">
           <Button
@@ -203,7 +239,7 @@ export function MarketBrowser() {
           <Button
             variant="outline"
             size="sm"
-            disabled={loaded.length < PAGE_SIZE}
+            disabled={query.isPending || count < PAGE_SIZE}
             onClick={() => update({ offset: filters.offset + PAGE_SIZE })}
           >
             Next

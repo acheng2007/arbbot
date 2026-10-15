@@ -51,7 +51,7 @@ export default function Connection() {
           <p className="mt-2 text-sm text-muted-foreground">
             {query.data.mode === "simulation"
               ? "Simulation data is synthetic and is not live market data."
-              : "Live ingestion is configured. Market data is not displayed in this preview."}
+              : "Live ingestion is configured. Check individual markets for quote freshness."}
           </p>
           <Button
             variant="outline"

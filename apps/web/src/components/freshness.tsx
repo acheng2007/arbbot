@@ -79,6 +79,7 @@ type Props = {
   /** When this system received the data. Always available. */
   receivedAt: string;
   label?: string;
+  compact?: boolean;
 };
 
 /**
@@ -86,7 +87,12 @@ type Props = {
  * falls back to the receipt timestamp otherwise, saying which was used. The two
  * are never conflated, because a missing source timestamp hides real latency.
  */
-export function QuoteAge({ sourceAt, receivedAt, label = "Quote" }: Props) {
+export function QuoteAge({
+  sourceAt,
+  receivedAt,
+  label = "Quote",
+  compact = false,
+}: Props) {
   const now = useNow();
   const basis = sourceAt ?? receivedAt;
   const parsed = Date.parse(basis);
@@ -103,13 +109,16 @@ export function QuoteAge({ sourceAt, receivedAt, label = "Quote" }: Props) {
     );
 
   const seconds = (now - parsed) / 1000;
-  const tone = freshnessTone(seconds);
+  const tone = seconds < 0 ? "critical" : freshnessTone(seconds);
   const source = sourceAt ? "exchange timestamp" : "receipt time only";
 
   return (
     <Badge tone={tone} title={`${new Date(parsed).toISOString()} (${source})`}>
-      {label} {describeAge(seconds)}
-      <span className="font-normal opacity-80">({source})</span>
+      {seconds > QUOTE_WINDOW_SECONDS ? `Stale ${label.toLowerCase()}` : label}{" "}
+      {describeAge(seconds)}
+      {(!compact || !sourceAt) && (
+        <span className="font-normal opacity-80">({source})</span>
+      )}
     </Badge>
   );
 }

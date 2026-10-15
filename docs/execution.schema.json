@@ -1,0 +1,451 @@
+{
+  "$defs": {
+    "AccessProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "access",
+          "default": "access",
+          "title": "Kind",
+          "type": "string"
+        },
+        "jurisdiction": {
+          "maxLength": 100,
+          "minLength": 2,
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "restricted",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "permissions": {
+          "items": {
+            "$ref": "#/$defs/Permission"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Permissions",
+          "type": "array"
+        },
+        "supporting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Supporting Evidence",
+          "type": "array"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jurisdiction",
+        "status",
+        "permissions",
+        "supporting_evidence",
+        "expires_at"
+      ],
+      "title": "AccessProfile",
+      "type": "object"
+    },
+    "Applicability": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "applicability",
+          "default": "applicability",
+          "title": "Kind",
+          "type": "string"
+        },
+        "market_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Market Id",
+          "type": "string"
+        },
+        "terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Terms Hash",
+          "type": "string"
+        },
+        "product_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Product Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "revoked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "specifications": {
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Specifications",
+          "type": "array"
+        },
+        "amendments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "maxItems": 64,
+          "title": "Amendments",
+          "type": "array"
+        },
+        "amendment_inventory": {
+          "$ref": "#/$defs/Citation"
+        },
+        "rationale": {
+          "maxLength": 8000,
+          "minLength": 20,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "market_id",
+        "terms_hash",
+        "product_id",
+        "status",
+        "specifications",
+        "amendment_inventory",
+        "rationale",
+        "expires_at"
+      ],
+      "title": "Applicability",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "quotation": {
+          "maxLength": 8000,
+          "minLength": 10,
+          "title": "Quotation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "content_hash",
+        "quotation"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "ExecutableFeePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "fees",
+          "default": "fees",
+          "title": "Kind",
+          "type": "string"
+        },
+        "market_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Market Id",
+          "type": "string"
+        },
+        "venue": {
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Venue",
+          "type": "string"
+        },
+        "terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Terms Hash",
+          "type": "string"
+        },
+        "formula": {
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Formula",
+          "type": "string"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "maximum": 7.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Coefficient"
+        },
+        "minimum_execution_quantity": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Execution Quantity"
+        },
+        "balance_precision": {
+          "anyOf": [
+            {
+              "enum": [
+                "0.0001",
+                "0.01"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Balance Precision"
+        },
+        "account_class": {
+          "enum": [
+            "direct",
+            "non_direct",
+            "standard"
+          ],
+          "title": "Account Class",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Citation"
+        },
+        "supporting_sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "maxItems": 16,
+          "title": "Supporting Sources",
+          "type": "array"
+        },
+        "metadata_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Metadata Hash",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "effective_at": {
+          "format": "date-time",
+          "title": "Effective At",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "market_id",
+        "venue",
+        "terms_hash",
+        "formula",
+        "coefficient",
+        "account_class",
+        "source",
+        "metadata_hash",
+        "observed_at",
+        "effective_at",
+        "expires_at"
+      ],
+      "title": "ExecutableFeePolicy",
+      "type": "object"
+    },
+    "Permission": {
+      "additionalProperties": false,
+      "properties": {
+        "venue": {
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Venue",
+          "type": "string"
+        },
+        "market_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10000,
+          "minItems": 1,
+          "title": "Market Ids",
+          "type": "array"
+        },
+        "short_allowed": {
+          "title": "Short Allowed",
+          "type": "boolean"
+        },
+        "fee_account_class": {
+          "enum": [
+            "direct",
+            "non_direct",
+            "standard"
+          ],
+          "title": "Fee Account Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "venue",
+        "market_ids",
+        "short_allowed",
+        "fee_account_class"
+      ],
+      "title": "Permission",
+      "type": "object"
+    },
+    "UnavailableFeePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "fee_unavailable",
+          "default": "fee_unavailable",
+          "title": "Kind",
+          "type": "string"
+        },
+        "market_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Market Id",
+          "type": "string"
+        },
+        "terms_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Terms Hash",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "provider_error",
+            "unsupported_policy",
+            "incomplete_metadata",
+            "stale",
+            "unverified_account_fees"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "market_id",
+        "terms_hash",
+        "reason",
+        "expires_at"
+      ],
+      "title": "UnavailableFeePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision_id": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{32}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Revision Id"
+    },
+    "value": {
+      "discriminator": {
+        "mapping": {
+          "access": "#/$defs/AccessProfile",
+          "applicability": "#/$defs/Applicability",
+          "fee_unavailable": "#/$defs/UnavailableFeePolicy",
+          "fees": "#/$defs/ExecutableFeePolicy"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AccessProfile"
+        },
+        {
+          "$ref": "#/$defs/Applicability"
+        },
+        {
+          "$ref": "#/$defs/ExecutableFeePolicy"
+        },
+        {
+          "$ref": "#/$defs/UnavailableFeePolicy"
+        }
+      ],
+      "title": "Value"
+    },
+    "reason": {
+      "maxLength": 4000,
+      "minLength": 10,
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "value",
+    "reason"
+  ],
+  "title": "ConfigurationWrite",
+  "type": "object"
+}

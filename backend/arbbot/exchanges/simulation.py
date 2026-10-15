@@ -1,7 +1,17 @@
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
-from arbbot.domain import Book, CostPolicy, Level, Market, Review, Scenario, utcnow
+from arbbot.domain import (
+    Book,
+    CostPolicy,
+    JointSettlementCase,
+    Level,
+    Market,
+    Review,
+    Scenario,
+    SettlementMapping,
+    utcnow,
+)
 
 CLOSE = datetime(2099, 1, 1, tzinfo=UTC)
 
@@ -20,6 +30,9 @@ class SimulationAdapter:
                 title="SIMULATION: Will the demo index finish above 100?",
                 rules=(
                     "Synthetic binary event; YES and NO are complementary, including cancellation."
+                    " Synthetic cancellation pays 0.5 to each outcome."
+                    " Cancellation is a single shared event that occurs on both venues together."
+                    " No fallback or ambiguous-resolution conditions apply in this simulation."
                 ),
                 closes_at=CLOSE,
                 status="open",
@@ -45,9 +58,9 @@ class SimulationAdapter:
 
 def simulation_reviews(markets: list[Market]) -> list[Review]:
     indexed = {m.venue: m for m in markets if m.mode == "simulation"}
-    if set(indexed) != {"kalshi", "polymarket"}:
+    if set(indexed) not in ({"kalshi", "polymarket"}, {"kalshi", "polymarket_us"}):
         return []
-    a, b = indexed["kalshi"], indexed["polymarket"]
+    a, b = indexed["kalshi"], indexed.get("polymarket_us") or indexed["polymarket"]
     policy = CostPolicy(
         fee_per_contract=Decimal("0.02"),
         fixed_fee=Decimal("0.01"),
@@ -72,10 +85,49 @@ def simulation_reviews(markets: list[Market]) -> list[Review]:
             expires_at=utcnow() + timedelta(days=1),
             left_costs=policy,
             right_costs=policy,
+            joint_settlement_cases=(
+                JointSettlementCase(
+                    left_state="cancellation:cancelled",
+                    right_state="cancellation:cancelled",
+                    scenario="cancelled",
+                ),
+                *(
+                    JointSettlementCase(
+                        left_state=a,
+                        right_state=b,
+                        exclusion_reason=(
+                            "The synthetic rules explicitly define cancellation as a single "
+                            "shared event on both venues together."
+                        ),
+                        left_evidence_policies=("cancellation",),
+                        right_evidence_policies=("cancellation",),
+                    )
+                    for normal in ("normal_yes", "normal_no")
+                    for a, b in (
+                        ("cancellation:cancelled", normal),
+                        (normal, "cancellation:cancelled"),
+                    )
+                ),
+            ),
+            settlement_mappings=tuple(
+                SettlementMapping(
+                    side=side,
+                    policy="cancellation",
+                    condition_id="cancelled",
+                    scenarios=("cancelled",),
+                )
+                for side in ("left", "right")
+            ),
             scenarios=(
-                Scenario(name="yes", left_yes="1", right_yes="1"),
-                Scenario(name="no", left_yes="0", right_yes="0"),
-                Scenario(name="cancelled", left_yes="0.5", right_yes="0.5"),
+                Scenario(name="yes", left_yes="1", right_yes="1", left_no="0", right_no="0"),
+                Scenario(name="no", left_yes="0", right_yes="0", left_no="1", right_no="1"),
+                Scenario(
+                    name="cancelled",
+                    left_yes="0.5",
+                    right_yes="0.5",
+                    left_no="0.5",
+                    right_no="0.5",
+                ),
             ),
         )
     ]

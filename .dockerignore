@@ -7,3 +7,10 @@
 **/*.egg-info
 **/*.pem
 **/*.key
+**/node_modules
+**/.next
+**/test-results
+**/playwright-report
+**/.env.local
+**/.env.*.local
+.specstory

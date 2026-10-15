@@ -75,7 +75,7 @@ describe("live update status", () => {
     const banner = screen.getByRole("status");
     expect(banner).toHaveTextContent("Live updates disconnected, retrying.");
     expect(banner).toHaveTextContent(/may no longer hold/);
-    expect(banner).toHaveTextContent("dropped 2 times");
+    expect(banner).toHaveTextContent("2 reconnects");
   });
 
   it("does not imply confirmation before the first event", () => {
@@ -85,7 +85,93 @@ describe("live update status", () => {
       />,
     );
     expect(screen.getByRole("status")).toHaveTextContent(
-      /Nothing below has been confirmed by a live update yet/,
+      /No snapshot has arrived yet/,
     );
   });
+});
+
+describe("backend snapshot subscription", () => {
+  it("refreshes current queries and closes the stream on unmount", async () => {
+    const { QueryClient, QueryClientProvider } =
+      await import("@tanstack/react-query");
+    const { renderHook, act } = await import("@testing-library/react");
+    const { vi } = await import("vitest");
+    const { useOpportunityStream } =
+      await import("@/features/opportunities/use-stream");
+    const client = new QueryClient();
+    const invalidate = vi.spyOn(client, "invalidateQueries");
+    class MockSource extends EventTarget {
+      onopen: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      close = vi.fn();
+    }
+    const source = new MockSource();
+    vi.stubGlobal(
+      "EventSource",
+      vi.fn(function () {
+        return source;
+      }),
+    );
+    try {
+      const hook = renderHook(() => useOpportunityStream(), {
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={client}>{children}</QueryClientProvider>
+        ),
+      });
+      act(() => source.onopen?.());
+      expect(hook.result.current.status).toBe("open");
+      expect(hook.result.current.lastEventAt).toBeNull();
+      act(() =>
+        source.dispatchEvent(
+          new MessageEvent("snapshot", {
+            data: JSON.stringify({
+              mode: "live",
+              as_of: new Date().toISOString(),
+              opportunities: [],
+              exchanges: [],
+              limit: 200,
+            }),
+          }),
+        ),
+      );
+      expect(hook.result.current.lastEventAt).not.toBeNull();
+      expect(invalidate).toHaveBeenCalledWith(
+        { queryKey: ["arbbot", "opportunities"] },
+        { cancelRefetch: false },
+      );
+      expect(invalidate).toHaveBeenCalledWith(
+        { queryKey: ["arbbot", "evaluations"] },
+        { cancelRefetch: false },
+      );
+      hook.unmount();
+      expect(source.close).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+it("labels a native short's summary price as collateral", async () => {
+  const { OpportunityCard } =
+    await import("@/features/opportunities/opportunity-card");
+  const markets = new Map(dataset.markets.map((market) => [market.id, market]));
+  render(
+    <OpportunityCard
+      markets={markets}
+      opportunity={{
+        ...opportunity,
+        legs: [
+          opportunity.legs[0],
+          {
+            ...opportunity.legs[1],
+            native_action: "short_instrument",
+            native_price: "0.47",
+          },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getByText(/Short YES \(NO\)/)).toBeVisible();
+  expect(screen.getByText("Collateral 53¢", { exact: true })).toBeVisible();
+  expect(screen.queryByText("Fee policy snapshot")).not.toBeInTheDocument();
 });

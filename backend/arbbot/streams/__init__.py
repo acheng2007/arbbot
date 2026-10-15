@@ -1,1 +1,1 @@
-"""Exchange-neutral book stream events and resynchronization state."""
+"""Persistent market-data streams, validated events and resynchronization state."""

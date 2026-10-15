@@ -8,14 +8,26 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 from arbbot.config import Settings
-from arbbot.domain import Book, Level, Market, utcnow
+from arbbot.domain import (
+    Book,
+    ExecutionSemantics,
+    InstrumentConstraints,
+    Level,
+    Market,
+    PriceBand,
+    utcnow,
+)
 from arbbot.exchanges.base import ExchangeHTTP
+from arbbot.exchanges.kalshi_sources import enrich_kalshi
 
 BASE = "https://external-api.kalshi.com/trade-api/v2"
 
 
 class KalshiAdapter:
     venue = "kalshi"
+
+    async def enrich_sources(self, market, repository, fetcher):
+        return await enrich_kalshi(market, repository, fetcher)
 
     def __init__(self, http: ExchangeHTTP, settings: Settings):
         self.http = http
@@ -92,6 +104,9 @@ class KalshiAdapter:
             closes_at=datetime.fromisoformat(item["close_time"]),
             status="open" if item["status"] in {"open", "active"} else "closed",
             settlement_asset="USD",
+            category=item.get("category"),
+            instrument_constraints=kalshi_constraints(item),
+            execution_semantics=ExecutionSemantics(yes_action="buy_yes", no_action="buy_no"),
             raw=item,
             observed_at=utcnow(),
             settlement_details={
@@ -142,3 +157,20 @@ class KalshiAdapter:
             source_at=None,
             raw=data,
         )
+
+
+def kalshi_constraints(item):
+    ranges = item.get("price_ranges")
+    if not isinstance(ranges, list) or not ranges:
+        return None
+    bands = tuple(PriceBand.model_validate(band) for band in ranges)
+    return InstrumentConstraints(
+        price_increment=min(b.step for b in bands),
+        price_ranges=bands,
+        quantity_increment="0.01",
+        minimum_quantity="0.01",
+        unit_payout="1",
+        payout_evidence=(
+            "Validated binary USD one-dollar instrument and documented fixed-point grid"
+        ),
+    )

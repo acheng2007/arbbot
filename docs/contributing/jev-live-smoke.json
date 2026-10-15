@@ -1,0 +1,6 @@
+{
+  "status": "skipped",
+  "reason": "OPENROUTER_API_KEY is not configured",
+  "checked_at": "2026-10-14T06:04:11.013996+00:00",
+  "requested_model": "typesafe/jev-1.13"
+}

@@ -6,18 +6,21 @@ test("a reader can reach the evidence behind a proposed pair", async ({
   await page.goto("/matches");
 
   // Recorded data must never read as live exchange data.
-  await expect(page.getByText("Recorded fixture data.")).toBeVisible();
+  await expect(page.getByText(/Recorded fixture data/)).toBeVisible();
 
   const candidate = page.getByRole("link", {
     name: /US CPI year-over-year above 3\.0%/,
   });
   await expect(candidate).toContainText("Verified in review");
-  await expect(candidate).toContainText("a discovery signal only");
+  await expect(candidate).not.toContainText("Title similarity");
   await candidate.click();
 
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "US CPI year-over-year above 3.0%",
   );
+  await page.getByText("Settlement terms", { exact: true }).click();
+  await page.getByText("Source documents", { exact: true }).click();
+  await page.getByText("Review evidence", { exact: true }).click();
   await expect(page.getByText("Unresolved assumptions")).toBeVisible();
   await expect(page.getByText(/resolves 50\/50/).first()).toBeVisible();
 
@@ -44,6 +47,7 @@ test("a conflicting pair is never presented as the same event", async ({
   await expect(
     page.getByText(/have not been established as describing the same event/),
   ).toBeVisible();
+  await page.getByText("Review evidence", { exact: true }).click();
   await expect(page.getByText(/Intermeeting cuts settle these/)).toBeVisible();
 });
 

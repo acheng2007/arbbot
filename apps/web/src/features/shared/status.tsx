@@ -2,8 +2,8 @@ import { Badge, type BadgeTone } from "@/components/ui/badge";
 import type { Comparison, Difference, Match } from "@/lib/api/schema";
 
 /**
- * A match status always reflects a recorded human review. Similarity is a
- * discovery signal only and never appears as a verification state.
+ * Verification provenance distinguishes automatic rules from historical review.
+ * Similarity remains a discovery signal.
  */
 const MATCH_STATUS: Record<
   Match["status"],
@@ -14,7 +14,16 @@ const MATCH_STATUS: Record<
   rejected: { tone: "critical", label: "Rejected in review" },
 };
 
-export function MatchStatusBadge({ status }: { status: Match["status"] }) {
+export function MatchStatusBadge({
+  status,
+  qualification,
+}: {
+  status: Match["status"];
+  qualification?: Match["qualification"];
+}) {
+  if (status === "verified" && qualification?.basis === "automatic_rules") {
+    return <Badge tone="positive">Automatically qualified</Badge>;
+  }
   const { tone, label } = MATCH_STATUS[status];
   return <Badge tone={tone}>{label}</Badge>;
 }
@@ -63,7 +72,8 @@ export function fieldLabel(field: string) {
 
 const VENUE_LABEL: Record<string, string> = {
   kalshi: "Kalshi",
-  polymarket: "Polymarket",
+  polymarket: "Polymarket International",
+  polymarket_us: "Polymarket US",
 };
 
 export function venueLabel(venue: string) {

@@ -3,7 +3,11 @@ import { backendUrl } from "@/lib/backend";
 import { ApiError, failureFromStatus } from "./errors";
 import type { DataOrigin } from "./origin";
 import { buildPath, type RequestArgs } from "./request";
-import { API_OPERATIONS, type ApiOperations, type OperationId } from "./schema";
+import {
+  API_OPERATIONS,
+  type ApiOperations,
+  type ReadOperationId as OperationId,
+} from "./schema";
 import { recordedDataset } from "./fixtures";
 
 /**
@@ -13,7 +17,9 @@ import { recordedDataset } from "./fixtures";
 export function dataOrigin(): DataOrigin {
   return process.env.ARBBOT_WEB_DATA_SOURCE === "fixtures"
     ? "fixtures"
-    : "backend";
+    : process.env.ARBBOT_WEB_DATA_SOURCE === "recorded_backend"
+      ? "recorded_backend"
+      : "backend";
 }
 
 const TIMEOUT_MS = 8000;
@@ -83,6 +89,14 @@ function fromFixtures(
     limit?: number;
     offset?: number;
     venue?: string | null;
+    market_id?: string | null;
+    status?: string | null;
+    category?: string | null;
+    q?: string | null;
+    classification?: string | null;
+    same_event?: boolean;
+    market_status?: string | null;
+    exclude_rejected?: boolean;
   };
   const fixtures = recordedDataset();
 
@@ -92,12 +106,48 @@ function fromFixtures(
       return { status: "ok", mode: "simulation" };
     case "status":
       return { mode: "simulation", venues: ["kalshi", "polymarket"] };
+    case "accessSummary":
+      return {
+        status: "unknown",
+        revision_id: null,
+        permitted_venues: [],
+        expires_at: null,
+      };
+    case "venues":
+      return [
+        {
+          id: "kalshi",
+          name: "Kalshi",
+          enabled: true,
+          evaluation_enabled: true,
+          access_note: "Simulation",
+        },
+        {
+          id: "polymarket",
+          name: "Polymarket International",
+          enabled: true,
+          evaluation_enabled: true,
+          access_note: "Simulation",
+        },
+      ];
+    case "marketSummaries":
     case "markets": {
       const venue = query.venue;
       const filtered = venue
         ? fixtures.markets.filter((market) => market.venue === venue)
         : fixtures.markets;
-      return paginate(filtered, query);
+      return paginate(
+        filtered.filter(
+          (market) =>
+            (!query.status || market.status === query.status) &&
+            (!query.category || market.category === query.category) &&
+            (!query.q ||
+              `${market.title} ${market.id} ${market.external_id} ${market.rules}`
+                .toLowerCase()
+                .includes(String(query.q).toLowerCase())),
+        ),
+        query,
+      );
     }
     case "market":
       return required(
@@ -124,8 +174,63 @@ function fromFixtures(
         ),
         "Snapshot",
       );
+    case "match":
+      return required(
+        fixtures.matches.find((entry) => entry.id === params.match_id),
+        "Match",
+      );
+    case "classificationDetail": {
+      const match = required(
+        fixtures.matches.find((entry) => entry.id === params.match_id),
+        "Match",
+      );
+      return match.classification ?? { state: "unconfigured" };
+    }
     case "matches":
-      return paginate(fixtures.matches, query);
+      return paginate(
+        fixtures.matches.filter(
+          (entry) =>
+            (query.same_event === undefined ||
+              entry.comparison?.same_event ===
+                (String(query.same_event) === "true")) &&
+            (String(query.exclude_rejected) !== "true" ||
+              entry.status !== "rejected") &&
+            (!query.status || entry.status === query.status) &&
+            fixtures.markets.some(
+              (market) =>
+                [entry.left_id, entry.right_id].includes(market.id) &&
+                (!query.venue || market.venue === query.venue) &&
+                (!query.market_status ||
+                  market.status === query.market_status) &&
+                (!query.category || market.category === query.category) &&
+                (!query.q ||
+                  `${market.title} ${market.id} ${market.rules}`
+                    .toLowerCase()
+                    .includes(query.q.toLowerCase())),
+            ) &&
+            (!query.market_id ||
+              entry.left_id === query.market_id ||
+              entry.right_id === query.market_id) &&
+            (!query.classification ||
+              (query.classification === "suggested"
+                ? entry.classification?.supports_candidate
+                : (entry.classification?.state ?? "unconfigured") ===
+                  query.classification)),
+        ),
+        query,
+      );
+    case "opportunity": {
+      const current = fixtures.opportunities.find(
+        (entry) => entry.id === params.opportunity_id,
+      );
+      const entry =
+        current ??
+        fixtures.history.find((entry) => entry.id === params.opportunity_id);
+      return {
+        opportunity: required(entry, "Opportunity"),
+        eligible: Boolean(current),
+      };
+    }
     case "opportunities":
       return paginate(fixtures.opportunities, query);
     case "history":

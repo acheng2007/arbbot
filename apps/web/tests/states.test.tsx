@@ -20,17 +20,6 @@ it("announces stale evidence", () => {
   render(<StaleNotice>Quotes are stale</StaleNotice>);
   expect(screen.getByRole("status")).toHaveTextContent("Quotes are stale");
 });
-it("routes to each workspace area without fabricating figures", () => {
-  render(<Home />);
-  expect(
-    screen.getByText(/Nothing on this site places an order/),
-  ).toBeVisible();
-  expect(screen.getByText(/Similar titles do not establish/)).toBeVisible();
-  for (const [name, href] of [
-    [/View opportunities/, "/opportunities"],
-    [/Check API connection/, "/connection"],
-    [/Inspect markets/, "/markets"],
-    [/Compare contracts/, "/matches"],
-  ] as const)
-    expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);
+it("opens the market dashboard from the home route", () => {
+  expect(() => Home()).toThrow(/NEXT_REDIRECT/);
 });

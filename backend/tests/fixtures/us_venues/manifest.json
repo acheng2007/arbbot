@@ -1,0 +1,79 @@
+[
+  {
+    "file": "polymarket-us-catalog.json",
+    "url": "https://gateway.polymarket.us/v1/markets?limit=100&active=true&closed=false",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:38.367161+00:00",
+    "sha256": "fe524b0f20b65c803df833b482b16560e2f2d6129b7db52b447edba297e335b6"
+  },
+  {
+    "file": "polymarket-us-dodgers.json",
+    "url": "https://gateway.polymarket.us/v1/market/slug/tec-mlb-champ-2026-09-27-lad",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:38.697848+00:00",
+    "sha256": "01913462a0e6bf50db8275c0004ea77c788fb433fb8f544de8f45ede771d9de6"
+  },
+  {
+    "file": "polymarket-us-dodgers-book.json",
+    "url": "https://gateway.polymarket.us/v1/markets/tec-mlb-champ-2026-09-27-lad/book",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:39.109626+00:00",
+    "sha256": "97066e8869b8500a119fec63e37adae0f47e71dbe4464177692200c6ef7fa24e"
+  },
+  {
+    "file": "kalshi-catalog.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:39.558751+00:00",
+    "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+  },
+  {
+    "file": "kalshi-dodgers.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/markets/KXMLB-26-LAD",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:39.916712+00:00",
+    "sha256": "85d5a05c10730fdfa1b2a0b4a32c7615f8dcff6a8df5e53f2a24d23903db2094"
+  },
+  {
+    "file": "kalshi-dodgers-book.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/markets/KXMLB-26-LAD/orderbook",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:40.280569+00:00",
+    "sha256": "5ba886df27ea92397385dc0a8c5c23690b4b9a072ba92ce23fcd7f86450e1581"
+  },
+  {
+    "file": "kalshi-event.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/events/KXMLB-26",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:40.809363+00:00",
+    "sha256": "a5bbdd2e98124fdd4acd1e6652394c127813181259e3a50629e1ed09c563c23c"
+  },
+  {
+    "file": "kalshi-series.json",
+    "url": "https://external-api.kalshi.com/trade-api/v2/series/KXMLB",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:41.235051+00:00",
+    "sha256": "260d7295d1d16c06c73ef9fad0f343692860004410fb133d5e9e70e5d36ab426"
+  },
+  {
+    "file": "polymarket-us-fees.md",
+    "url": "https://docs.polymarket.us/fees.md",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:41.656798+00:00",
+    "sha256": "7fa0ab39c9e2d31e1e864180b462801f554bcfc41cd8f370a189597441cfa34c"
+  },
+  {
+    "file": "polymarket-us-restrictions.md",
+    "url": "https://docs.polymarket.us/learn/trading/access-and-limits/trading-restrictions.md",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:42.064496+00:00",
+    "sha256": "7d0e3d7dcf23f8507757bb226b29b71ea76726bd59658ffafd4eeceb0fa7bceb"
+  },
+  {
+    "file": "polymarket-us-price-semantics.md",
+    "url": "https://docs.polymarket.us/learn/trading/basics/buying-yes-vs-selling-no.md",
+    "status": 200,
+    "captured_at": "2026-10-01T06:03:42.481063+00:00",
+    "sha256": "f5e925c7ff6bbfae4109f80c4b3fe05e63334a8256c5eb412a0f4d9eec8b82fd"
+  }
+]

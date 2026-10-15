@@ -5,57 +5,44 @@ Each implementation issue is scoped to one PR; the tracker itself is not a singl
 GitHub is authoritative for current status and assignees.
 This index records dependency and file boundaries at publication time.
 
-## Work on Data and Matching first
+## Current priorities: October 15, 2026
 
-[#2](https://github.com/acheng2007/arbbot/issues/2) is implemented: settlement source artifacts persist with immutable content, explicit retrieval failures, and audit history.
-**Start with [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4), which capture real evidence into that store.**
-In parallel, complete [#1](https://github.com/acheng2007/arbbot/issues/1) to define the canonical measurement and settlement fields.
-These are the foundation for deciding whether real contracts describe compatible payouts.
-The [data workstream handoff](data-handoff.md) records what source storage already provides and how the enrichment issues should use it.
+The [implementation roadmap](../implementation-roadmap.md) defines the current delivery order, and the [system design](../system-design.md) defines the automatic discovery architecture.
+The [project status handoff](project-status-handoff.md) records the committed baseline, coverage limits, and next action.
+GitHub issue/PR status was not refreshed in this documentation update.
+The published tables below preserve historical scope and ownership boundaries; review-first dependencies are superseded by the current roadmap.
+Do not restart implemented foundation work or make human review/account setup a prerequisite for public discovery.
 
-Recommended order within this first section:
+1. Expand authentic source applicability and settlement interpretation for one Kalshi/US family, reporting qualification coverage and blockers.
+2. Surface separate potential gaps and qualified estimates in the browser, with automatic qualification evidence and connected desktop/mobile acceptance.
+3. Measure warm latency, cold-start stages, monitoring coverage, and live Jev quality; improve streaming and scheduling from those measurements.
+4. Add venues and event families through registered adapters, evidence/fee providers, and instrument capabilities.
+5. Complete staging, operational recovery, hosted checks, and the seven-day forward paper study.
 
-1. [#2](https://github.com/acheng2007/arbbot/issues/2) established source storage; complete [#1](https://github.com/acheng2007/arbbot/issues/1) for canonical definitions in its own PR.
-2. [#3](https://github.com/acheng2007/arbbot/issues/3) and [#4](https://github.com/acheng2007/arbbot/issues/4): enrich Kalshi and Polymarket evidence after [#2](https://github.com/acheng2007/arbbot/issues/2); the venue-specific work can run in parallel.
-3. [#5](https://github.com/acheng2007/arbbot/issues/5): discover supported overlapping events after both enrichment issues.
-4. [#6](https://github.com/acheng2007/arbbot/issues/6): label and validate cross-exchange pairs after [#5](https://github.com/acheng2007/arbbot/issues/5) and [#1](https://github.com/acheng2007/arbbot/issues/1).
-5. [#7](https://github.com/acheng2007/arbbot/issues/7) and [#8](https://github.com/acheng2007/arbbot/issues/8): expand venue extraction once each issue's own schema and enrichment dependencies are merged; these can overlap steps 3 and 4.
+Automatic qualification, public fee refresh, native sizing, immediate quote rechecks, catalog-wide filters, and counterpart pagination are implemented.
+The new potential feed and detailed qualification browser workflow remain planned.
+All 30 authentic benchmark pairs remain incomplete; synthetic positive acceptance does not establish real settlement compatibility.
+Optional historical review tooling does not block automatic discovery.
+No workstream authorizes trading, custody, or transfers.
 
-The first milestone is a supported, evidence-backed same-event pair with explicitly reviewed settlement differences.
-It does not require a profitable price discrepancy, and it must not manufacture equivalence to satisfy the milestone.
+## Current workstream handoffs
 
-## Parallel work and later priorities
-
-- Verify hosted CI with [#32](https://github.com/acheng2007/arbbot/issues/32) alongside the first foundation PRs.
-- Frontend contributors can start [#21](https://github.com/acheng2007/arbbot/issues/21), then [#22](https://github.com/acheng2007/arbbot/issues/22), then the read-only comparison screen [#24](https://github.com/acheng2007/arbbot/issues/24); market browsing [#23](https://github.com/acheng2007/arbbot/issues/23) also needs [#20](https://github.com/acheng2007/arbbot/issues/20).
-- Arbitrage contributors can start [#11](https://github.com/acheng2007/arbbot/issues/11), then [#12](https://github.com/acheng2007/arbbot/issues/12) and [#13](https://github.com/acheng2007/arbbot/issues/13) in parallel, followed by [#14](https://github.com/acheng2007/arbbot/issues/14) and [#15](https://github.com/acheng2007/arbbot/issues/15) for fees and slippage.
-- After the data foundation, prioritize review persistence/authentication/APIs and review UI, following each issue's dependencies.
-- Then complete the opportunity dashboard, live streams and revalidation, followed by observability, end-to-end QA, staging and recovery.
-
-Dependency-free does not mean equally urgent.
-Prioritize Data and Matching when contributor capacity is limited.
-Keep one issue per PR throughout.
-
-## Other dependency-free tasks
-
-These tasks have no backlog dependencies, but are not all first-priority work.
-Follow the order above and check the issue for current ownership before starting.
-
-| Issue | Workstream | Task |
+| Workstream | Current handoff | Next work |
 | --- | --- | --- |
-| [#1](https://github.com/acheng2007/arbbot/issues/1) | Matching | Version canonical measurement and settlement definitions |
-| [#11](https://github.com/acheng2007/arbbot/issues/11) | Arbitrage | Define a versioned fee quote interface |
-| [#17](https://github.com/acheng2007/arbbot/issues/17) | Backend | Add authentication and reviewer authorization |
-| [#20](https://github.com/acheng2007/arbbot/issues/20) | Backend | Add market and match search and filtering |
-| [#21](https://github.com/acheng2007/arbbot/issues/21) | Frontend | Scaffold the Next.js application and shared UI foundation |
-| [#27](https://github.com/acheng2007/arbbot/issues/27) | Live data | Define order-book stream and resynchronization contracts |
-| [#32](https://github.com/acheng2007/arbbot/issues/32) | Infrastructure | Verify the first hosted backend CI run |
-| [#36](https://github.com/acheng2007/arbbot/issues/36) | Observability | Add tracing across ingestion evaluation and API requests |
+| Integrated product | [Project status](project-status-handoff.md) | Authentic automatic coverage, then complete source-to-browser discovery |
+| Automatic backend | [Automatic qualification](automatic-qualification-handoff.md) | Production applicability and interpretation from authentic sources |
+| Jev | [Advisory classification](jev-handoff.md) | Configured live smoke and authentic quality/coverage measurement |
+| Frontend | [Frontend](frontend-handoff.md) | Separate potential/qualified views and automatic evidence inspection |
+| Existing backend | [Backend](backend-handoff.md) | Integrate coverage, freshness, and measured latency improvements |
+| Sources and expansion | [Data](data-handoff.md), [US venues](us-expansion-handoff.md) | Authentic rules and capability evidence; older review requirements are superseded |
+| Operations | [CI](backend-ci-handoff.md), [Tracing](backend-tracing-handoff.md) | Current hosted checks, worker metrics, staging, recovery |
+| Historical delivery | [History](history/README.md) | Preserve prior validation evidence without reviving obsolete next steps |
 
-Negative-risk assessment is research only.
-Account/execution-readiness is deferred and does not authorize private account access, orders, custody or transfers.
+Dated workstream entries remain implementation history.
+When their next steps conflict with the October 15 roadmap, use the roadmap and current integrated status.
+Check existing GitHub ownership before beginning overlapping implementation; do not republish issues or change remote scopes from this local index alone.
 
-## All issues and merge dependencies
+## Published issue scopes and original dependencies
 
 Primary paths identify ownership; each issue separately names necessary integration edits.
 Paths that do not exist yet are proposed modules to create.
@@ -176,7 +163,8 @@ The dashboard and revalidation issues depend on this completed cost model.
 
 ## Parallel work and shared edits
 
-Frontend bootstrap, auth, source artifact storage, fee interfaces, stream interfaces and canonical definition work can start independently.
+Frontend bootstrap, authentication, source storage, fee/stream interfaces, and canonical definitions are already implemented at their documented scopes.
+The original dependency graph remains useful for identifying integration contracts, not for restarting completed work.
 Venue-specific fetchers, parsers, fee implementations and stream adapters use separate modules and test files.
 Feature screens live in separate frontend feature and route directories.
 Small necessary edits to shared routers, worker wiring, config, schemas, engine or migrations are explicitly called out in the issue.

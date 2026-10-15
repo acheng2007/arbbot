@@ -1,7 +1,7 @@
-"""Conservative, local extraction of explicit US CPI contract language.
+"""Conservative, local extraction of explicit CPI and Fed rate-hike language.
 
-This parser proposes partial definitions. It never supplies settlement exceptions,
-unit payout assumptions, or approval, and does not infer reporting periods from dates.
+This parser proposes partial definitions, never settlement approvals or payout assumptions.
+CPI reporting periods remain explicit; Fed drafts preserve rule-defined observation windows.
 """
 
 import re
@@ -9,6 +9,7 @@ from collections import defaultdict
 from typing import Literal
 
 from arbbot.domain import Market
+from arbbot.matching.baseball import baseball_facts
 from arbbot.matching.contracts import (
     REQUIRED_FIELDS,
     ContractDefinition,
@@ -16,6 +17,7 @@ from arbbot.matching.contracts import (
     FieldName,
     StrictModel,
 )
+from arbbot.matching.rate_hike import rate_hike_facts
 
 VERSION = "us-cpi-rules/v2"
 MONTHS = (
@@ -63,6 +65,34 @@ class Extraction(StrictModel):
 
 
 def extract_contract(market: Market) -> Extraction:
+    sports = baseball_facts(market)
+    if sports:
+        return Extraction(
+            status="partial",
+            definition=ContractDefinition(
+                market_id=market.id,
+                terms_hash=market.terms_hash,
+                schema_version=2,
+                extractor="mlb-championship-rules/v1",
+                facts=sports,
+            ),
+            missing_fields=tuple(n for n in REQUIRED_FIELDS if n not in sports),
+            issues=("exceptional_settlement_and_source_review_required",),
+        )
+    rate_facts = rate_hike_facts(market)
+    if rate_facts:
+        return Extraction(
+            status="partial",
+            definition=ContractDefinition(
+                market_id=market.id,
+                terms_hash=market.terms_hash,
+                extractor="fed-rate-hike-rules/v1",
+                schema_version=2,
+                facts=rate_facts,
+            ),
+            missing_fields=tuple(name for name in REQUIRED_FIELDS if name not in rate_facts),
+            issues=("source_and_exception_review_required",),
+        )
     candidates: dict[str, list[Fact]] = defaultdict(list)
     issues = []
 

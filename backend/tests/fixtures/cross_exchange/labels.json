@@ -1,0 +1,68 @@
+{
+  "label_status": "Source-reading regression labels; not human settlement approvals",
+  "markets": {
+    "kalshi:KXFEDHIKE-2-26DEC31": {
+      "digest": "8228621692ac275040f54c075fa168703f4a5d3da61b662931b98d09e608810a",
+      "family": "fed_rate_hike",
+      "facts": {"event_type": "monetary_policy", "entity": "US", "metric": "federal_funds_rate_increase", "reference_period": "2026", "measurement": "target_range_or_level", "observation_window": "after_market_issuance/through_2026-12-31", "outcome_orientation": "yes_if_true"},
+      "quote": "If the Federal Reserve announces an increase in the target range or target level for the federal funds rate after market Issuance and on or before Dec 31, 2026, then the market resolves to Yes.",
+      "notes": "Calendar deadline and target range or level are explicit. Issuance instant, full sources and exceptional settlements remain unreviewed."
+    },
+    "kalshi:KXFEDHIKE-2-27DEC31": {
+      "digest": "3400c575329f10bce8a80df521102c1028194a9e4c0d96fd803fc04c2839b1c9",
+      "family": "fed_rate_hike",
+      "facts": {"event_type": "monetary_policy", "entity": "US", "metric": "federal_funds_rate_increase", "reference_period": "2027", "measurement": "target_range_or_level", "observation_window": "after_market_issuance/through_2027-12-31", "outcome_orientation": "yes_if_true"},
+      "quote": "If the Federal Reserve announces an increase in the target range or target level for the federal funds rate after market Issuance and on or before Dec 31, 2027, then the market resolves to Yes.",
+      "notes": "Different terminal year from the 2026 Polymarket candidate."
+    },
+    "polymarket:4620900": {
+      "digest": "27dec56536c7a80aee4a0415ee1b9019633f211a5b0a246fd2ef65250e5a105b",
+      "family": "fed_rate_hike",
+      "facts": {"event_type": "monetary_policy", "entity": "US", "metric": "federal_funds_rate_increase", "reference_period": "2026", "measurement": "upper_bound", "observation_window": "2026-09-17/through_2026-12_fomc_decision", "outcome_orientation": "yes_if_true"},
+      "quote": "This market will resolve to “Yes” if the upper bound of the target federal funds rate is increased at any point between September 17, 2026 and the completion of the Fed's December 2026 meeting, currently scheduled for December 8 to 9, 2026, inclusive of any rate hike announced as a result of the December meeting.",
+      "notes": "The actual December decision controls the endpoint, not the currently scheduled date or December 31. Emergency hikes qualify after September 17; the September meeting is excluded."
+    },
+    "kalshi:KXRECSSNBER-26": {
+      "digest": "b098ffab6d8e323856f57bc52c6e49b26faf24d5ae6bc11e5b8da50528cd89e1",
+      "family": "recession",
+      "facts": {"event_type": "economic_episode", "entity": "US", "metric": "two_negative_gdp_quarters", "reference_period": "2025-2026", "source": "US_BEA"},
+      "quote": "If there are two consecutive quarters of negative GDP growth in 2025 or 2026, according to the Bureau of Economic Analysis, then the market resolves to Yes.",
+      "notes": "Ticker contains NBER, but this rule names BEA and does not provide an NBER alternative. Do not infer semantics from the ticker."
+    },
+    "kalshi:KXRECSSNBER-27": {
+      "digest": "d56b3c2bd1f50bfe1f1a2bde240010e8505cbcbe32a67beebbbb0656bbf3a1d4",
+      "family": "recession",
+      "facts": {"event_type": "economic_episode", "entity": "US", "metric": "two_negative_gdp_quarters", "reference_period": "2026-Q4/2027-Q4", "source": "US_BEA"},
+      "quote": "If there are two consecutive quarters of negative GDP growth in Q4 2026 through Q4 2027, according to the Bureau of Economic Analysis, then the market resolves to Yes.",
+      "notes": "Secondary terms explicitly use advance estimates and permit the Q4 2026/Q1 2027 pair."
+    },
+    "polymarket:609655": {
+      "digest": "c1306bfd485550ec121a320726c660df6621c70a0aacc6258f8876ac09439e7b",
+      "family": "recession",
+      "facts": {"event_type": "economic_episode", "entity": "US", "metric": "gdp_or_nber_recession", "reference_period": "2025-2026", "source": "US_BEA_OR_NBER"},
+      "quote": null,
+      "notes": "Read the entire description: GDP condition starts Q2 2025 and also allows an NBER announcement. Earlier-quarter revised estimates can count. If Q4 2026 is unpublished by June 30, 2027 11:59 PM ET, available releases control. The broad period label is not the observation window."
+    },
+    "kalshi:KXUST10AM-26SEP30-T5.20": {
+      "digest": "93f9bb0bf3270ef7e864d4b729e8f7e695d5269d9a04f5d9290d1431a93f3347",
+      "family": "treasury_yield",
+      "facts": {"event_type": "economic_indicator", "entity": "US", "metric": "treasury_10y_yield", "reference_period": "2026-09", "measurement": "point_in_time", "operator": ">", "threshold": "5.20", "observation_window": "2026-09-30"},
+      "quote": "If the par yield for the 10Y U.S. Treasury is above 5.20% on Sep 30, 2026, then the market resolves to Yes.",
+      "notes": "Strict threshold on one date. Secondary terms set expiry at the earlier release-related 7 PM ET or one week after September 30; they do not establish a fixed refund."
+    },
+    "polymarket:4890276": {
+      "digest": "e0f37a9e55ea553ec43fa7d52b335898633c362345c11eeda8f57cd3f1349ec4",
+      "family": "treasury_yield",
+      "facts": {"event_type": "economic_indicator", "entity": "US", "metric": "treasury_10y_yield", "reference_period": "2026-09", "measurement": "window_max", "operator": ">=", "threshold": "5.20", "observation_window": "2026-09-03/2026-09-30"},
+      "quote": null,
+      "notes": "Read description plus listed question value. Any qualifying date in the interval resolves YES, including equality. Missing September 30 data with no qualifying publication resolves NO at the October 14 deadline."
+    }
+  },
+  "pairs": [
+    {"left": "kalshi:KXFEDHIKE-2-26DEC31", "right": "polymarket:4620900", "same_event": true, "conflicts": ["measurement", "observation_window"], "label": "supported_same_event_candidate_not_equivalent"},
+    {"left": "kalshi:KXFEDHIKE-2-27DEC31", "right": "polymarket:4620900", "same_event": false, "conflicts": ["reference_period"], "label": "different_terminal_year"},
+    {"left": "kalshi:KXRECSSNBER-26", "right": "polymarket:609655", "same_event": false, "conflicts": ["metric", "source"], "label": "additional_nber_trigger"},
+    {"left": "kalshi:KXRECSSNBER-27", "right": "polymarket:609655", "same_event": false, "conflicts": ["reference_period", "metric", "source"], "label": "different_period_and_trigger"},
+    {"left": "kalshi:KXUST10AM-26SEP30-T5.20", "right": "polymarket:4890276", "same_event": true, "conflicts": ["measurement", "observation_window", "operator"], "label": "point_in_time_vs_path_event"}
+  ]
+}

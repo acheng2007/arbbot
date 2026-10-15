@@ -3,7 +3,56 @@
 
 /** Exact decimal transported as a string; never convert this to a number. */
 export type DecimalString = string;
+export type AccessProfile = {
+  kind?: "access";
+  jurisdiction: string;
+  status: "verified" | "restricted" | "unknown";
+  permissions: Array<Permission>;
+  supporting_evidence: Array<string>;
+  expires_at: string;
+};
+
+export type AccessSummary = {
+  status: "unknown" | "verified" | "restricted" | "expired";
+  revision_id?: string | null;
+  permitted_venues?: Array<string>;
+  expires_at?: string | null;
+};
+
+export type Actor = {
+  issuer: string;
+  subject: string;
+  audit_id: string;
+};
+
+export type Applicability = {
+  kind?: "applicability";
+  market_id: string;
+  terms_hash: string;
+  product_id: string;
+  status: "verified" | "revoked";
+  specifications: Array<Citation>;
+  amendments?: Array<Citation>;
+  amendment_inventory: Citation;
+  rationale: string;
+  expires_at: string;
+};
+
+export type Assessment = {
+  id: string;
+  match_id: string;
+  mode: string;
+  pair: [string, string];
+  input_hash: string;
+  summary: QualificationSummary;
+  comparison?: Comparison | null;
+  settlement?: SettlementModel | null;
+  started_at: string;
+  inputs: Partial<Record<string, unknown>>;
+};
+
 export type Book = {
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   market_id: string;
   mode: "simulation" | "live";
   yes_asks: Array<Level>;
@@ -12,6 +61,64 @@ export type Book = {
   source_at?: string | null;
   received_at: string;
   raw: Partial<Record<string, unknown>>;
+};
+
+export type CatalogObservation = {
+  venue: string;
+  external_id: string;
+  observation_id: string;
+  market_id: string | null;
+  supported: boolean;
+  reason: string;
+  observed_at: string;
+  raw: Partial<Record<string, unknown>>;
+};
+
+export type CatalogReport = {
+  discovery_mode?: "focused" | "broad";
+  query_scope?: string | null;
+  mode: "simulation" | "live";
+  venue: string;
+  status: "ready" | "degraded" | "failed" | "stale";
+  started_at: string;
+  completed_at: string;
+  valid_until: string;
+  selected_market_ids: Array<string>;
+  decisions: Array<DiscoveryDecision>;
+  pages_scanned: number;
+  truncated: boolean;
+  catalog_market_count?: number;
+  monitoring_limit?: number | null;
+  continuation?: string | number | null;
+  coverage_complete?: boolean;
+  missing_source_market_ids?: Array<string>;
+  error?: string | null;
+};
+
+export type Citation = {
+  artifact_id: string;
+  content_hash: string;
+  quotation: string;
+};
+
+export type ClassificationSummary = {
+  state:
+    "pending" | "fresh" | "stale" | "unavailable" | "unconfigured" | "disabled";
+  run_id?: string | null;
+  input_hash?: string | null;
+  event?: Finding | null;
+  clauses?: Partial<Record<string, Finding>>;
+  evidence?: Array<EvidenceSpan>;
+  requested_model?: string;
+  returned_model?: string | null;
+  question_version?: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  expires_at?: string | null;
+  limitations?: Array<string>;
+  error?: string | null;
+  recorded?: boolean;
+  supports_candidate?: boolean;
 };
 
 export type Comparison = {
@@ -26,11 +133,33 @@ export type Comparison = {
   issues: Array<string>;
 };
 
-export type ContractDefinition = {
+export type ConfigurationRevision = {
+  id: string;
+  previous_revision_id: string | null;
+  mode: "live" | "simulation";
+  key: string;
+  value:
+    AccessProfile | Applicability | ExecutableFeePolicy | UnavailableFeePolicy;
+  actor: Actor;
+  created_at: string;
+  reason: string;
+};
+
+export type ConfigurationWrite = {
+  expected_revision_id?: string | null;
+  value:
+    | AccessProfile
+    | Applicability
+    | ExecutableFeePolicyInput
+    | UnavailableFeePolicy;
+  reason: string;
+};
+
+export type ContractDefinitionInput = {
   market_id: string;
   terms_hash: string;
   extractor: string;
-  schema_version?: 1;
+  schema_version?: 1 | 2;
   facts: Partial<
     Record<
       | "event_type"
@@ -48,10 +177,66 @@ export type ContractDefinition = {
       | "outcome_orientation"
       | "payout"
       | "cancellation"
-      | "exceptions",
+      | "exceptions"
+      | "seasonal_adjustment"
+      | "rounding_increment"
+      | "rounding_mode"
+      | "revision_policy"
+      | "observation_start"
+      | "observation_end"
+      | "observation_start_inclusive"
+      | "observation_end_inclusive",
       Fact
     >
   >;
+  settlement_policies?: Array<SettlementPolicyInput> | null;
+};
+
+export type ContractDefinition = {
+  market_id: string;
+  terms_hash: string;
+  extractor: string;
+  schema_version?: 1 | 2;
+  facts: Partial<
+    Record<
+      | "event_type"
+      | "entity"
+      | "metric"
+      | "reference_period"
+      | "measurement"
+      | "source"
+      | "value_version"
+      | "operator"
+      | "threshold"
+      | "units"
+      | "observation_window"
+      | "timezone"
+      | "outcome_orientation"
+      | "payout"
+      | "cancellation"
+      | "exceptions"
+      | "seasonal_adjustment"
+      | "rounding_increment"
+      | "rounding_mode"
+      | "revision_policy"
+      | "observation_start"
+      | "observation_end"
+      | "observation_start_inclusive"
+      | "observation_end_inclusive",
+      Fact
+    >
+  >;
+  settlement_policies?: Array<SettlementPolicy> | null;
+};
+
+export type CostPolicyInput = {
+  fee_per_contract: number | DecimalString;
+  fixed_fee: number | DecimalString;
+  min_order_size: number | DecimalString;
+  min_notional: number | DecimalString;
+  cost_fx: number | DecimalString;
+  payout_fx: number | DecimalString;
+  evidence: string;
 };
 
 export type CostPolicy = {
@@ -64,6 +249,52 @@ export type CostPolicy = {
   evidence: string;
 };
 
+export type DecisionRevision = {
+  applicability_revision_ids?: Array<string>;
+  id: string;
+  previous_revision_id: string | null;
+  revision: number;
+  mode: "simulation" | "live";
+  pair_key: string;
+  left_id: string;
+  right_id: string;
+  left_draft_id: string;
+  right_draft_id: string;
+  action: "verified" | "rejected" | "revoked" | "cleared";
+  reason: string;
+  review: Review | null;
+  actor: Actor;
+  created_at: string;
+};
+
+export type DecisionState = {
+  revision: DecisionRevision;
+  eligible: boolean;
+  blocked_reasons: Array<string>;
+};
+
+export type DecisionWrite = {
+  expected_revision_id?: string | null;
+  left_draft_id: string;
+  right_draft_id: string;
+  action: "verified" | "rejected" | "revoked" | "cleared";
+  reason: string;
+  review?: ReviewInput | null;
+};
+
+export type DerivedText = {
+  artifact_id: string;
+  content_digest: string;
+  extractor_version?: string;
+  status: "complete" | "partial" | "unavailable";
+  pages?: Array<TextPage>;
+  text_digest?: string | null;
+  reason?: string | null;
+  page_limit?: number;
+  text_limit?: number;
+  time_limit_seconds?: number;
+};
+
 export type Difference = {
   field: string;
   status: "equal" | "different" | "unknown";
@@ -71,12 +302,102 @@ export type Difference = {
   right: string | null;
 };
 
+export type DiscoveryDecision = {
+  external_id: string;
+  family: string;
+  included: boolean;
+  reason: string;
+};
+
+export type DraftRevision = {
+  source_revisions?: Partial<Record<string, number>> | null;
+  source_revision?: number;
+  id: string;
+  previous_revision_id: string | null;
+  revision: number;
+  market: Market;
+  definition: ContractDefinition;
+  definition_hash: string;
+  source_artifact_ids: Array<string>;
+  actor: Actor;
+  created_at: string;
+  reason: string;
+};
+
+export type DraftWrite = {
+  expected_revision_id?: string | null;
+  definition: ContractDefinitionInput;
+  source_artifact_ids?: Array<string>;
+  reason: string;
+};
+
 export type Evaluation = {
+  status?: "profitable" | "unprofitable" | "blocked" | "invalid";
+  best_calculation?: SignedCalculation | null;
+  access_revision_id?: string | null;
+  fee_revision_ids?: Array<string>;
   match_id: string;
   mode: "simulation" | "live";
   evaluated_at: string;
   blocked_reasons: Array<string>;
   opportunities: Array<Opportunity>;
+};
+
+export type EvidenceSpan = {
+  id: string;
+  side: "left" | "right";
+  clause: string;
+  quotation: string;
+  artifact_id?: string | null;
+  page?: number | null;
+  start: number;
+  end: number;
+  applicability?: string;
+};
+
+export type ExecutableFeePolicyInput = {
+  kind?: "fees";
+  market_id: string;
+  venue: string;
+  terms_hash: string;
+  formula: string;
+  coefficient: number | DecimalString;
+  minimum_execution_quantity?: number | DecimalString | null;
+  balance_precision?: "0.0001" | "0.01" | null;
+  account_class: "direct" | "non_direct" | "standard";
+  source: Citation;
+  supporting_sources?: Array<Citation>;
+  metadata_hash: string;
+  metadata?: Partial<Record<string, unknown>>;
+  observed_at: string;
+  effective_at: string;
+  expires_at: string;
+};
+
+export type ExecutableFeePolicy = {
+  kind?: "fees";
+  market_id: string;
+  venue: string;
+  terms_hash: string;
+  formula: string;
+  coefficient: DecimalString;
+  minimum_execution_quantity?: DecimalString | null;
+  balance_precision?: "0.0001" | "0.01" | null;
+  account_class: "direct" | "non_direct" | "standard";
+  source: Citation;
+  supporting_sources?: Array<Citation>;
+  metadata_hash: string;
+  metadata?: Partial<Record<string, unknown>>;
+  observed_at: string;
+  effective_at: string;
+  expires_at: string;
+};
+
+export type ExecutionSemantics = {
+  yes_action: "buy_yes" | "buy_instrument";
+  no_action: "buy_no" | "short_instrument";
+  no_native_price_is_complement?: boolean;
+  gross_short_collateral_per_contract?: DecimalString | null;
 };
 
 export type Extraction = {
@@ -99,6 +420,14 @@ export type Extraction = {
     | "payout"
     | "cancellation"
     | "exceptions"
+    | "seasonal_adjustment"
+    | "rounding_increment"
+    | "rounding_mode"
+    | "revision_policy"
+    | "observation_start"
+    | "observation_end"
+    | "observation_start_inclusive"
+    | "observation_end_inclusive"
   >;
   issues: Array<string>;
 };
@@ -110,11 +439,55 @@ export type Fact = {
   quote: string;
 };
 
+export type Finding = {
+  choice:
+    | "same_event"
+    | "different_event"
+    | "same_meaning"
+    | "different_meaning"
+    | "insufficient_evidence";
+  confidence: number;
+  probabilities: Partial<Record<string, number>>;
+  evidence_ids?: Array<string>;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type InstrumentConstraints = {
+  price_increment: DecimalString;
+  price_ranges?: Array<PriceBand>;
+  quantity_increment: DecimalString;
+  minimum_quantity: DecimalString;
+  unit_payout?: DecimalString;
+  payout_currency?: "USD";
+  payout_evidence: string;
+};
+
+export type JointSettlementCase = {
+  left_state: string;
+  right_state: string;
+  scenario?: string | null;
+  exclusion_reason?: string | null;
+  left_evidence_policies?: Array<
+    "cancellation" | "fallback" | "ambiguous_resolution"
+  >;
+  right_evidence_policies?: Array<
+    "cancellation" | "fallback" | "ambiguous_resolution"
+  >;
+};
+
 export type Leg = {
+  source_at?: string | null;
+  received_at?: string | null;
+  native_action?:
+    "buy_yes" | "buy_no" | "buy_instrument" | "short_instrument" | null;
+  native_price?: DecimalString | null;
+  short_proceeds?: DecimalString;
+  gross_collateral?: DecimalString;
+  net_buying_power?: DecimalString | null;
+  fee_policy_id?: string | null;
   market_id: string;
   outcome: "yes" | "no";
   quantity: DecimalString;
@@ -133,8 +506,11 @@ export type Level = {
 };
 
 export type Market = {
+  ingestion_issues?: Array<string>;
+  source_revision?: number;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
-  venue: "kalshi" | "polymarket";
+  venue: string;
   external_id: string;
   mode: "simulation" | "live";
   title: string;
@@ -142,6 +518,9 @@ export type Market = {
   closes_at: string;
   status: "open" | "closed";
   settlement_asset: string;
+  category?: string | null;
+  instrument_constraints?: InstrumentConstraints | null;
+  execution_semantics?: ExecutionSemantics | null;
   tokens?: Partial<Record<"yes" | "no", string>>;
   settlement_details?: Partial<Record<string, unknown>>;
   raw: Partial<Record<string, unknown>>;
@@ -149,7 +528,29 @@ export type Market = {
   terms_hash: string;
 };
 
+export type MarketSummary = {
+  ingestion_issues?: Array<string>;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
+  id: string;
+  venue: string;
+  external_id: string;
+  mode: "simulation" | "live";
+  title: string;
+  closes_at: string;
+  status: "open" | "closed";
+  settlement_asset: string;
+  category?: string | null;
+  observed_at: string;
+};
+
 export type Match = {
+  qualification?: QualificationSummary | null;
+  settlement?: SettlementModel | null;
+  classification?: ClassificationSummary | null;
+  ai_only?: boolean;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
+  retrieval_limited?: boolean;
+  retrieval_limit?: number | null;
   id: string;
   mode: "simulation" | "live";
   left_id: string;
@@ -159,9 +560,15 @@ export type Match = {
   reason: string;
   review?: Review | null;
   comparison?: Comparison | null;
+  review_revision_id?: string | null;
 };
 
 export type Opportunity = {
+  quote_skew_seconds?: number | null;
+  feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
+  access_revision_id?: string | null;
+  applicability_revision_ids?: Array<string>;
+  fee_revision_ids?: Array<string>;
   id: string;
   match_id: string;
   mode: "simulation" | "live";
@@ -178,9 +585,103 @@ export type Opportunity = {
   net_profit: DecimalString;
   return_on_capital: DecimalString;
   scenario_payouts: Partial<Record<string, DecimalString>>;
-  review: Review;
+  review?: Review | null;
+  qualification?: QualificationSummary | null;
+  settlement?: SettlementModel | null;
+  review_revision_id?: string | null;
   comparison?: Comparison | null;
   assumptions: Array<string>;
+};
+
+export type OpportunityState = {
+  opportunity: Opportunity;
+  eligible: boolean;
+  status?: "eligible" | "invalidated";
+  invalidation_reasons?: Array<string>;
+};
+
+export type Permission = {
+  venue: string;
+  market_ids: Array<string>;
+  short_allowed: boolean;
+  fee_account_class: "direct" | "non_direct" | "standard";
+};
+
+export type PotentialOpportunity = {
+  id: string;
+  match_id: string;
+  mode: "simulation" | "live";
+  feed_origin: "exchange" | "synthetic_recording" | "recorded_exchange";
+  evaluated_at: string;
+  valid_until: string;
+  market_ids: [string, string];
+  book_ids: [string, string];
+  terms_hashes: [string, string];
+  fee_revision_ids?: Array<string>;
+  outcomes: ["yes" | "no", "yes" | "no"];
+  quantity: DecimalString;
+  acquisition_cost: DecimalString;
+  ordinary_payout_assumption: DecimalString;
+  gross_spread: DecimalString;
+  fee_bound?: DecimalString | null;
+  estimated_net_spread?: DecimalString | null;
+  capital_required?: DecimalString | null;
+  qualification: QualificationSummary;
+  unresolved_reasons: Array<string>;
+  assumptions?: Array<string>;
+};
+
+export type PriceBand = {
+  start: DecimalString;
+  end: DecimalString;
+  step: DecimalString;
+};
+
+export type Principal = {
+  issuer: string;
+  subject: string;
+  client_id: string;
+  roles: Array<"viewer" | "reviewer">;
+  audit_id: string;
+};
+
+export type QualificationSummary = {
+  status?:
+    | "pending"
+    | "qualified"
+    | "incomplete"
+    | "incompatible"
+    | "stale"
+    | "unavailable";
+  basis?: "automatic_rules";
+  assessment_id?: string | null;
+  input_hash?: string | null;
+  policy_version?: string | null;
+  completed_at?: string | null;
+  expires_at?: string | null;
+  blocked_reasons?: Array<string>;
+  evidence_ids?: Array<string>;
+};
+
+export type ReviewInput = {
+  left_id: string;
+  right_id: string;
+  left_terms_hash: string;
+  right_terms_hash: string;
+  left_definition_hash?: string | null;
+  right_definition_hash?: string | null;
+  status: "verified" | "rejected";
+  reviewer: string;
+  rationale: string;
+  resolution_sources: string;
+  deadlines_and_timezones: string;
+  cancellation_and_exceptions: string;
+  expires_at: string;
+  scenarios: Array<ScenarioInput>;
+  settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
+  left_costs: CostPolicyInput;
+  right_costs: CostPolicyInput;
 };
 
 export type Review = {
@@ -198,14 +699,135 @@ export type Review = {
   cancellation_and_exceptions: string;
   expires_at: string;
   scenarios: Array<Scenario>;
+  settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
   left_costs: CostPolicy;
   right_costs: CostPolicy;
+};
+
+export type ScenarioInput = {
+  name: string;
+  left_yes: number | DecimalString;
+  right_yes: number | DecimalString;
+  left_no?: number | DecimalString | null;
+  right_no?: number | DecimalString | null;
 };
 
 export type Scenario = {
   name: string;
   left_yes: DecimalString;
   right_yes: DecimalString;
+  left_no?: DecimalString | null;
+  right_no?: DecimalString | null;
+};
+
+export type SettlementConditionInput = {
+  id: string;
+  trigger: string;
+  yes_payout: number | DecimalString;
+  no_payout: number | DecimalString;
+};
+
+export type SettlementCondition = {
+  id: string;
+  trigger: string;
+  yes_payout: DecimalString;
+  no_payout: DecimalString;
+};
+
+export type SettlementMapping = {
+  side: "left" | "right";
+  policy: "cancellation" | "fallback" | "ambiguous_resolution";
+  condition_id: string;
+  scenarios: Array<string>;
+};
+
+export type SettlementModel = {
+  left_id: string;
+  right_id: string;
+  left_terms_hash: string;
+  right_terms_hash: string;
+  left_definition_hash: string;
+  right_definition_hash: string;
+  expires_at: string;
+  scenarios: Array<Scenario>;
+  settlement_mappings?: Array<SettlementMapping>;
+  joint_settlement_cases?: Array<JointSettlementCase>;
+  left_costs: CostPolicy;
+  right_costs: CostPolicy;
+};
+
+export type SettlementPolicyInput = {
+  kind: "cancellation" | "fallback" | "ambiguous_resolution";
+  status: "modeled" | "not_applicable" | "unknown";
+  evidence: Fact;
+  conditions?: Array<SettlementConditionInput>;
+};
+
+export type SettlementPolicy = {
+  kind: "cancellation" | "fallback" | "ambiguous_resolution";
+  status: "modeled" | "not_applicable" | "unknown";
+  evidence: Fact;
+  conditions?: Array<SettlementCondition>;
+};
+
+export type SignedCalculation = {
+  quantity: DecimalString;
+  legs: [Leg, Leg];
+  capital_required: DecimalString;
+  estimated_outlay: DecimalString;
+  fee_bound: DecimalString;
+  slippage_reserve: DecimalString;
+  minimum_payout: DecimalString;
+  net_profit: DecimalString;
+  scenario_payouts: Partial<Record<string, DecimalString>>;
+};
+
+export type SourceArtifactSummary = {
+  id: string;
+  venue: string;
+  mode: "simulation" | "live";
+  market_id: string;
+  url: string;
+  label: string;
+  status: "captured" | "failed";
+  content_type?: string | null;
+  content_digest?: string | null;
+  byte_size: number;
+  source_at?: string | null;
+  reason?:
+    | "http_error"
+    | "timeout"
+    | "network_error"
+    | "too_large"
+    | "unsupported_content"
+    | "invalid_document"
+    | null;
+  detail?: string | null;
+  status_code?: number | null;
+  market_terms_hash: string;
+  first_seen_at: string;
+  last_seen_at: string;
+  observations: number;
+  details?: Partial<Record<string, unknown>>;
+};
+
+export type TextPage = {
+  page?: number | null;
+  text: string;
+};
+
+export type UnavailableFeePolicy = {
+  kind?: "fee_unavailable";
+  market_id: string;
+  terms_hash: string;
+  reason:
+    | "provider_error"
+    | "unsupported_policy"
+    | "incomplete_metadata"
+    | "stale"
+    | "unverified_account_fees";
+  expires_at: string;
 };
 
 export type ValidationError = {
@@ -216,38 +838,343 @@ export type ValidationError = {
   ctx?: Partial<Record<string, unknown>>;
 };
 
+export type VenueInfo = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  evaluation_enabled: boolean;
+  access_note: string;
+};
+
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
-  liveness: {
-    route: "/health/live";
+  accessSummary: {
+    route: "/api/v1/access-summary";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
-    response: unknown;
+    response: AccessSummary;
   };
-  readiness: {
-    route: "/health/ready";
-    params: Record<string, never>;
-    query: Record<string, never>;
-    response: unknown;
-  };
-  status: {
-    route: "/api/v1/status";
-    params: Record<string, never>;
-    query: Record<string, never>;
-    response: unknown;
-  };
-  markets: {
-    route: "/api/v1/markets";
+  inventory: {
+    route: "/api/v1/catalog/inventory";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
       offset?: number;
-      venue?: "kalshi" | "polymarket" | null;
+      venue?: string | null;
+      supported?: boolean | null;
+    };
+    response: Array<CatalogObservation>;
+  };
+  marketSummaries: {
+    route: "/api/v1/market-summaries";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: string | null;
+      status?: "open" | "closed" | null;
+      category?: string | null;
+      q?: string | null;
+    };
+    response: Array<MarketSummary>;
+  };
+  markets: {
+    route: "/api/v1/markets";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: string | null;
+      status?: "open" | "closed" | null;
+      family?: string | null;
+      q?: string | null;
     };
     response: Array<Market>;
   };
+  matches: {
+    route: "/api/v1/matches";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+      venue?: string | null;
+      status?: "candidate" | "verified" | "rejected" | null;
+      family?: string | null;
+      q?: string | null;
+      category?: string | null;
+      same_event?: boolean | null;
+      market_status?: "open" | "closed" | null;
+      exclude_rejected?: boolean;
+      evidence?: "complete" | "incomplete" | null;
+      qualification?:
+        | "pending"
+        | "qualified"
+        | "incomplete"
+        | "incompatible"
+        | "stale"
+        | "unavailable"
+        | null;
+      classification?:
+        | "suggested"
+        | "fresh"
+        | "pending"
+        | "stale"
+        | "unavailable"
+        | "unconfigured"
+        | "disabled"
+        | null;
+      market_id?: string | null;
+    };
+    response: Array<Match>;
+  };
+  match: {
+    route: "/api/v1/matches/{match_id}";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: Record<string, never>;
+    response: Match;
+  };
+  classificationDetail: {
+    route: "/api/v1/matches/{match_id}/classification";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      run_id?: string | null;
+    };
+    response: ClassificationSummary;
+  };
+  qualification: {
+    route: "/api/v1/matches/{match_id}/qualification";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      assessment_id?: string | null;
+    };
+    response: QualificationSummary;
+  };
+  qualificationHistory: {
+    route: "/api/v1/matches/{match_id}/qualification/history";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<Assessment>;
+  };
+  potentialOpportunities: {
+    route: "/api/v1/potential-opportunities";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<PotentialOpportunity>;
+  };
+  potentialOpportunity: {
+    route: "/api/v1/potential-opportunities/{potential_id}";
+    method: "GET";
+    body: never;
+    params: {
+      potential_id: string;
+    };
+    query: {
+      historical?: boolean;
+    };
+    response: PotentialOpportunity;
+  };
+  sourceHistory: {
+    route: "/api/v1/markets/{market_id}/sources";
+    method: "GET";
+    body: never;
+    params: {
+      market_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<SourceArtifactSummary>;
+  };
+  sourceContent: {
+    route: "/api/v1/sources/{artifact_id}/content";
+    method: "GET";
+    body: never;
+    params: {
+      artifact_id: string;
+    };
+    query: Record<string, never>;
+    response: unknown;
+  };
+  sourceText: {
+    route: "/api/v1/sources/{artifact_id}/text";
+    method: "GET";
+    body: never;
+    params: {
+      artifact_id: string;
+    };
+    query: Record<string, never>;
+    response: DerivedText;
+  };
+  currentDraft: {
+    route: "/api/v1/markets/{market_id}/draft";
+    method: "GET";
+    body: never;
+    params: {
+      market_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision | null;
+  };
+  draftHistory: {
+    route: "/api/v1/markets/{market_id}/drafts";
+    method: "GET";
+    body: never;
+    params: {
+      market_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<DraftRevision>;
+  };
+  saveDraft: {
+    route: "/api/v1/markets/{market_id}/drafts";
+    method: "POST";
+    body: DraftWrite;
+    params: {
+      market_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision;
+  };
+  draftRevision: {
+    route: "/api/v1/drafts/{revision_id}";
+    method: "GET";
+    body: never;
+    params: {
+      revision_id: string;
+    };
+    query: Record<string, never>;
+    response: DraftRevision;
+  };
+  currentReview: {
+    route: "/api/v1/reviews/current";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      left_id: string;
+      right_id: string;
+    };
+    response: DecisionState | null;
+  };
+  reviewHistory: {
+    route: "/api/v1/reviews/history";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      left_id: string;
+      right_id: string;
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<DecisionRevision>;
+  };
+  saveReview: {
+    route: "/api/v1/reviews";
+    method: "POST";
+    body: DecisionWrite;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: DecisionRevision;
+  };
+  saveConfiguration: {
+    route: "/api/v1/execution/configuration";
+    method: "POST";
+    body: ConfigurationWrite;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: ConfigurationRevision;
+  };
+  liveness: {
+    route: "/health/live";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: unknown;
+  };
+  identity: {
+    route: "/api/v1/auth/me";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Principal;
+  };
+  readiness: {
+    route: "/health/ready";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: unknown;
+  };
+  venues: {
+    route: "/api/v1/venues";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Array<VenueInfo>;
+  };
+  status: {
+    route: "/api/v1/status";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: unknown;
+  };
+  discovery: {
+    route: "/api/v1/discovery";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: Record<string, never>;
+    response: Array<CatalogReport>;
+  };
   market: {
     route: "/api/v1/markets/{market_id}";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -256,6 +1183,8 @@ export interface ApiOperations {
   };
   extraction: {
     route: "/api/v1/markets/{market_id}/extraction";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
@@ -264,23 +1193,18 @@ export interface ApiOperations {
   };
   book: {
     route: "/api/v1/markets/{market_id}/book";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
     };
     query: Record<string, never>;
     response: Book;
   };
-  matches: {
-    route: "/api/v1/matches";
-    params: Record<string, never>;
-    query: {
-      limit?: number;
-      offset?: number;
-    };
-    response: Array<Match>;
-  };
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}";
+    method: "GET";
+    body: never;
     params: {
       market_id: string;
       terms_hash: string;
@@ -290,6 +1214,8 @@ export interface ApiOperations {
   };
   snapshot: {
     route: "/api/v1/snapshots/{snapshot_id}";
+    method: "GET";
+    body: never;
     params: {
       snapshot_id: string;
     };
@@ -298,6 +1224,8 @@ export interface ApiOperations {
   };
   opportunities: {
     route: "/api/v1/opportunities";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -307,6 +1235,8 @@ export interface ApiOperations {
   };
   history: {
     route: "/api/v1/opportunities/history";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
@@ -314,17 +1244,34 @@ export interface ApiOperations {
     };
     response: Array<Opportunity>;
   };
+  opportunity: {
+    route: "/api/v1/opportunities/{opportunity_id}";
+    method: "GET";
+    body: never;
+    params: {
+      opportunity_id: string;
+    };
+    query: Record<string, never>;
+    response: OpportunityState;
+  };
   evaluations: {
     route: "/api/v1/evaluations";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: {
       limit?: number;
       offset?: number;
+      history?: boolean;
+      match_id?: string | null;
+      status?: "profitable" | "unprofitable" | "blocked" | "invalid" | null;
     };
     response: Array<Evaluation>;
   };
   stream: {
     route: "/api/v1/stream";
+    method: "GET";
+    body: never;
     params: Record<string, never>;
     query: Record<string, never>;
     response: unknown;
@@ -333,79 +1280,261 @@ export interface ApiOperations {
 
 export type OperationId = keyof ApiOperations;
 
+export type ReadOperationId = {
+  [K in OperationId]: ApiOperations[K]["method"] extends "GET" ? K : never;
+}[OperationId];
+
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
+  accessSummary: {
+    route: "/api/v1/access-summary",
+    method: "GET",
+    params: [],
+    query: [],
+  },
+  inventory: {
+    route: "/api/v1/catalog/inventory",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset", "venue", "supported"],
+  },
+  marketSummaries: {
+    route: "/api/v1/market-summaries",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset", "venue", "status", "category", "q"],
+  },
+  markets: {
+    route: "/api/v1/markets",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset", "venue", "status", "family", "q"],
+  },
+  matches: {
+    route: "/api/v1/matches",
+    method: "GET",
+    params: [],
+    query: [
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "family",
+      "q",
+      "category",
+      "same_event",
+      "market_status",
+      "exclude_rejected",
+      "evidence",
+      "qualification",
+      "classification",
+      "market_id",
+    ],
+  },
+  match: {
+    route: "/api/v1/matches/{match_id}",
+    method: "GET",
+    params: ["match_id"],
+    query: [],
+  },
+  classificationDetail: {
+    route: "/api/v1/matches/{match_id}/classification",
+    method: "GET",
+    params: ["match_id"],
+    query: ["run_id"],
+  },
+  qualification: {
+    route: "/api/v1/matches/{match_id}/qualification",
+    method: "GET",
+    params: ["match_id"],
+    query: ["assessment_id"],
+  },
+  qualificationHistory: {
+    route: "/api/v1/matches/{match_id}/qualification/history",
+    method: "GET",
+    params: ["match_id"],
+    query: ["limit", "offset"],
+  },
+  potentialOpportunities: {
+    route: "/api/v1/potential-opportunities",
+    method: "GET",
+    params: [],
+    query: ["limit", "offset"],
+  },
+  potentialOpportunity: {
+    route: "/api/v1/potential-opportunities/{potential_id}",
+    method: "GET",
+    params: ["potential_id"],
+    query: ["historical"],
+  },
+  sourceHistory: {
+    route: "/api/v1/markets/{market_id}/sources",
+    method: "GET",
+    params: ["market_id"],
+    query: ["limit", "offset"],
+  },
+  sourceContent: {
+    route: "/api/v1/sources/{artifact_id}/content",
+    method: "GET",
+    params: ["artifact_id"],
+    query: [],
+  },
+  sourceText: {
+    route: "/api/v1/sources/{artifact_id}/text",
+    method: "GET",
+    params: ["artifact_id"],
+    query: [],
+  },
+  currentDraft: {
+    route: "/api/v1/markets/{market_id}/draft",
+    method: "GET",
+    params: ["market_id"],
+    query: [],
+  },
+  draftHistory: {
+    route: "/api/v1/markets/{market_id}/drafts",
+    method: "GET",
+    params: ["market_id"],
+    query: ["limit", "offset"],
+  },
+  saveDraft: {
+    route: "/api/v1/markets/{market_id}/drafts",
+    method: "POST",
+    params: ["market_id"],
+    query: [],
+  },
+  draftRevision: {
+    route: "/api/v1/drafts/{revision_id}",
+    method: "GET",
+    params: ["revision_id"],
+    query: [],
+  },
+  currentReview: {
+    route: "/api/v1/reviews/current",
+    method: "GET",
+    params: [],
+    query: ["left_id", "right_id"],
+  },
+  reviewHistory: {
+    route: "/api/v1/reviews/history",
+    method: "GET",
+    params: [],
+    query: ["left_id", "right_id", "limit", "offset"],
+  },
+  saveReview: {
+    route: "/api/v1/reviews",
+    method: "POST",
+    params: [],
+    query: [],
+  },
+  saveConfiguration: {
+    route: "/api/v1/execution/configuration",
+    method: "POST",
+    params: [],
+    query: [],
+  },
   liveness: {
     route: "/health/live",
+    method: "GET",
+    params: [],
+    query: [],
+  },
+  identity: {
+    route: "/api/v1/auth/me",
+    method: "GET",
     params: [],
     query: [],
   },
   readiness: {
     route: "/health/ready",
+    method: "GET",
+    params: [],
+    query: [],
+  },
+  venues: {
+    route: "/api/v1/venues",
+    method: "GET",
     params: [],
     query: [],
   },
   status: {
     route: "/api/v1/status",
+    method: "GET",
     params: [],
     query: [],
   },
-  markets: {
-    route: "/api/v1/markets",
+  discovery: {
+    route: "/api/v1/discovery",
+    method: "GET",
     params: [],
-    query: ["limit", "offset", "venue"],
+    query: [],
   },
   market: {
     route: "/api/v1/markets/{market_id}",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
   extraction: {
     route: "/api/v1/markets/{market_id}/extraction",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
   book: {
     route: "/api/v1/markets/{market_id}/book",
+    method: "GET",
     params: ["market_id"],
     query: [],
   },
-  matches: {
-    route: "/api/v1/matches",
-    params: [],
-    query: ["limit", "offset"],
-  },
   marketVersion: {
     route: "/api/v1/markets/{market_id}/versions/{terms_hash}",
+    method: "GET",
     params: ["market_id", "terms_hash"],
     query: [],
   },
   snapshot: {
     route: "/api/v1/snapshots/{snapshot_id}",
+    method: "GET",
     params: ["snapshot_id"],
     query: [],
   },
   opportunities: {
     route: "/api/v1/opportunities",
+    method: "GET",
     params: [],
     query: ["limit", "offset"],
   },
   history: {
     route: "/api/v1/opportunities/history",
+    method: "GET",
     params: [],
     query: ["limit", "offset"],
+  },
+  opportunity: {
+    route: "/api/v1/opportunities/{opportunity_id}",
+    method: "GET",
+    params: ["opportunity_id"],
+    query: [],
   },
   evaluations: {
     route: "/api/v1/evaluations",
+    method: "GET",
     params: [],
-    query: ["limit", "offset"],
+    query: ["limit", "offset", "history", "match_id", "status"],
   },
   stream: {
     route: "/api/v1/stream",
+    method: "GET",
     params: [],
     query: [],
   },
 } as const satisfies Record<
   OperationId,
-  { route: string; params: readonly string[]; query: readonly string[] }
+  {
+    route: string;
+    method: "GET" | "POST";
+    params: readonly string[];
+    query: readonly string[];
+  }
 >;

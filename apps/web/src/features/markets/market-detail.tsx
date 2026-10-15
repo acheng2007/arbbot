@@ -1,16 +1,18 @@
 "use client";
+import { ModeBadge } from "@/components/data-origin";
 import Link from "next/link";
+import { Disclosure } from "@/components/disclosure";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/states";
 import { OriginBanner } from "@/components/data-origin";
 import { Age } from "@/components/freshness";
-import { describeFailure } from "@/lib/api/errors";
 import { useApi } from "@/lib/query/hooks";
 import type { Extraction } from "@/lib/api/schema";
 import { QueryState } from "@/features/shared/query-state";
 import { fieldLabel, venueLabel } from "@/features/shared/status";
 import { SourceQuote, SourceTerms } from "@/features/comparisons/source-terms";
+import { Counterparts } from "./counterparts";
 import { QuoteHealth } from "./quote-health";
 
 const EXTRACTION_STATUS = {
@@ -77,10 +79,30 @@ function ExtractedTerms({ extraction }: { extraction: Extraction }) {
   );
 }
 
+function ExtractionEvidence({ marketId }: { marketId: string }) {
+  const extraction = useApi("extraction", { params: { market_id: marketId } });
+  return (
+    <QueryState
+      isPending={extraction.isPending}
+      error={extraction.error}
+      loadingLabel="Loading extracted terms"
+      onRetry={() => void extraction.refetch()}
+    >
+      {extraction.data && <ExtractedTerms extraction={extraction.data.data} />}
+    </QueryState>
+  );
+}
+
 export function MarketDetail({ marketId }: { marketId: string }) {
   const market = useApi("market", { params: { market_id: marketId } });
-  const extraction = useApi("extraction", { params: { market_id: marketId } });
-  const book = useApi("book", { params: { market_id: marketId } });
+
+  const book = useApi(
+    "book",
+    { params: { market_id: marketId } },
+    {
+      refetchInterval: 5000,
+    },
+  );
 
   return (
     <div className="space-y-7">
@@ -114,15 +136,10 @@ export function MarketDetail({ marketId }: { marketId: string }) {
                 >
                   {market.data.data.status === "open" ? "Open" : "Closed"}
                 </Badge>
-                <Badge
-                  tone={
-                    market.data.data.mode === "live" ? "positive" : "caution"
-                  }
-                >
-                  {market.data.data.mode === "live"
-                    ? "Live feed"
-                    : "Simulation"}
-                </Badge>
+                <ModeBadge
+                  mode={market.data.data.mode}
+                  feedOrigin={market.data.data.feed_origin}
+                />
                 <Age at={market.data.data.observed_at} label="Observed" />
               </div>
               <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -130,27 +147,30 @@ export function MarketDetail({ marketId }: { marketId: string }) {
               </h1>
             </header>
 
-            <SourceTerms market={market.data.data} />
-
-            {book.isError ? (
+            {book.error?.failure === "not_found" ? (
               <EmptyState
-                title="No order book available"
-                description={describeFailure(book.error)}
+                title="No monitored order book"
+                description="This catalog contract has no captured order book yet. An executable estimate requires fresh quotes on both venues."
               />
             ) : (
-              book.data && <QuoteHealth book={book.data.data} />
+              <QueryState
+                isPending={book.isPending}
+                error={book.error}
+                loadingLabel="Loading order book"
+                onRetry={() => void book.refetch()}
+              >
+                {book.data && <QuoteHealth book={book.data.data} />}
+              </QueryState>
             )}
 
-            {extraction.isError ? (
-              <EmptyState
-                title="No extracted terms"
-                description={describeFailure(extraction.error)}
-              />
-            ) : (
-              extraction.data && (
-                <ExtractedTerms extraction={extraction.data.data} />
-              )
-            )}
+            <Disclosure title="Source documents">
+              <SourceTerms market={market.data.data} />
+            </Disclosure>
+            <Counterparts key={marketId} marketId={marketId} />
+
+            <Disclosure title="Extracted settlement terms">
+              <ExtractionEvidence marketId={marketId} />
+            </Disclosure>
           </div>
         )}
       </QueryState>

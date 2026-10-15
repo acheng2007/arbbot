@@ -66,6 +66,7 @@ export function ReviewPanel({ review, left, right }: Props) {
   const now = useNow();
   const expiry = Date.parse(review.expires_at);
   const expired = now !== null && !Number.isNaN(expiry) && expiry <= now;
+  const versionedFees = [review.left_id, review.right_id].some((id) => id.startsWith("polymarket_us:"));
 
   const changed = [
     left && left.terms_hash !== review.left_terms_hash
@@ -119,15 +120,15 @@ export function ReviewPanel({ review, left, right }: Props) {
             <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {term}
             </dt>
-            <dd className="mt-1">{value}</dd>
+            <dd className="mt-1 [overflow-wrap:anywhere]">{value}</dd>
           </div>
         ))}
       </dl>
 
       <div>
         <h4 className="text-sm font-semibold">Settlement outcomes checked</h4>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[26rem] text-sm">
+        <div className="mt-3 max-w-full overflow-x-auto">
+          <table className="w-full text-sm">
             <caption className="sr-only">
               How each contract settles under every reviewed outcome
             </caption>
@@ -159,7 +160,10 @@ export function ReviewPanel({ review, left, right }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {versionedFees ? <p className="text-sm leading-6 text-muted-foreground">
+        Fee schedules are refreshed independently of settlement approval.
+        Calculations use the versioned fee policies identified with each leg.
+      </p> : <div className="grid gap-4 md:grid-cols-2">
         <CostSummary
           label={`${left ? venueLabel(left.venue) : "Left"} costs`}
           costs={review.left_costs}
@@ -170,7 +174,7 @@ export function ReviewPanel({ review, left, right }: Props) {
           costs={review.right_costs}
           asset={right?.settlement_asset ?? "USD"}
         />
-      </div>
+      </div>}
     </section>
   );
 }

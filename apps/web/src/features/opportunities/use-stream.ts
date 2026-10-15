@@ -6,7 +6,7 @@ export type StreamStatus = "connecting" | "open" | "reconnecting";
 
 export type StreamState = {
   status: StreamStatus;
-  /** When the stream last confirmed the data on screen is current. */
+  /** When the stream last delivered a snapshot; quote freshness is independent. */
   lastEventAt: number | null;
   /** How many times the connection has dropped since the page loaded. */
   drops: number;
@@ -41,15 +41,15 @@ export function useOpportunityStream(enabled = true) {
         lastEventAt: Date.now(),
       }));
 
-    source.addEventListener("ready", () => {
-      openedOnce.current = true;
+    source.addEventListener("snapshot", () => {
       markCurrent();
-    });
-
-    source.addEventListener("update", () => {
-      markCurrent();
-      void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] });
-      void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] });
+      // Let pending reads finish when snapshots arrive faster than the API.
+      // Repeated cancellation can prevent refreshed data from reaching the UI.
+      void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] }, { cancelRefetch: false });
+      void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] }, { cancelRefetch: false });
+      void client.invalidateQueries({ queryKey: ["arbbot", "history"] }, { cancelRefetch: false });
+      for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "classificationDetail", "book", "status"])
+        void client.invalidateQueries({ queryKey: ["arbbot", operation] }, { cancelRefetch: false });
     });
 
     source.onopen = () => {

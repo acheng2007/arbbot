@@ -1,0 +1,174 @@
+{
+  "recorded_at": "2026-09-25T03:22:51.285Z",
+  "url": "https://gamma-api.polymarket.com/public-search?q=US%20inflation&events_status=active&limit_per_type=5&page=1&keep_closed_markets=0&search_tags=false&search_profiles=false",
+  "original_body_sha256": "f6f5db7eb17a9820a1c8214e542fcc78af15aeadb7f1664deb87d2c6e3f03092",
+  "note": "Projection of a recorded public response. At most two markets per Polymarket event and only discovery fields retained; no field values modified.",
+  "response": {
+    "events": [
+      {
+        "id": "1005014",
+        "title": "September Inflation US - Monthly",
+        "markets": [
+          {
+            "id": "4469455",
+            "question": "Will monthly inflation stay flat (0.0%) or decrease in September?",
+            "description": "This is a market about the one-month percent change in the seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) published by the Bureau of Labor Statistics (BLS).\n\nThis market will resolve to the one-month percent change in the seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) in September 2026 according to the monthly BLS report.\n\nThe resolution source for this market will be the BLS Consumer Price Index report released for September 2026 (https://www.bls.gov/bls/news-release/cpi.htm), currently scheduled to be released on October 14, 2026, at 8:30 AM ET. Resolution of this market will take place upon release of the aforementioned data.\n\nNote: the resolution source for this market will be the official monthly Consumer Price Index for All Urban Consumers (CPI-U) which BLS reports to one decimal point (e.g. 0.4%). Thus, this is the level of precision that will be used when resolving the market.\n\nIf the BLS does not release the relevant figures on the scheduled date, this market may remain open up until the scheduled release time of the next CPI report (https://www.bls.gov/schedule). If the information is not released by that time, this market will resolve according to the figures of the most recent previous month with available data.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"84162658274921812297756175318596978258348679034171347482576924976845710225036\", \"52198680311064581646043122620609193105907779880381860072477151445253482709907\"]",
+            "endDate": "2026-10-15T03:59:00Z",
+            "negRisk": true
+          },
+          {
+            "id": "4469456",
+            "question": "Will monthly inflation increase by 0.1% in September?",
+            "description": "This is a market about the one-month percent change in the seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) published by the Bureau of Labor Statistics (BLS).\n\nThis market will resolve to the one-month percent change in the seasonally adjusted Consumer Price Index for All Urban Consumers (CPI-U) in September 2026 according to the monthly BLS report.\n\nThe resolution source for this market will be the BLS Consumer Price Index report released for September 2026 (https://www.bls.gov/bls/news-release/cpi.htm), currently scheduled to be released on October 14, 2026, at 8:30 AM ET. Resolution of this market will take place upon release of the aforementioned data.\n\nNote: the resolution source for this market will be the official monthly Consumer Price Index for All Urban Consumers (CPI-U) which BLS reports to one decimal point (e.g. 0.4%). Thus, this is the level of precision that will be used when resolving the market.\n\nIf the BLS does not release the relevant figures on the scheduled date, this market may remain open up until the scheduled release time of the next CPI report (https://www.bls.gov/schedule). If the information is not released by that time, this market will resolve according to the figures of the most recent previous month with available data.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"103003159942109275891209714339806296198233447579890266123492111793330251170104\", \"76465126750376954465015786225253414920443745197662833477627410471232861341904\"]",
+            "endDate": "2026-10-15T03:59:00Z",
+            "negRisk": true
+          }
+        ]
+      },
+      {
+        "id": "1005013",
+        "title": "September Inflation US - Annual",
+        "markets": [
+          {
+            "id": "4469383",
+            "question": "Will annual inflation be 2.9% or less in September?",
+            "description": "This is a market about inflation over the 12-month period ending September 2026, before seasonal adjustment, as reported by the Bureau of Labor Statistics.\n\nThis market will resolve to the percentage change in the Consumer Price Index (CPI) over the 12-month period ending in September 2026 according to the monthly Bureau of Labor Statistics (BLS) report.\n\nThe resolution source for this market will be the BLS Consumer Price Index report released for September 2026 (https://www.bls.gov/bls/news-release/cpi.htm), currently scheduled to be released on October 14, 2026, at 8:30 AM ET. Resolution of this market will take place upon release of the aforementioned data.\n\nNote: the resolution source for this market will be the official monthly BLS CPI news release, which reports inflation over 12-month periods to only one decimal point (e.g., 2.9%). Thus, this is the level of precision that will be used when resolving the market.\n\nIf the BLS does not release the relevant figures on the scheduled date, this market may remain open up until the scheduled release time of the next CPI report (https://www.bls.gov/schedule). If the information is not released by that time, this market will resolve according to the figures of the most recent previous month with available data.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"60627104826779911195501208461593895215241843266444968222773049021286529395275\", \"48185608646370961147646845741041063597809368460741970418819621308655557874850\"]",
+            "endDate": "2026-10-15T03:59:00Z",
+            "negRisk": true
+          },
+          {
+            "id": "4469385",
+            "question": "Will annual inflation be 3.0% in September?",
+            "description": "This is a market about inflation over the 12-month period ending September 2026, before seasonal adjustment, as reported by the Bureau of Labor Statistics.\n\nThis market will resolve to the percentage change in the Consumer Price Index (CPI) over the 12-month period ending in September 2026 according to the monthly Bureau of Labor Statistics (BLS) report.\n\nThe resolution source for this market will be the BLS Consumer Price Index report released for September 2026 (https://www.bls.gov/bls/news-release/cpi.htm), currently scheduled to be released on October 14, 2026, at 8:30 AM ET. Resolution of this market will take place upon release of the aforementioned data.\n\nNote: the resolution source for this market will be the official monthly BLS CPI news release, which reports inflation over 12-month periods to only one decimal point (e.g., 2.9%). Thus, this is the level of precision that will be used when resolving the market.\n\nIf the BLS does not release the relevant figures on the scheduled date, this market may remain open up until the scheduled release time of the next CPI report (https://www.bls.gov/schedule). If the information is not released by that time, this market will resolve according to the figures of the most recent previous month with available data.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"92667478754876844888293100867139595228618687723166944009378728060303147377368\", \"92818690857981472481384019225330721027158045954252871688719248355136987342533\"]",
+            "endDate": "2026-10-15T03:59:00Z",
+            "negRisk": true
+          }
+        ]
+      },
+      {
+        "id": "79104",
+        "title": "How high will 10-year Treasury yield go before 2027?",
+        "markets": [
+          {
+            "id": "677021",
+            "question": "Will the 10-year Treasury yield hit 4.5% before 2027?",
+            "description": "This market will resolve to \"Yes\" if the Treasury 10-year yield reaches or is higher than the listed value for any date between November 11, 2025 and December 31, 2026. Otherwise this market will resolve to \"No\".\n\nThis market will resolve as soon as the Treasury 10-year yield is higher than the listed value, or once data is available for all days in the specified period. If data is not available for all days in the specified period within 14 calendar days (ET) of the end of that period, this market will resolve based on the available data at that time.\n\nThe resolution source for this market is the Department of the treasury, specially the data listed under \"Daily Treasury Par Yield Curve Rates\" for the column \"10 Yr\" (see: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2025).",
+            "active": true,
+            "closed": true,
+            "acceptingOrders": false,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"74157428658439936702178176794271852116171351968325754257122079016763626549678\", \"112450585715958272869844476948534618215928560066779172451259465109089215948136\"]",
+            "endDate": "2026-12-31T00:00:00Z",
+            "negRisk": false
+          },
+          {
+            "id": "677022",
+            "question": "Will the 10-year Treasury yield hit 4.6% before 2027?",
+            "description": "This market will resolve to \"Yes\" if the Treasury 10-year yield reaches or is higher than the listed value for any date between November 11, 2025 and December 31, 2026. Otherwise this market will resolve to \"No\".\n\nThis market will resolve as soon as the Treasury 10-year yield is higher than the listed value, or once data is available for all days in the specified period. If data is not available for all days in the specified period within 14 calendar days (ET) of the end of that period, this market will resolve based on the available data at that time.\n\nThe resolution source for this market is the Department of the treasury, specially the data listed under \"Daily Treasury Par Yield Curve Rates\" for the column \"10 Yr\" (see: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2025).",
+            "active": true,
+            "closed": true,
+            "acceptingOrders": false,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"33542445485691518793667430671544337077625925296190834068704596915006226436662\", \"108862194638993389560977819445756743551852284590814775610807486714795586143989\"]",
+            "endDate": "2026-12-31T00:00:00Z",
+            "negRisk": false
+          }
+        ]
+      },
+      {
+        "id": "956927",
+        "title": "How high will 10-year Treasury yield go in September?",
+        "markets": [
+          {
+            "id": "4178704",
+            "question": "Will the 10-year Treasury yield hit 4.82% in September?",
+            "description": "This market will resolve to \"Yes\" if the Treasury 10-year yield reaches or is higher than the listed value for any date between September 3, 2026 and September 30, 2026. Otherwise this market will resolve to \"No\".\n\nThis market will resolve as soon as the Treasury 10-year yield reaches or is higher than the listed value, or once data is available for September 30, 2026. If no qualifying value is published and data is not available for September 30, 2026 by October 14, 11:59 PM ET, this market will resolve to \"No\".\n\nThe resolution source for this market is the Department of the treasury, specifically the data listed under \"Daily Treasury Par Yield Curve Rates\" for the column \"10 Yr\" (see: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2026).",
+            "active": true,
+            "closed": true,
+            "acceptingOrders": false,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"7917034443648217875319858292766598674161368115164093826034531072563592656146\", \"5368257402744578087869332803642189265419790742994304948722662090871573799905\"]",
+            "endDate": "2026-09-30T12:00:00Z",
+            "negRisk": false
+          },
+          {
+            "id": "4178705",
+            "question": "Will the 10-year Treasury yield hit 4.85% in September?",
+            "description": "This market will resolve to \"Yes\" if the Treasury 10-year yield reaches or is higher than the listed value for any date between September 3, 2026 and September 30, 2026. Otherwise this market will resolve to \"No\".\n\nThis market will resolve as soon as the Treasury 10-year yield reaches or is higher than the listed value, or once data is available for September 30, 2026. If no qualifying value is published and data is not available for September 30, 2026 by October 14, 11:59 PM ET, this market will resolve to \"No\".\n\nThe resolution source for this market is the Department of the treasury, specifically the data listed under \"Daily Treasury Par Yield Curve Rates\" for the column \"10 Yr\" (see: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2026).",
+            "active": true,
+            "closed": true,
+            "acceptingOrders": false,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"97584156112195424776348430944320624273334707253919088043945453909141767924991\", \"51909615591219468397183950180196871992676944952319403146433945023857302960537\"]",
+            "endDate": "2026-09-30T12:00:00Z",
+            "negRisk": false
+          }
+        ]
+      },
+      {
+        "id": "413893",
+        "title": "US economic state at the end of 2026?",
+        "markets": [
+          {
+            "id": "2069847",
+            "question": "Will the US economy be in a soft landing at the end of 2026?",
+            "description": "The unemployment rate is defined as the seasonally adjusted unemployment rate (total unemployed as a percent of the civilian labor force, denoted as U-3) reported by the Bureau of Labor Statistics in the Employment Situation release. The inflation rate is defined as the 12-month percent change in the Consumer Price Index for All Urban Consumers (CPI-U), before seasonal adjustment, as reported by the Bureau of Labor Statistics in the Consumer Price Index release.\n\nThis market will resolve according to the unemployment rate and the inflation rate published for December 2026.\n\nIf either the December 2026 inflation rate or the December 2026 unemployment rate is not published by January 31, 2027, 11:59 PM ET, this market will resolve based on the most recently published available value of the rate for a month prior to December 2026.\n\nThis market will resolve to “Soft Landing (Unemployment <5.0%, Inflation <3.5%)” if the unemployment rate is less than 5.0% and the inflation rate is less than 3.5%.\n\nThis market will resolve to “Stagflation (Unemployment ≥5.0%, Inflation ≥3.5%)” if the unemployment rate is greater than or equal to 5.0% and the inflation rate is greater than or equal to 3.5%.\n\nThis market will resolve to “Overheating (Unemployment <5.0%, Inflation ≥3.5%)” if the unemployment rate is less than 5.0% and the inflation rate is greater than or equal to 3.5%.\n\nThis market will resolve to “Slack (Unemployment ≥5.0%, Inflation <3.5%)” if the unemployment rate is greater than or equal to 5.0% and the inflation rate is less than 3.5%.\n\nThe resolution source for this market will be the Bureau of Labor Statistics, specifically its Employment Situation and Consumer Price Index releases.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"46312529158416609898079553446176504311993678139330779840129310682124759689495\", \"80335609827602144973400700286800607989091471408666208830272936565190453177519\"]",
+            "endDate": "2027-02-01T04:59:00Z",
+            "negRisk": true
+          },
+          {
+            "id": "2069848",
+            "question": "Will the US economy be in stagflation at the end of 2026?",
+            "description": "The unemployment rate is defined as the seasonally adjusted unemployment rate (total unemployed as a percent of the civilian labor force, denoted as U-3) reported by the Bureau of Labor Statistics in the Employment Situation release. The inflation rate is defined as the 12-month percent change in the Consumer Price Index for All Urban Consumers (CPI-U), before seasonal adjustment, as reported by the Bureau of Labor Statistics in the Consumer Price Index release.\n\nThis market will resolve according to the unemployment rate and the inflation rate published for December 2026.\n\nIf either the December 2026 inflation rate or the December 2026 unemployment rate is not published by January 31, 2027, 11:59 PM ET, this market will resolve based on the most recently published available value of the rate for a month prior to December 2026.\n\nThis market will resolve to “Soft Landing (Unemployment <5.0%, Inflation <3.5%)” if the unemployment rate is less than 5.0% and the inflation rate is less than 3.5%.\n\nThis market will resolve to “Stagflation (Unemployment ≥5.0%, Inflation ≥3.5%)” if the unemployment rate is greater than or equal to 5.0% and the inflation rate is greater than or equal to 3.5%.\n\nThis market will resolve to “Overheating (Unemployment <5.0%, Inflation ≥3.5%)” if the unemployment rate is less than 5.0% and the inflation rate is greater than or equal to 3.5%.\n\nThis market will resolve to “Slack (Unemployment ≥5.0%, Inflation <3.5%)” if the unemployment rate is greater than or equal to 5.0% and the inflation rate is less than 3.5%.\n\nThe resolution source for this market will be the Bureau of Labor Statistics, specifically its Employment Situation and Consumer Price Index releases.",
+            "active": true,
+            "closed": false,
+            "acceptingOrders": true,
+            "enableOrderBook": true,
+            "outcomes": "[\"Yes\", \"No\"]",
+            "clobTokenIds": "[\"29221647660001052534885426446639848390010824454348882014638265430112051361512\", \"114548016853747232835723930399248065751701993585518116420876352200866213673281\"]",
+            "endDate": "2027-02-01T04:59:00Z",
+            "negRisk": true
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "hasMore": false,
+      "totalResults": 5
+    }
+  }
+}

@@ -14,6 +14,8 @@ from arbbot.matching.contracts import (
     REQUIRED_FIELDS,
     ContractDefinition,
     Fact,
+    SettlementCondition,
+    SettlementPolicy,
     compare_contracts,
     definition_hash,
 )
@@ -41,6 +43,29 @@ def definition(market, **changes):
         terms_hash=market.terms_hash,
         extractor="test-reviewer",
         schema_version=2,
+        settlement_policies=(
+            SettlementPolicy(
+                kind="cancellation",
+                status="modeled",
+                evidence=Fact(value="fixed_half", source="rules", quote=market.rules),
+                conditions=(
+                    SettlementCondition(
+                        id="cancelled",
+                        trigger="Synthetic event cancellation",
+                        yes_payout="0.5",
+                        no_payout="0.5",
+                    ),
+                ),
+            ),
+            *(
+                SettlementPolicy(
+                    kind=kind,
+                    status="not_applicable",
+                    evidence=Fact(value="not_applicable", source="rules", quote=market.rules),
+                )
+                for kind in ("fallback", "ambiguous_resolution")
+            ),
+        ),
         facts={
             name: Fact(value=value, source="rules", quote=market.rules)
             for name, value in values.items()
@@ -153,7 +178,12 @@ async def test_live_definitions_file_through_worker_database_api(
     definitions_file.write_text(json.dumps([d.model_dump(mode="json") for d in definitions]))
     reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
     settings = settings.model_copy(
-        update={"mode": "live", "definitions_file": definitions_file, "reviews_file": reviews_file}
+        update={
+            "mode": "live",
+            "review_source": "files",
+            "definitions_file": definitions_file,
+            "reviews_file": reviews_file,
+        }
     )
 
     class Adapter:
@@ -176,9 +206,58 @@ async def test_live_definitions_file_through_worker_database_api(
         assert match["comparison"]["left"]["facts"]["source"]["quote"] == markets[0].rules
         opportunity = (await client.get("/api/v1/opportunities")).json()[0]
         assert opportunity["comparison"]["left_hash"] == definition_hash(definitions[0])
+        legacy = review.model_dump(mode="json")
+        for scenario in legacy["scenarios"]:
+            scenario.pop("left_no")
+            scenario.pop("right_no")
+        reviews_file.write_text(json.dumps([legacy]))
+        assert (await pipeline.cycle())["opportunities"] == 0
+        assert (await client.get("/api/v1/opportunities")).json() == []
+        candidate = (await client.get("/api/v1/matches")).json()[0]
+        assert candidate["status"] == "candidate"
+        assert "Explicit settlement payouts" in candidate["reason"]
+        reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
+        assert (await pipeline.cycle())["opportunities"] == 1
+        uncovered = review.model_dump(mode="json")
+        uncovered["settlement_mappings"] = []
+        reviews_file.write_text(json.dumps([uncovered]))
+        assert (await pipeline.cycle())["opportunities"] == 0
+        assert (await client.get("/api/v1/opportunities")).json() == []
+        assert (await client.get("/api/v1/matches")).json()[0]["status"] == "candidate"
+        reviews_file.write_text(json.dumps([review.model_dump(mode="json")]))
         definitions_file.write_text("[]")
         assert (await pipeline.cycle())["opportunities"] == 0
         assert (await client.get("/api/v1/opportunities")).json() == []
         assert (await client.get("/api/v1/matches")).json()[0]["comparison"][
             "status"
         ] == "incomplete"
+
+
+def test_indexed_retrieval_bounds_unknown_title_hypotheses():
+    from datetime import timedelta
+
+    from arbbot.domain import Market, utcnow
+    from arbbot.matching.service import retrieve_candidates
+
+    markets = [
+        Market(
+            id=f"{venue}:{i}",
+            venue=venue,
+            external_id=str(i),
+            mode="simulation",
+            title="Will the example candidate win this event?",
+            rules="No reviewed terms",
+            status="open",
+            settlement_asset="USD",
+            raw={},
+            observed_at=utcnow(),
+            closes_at=utcnow() + timedelta(days=1),
+        )
+        for venue in ("kalshi", "polymarket_us")
+        for i in range(150)
+    ]
+    pairs, limited = retrieve_candidates(markets, {}, [], limit=10)
+    assert limited
+    assert len(pairs) <= len(markets) * 10
+    assert len(pairs) < 150 * 150
+    assert all(left.venue != right.venue for left, right in pairs)

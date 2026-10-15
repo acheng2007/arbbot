@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 test("responsive navigation and keyboard skip link", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "A clearer view of every opportunity.",
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Markets");
   await page.screenshot({
     path: `test-results/overview-${test.info().project.name}.png`,
     fullPage: true,
@@ -22,12 +20,10 @@ test("responsive navigation and keyboard skip link", async ({ page }) => {
   await page.route("**/api/connection", (route) =>
     route.fulfill({ json: { status: "ok", mode: "simulation" } }),
   );
-  await page.getByRole("link", { name: "Check API connection" }).click();
+  await page.getByRole("link", { name: "Connection status" }).click();
   await expect(page.getByRole("status")).toHaveText("Backend reachable");
   await expect(page.getByText("Simulation", { exact: true })).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "API connection", exact: true }),
-  ).toHaveAttribute("aria-current", "page");
+  await expect(page).toHaveURL(/\/connection$/);
   await page.route("**/api/connection", (route) =>
     route.fulfill({ status: 503, json: { error: "Unavailable" } }),
   );

@@ -2,12 +2,19 @@
 
 from collections import defaultdict
 
-from sqlalchemy import select
+from sqlalchemy import or_, select, text, update
 from sqlalchemy.exc import IntegrityError
 
 from arbbot.domain import Mode
-from arbbot.sources.models import MAX_CONTENT_BYTES, SourceArtifact, SourceCapture, SourceFailure
-from arbbot.storage.models import MarketRecord, SourceArtifactRecord
+from arbbot.sources.models import (
+    MAX_CONTENT_BYTES,
+    SourceArtifact,
+    SourceArtifactSummary,
+    SourceCapture,
+    SourceFailure,
+)
+from arbbot.sources.versions import latest_document, lock_document
+from arbbot.storage.models import MarketRecord, OpportunityRecord, SourceArtifactRecord
 from arbbot.storage.repository import aware
 
 
@@ -48,6 +55,43 @@ class SourceRepository:
         self.database = database
         self.max_content_bytes = max_content_bytes
 
+    async def get(self, mode: Mode, artifact_id: str) -> SourceArtifact | None:
+        async with self.database.sessions() as session:
+            row = await session.scalar(
+                select(SourceArtifactRecord)
+                .join(MarketRecord, MarketRecord.key == SourceArtifactRecord.market_key)
+                .where(SourceArtifactRecord.id == artifact_id, MarketRecord.mode == mode)
+            )
+            return artifact(row) if row else None
+
+    async def summaries(self, mode: Mode, market_id: str, *, limit=20, offset=0):
+        # Avoid materializing binary documents just to list provenance.
+        columns = [
+            column for column in SourceArtifactRecord.__table__.columns if column.name != "content"
+        ]
+        query = (
+            select(*columns)
+            .where(SourceArtifactRecord.market_key == market_key(mode, market_id))
+            .order_by(SourceArtifactRecord.last_seen_at.desc(), SourceArtifactRecord.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        async with self.database.sessions() as session:
+            rows = (await session.execute(query)).mappings().all()
+            return [
+                SourceArtifactSummary.model_validate(
+                    {
+                        **{k: v for k, v in row.items() if k != "market_key"},
+                        "mode": mode,
+                        "market_id": market_id,
+                        "first_seen_at": aware(row["first_seen_at"]),
+                        "last_seen_at": aware(row["last_seen_at"]),
+                        "source_at": aware(row["source_at"]) if row["source_at"] else None,
+                    }
+                )
+                for row in rows
+            ]
+
     async def record(self, event: SourceCapture | SourceFailure) -> SourceArtifact:
         """Persist one retrieval attempt.
 
@@ -68,17 +112,78 @@ class SourceRepository:
     async def _record(self, event: SourceCapture | SourceFailure) -> SourceArtifact:
         key = market_key(event.mode, event.market_id)
         async with self.database.sessions.begin() as session:
-            market = await session.get(MarketRecord, key)
+            if self.database.engine.dialect.name == "sqlite":
+                await session.execute(text("BEGIN IMMEDIATE"))
+            market = await session.get(MarketRecord, key, with_for_update=True)
             if market is None:
                 raise ValueError("Market must be persisted before its settlement sources")
             if market.venue != event.venue:
                 raise ValueError("Source evidence must name the venue that lists the market")
+            await lock_document(session, event.mode, event.url)
+            previous = await latest_document(session, event.mode, event.url)
+            newer = not previous or (event.observed_at, event.id) > (
+                aware(previous.last_seen_at),
+                previous.id,
+            )
+            generation = previous.details.get("source_generation", 0) if previous else 0
+            last_digest = (
+                previous.details.get("last_capture_digest", previous.content_digest)
+                if previous
+                else None
+            )
+            content_changed = (
+                isinstance(event, SourceCapture) and last_digest and event.digest != last_digest
+            )
+            if newer and content_changed:
+                generation += 1
+                market.payload = {
+                    **market.payload,
+                    "source_revision": market.payload.get("source_revision", 0) + 1,
+                }
+            if (
+                newer
+                and previous
+                and (
+                    previous.status
+                    != ("captured" if isinstance(event, SourceCapture) else "failed")
+                    or content_changed
+                )
+            ):
+                # A shared rulebook or product specification can support several markets.
+                dependent_ids = (
+                    select(MarketRecord.id)
+                    .join(SourceArtifactRecord, SourceArtifactRecord.market_key == MarketRecord.key)
+                    .where(MarketRecord.mode == event.mode, SourceArtifactRecord.url == event.url)
+                )
+                await session.execute(
+                    update(OpportunityRecord)
+                    .where(
+                        OpportunityRecord.mode == event.mode,
+                        or_(
+                            *(
+                                OpportunityRecord.payload["legs"][i]["market_id"]
+                                .as_string()
+                                .in_(dependent_ids)
+                                for i in (0, 1)
+                            )
+                        ),
+                    )
+                    .values(active=False)
+                )
             row = await session.get(SourceArtifactRecord, event.id, with_for_update=True)
             if row is None:
                 row = self._new_row(event, key, market.payload["terms_hash"])
                 session.add(row)
             else:
                 self._observe(row, event)
+            if newer:
+                row.details = {
+                    **row.details,
+                    "source_generation": generation,
+                    "last_capture_digest": event.digest
+                    if isinstance(event, SourceCapture)
+                    else last_digest,
+                }
             await session.flush()
             return artifact(row)
 

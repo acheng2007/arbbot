@@ -9,18 +9,21 @@ import { Badge } from "@/components/ui/badge";
 export function OriginBanner({ origin }: { origin: DataOrigin }) {
   if (origin === "backend") return null;
   return (
-    <div
-      role="status"
-      className="flex items-start gap-3 rounded-lg border border-sky-300 bg-sky-50 p-4 text-sm text-sky-950"
-    >
-      <FlaskConical aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-      <p className="leading-6">
-        <span className="font-semibold">Recorded fixture data.</span> No
-        exchange or backend was contacted. Prices, matches, and profit figures
-        on this page are illustrative recordings for development and are not
-        tradable.
+    <details className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-950">
+      <summary className="cursor-pointer font-medium">
+        {origin === "recorded_backend"
+          ? "Offline recorded acceptance data"
+          : "Recorded fixture data"}{" "}
+        · Not tradable
+      </summary>
+      <p className="mt-2 leading-5">
+        Recorded prices, matches, and estimates are for development.{" "}
+        {origin === "fixtures"
+          ? "No exchange or backend was contacted."
+          : "The backend uses recorded exchange responses."}{" "}
+        Synthetic scenarios are labeled explicitly.
       </p>
-    </div>
+    </details>
   );
 }
 
@@ -39,7 +42,21 @@ export function OriginBadge({ origin }: { origin: DataOrigin }) {
 }
 
 /** The backend's own ingestion mode, which is independent of the data origin. */
-export function ModeBadge({ mode }: { mode: "simulation" | "live" }) {
+export function ModeBadge({
+  mode,
+  feedOrigin,
+}: {
+  mode: "simulation" | "live";
+  feedOrigin?: "exchange" | "synthetic_recording" | "recorded_exchange";
+}) {
+  if (feedOrigin && feedOrigin !== "exchange")
+    return (
+      <Badge tone="caution">
+        {feedOrigin === "synthetic_recording"
+          ? "Synthetic recording"
+          : "Recorded exchange"}
+      </Badge>
+    );
   return (
     <Badge tone={mode === "live" ? "positive" : "caution"}>
       {mode === "live" ? "Live feed" : "Simulation"}

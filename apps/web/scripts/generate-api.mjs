@@ -21,7 +21,14 @@ function fail(message) {
 function refName(ref) {
   const prefix = "#/components/schemas/";
   if (!ref.startsWith(prefix)) fail(`unsupported $ref ${ref}`);
-  return ref.slice(prefix.length);
+  return modelName(ref.slice(prefix.length));
+}
+
+function modelName(name) {
+  const symbol = name.replace(/-Output$/, "").replace(/-Input$/, "Input");
+  if (!/^[A-Za-z_$][\w$]*$/.test(symbol))
+    fail(`unsupported model name ${name}`);
+  return symbol;
 }
 
 function quote(value) {
@@ -32,8 +39,8 @@ function typeOf(schema, path) {
   if (schema === undefined) fail(`missing schema at ${path}`);
   if (schema.$ref) return refName(schema.$ref);
   if (schema.const !== undefined) return quote(schema.const);
-  if (schema.anyOf)
-    return schema.anyOf
+  if (schema.anyOf || schema.oneOf)
+    return (schema.anyOf ?? schema.oneOf)
       .map((option, index) => typeOf(option, `${path}.anyOf[${index}]`))
       .join(" | ");
   if (schema.enum) return schema.enum.map(quote).join(" | ");
@@ -120,7 +127,8 @@ function operationsFor(document) {
   const entries = [];
   for (const [route, methods] of Object.entries(document.paths)) {
     for (const [method, operation] of Object.entries(methods)) {
-      if (method !== "get") fail(`unsupported method ${method} for ${route}`);
+      if (!["get", "post"].includes(method))
+        fail(`unsupported method ${method} for ${route}`);
       const parameters = operation.parameters ?? [];
       const query = parameters.filter((p) => p.in === "query");
       const params = parameters.filter((p) => p.in === "path");
@@ -128,14 +136,20 @@ function operationsFor(document) {
         if (!["query", "path"].includes(parameter.in))
           fail(`unsupported parameter location ${parameter.in} in ${route}`);
 
-      const success = operation.responses["200"];
+      const success = operation.responses["200"] ?? operation.responses["201"];
       const body = success?.content?.["application/json"]?.schema;
+      const request =
+        operation.requestBody?.content?.["application/json"]?.schema;
+      if (operation.requestBody && !request)
+        fail(`unsupported request body for ${route}`);
       const key = operationKey(operation.operationId, route, method);
       if (entries.some((entry) => entry.key === key))
         fail(`duplicate operation key ${key}`);
       entries.push({
         route,
         key,
+        method: method.toUpperCase(),
+        body: request ? typeOf(request, `${route}.body`) : "never",
         params,
         query,
         response: body ? typeOf(body, route) : "unknown",
@@ -168,13 +182,21 @@ function render(document) {
   ];
 
   const models = Object.entries(schemas).map(
-    ([name, schema]) => `export type ${name} = ${typeOf(schema, name)};\n`,
+    ([name, schema]) =>
+      `export type ${modelName(name)} = ${typeOf(schema, name)};\n`,
   );
+  if (
+    new Set(Object.keys(schemas).map(modelName)).size !==
+    Object.keys(schemas).length
+  )
+    fail("model names collide after normalization");
 
   const routes = operations.map(
     (operation) =>
       `  ${JSON.stringify(operation.key)}: {\n` +
       `    route: ${JSON.stringify(operation.route)};\n` +
+      `    method: ${JSON.stringify(operation.method)};\n` +
+      `    body: ${operation.body};\n` +
       `    params: ${memberList(operation.params, operation.route)};\n` +
       `    query: ${memberList(operation.query, operation.route)};\n` +
       `    response: ${operation.response};\n` +
@@ -185,6 +207,7 @@ function render(document) {
     (operation) =>
       `  ${JSON.stringify(operation.key)}: {\n` +
       `    route: ${JSON.stringify(operation.route)},\n` +
+      `    method: ${JSON.stringify(operation.method)},\n` +
       `    params: [${operation.params.map((p) => JSON.stringify(p.name)).join(", ")}],\n` +
       `    query: [${operation.query.map((p) => JSON.stringify(p.name)).join(", ")}],\n` +
       `  },`,
@@ -196,12 +219,13 @@ function render(document) {
     "\n/** Every backend operation keyed by its OpenAPI operationId. */\n" +
     `export interface ApiOperations {\n${routes.join("\n")}\n}\n\n` +
     "export type OperationId = keyof ApiOperations;\n\n" +
+    'export type ReadOperationId = { [K in OperationId]: ApiOperations[K]["method"] extends "GET" ? K : never }[OperationId];\n\n' +
     "/** Route template and accepted parameter names for each operation. */\n" +
     "export const API_OPERATIONS = {\n" +
     `${table.join("\n")}\n` +
     "} as const satisfies Record<\n" +
     "  OperationId,\n" +
-    "  { route: string; params: readonly string[]; query: readonly string[] }\n" +
+    '  { route: string; method: "GET" | "POST"; params: readonly string[]; query: readonly string[] }\n' +
     ">;\n"
   );
 }
