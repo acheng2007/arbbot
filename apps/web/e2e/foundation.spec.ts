@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 test("responsive navigation and keyboard skip link", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Markets");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Discoveries");
   await page.screenshot({
     path: `test-results/overview-${test.info().project.name}.png`,
     fullPage: true,

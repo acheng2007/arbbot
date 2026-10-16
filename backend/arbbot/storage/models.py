@@ -36,6 +36,23 @@ class MarketRecord(Base):
     __table_args__ = (Index("ix_market_family_page", "mode", "family", "id"),)
 
 
+class EmbeddingRecord(Base):
+    __tablename__ = "market_embeddings"
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    market_key: Mapped[str] = mapped_column(ForeignKey("markets.key"), index=True)
+    input_hash: Mapped[str] = mapped_column(String, index=True)
+    model_version: Mapped[str] = mapped_column(String)
+    vector: Mapped[list] = mapped_column(Document)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RetrievalStateRecord(Base):
+    __tablename__ = "retrieval_state"
+    mode: Mapped[str] = mapped_column(String, primary_key=True)
+    payload: Mapped[dict] = mapped_column(Document)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class SnapshotRecord(Base):
     __tablename__ = "book_snapshots"
     id: Mapped[str] = mapped_column(String, primary_key=True)

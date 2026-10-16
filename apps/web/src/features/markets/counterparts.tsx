@@ -23,8 +23,8 @@ export function Counterparts({ marketId }: { marketId: string }) {
     <section aria-label="Proposed counterparts" className="space-y-4">
       <h2 className="text-lg font-semibold">Proposed counterparts</h2>
       <p className="text-sm text-muted-foreground">
-        Suggestions require settlement review. Every proposed pair can be
-        inspected independently.
+        Suggestions require automatic settlement checks. Every proposed pair can
+        be inspected independently.
       </p>
       <QueryState
         isPending={matches.isPending}
@@ -46,7 +46,13 @@ export function Counterparts({ marketId }: { marketId: string }) {
                   key={row.id}
                   className="rounded-lg border border-border p-4"
                 >
-                  <MatchStatusBadge status={row.status} qualification={row.qualification} />
+                  <MatchStatusBadge
+                    status={row.status}
+                    qualification={row.qualification}
+                    relationship={row.relationship}
+                    operatorVeto={row.operator_veto}
+                    historical={row.historical}
+                  />
                   <Link
                     href={`/matches/${encodeURIComponent(row.id)}`}
                     className="mt-2 block font-medium text-primary"

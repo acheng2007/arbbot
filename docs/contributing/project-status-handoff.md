@@ -96,3 +96,9 @@ The pre-existing staged research document and untracked `.specstory/`, `.playwri
 
 Implement the accepted candidate-visibility policy across current matching/storage, API filtering, monitoring, and browser comparison labels, then validate a low-score suggestion as Unverified and an independently qualified match as Verified through connected desktop/mobile acceptance.
 Continue authentic settlement-evidence coverage without making incomplete interpretation a prerequisite for showing suggestions.
+
+## October 15 broad discovery workflow
+
+The integrated broad-discovery implementation is on `feature/broad-discovery-workflow`.
+See [the broad-discovery handoff](broad-discovery-handoff.md) for delivered workflow, validation, model benchmark, and limitations.
+Next action: run a sustained live Kalshi/US coverage study across categories, then prioritize authentic source-applicability and settlement-language extensions from its blocker distribution.

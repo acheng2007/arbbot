@@ -1,0 +1,30 @@
+{
+  "question_set_version": "counterparts-v3",
+  "contracts": 31,
+  "categories": [
+    "economics",
+    "other",
+    "politics",
+    "sports"
+  ],
+  "labeled_pairs": 22,
+  "event_positive_labels": 11,
+  "legacy_title_admission_recall_count": 3,
+  "keyword_top10_bidirectional_recall_count": 11,
+  "hybrid_top10_bidirectional_recall_count": 11,
+  "retrieval_seconds_including_model_load": 3.6972022090340033,
+  "limitations": [
+    "Small source-reading corpus; not representative accuracy or exhaustive recall.",
+    "Event labels and outcome orientation are separate from settlement compatibility.",
+    "CPI and weather supply unrelated cases; no US economic counterpart is invented.",
+    "Legacy metric replays title/definition admission, not the old deployed worker.",
+    "Document applicability and exceptional settlement coverage remain incomplete."
+  ],
+  "observed_on": "2026-10-15",
+  "actual_provider_calls": 22,
+  "event_label_agreement": 22,
+  "orientation_label_agreement": 18,
+  "provider_errors": 0,
+  "model": "typesafe/jev-1.13",
+  "corpus": "backend/tests/fixtures/discovery_broad"
+}

@@ -60,6 +60,8 @@ export function recordedDataset(now: Date = new Date()) {
         "This market resolves to Yes if the year-over-year change in the US Consumer Price Index for All Urban Consumers (CPI-U), not seasonally adjusted, for the September 2026 reference month is strictly greater than 3.0 percent, as first published by the Bureau of Labor Statistics. Revisions published after the initial release are disregarded. If the BLS does not publish the September 2026 release on or before 31 October 2026, the market is cancelled and all positions are refunded.",
       closes_at: ahead(22 * 24 * 3600),
       status: "open",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USD",
       tokens: { yes: "CPIYOY-26SEP-T3.0-YES", no: "CPIYOY-26SEP-T3.0-NO" },
       settlement_details: {
@@ -82,6 +84,8 @@ export function recordedDataset(now: Date = new Date()) {
         "This market will resolve to Yes if the United States Consumer Price Index for All Urban Consumers (CPI-U), not seasonally adjusted, shows a year-over-year increase above 3.0% for the September 2026 reference month, according to the initial Bureau of Labor Statistics print. Later revisions are ignored. If no release occurs before 1 November 2026 the market resolves 50/50.",
       closes_at: ahead(22 * 24 * 3600),
       status: "open",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USDC",
       tokens: { yes: "71234...yes", no: "71234...no" },
       settlement_details: {
@@ -103,6 +107,8 @@ export function recordedDataset(now: Date = new Date()) {
         "Resolves Yes if the Federal Open Market Committee lowers the midpoint of the federal funds target range at the meeting concluding 5 November 2026, as stated in the FOMC implementation note released that day at 2:00 PM America/New_York. An unscheduled intermeeting cut does not count.",
       closes_at: ahead(45 * 24 * 3600),
       status: "open",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USD",
       tokens: { yes: "FEDCUT-26NOV-YES", no: "FEDCUT-26NOV-NO" },
       settlement_details: {
@@ -124,6 +130,8 @@ export function recordedDataset(now: Date = new Date()) {
         "Resolves Yes if the Federal Reserve reduces the federal funds target rate at any point during November 2026. Resolution follows the Federal Reserve press release, evaluated in UTC. Intermeeting action counts.",
       closes_at: ahead(70 * 24 * 3600),
       status: "open",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USDC",
       tokens: { yes: "88120...yes", no: "88120...no" },
       settlement_details: {
@@ -145,6 +153,8 @@ export function recordedDataset(now: Date = new Date()) {
         "Resolves Yes if the initial Bureau of Labor Statistics estimate of the change in total nonfarm payroll employment for October 2026 exceeds 150,000, seasonally adjusted.",
       closes_at: ahead(46 * 24 * 3600),
       status: "open",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USD",
       tokens: {},
       settlement_details: { source: "BLS Employment Situation" },
@@ -162,6 +172,8 @@ export function recordedDataset(now: Date = new Date()) {
         "Resolves Yes if the maximum temperature recorded at Central Park (station KNYC) on 4 July 2026 exceeds 90 degrees Fahrenheit according to the National Weather Service daily climate report.",
       closes_at: ago(78 * 24 * 3600),
       status: "closed",
+      category_group: "economics",
+      category: "Economics",
       settlement_asset: "USDC",
       tokens: { yes: "33019...yes", no: "33019...no" },
       settlement_details: {
@@ -757,6 +769,8 @@ export function recordedDataset(now: Date = new Date()) {
       left_id: "kalshi:CPIYOY-26SEP-T3.0",
       right_id: "polymarket:0x8f21",
       status: "verified",
+      relationship: "verified",
+      operator_veto: false,
       similarity: 0.94,
       reason:
         "Identical metric, reference period, threshold and revision policy; reviewed and approved with a recorded cancellation caveat.",
@@ -769,6 +783,8 @@ export function recordedDataset(now: Date = new Date()) {
       left_id: "kalshi:FEDCUT-26NOV",
       right_id: "polymarket:0x44b0",
       status: "rejected",
+      relationship: "mismatch",
+      operator_veto: true,
       similarity: 0.88,
       reason:
         "High title similarity, but the settlement windows and intermeeting handling diverge.",
@@ -781,6 +797,8 @@ export function recordedDataset(now: Date = new Date()) {
       left_id: "kalshi:PAYROLLS-26OCT-T150",
       right_id: "polymarket:0x1d77",
       status: "candidate",
+      relationship: "unverified",
+      operator_veto: false,
       similarity: 0.21,
       reason:
         "Proposed by the discovery pass only; no counterpart definition has been extracted yet.",

@@ -7,10 +7,10 @@ The system discovers and calculates conditional estimates only; it does not plac
 
 ## Accepted candidate visibility
 
-Future comparison browsing follows the [candidate-visibility decision](decisions/candidate-visibility.md): valid fresh Jev same-event suggestions remain visible as Unverified regardless of model score.
+Comparison browsing follows the [candidate-visibility decision](decisions/candidate-visibility.md): valid fresh Jev same-event suggestions remain visible as Unverified regardless of model score.
 Automatic settlement checks alone determine Verified, incomplete evidence retains Unverified with reasons, and explicit contradictions show Mismatch.
 Verified does not require a positive spread or available financial inputs; those independently determine whether an arbitrage estimate can be published.
-The broader suggestion-visibility workflow is planned and does not change the current threshold-gated implementation documented below.
+The Discoveries interface exposes suggestions, assessments, evidence history, and category coverage; Opportunities separates Potential and Qualified results.
 
 ## Two result feeds
 

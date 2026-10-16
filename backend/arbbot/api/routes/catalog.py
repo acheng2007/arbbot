@@ -14,6 +14,8 @@ PageSize = Annotated[int, Query(ge=1, le=200)]
 Offset = Annotated[int, Query(ge=0, le=100000)]
 Search = Annotated[str | None, Query(min_length=1, max_length=200)]
 Family = Annotated[str | None, Query(min_length=1, max_length=100)]
+CategoryGroup = Literal["politics", "economics", "sports", "other", "unknown"]
+Relationship = Literal["unverified", "verified", "mismatch"]
 
 
 def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, settings=None):
@@ -21,6 +23,66 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
     catalog = CatalogQueries(
         database, allow_file_reviews=allow_file_reviews, venues=venues, settings=settings
     )
+
+    import asyncio
+    import time
+    from collections import OrderedDict
+
+    from arbbot.discovery.coverage import coverage
+    from arbbot.discovery.models import DiscoveryCoverage
+
+    coverage_cache = OrderedDict()
+    coverage_lock = asyncio.Lock()
+
+    @router.get("/discovery/coverage", response_model=DiscoveryCoverage)
+    async def discoveryCoverage(
+        venue: Venue | None = None,
+        category_group: CategoryGroup | None = None,
+        category: Family = None,
+        q: Search = None,
+        relationship: Relationship | None = None,
+        historical: bool = False,
+        status: Literal["open", "closed"] | None = None,
+        exclude_mismatch: bool = False,
+        exclude_rejected: bool = False,
+    ):
+        from arbbot.config import Settings
+
+        key = (
+            venue,
+            category_group,
+            category,
+            q,
+            relationship,
+            historical,
+            status,
+            exclude_mismatch,
+            exclude_rejected,
+        )
+        # Coverage is an explicitly timestamped summary, never a financial gate.
+        # Coalesce snapshot bursts without holding up independent API reads.
+        async with coverage_lock:
+            cached = coverage_cache.get(key)
+            if cached and time.monotonic() - cached[0] < 3:
+                return cached[1]
+            result = await coverage(
+                catalog,
+                settings or Settings(_env_file=None, mode=mode),
+                venue=venue,
+                category_group=category_group,
+                category=category,
+                q=q,
+                relationship=relationship,
+                historical=historical,
+                status=status,
+                exclude_mismatch=exclude_mismatch,
+                exclude_rejected=exclude_rejected,
+            )
+            coverage_cache[key] = (time.monotonic(), result)
+            coverage_cache.move_to_end(key)
+            while len(coverage_cache) > 64:
+                coverage_cache.popitem(last=False)
+            return result
 
     from arbbot.execution.models import AccessSummary
     from arbbot.execution.repository import ExecutionRepository
@@ -52,6 +114,7 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         offset: Offset = 0,
         venue: Venue | None = None,
         supported: bool | None = None,
+        q: Search = None,
     ):
         query = (
             select(CatalogInventoryRecord, CatalogObservationRecord)
@@ -67,6 +130,11 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
             query = query.where(CatalogInventoryRecord.venue == venue)
         if supported is not None:
             query = query.where(CatalogInventoryRecord.supported == supported)
+        if q:
+            escaped = q.replace("/", "//").replace("%", "/%").replace("_", "/_")
+            query = query.where(
+                CatalogInventoryRecord.external_id.ilike("%" + escaped + "%", escape="/")
+            )
         async with database.sessions() as session:
             rows = (
                 await session.execute(
@@ -94,10 +162,18 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         venue: Venue | None = None,
         status: Literal["open", "closed"] | None = None,
         category: Family = None,
+        category_group: CategoryGroup | None = None,
         q: Search = None,
     ):
         return await catalog.summaries(
-            mode, limit=limit, offset=offset, venue=venue, status=status, category=category, q=q
+            mode,
+            limit=limit,
+            offset=offset,
+            venue=venue,
+            status=status,
+            category=category,
+            q=q,
+            category_group=category_group,
         )
 
     @router.get("/markets", response_model=list[Market])
@@ -107,10 +183,18 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         venue: Venue | None = None,
         status: Literal["open", "closed"] | None = None,
         family: Family = None,
+        category_group: CategoryGroup | None = None,
         q: Search = None,
     ):
         return await catalog.markets(
-            mode, limit=limit, offset=offset, venue=venue, status=status, family=family, q=q
+            mode,
+            limit=limit,
+            offset=offset,
+            venue=venue,
+            status=status,
+            family=family,
+            q=q,
+            category_group=category_group,
         )
 
     @router.get("/matches", response_model=list[Match])
@@ -122,6 +206,10 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         family: Family = None,
         q: Search = None,
         category: Family = None,
+        category_group: CategoryGroup | None = None,
+        relationship: Relationship | None = None,
+        exclude_mismatch: bool = False,
+        historical: bool = False,
         same_event: bool | None = None,
         market_status: Literal["open", "closed"] | None = None,
         exclude_rejected: bool = False,
@@ -142,6 +230,10 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
             family=family,
             q=q,
             category=category,
+            category_group=category_group,
+            relationship=relationship,
+            exclude_mismatch=exclude_mismatch,
+            historical=historical,
             same_event=same_event,
             market_status=market_status,
             exclude_rejected=exclude_rejected,
@@ -152,8 +244,8 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
         )
 
     @router.get("/matches/{match_id}", response_model=Match)
-    async def match(match_id: str):
-        rows = await catalog.matches(mode, match_id=match_id, limit=1)
+    async def match(match_id: str, historical: bool = False):
+        rows = await catalog.matches(mode, match_id=match_id, limit=1, historical=historical)
         if not rows:
             raise HTTPException(404, "Current match not found")
         return rows[0]
@@ -161,6 +253,27 @@ def catalog_router(database, mode, *, allow_file_reviews=False, venues=None, set
     from arbbot.matching.classification import summary
     from arbbot.matching.classification_models import ClassificationRun, ClassificationSummary
     from arbbot.storage.models import ClassificationJobRecord, ClassificationRunRecord
+
+    @router.get(
+        "/matches/{match_id}/classification/history", response_model=list[ClassificationRun]
+    )
+    async def classificationHistory(match_id: str, limit: PageSize = 100, offset: Offset = 0):
+        async with database.sessions() as session:
+            rows = (
+                await session.scalars(
+                    select(ClassificationRunRecord)
+                    .where(
+                        ClassificationRunRecord.mode == mode,
+                        ClassificationRunRecord.match_id == match_id,
+                    )
+                    .order_by(
+                        ClassificationRunRecord.completed_at.desc(), ClassificationRunRecord.id
+                    )
+                    .limit(limit)
+                    .offset(offset)
+                )
+            ).all()
+            return [ClassificationRun.model_validate(row.payload) for row in rows]
 
     @router.get("/matches/{match_id}/classification", response_model=ClassificationSummary)
     async def classification_detail(

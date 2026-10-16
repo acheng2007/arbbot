@@ -11,10 +11,13 @@ import {
   ComparisonStatusBadge,
   MatchStatusBadge,
   venueLabel,
+  reasonLabel,
 } from "@/features/shared/status";
 import { MarketPrices } from "@/features/markets/market-prices";
 import { ClassificationPanel } from "./classification-panel";
 import { DifferenceTable } from "./difference-table";
+import { ClassificationHistory } from "./classification-history";
+import { QualificationPanel } from "./qualification-panel";
 import { ReviewPanel } from "./review-panel";
 import { SourceTerms } from "./source-terms";
 
@@ -28,15 +31,24 @@ function UnresolvedAssumptions({ issues }: { issues: string[] }) {
       </h3>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-amber-950">
         {issues.map((issue) => (
-          <li key={issue}>{issue}</li>
+          <li key={issue}>{reasonLabel(issue)}</li>
         ))}
       </ul>
     </section>
   );
 }
 
-export function ComparisonDetail({ matchId }: { matchId: string }) {
-  const matches = useApi("match", { params: { match_id: matchId } });
+export function ComparisonDetail({
+  matchId,
+  historical = false,
+}: {
+  matchId: string;
+  historical?: boolean;
+}) {
+  const matches = useApi("match", {
+    params: { match_id: matchId },
+    query: { historical },
+  });
   const match = matches.data?.data;
   const withdrawnAdvice = useApi(
     "classificationDetail",
@@ -73,6 +85,12 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
               title="This pair is not available"
               description="The proposed pair may have been withdrawn, or the identifier in the address may be wrong."
             />
+            <Link
+              href={`/matches/${encodeURIComponent(matchId)}?historical=true`}
+              className="inline-block text-sm font-medium text-primary"
+            >
+              Inspect recorded comparison
+            </Link>
             {withdrawnAdvice.data && (
               <ClassificationPanel advice={withdrawnAdvice.data.data} />
             )}
@@ -85,7 +103,13 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
               <div className="space-y-7">
                 <header className="space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <MatchStatusBadge status={match.status} qualification={match.qualification} />
+                    <MatchStatusBadge
+                      status={match.status}
+                      qualification={match.qualification}
+                      relationship={match.relationship}
+                      operatorVeto={match.operator_veto}
+                      historical={match.historical}
+                    />
                     {match.comparison && (
                       <ComparisonStatusBadge status={match.comparison.status} />
                     )}
@@ -133,14 +157,19 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
                   <ClassificationPanel advice={match.classification} />
                 </Disclosure>
 
-                {match.comparison?.same_event === false && (
+                <QualificationPanel match={match} />
+                <Disclosure title="Matching assessment history">
+                  <ClassificationHistory matchId={match.id} />
+                </Disclosure>
+
+                {match.relationship === "mismatch" && (
                   <div
                     role="status"
                     className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm leading-6 text-red-950"
                   >
-                    These contracts have not been established as describing the
-                    same event. Any price difference between them is not
-                    arbitrage.
+                    Supported checks found an event or settlement contradiction.
+                    This comparison cannot support a qualified arbitrage
+                    estimate.
                   </div>
                 )}
 
@@ -183,7 +212,7 @@ export function ComparisonDetail({ matchId }: { matchId: string }) {
                 {!match.review && (
                   <EmptyState
                     title="No review recorded"
-                    description="No reviewer has examined this pair. It cannot support an executable arbitrage opportunity until the settlement terms are verified."
+                    description="Human review is optional. Current automatic evidence and settlement checks determine qualification independently of model scores and profitability."
                   />
                 )}
 

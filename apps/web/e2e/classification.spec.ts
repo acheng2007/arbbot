@@ -47,7 +47,7 @@ test("advisory findings and captured evidence remain separate from review", asyn
   await expect(
     page.getByRole("heading", { name: "AI suggests same event" }),
   ).toBeVisible();
-  await expect(page.getByText("Candidate, not verified")).toBeVisible();
+  await expect(page.getByText("Unverified match")).toBeVisible();
   await expect(page.getByText("No review recorded")).toBeVisible();
   await page
     .getByText("cancellation: different meaning", { exact: true })

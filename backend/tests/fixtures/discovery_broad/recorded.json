@@ -1,0 +1,2683 @@
+{
+  "format": "authentic-broad-discovery-v1",
+  "scope": "Unmodified public contract payloads; applicability and exceptional payouts are not established.",
+  "markets": [
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLH&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.589254+00:00",
+        "sha256": "4d7dad6076b6c607699514bfb399fae260683fef2f4a05882fcd0d896fc15fbe"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2029-02-01T15:00:00Z",
+        "created_time": "2026-05-15T18:09:17.487581Z",
+        "custom_strike": {
+          "Chamber of Congress": "House",
+          "Party": "Republican"
+        },
+        "event_ticker": "CONTROLH-2028",
+        "exchange_index": 0,
+        "expected_expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.2700",
+        "latest_expiration_time": "2029-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.7400",
+        "no_bid_dollars": "0.7300",
+        "no_sub_title": "Republican party",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2029-02-01T15:00:00Z",
+        "open_interest_fp": "3643.32",
+        "open_time": "2026-05-15T21:00:00Z",
+        "previous_price_dollars": "0.2600",
+        "previous_yes_ask_dollars": "0.2700",
+        "previous_yes_bid_dollars": "0.2600",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Republican party has won control of the House in 2028, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. House. See full rules for details. Otherwise, victory will be determined by the party identification of the Speaker of the House on February 1, 2029.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "custom",
+        "ticker": "CONTROLH-2028-R",
+        "title": "Will the Republican party win the House in 2028?",
+        "updated_time": "2026-10-10T09:24:14.973369Z",
+        "volume_24h_fp": "19.61",
+        "volume_fp": "7980.21",
+        "yes_ask_dollars": "0.2700",
+        "yes_ask_size_fp": "5273.40",
+        "yes_bid_dollars": "0.2600",
+        "yes_bid_size_fp": "3844.44",
+        "yes_sub_title": "Republican party"
+      },
+      "category": "Elections",
+      "payload_sha256": "78d809df333dedce72b91d6cdc686439b5ee88761988347161eef9084338c312"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLH&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.589254+00:00",
+        "sha256": "4d7dad6076b6c607699514bfb399fae260683fef2f4a05882fcd0d896fc15fbe"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2029-02-01T15:00:00Z",
+        "created_time": "2026-05-15T18:09:17.487581Z",
+        "custom_strike": {
+          "Chamber of Congress": "House",
+          "Party": "Democratic"
+        },
+        "event_ticker": "CONTROLH-2028",
+        "exchange_index": 0,
+        "expected_expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.7600",
+        "latest_expiration_time": "2029-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.2500",
+        "no_bid_dollars": "0.2400",
+        "no_sub_title": "Democratic party",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2029-02-01T15:00:00Z",
+        "open_interest_fp": "8278.32",
+        "open_time": "2026-05-15T21:00:00Z",
+        "previous_price_dollars": "0.7600",
+        "previous_yes_ask_dollars": "0.7600",
+        "previous_yes_bid_dollars": "0.7500",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Democratic party has won control of the House in 2028, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. House. See full rules for details. Otherwise, victory will be determined by the party identification of the Speaker of the House on February 1, 2029.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "custom",
+        "subtitle": "Democratic party",
+        "ticker": "CONTROLH-2028-D",
+        "title": "Will the Democratic party win the House in 2028?",
+        "updated_time": "2026-10-10T09:24:14.213267Z",
+        "volume_24h_fp": "2.00",
+        "volume_fp": "16240.95",
+        "yes_ask_dollars": "0.7600",
+        "yes_ask_size_fp": "7072.09",
+        "yes_bid_dollars": "0.7500",
+        "yes_bid_size_fp": "1986.03",
+        "yes_sub_title": "Democratic party"
+      },
+      "category": "Elections",
+      "payload_sha256": "768779999a2d260e63605c94bc79f798479ce676e359a231344cd0c1eb7c0a0c"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLH&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.589254+00:00",
+        "sha256": "4d7dad6076b6c607699514bfb399fae260683fef2f4a05882fcd0d896fc15fbe"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2027-02-01T15:00:00Z",
+        "created_time": "2024-11-06T07:18:26.141672Z",
+        "custom_strike": {
+          "politician": "9244ed4c-9dfd-45cc-8211-996dc902f315"
+        },
+        "event_ticker": "CONTROLH-2026",
+        "exchange_index": 0,
+        "expected_expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.1000",
+        "latest_expiration_time": "2027-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9010",
+        "no_bid_dollars": "0.9000",
+        "no_sub_title": "Republican Party",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "28352699.57",
+        "open_time": "2024-11-06T15:00:00Z",
+        "previous_price_dollars": "0.0960",
+        "previous_yes_ask_dollars": "0.0980",
+        "previous_yes_bid_dollars": "0.0960",
+        "price_level_structure": "tapered_deci_cent",
+        "price_ranges": [
+          {
+            "end": "0.1000",
+            "start": "0.0000",
+            "step": "0.0010"
+          },
+          {
+            "end": "0.9000",
+            "start": "0.1000",
+            "step": "0.0100"
+          },
+          {
+            "end": "1.0000",
+            "start": "0.9000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Republican Party has won control of the House in 2026, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. House. See full rules for details. Otherwise, victory will be determined by the party identification of the Speaker of the House on February 1, 2027.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "CONTROLH-2026-R",
+        "title": "Will Republicans win the House in 2026?",
+        "updated_time": "2026-07-14T16:40:55.912851Z",
+        "volume_24h_fp": "714295.10",
+        "volume_fp": "38665755.17",
+        "yes_ask_dollars": "0.1000",
+        "yes_ask_size_fp": "1621.91",
+        "yes_bid_dollars": "0.0990",
+        "yes_bid_size_fp": "71869.36",
+        "yes_sub_title": "Republican Party"
+      },
+      "category": "Elections",
+      "payload_sha256": "34065d58dfa761e41ac03c67ea4664c2ba85c61ac4884557abc090e3a8385714"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLH&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.589254+00:00",
+        "sha256": "4d7dad6076b6c607699514bfb399fae260683fef2f4a05882fcd0d896fc15fbe"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2027-02-01T15:00:00Z",
+        "created_time": "2024-11-06T07:18:26.141671Z",
+        "custom_strike": {
+          "politician": "57fa2293-3102-463b-9087-68cd9f6da0a6"
+        },
+        "event_ticker": "CONTROLH-2026",
+        "exchange_index": 0,
+        "expected_expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.9020",
+        "latest_expiration_time": "2027-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.0990",
+        "no_bid_dollars": "0.0980",
+        "no_sub_title": "Democratic Party",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "13316748.86",
+        "open_time": "2024-11-06T15:00:00Z",
+        "previous_price_dollars": "0.9030",
+        "previous_yes_ask_dollars": "0.9030",
+        "previous_yes_bid_dollars": "0.9020",
+        "price_level_structure": "tapered_deci_cent",
+        "price_ranges": [
+          {
+            "end": "0.1000",
+            "start": "0.0000",
+            "step": "0.0010"
+          },
+          {
+            "end": "0.9000",
+            "start": "0.1000",
+            "step": "0.0100"
+          },
+          {
+            "end": "1.0000",
+            "start": "0.9000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Democratic Party has won control of the House in 2026, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. House. See full rules for details. Otherwise, victory will be determined by the party identification of the Speaker of the House on February 1, 2027.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "CONTROLH-2026-D",
+        "title": "Will Democrats win the House in 2026?",
+        "updated_time": "2026-07-14T16:40:55.905016Z",
+        "volume_24h_fp": "191326.01",
+        "volume_fp": "19480221.56",
+        "yes_ask_dollars": "0.9020",
+        "yes_ask_size_fp": "71246.51",
+        "yes_bid_dollars": "0.9010",
+        "yes_bid_size_fp": "82211.26",
+        "yes_sub_title": "Democratic Party"
+      },
+      "category": "Elections",
+      "payload_sha256": "cebbe9599addad416668b150ec6e7917c6cd0b374bba8aa3e36ca03b1485a5c6"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLS&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.639413+00:00",
+        "sha256": "732b97d1f7913332e2c5db53afc6514d3ab72468429d52b2968b29785c7239ec"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2029-02-01T15:00:00Z",
+        "created_time": "2026-05-15T18:04:16.706737Z",
+        "custom_strike": {
+          "Chamber of Congress": "Senate",
+          "Party": "Republican"
+        },
+        "event_ticker": "CONTROLS-2028",
+        "exchange_index": 0,
+        "expected_expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.4800",
+        "latest_expiration_time": "2029-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.5300",
+        "no_bid_dollars": "0.5200",
+        "no_sub_title": "Republican party",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2029-02-01T15:00:00Z",
+        "open_interest_fp": "1186.58",
+        "open_time": "2026-05-15T21:00:00Z",
+        "previous_price_dollars": "0.4800",
+        "previous_yes_ask_dollars": "0.4800",
+        "previous_yes_bid_dollars": "0.4700",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Republican party has won control of the Senate in 2028, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. Senate. See full rules for details. Otherwise, victory will be determined by the party identification of the President pro tempore of the Senate on February 1, 2029.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "custom",
+        "ticker": "CONTROLS-2028-R",
+        "title": "Will the Republican party win the Senate in 2028?",
+        "updated_time": "2026-10-10T09:24:32.172812Z",
+        "volume_24h_fp": "2.00",
+        "volume_fp": "2021.09",
+        "yes_ask_dollars": "0.4800",
+        "yes_ask_size_fp": "6772.40",
+        "yes_bid_dollars": "0.4700",
+        "yes_bid_size_fp": "1790.29",
+        "yes_sub_title": "Republican party"
+      },
+      "category": "Elections",
+      "payload_sha256": "effab7feb13e7641eaea2f20ab91f3038524d1fcbdd10a4406c364ed177759bc"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLS&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.639413+00:00",
+        "sha256": "732b97d1f7913332e2c5db53afc6514d3ab72468429d52b2968b29785c7239ec"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2029-02-01T15:00:00Z",
+        "created_time": "2026-05-15T18:04:16.706737Z",
+        "custom_strike": {
+          "Chamber of Congress": "Senate",
+          "Party": "Democratic"
+        },
+        "event_ticker": "CONTROLS-2028",
+        "exchange_index": 0,
+        "expected_expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_time": "2029-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.5400",
+        "latest_expiration_time": "2029-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.4700",
+        "no_bid_dollars": "0.4600",
+        "no_sub_title": "Democratic party",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2029-02-01T15:00:00Z",
+        "open_interest_fp": "1017.91",
+        "open_time": "2026-05-15T21:00:00Z",
+        "previous_price_dollars": "0.5400",
+        "previous_yes_ask_dollars": "0.5400",
+        "previous_yes_bid_dollars": "0.5300",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Democratic party has won control of the Senate in 2028, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. Senate. See full rules for details. Otherwise, victory will be determined by the party identification of the President pro tempore of the Senate on February 1, 2029.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "custom",
+        "subtitle": "Democratic party",
+        "ticker": "CONTROLS-2028-D",
+        "title": "Will the Democratic party win the Senate in 2028?",
+        "updated_time": "2026-10-10T09:24:31.210243Z",
+        "volume_24h_fp": "19.94",
+        "volume_fp": "4499.67",
+        "yes_ask_dollars": "0.5400",
+        "yes_ask_size_fp": "5689.24",
+        "yes_bid_dollars": "0.5300",
+        "yes_bid_size_fp": "4627.27",
+        "yes_sub_title": "Democratic party"
+      },
+      "category": "Elections",
+      "payload_sha256": "60ff2d7b158be725750023e5815d644cd9f8a472c35682e17350f63122e9aedd"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLS&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.639413+00:00",
+        "sha256": "732b97d1f7913332e2c5db53afc6514d3ab72468429d52b2968b29785c7239ec"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2027-02-01T15:00:00Z",
+        "created_time": "2024-11-06T07:16:46.657924Z",
+        "custom_strike": {
+          "politician": "9244ed4c-9dfd-45cc-8211-996dc902f315"
+        },
+        "event_ticker": "CONTROLS-2026",
+        "exchange_index": 0,
+        "expected_expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.3800",
+        "latest_expiration_time": "2027-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.6300",
+        "no_bid_dollars": "0.6200",
+        "no_sub_title": "Republican Party",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "5341421.62",
+        "open_time": "2024-11-06T15:00:00Z",
+        "previous_price_dollars": "0.3800",
+        "previous_yes_ask_dollars": "0.3800",
+        "previous_yes_bid_dollars": "0.3700",
+        "price_level_structure": "tapered_deci_cent",
+        "price_ranges": [
+          {
+            "end": "0.1000",
+            "start": "0.0000",
+            "step": "0.0010"
+          },
+          {
+            "end": "0.9000",
+            "start": "0.1000",
+            "step": "0.0100"
+          },
+          {
+            "end": "1.0000",
+            "start": "0.9000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Republican Party has won control of the U.S. Senate in 2026, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. Senate. See full rules for details. Otherwise, victory will be determined by the party identification of the President pro tempore of the Senate on February 1, 2027.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "CONTROLS-2026-R",
+        "title": "Will Republicans win the U.S. Senate in 2026?",
+        "updated_time": "2026-09-28T17:53:29.962348Z",
+        "volume_24h_fp": "149714.35",
+        "volume_fp": "8262106.23",
+        "yes_ask_dollars": "0.3800",
+        "yes_ask_size_fp": "18010.08",
+        "yes_bid_dollars": "0.3700",
+        "yes_bid_size_fp": "76389.15",
+        "yes_sub_title": "Republican Party"
+      },
+      "category": "Elections",
+      "payload_sha256": "e8e7b4102eda092e4e8f4fa9c0a6c586cc1ef208d202d5d246db7d5200e5c7ef"
+    },
+    {
+      "venue": "kalshi",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=CONTROLS&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:50.639413+00:00",
+        "sha256": "732b97d1f7913332e2c5db53afc6514d3ab72468429d52b2968b29785c7239ec"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2027-02-01T15:00:00Z",
+        "created_time": "2024-11-06T07:16:46.657924Z",
+        "custom_strike": {
+          "politician": "57fa2293-3102-463b-9087-68cd9f6da0a6"
+        },
+        "event_ticker": "CONTROLS-2026",
+        "exchange_index": 0,
+        "expected_expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_time": "2027-02-01T15:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.6200",
+        "latest_expiration_time": "2027-02-01T15:00:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.3900",
+        "no_bid_dollars": "0.3800",
+        "no_sub_title": "Democratic Party",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "3414792.21",
+        "open_time": "2024-11-06T15:00:00Z",
+        "previous_price_dollars": "0.6200",
+        "previous_yes_ask_dollars": "0.6200",
+        "previous_yes_bid_dollars": "0.6100",
+        "price_level_structure": "tapered_deci_cent",
+        "price_ranges": [
+          {
+            "end": "0.1000",
+            "start": "0.0000",
+            "step": "0.0010"
+          },
+          {
+            "end": "0.9000",
+            "start": "0.1000",
+            "step": "0.0100"
+          },
+          {
+            "end": "1.0000",
+            "start": "0.9000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Democratic Party has won control of the U.S. Senate in 2026, then the market resolves to Yes.",
+        "rules_secondary": "This market may be determined early based on a consensus of media calls projecting control of the U.S. Senate. See full rules for details. Otherwise, victory will be determined by the party identification of the President pro tempore of the Senate on February 1, 2027.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 3600,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "CONTROLS-2026-D",
+        "title": "Will Democrats win the U.S. Senate in 2026?",
+        "updated_time": "2026-09-28T17:53:29.962348Z",
+        "volume_24h_fp": "198006.57",
+        "volume_fp": "6688350.37",
+        "yes_ask_dollars": "0.6200",
+        "yes_ask_size_fp": "9349.43",
+        "yes_bid_dollars": "0.6100",
+        "yes_bid_size_fp": "176532.09",
+        "yes_sub_title": "Democratic Party"
+      },
+      "category": "Elections",
+      "payload_sha256": "002451a9e995af705d122635e4e0f2f26084d21a7ed3deefd9edcf2f14fa1dbc"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Economics",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXCPI&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.845927+00:00",
+        "sha256": "efe52620b2ab7adbd85e02aff08bff80e6a239f41b6dd49bcb6143ed75e2fd97"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-10T13:29:00Z",
+        "created_time": "2026-09-18T15:23:08.572569Z",
+        "event_ticker": "KXCPI-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-10T14:56:00Z",
+        "expiration_time": "2027-02-09T14:56:00Z",
+        "expiration_value": "",
+        "floor_strike": 1,
+        "last_price_dollars": "0.0100",
+        "latest_expiration_time": "2027-02-09T14:56:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "1.0000",
+        "no_bid_dollars": "0.9800",
+        "no_sub_title": "Above 1.0%",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-10T14:56:00Z",
+        "open_interest_fp": "6744.73",
+        "open_time": "2026-09-18T16:00:00Z",
+        "previous_price_dollars": "0.0100",
+        "previous_yes_ask_dollars": "0.0200",
+        "previous_yes_bid_dollars": "0.0100",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Consumer Price Index (CPI) increases by more than 1.0% (single-decimal) in October 2026, then the market resolves to Yes.",
+        "rules_secondary": "The market will always close at 8:29 AM ET on the scheduled day of the data release (November 10, 2026). Please note: the Expiration Value is the single-decimal value published at the Source Agency. In the case of a delay in data caused by a federal government shutdown impacting the reliability of the Source Agency, the market\u2019s latest Expiration Date will be extended to the sooner of the release of the Underlying or six months after the end of the government shutdown.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "greater",
+        "subtitle": "1.0%",
+        "ticker": "KXCPI-26OCT-T1.0",
+        "title": "Will CPI rise more than 1.0% in October 2026?",
+        "updated_time": "2026-10-13T14:27:19.533418Z",
+        "volume_24h_fp": "1521.29",
+        "volume_fp": "13541.29",
+        "yes_ask_dollars": "0.0200",
+        "yes_ask_size_fp": "1828.69",
+        "yes_bid_dollars": "0.0000",
+        "yes_bid_size_fp": "0.00",
+        "yes_sub_title": "Above 1.0%"
+      },
+      "payload_sha256": "9597e459a0dac48ac888926dbea43235f869997b79f6f5abc879a65581e4c1c5"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Economics",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXCPI&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.845927+00:00",
+        "sha256": "efe52620b2ab7adbd85e02aff08bff80e6a239f41b6dd49bcb6143ed75e2fd97"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-10T13:29:00Z",
+        "created_time": "2026-09-18T15:22:55.329831Z",
+        "event_ticker": "KXCPI-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-10T14:56:00Z",
+        "expiration_time": "2027-02-09T14:56:00Z",
+        "expiration_value": "",
+        "floor_strike": 0.9,
+        "last_price_dollars": "0.0100",
+        "latest_expiration_time": "2027-02-09T14:56:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "1.0000",
+        "no_bid_dollars": "0.9900",
+        "no_sub_title": "Above 0.9%",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-10T14:56:00Z",
+        "open_interest_fp": "5954.57",
+        "open_time": "2026-09-18T16:00:00Z",
+        "previous_price_dollars": "0.0200",
+        "previous_yes_ask_dollars": "0.0200",
+        "previous_yes_bid_dollars": "0.0100",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Consumer Price Index (CPI) increases by more than 0.9% (single-decimal) in October 2026, then the market resolves to Yes.",
+        "rules_secondary": "The market will always close at 8:29 AM ET on the scheduled day of the data release (November 10, 2026). Please note: the Expiration Value is the single-decimal value published at the Source Agency. In the case of a delay in data caused by a federal government shutdown impacting the reliability of the Source Agency, the market\u2019s latest Expiration Date will be extended to the sooner of the release of the Underlying or six months after the end of the government shutdown.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "greater",
+        "subtitle": "0.9%",
+        "ticker": "KXCPI-26OCT-T0.9",
+        "title": "Will CPI rise more than 0.9% in October 2026?",
+        "updated_time": "2026-10-13T14:27:19.533418Z",
+        "volume_24h_fp": "987.85",
+        "volume_fp": "9679.03",
+        "yes_ask_dollars": "0.0100",
+        "yes_ask_size_fp": "1692.56",
+        "yes_bid_dollars": "0.0000",
+        "yes_bid_size_fp": "0.00",
+        "yes_sub_title": "Above 0.9%"
+      },
+      "payload_sha256": "9f79db66652cb3d390ff4bcfe158d75b36721afea13ec1cd5979a719bca5a110"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Economics",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXCPI&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.845927+00:00",
+        "sha256": "efe52620b2ab7adbd85e02aff08bff80e6a239f41b6dd49bcb6143ed75e2fd97"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-10T13:29:00Z",
+        "created_time": "2026-09-18T15:22:40.135055Z",
+        "event_ticker": "KXCPI-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-10T14:56:00Z",
+        "expiration_time": "2027-02-09T14:56:00Z",
+        "expiration_value": "",
+        "floor_strike": 0.8,
+        "last_price_dollars": "0.0100",
+        "latest_expiration_time": "2027-02-09T14:56:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "1.0000",
+        "no_bid_dollars": "0.9900",
+        "no_sub_title": "Above 0.8%",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-10T14:56:00Z",
+        "open_interest_fp": "8291.85",
+        "open_time": "2026-09-18T16:00:00Z",
+        "previous_price_dollars": "0.0300",
+        "previous_yes_ask_dollars": "0.0300",
+        "previous_yes_bid_dollars": "0.0200",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Consumer Price Index (CPI) increases by more than 0.8% (single-decimal) in October 2026, then the market resolves to Yes.",
+        "rules_secondary": "The market will always close at 8:29 AM ET on the scheduled day of the data release (November 10, 2026). Please note: the Expiration Value is the single-decimal value published at the Source Agency. In the case of a delay in data caused by a federal government shutdown impacting the reliability of the Source Agency, the market\u2019s latest Expiration Date will be extended to the sooner of the release of the Underlying or six months after the end of the government shutdown.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "greater",
+        "subtitle": "0.8%",
+        "ticker": "KXCPI-26OCT-T0.8",
+        "title": "Will CPI rise more than 0.8% in October 2026?",
+        "updated_time": "2026-10-13T14:27:19.533418Z",
+        "volume_24h_fp": "4192.83",
+        "volume_fp": "18215.48",
+        "yes_ask_dollars": "0.0100",
+        "yes_ask_size_fp": "1250.00",
+        "yes_bid_dollars": "0.0000",
+        "yes_bid_size_fp": "0.00",
+        "yes_sub_title": "Above 0.8%"
+      },
+      "payload_sha256": "c2cfff8b958f882bc9943664a5fb78b88b658c1567ae4bb25439a5b7e9f38139"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Economics",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXCPI&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.845927+00:00",
+        "sha256": "efe52620b2ab7adbd85e02aff08bff80e6a239f41b6dd49bcb6143ed75e2fd97"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-10T13:29:00Z",
+        "created_time": "2026-09-18T15:22:23.316943Z",
+        "event_ticker": "KXCPI-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-10T14:56:00Z",
+        "expiration_time": "2027-02-09T14:56:00Z",
+        "expiration_value": "",
+        "floor_strike": 0.7,
+        "last_price_dollars": "0.0300",
+        "latest_expiration_time": "2027-02-09T14:56:00Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9800",
+        "no_bid_dollars": "0.9700",
+        "no_sub_title": "Above 0.7%",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-10T14:56:00Z",
+        "open_interest_fp": "2196.81",
+        "open_time": "2026-09-18T16:00:00Z",
+        "previous_price_dollars": "0.0200",
+        "previous_yes_ask_dollars": "0.0300",
+        "previous_yes_bid_dollars": "0.0200",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the Consumer Price Index (CPI) increases by more than 0.7% (single-decimal) in October 2026, then the market resolves to Yes.",
+        "rules_secondary": "The market will always close at 8:29 AM ET on the scheduled day of the data release (November 10, 2026). Please note: the Expiration Value is the single-decimal value published at the Source Agency. In the case of a delay in data caused by a federal government shutdown impacting the reliability of the Source Agency, the market\u2019s latest Expiration Date will be extended to the sooner of the release of the Underlying or six months after the end of the government shutdown.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "greater",
+        "subtitle": "0.7%",
+        "ticker": "KXCPI-26OCT-T0.7",
+        "title": "Will CPI rise more than 0.7% in October 2026?",
+        "updated_time": "2026-10-13T14:27:19.533418Z",
+        "volume_24h_fp": "1274.25",
+        "volume_fp": "3632.53",
+        "yes_ask_dollars": "0.0300",
+        "yes_ask_size_fp": "1409.00",
+        "yes_bid_dollars": "0.0200",
+        "yes_bid_size_fp": "22.29",
+        "yes_sub_title": "Above 0.7%"
+      },
+      "payload_sha256": "9e80a4d90066fef93cd45baddc0367236762779fabef472f67b1dd2617e4a2ab"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Climate and Weather",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXRAINCHIM&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.897659+00:00",
+        "sha256": "0136d8a2fc9c3343643401567ee91c590c8b9d1770c306e161295096c2d69cd1"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-01T03:59:59Z",
+        "created_time": "2026-10-01T18:19:10.266088Z",
+        "early_close_condition": "This market will close and expire early if the event occurs.",
+        "event_ticker": "KXRAINCHIM-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-02T03:59:59Z",
+        "expiration_time": "2026-11-16T03:59:59Z",
+        "expiration_value": "",
+        "floor_strike": 7,
+        "last_price_dollars": "0.0800",
+        "latest_expiration_time": "2026-11-16T03:59:59Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9900",
+        "no_bid_dollars": "0.9000",
+        "no_sub_title": "Above 7 inches",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-02T03:59:59Z",
+        "open_interest_fp": "140.44",
+        "open_time": "2026-10-01T18:29:00Z",
+        "previous_price_dollars": "0.0100",
+        "previous_yes_ask_dollars": "0.0500",
+        "previous_yes_bid_dollars": "0.0100",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the total precipitation at CLIORD in Chicago in Oct 2026 is strictly greater than 7 inches, then the market resolves to Yes.",
+        "rules_secondary": "Not all weather data is the same. While checking a source like AccuWeather or Google Weather may help guide your decision, the official and final value used to determine this market as reported by the corresponding TWC Report (Daily).\n\nNotice: The Contract for this market has been amended. The market rules have been updated to reflect the amended terms, which provide clarification in the case of materially erroneous data. The market will settle in accordance with the rules of the amended Contract.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 1800,
+        "status": "active",
+        "strike_type": "greater",
+        "ticker": "KXRAINCHIM-26OCT-7",
+        "title": "Rain in Chicago in Oct 2026?",
+        "updated_time": "2026-10-15T19:43:54.565478Z",
+        "volume_24h_fp": "29.80",
+        "volume_fp": "155.44",
+        "yes_ask_dollars": "0.1000",
+        "yes_ask_size_fp": "2.50",
+        "yes_bid_dollars": "0.0100",
+        "yes_bid_size_fp": "193.48",
+        "yes_sub_title": "Above 7 inches"
+      },
+      "payload_sha256": "b6b3efa399822ab2343ed05a5f94b50c951348dbdfe3c9232bad4a462094d6df"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Climate and Weather",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXRAINCHIM&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.897659+00:00",
+        "sha256": "0136d8a2fc9c3343643401567ee91c590c8b9d1770c306e161295096c2d69cd1"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-01T03:59:59Z",
+        "created_time": "2026-10-01T18:19:10.266088Z",
+        "early_close_condition": "This market will close and expire early if the event occurs.",
+        "event_ticker": "KXRAINCHIM-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-02T03:59:59Z",
+        "expiration_time": "2026-11-16T03:59:59Z",
+        "expiration_value": "",
+        "floor_strike": 6,
+        "last_price_dollars": "0.0600",
+        "latest_expiration_time": "2026-11-16T03:59:59Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9800",
+        "no_bid_dollars": "0.8900",
+        "no_sub_title": "Above 6 inches",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-02T03:59:59Z",
+        "open_interest_fp": "47.03",
+        "open_time": "2026-10-01T18:29:00Z",
+        "previous_price_dollars": "0.0600",
+        "previous_yes_ask_dollars": "0.1200",
+        "previous_yes_bid_dollars": "0.0200",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the total precipitation at CLIORD in Chicago in Oct 2026 is strictly greater than 6 inches, then the market resolves to Yes.",
+        "rules_secondary": "Not all weather data is the same. While checking a source like AccuWeather or Google Weather may help guide your decision, the official and final value used to determine this market as reported by the corresponding TWC Report (Daily).\n\nNotice: The Contract for this market has been amended. The market rules have been updated to reflect the amended terms, which provide clarification in the case of materially erroneous data. The market will settle in accordance with the rules of the amended Contract.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 1800,
+        "status": "active",
+        "strike_type": "greater",
+        "ticker": "KXRAINCHIM-26OCT-6",
+        "title": "Rain in Chicago in Oct 2026?",
+        "updated_time": "2026-10-15T19:43:54.565478Z",
+        "volume_24h_fp": "0.00",
+        "volume_fp": "95.06",
+        "yes_ask_dollars": "0.1100",
+        "yes_ask_size_fp": "1.00",
+        "yes_bid_dollars": "0.0200",
+        "yes_bid_size_fp": "20.00",
+        "yes_sub_title": "Above 6 inches"
+      },
+      "payload_sha256": "1e901b8c76c27c798b2ea182b117ea7f0d06df2ecd835132fa709166712b2b6d"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Climate and Weather",
+      "source": {
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXRAINCHIM&status=open&mve_filter=exclude&limit=20",
+        "status": 200,
+        "captured_at": "2026-10-15T23:16:29.897659+00:00",
+        "sha256": "0136d8a2fc9c3343643401567ee91c590c8b9d1770c306e161295096c2d69cd1"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2026-11-01T03:59:59Z",
+        "created_time": "2026-10-01T18:19:10.266088Z",
+        "early_close_condition": "This market will close and expire early if the event occurs.",
+        "event_ticker": "KXRAINCHIM-26OCT",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-02T03:59:59Z",
+        "expiration_time": "2026-11-16T03:59:59Z",
+        "expiration_value": "",
+        "floor_strike": 5,
+        "last_price_dollars": "0.1900",
+        "latest_expiration_time": "2026-11-16T03:59:59Z",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9700",
+        "no_bid_dollars": "0.9200",
+        "no_sub_title": "Above 5 inches",
+        "notional_value_dollars": "1.0000",
+        "occurrence_datetime": "2026-11-02T03:59:59Z",
+        "open_interest_fp": "241.00",
+        "open_time": "2026-10-01T18:29:00Z",
+        "previous_price_dollars": "0.1900",
+        "previous_yes_ask_dollars": "0.1700",
+        "previous_yes_bid_dollars": "0.0600",
+        "price_level_structure": "linear_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0100"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If the total precipitation at CLIORD in Chicago in Oct 2026 is strictly greater than 5 inches, then the market resolves to Yes.",
+        "rules_secondary": "Not all weather data is the same. While checking a source like AccuWeather or Google Weather may help guide your decision, the official and final value used to determine this market as reported by the corresponding TWC Report (Daily).\n\nNotice: The Contract for this market has been amended. The market rules have been updated to reflect the amended terms, which provide clarification in the case of materially erroneous data. The market will settle in accordance with the rules of the amended Contract.",
+        "settlement_bounds_type": "default",
+        "settlement_timer_seconds": 1800,
+        "status": "active",
+        "strike_type": "greater",
+        "ticker": "KXRAINCHIM-26OCT-5",
+        "title": "Rain in Chicago in Oct 2026?",
+        "updated_time": "2026-10-15T19:43:54.565478Z",
+        "volume_24h_fp": "0.00",
+        "volume_fp": "242.00",
+        "yes_ask_dollars": "0.0800",
+        "yes_ask_size_fp": "2.00",
+        "yes_bid_dollars": "0.0300",
+        "yes_bid_size_fp": "93.00",
+        "yes_sub_title": "Above 5 inches"
+      },
+      "payload_sha256": "73b7dff53251c4ebeb5843457fa0e16617d711213660c3394806f04f157505e8"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "11325",
+        "question": "U.S House Midterm Winner",
+        "slug": "paccc-usho-midterms-2026-11-03-dem",
+        "endDate": "2027-02-02T04:59:00Z",
+        "category": "politics",
+        "startDate": "2026-04-07T14:12:13Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/event-images/democratic.png",
+        "description": "This market will settle to Yes if the Democratic Party wins control of the United States House of Representatives in the 2026 United States midterm election. Outcome sourced from relevant state electoral authorities, and the United States House of Representatives.\n\nA party wins control of the United States House of Representatives if it wins a majority of the chamber\u2019s voting seats. If no party wins a majority of voting seats, the chamber will be deemed controlled by the party with which the first elected Speaker of the House of the Congress that convenes after the 2026 midterm election is affiliated.\n\nThe following rules govern the counting of seats for determining which party wins control of the chamber.\n\nAll House elections in the 2026 United States midterm election that elect voting members and determine representation in the upcoming 120th Congress are included. Where a seat is decided by a runoff, the runoff result will determine attribution of that seat.\n\nSeats are attributed to the party under which the member was elected. If a member-elect changes party affiliation, or vacates their seat, between election day and the formal organization of Congress, the seat is attributed to the party under which the member was elected.\n\nHouse members elected as independents who formally caucus with, or, for newly elected members, who announce their intent to caucus with, a party are included in that party\u2019s count. If the caucus decisions of members of the House elected as independents cannot be determined on the date of the election, this market may remain open until the earlier of (i) an announcement from the relevant members of their intents to caucus, or (ii) January 4th, 11:59 PM ET of the following calendar year. If no such announcement is made by January 4th, 11:59 PM ET of the following calendar year, the member will not count towards the seat count of any party.\n",
+        "active": true,
+        "marketType": "election",
+        "closed": false,
+        "createdAt": "2026-04-07T14:12:51Z",
+        "updatedAt": "2026-10-15T23:10:21Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-11-03T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "election",
+        "marketSides": [
+          {
+            "id": "22649",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usho-midterms-2026-11-03-dem",
+            "createdAt": "2026-04-07T14:12:51Z",
+            "updatedAt": "2026-04-07T14:12:51Z",
+            "description": "Yes",
+            "price": "0.9030",
+            "marketId": 11325,
+            "long": true,
+            "quote": {
+              "value": "0.9030",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "22650",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usho-midterms-2026-11-03-dem",
+            "createdAt": "2026-04-07T14:12:51Z",
+            "updatedAt": "2026-04-07T14:12:51Z",
+            "description": "No",
+            "price": "0.098",
+            "marketId": 11325,
+            "long": false,
+            "quote": {
+              "value": "0.098",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.9030\",\"0.098\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_UNSPECIFIED",
+        "hidden": false,
+        "tags": [],
+        "title": "Democratic Party",
+        "color": "#2258F8",
+        "darkColor": "#0073FF",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.9020",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.9030",
+          "currency": "USD"
+        },
+        "titleShort": "Democratic Party",
+        "ep3SyncedAt": "2026-10-14T00:13:18Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": true,
+        "politics": null
+      },
+      "payload_sha256": "ec1a94630804f8d0ef10b8811ae74bb3f7810116e538305b6729239ab9504fc9"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "11326",
+        "question": "U.S House Midterm Winner",
+        "slug": "paccc-usho-midterms-2026-11-03-rep",
+        "endDate": "2027-02-02T04:59:00Z",
+        "category": "politics",
+        "startDate": "2026-04-07T14:12:13Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/event-images/republican.png",
+        "description": "This market will settle to Yes if the Republican Party wins control of the United States House of Representatives in the 2026 United States midterm election. Outcome sourced from relevant state electoral authorities, and the United States House of Representatives.\n\nA party wins control of the United States House of Representatives if it wins a majority of the chamber\u2019s voting seats. If no party wins a majority of voting seats, the chamber will be deemed controlled by the party with which the first elected Speaker of the House of the Congress that convenes after the 2026 midterm election is affiliated.\n\nThe following rules govern the counting of seats for determining which party wins control of the chamber.\n\nAll House elections in the 2026 United States midterm election that elect voting members and determine representation in the upcoming 120th Congress are included. Where a seat is decided by a runoff, the runoff result will determine attribution of that seat.\n\nSeats are attributed to the party under which the member was elected. If a member-elect changes party affiliation, or vacates their seat, between election day and the formal organization of Congress, the seat is attributed to the party under which the member was elected.\n\nHouse members elected as independents who formally caucus with, or, for newly elected members, who announce their intent to caucus with, a party are included in that party\u2019s count. If the caucus decisions of members of the House elected as independents cannot be determined on the date of the election, this market may remain open until the earlier of (i) an announcement from the relevant members of their intents to caucus, or (ii) January 4th, 11:59 PM ET of the following calendar year. If no such announcement is made by January 4th, 11:59 PM ET of the following calendar year, the member will not count towards the seat count of any party.\n",
+        "active": true,
+        "marketType": "election",
+        "closed": false,
+        "createdAt": "2026-04-07T14:12:51Z",
+        "updatedAt": "2026-10-15T23:10:21Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-11-03T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "election",
+        "marketSides": [
+          {
+            "id": "22651",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usho-midterms-2026-11-03-rep",
+            "createdAt": "2026-04-07T14:12:51Z",
+            "updatedAt": "2026-04-07T14:12:51Z",
+            "description": "Yes",
+            "price": "0.1050",
+            "marketId": 11326,
+            "long": true,
+            "quote": {
+              "value": "0.1050",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "22652",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usho-midterms-2026-11-03-rep",
+            "createdAt": "2026-04-07T14:12:51Z",
+            "updatedAt": "2026-04-07T14:12:51Z",
+            "description": "No",
+            "price": "0.896",
+            "marketId": 11326,
+            "long": false,
+            "quote": {
+              "value": "0.896",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.1050\",\"0.896\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_UNSPECIFIED",
+        "hidden": false,
+        "tags": [],
+        "title": "Republican Party",
+        "color": "#D40132",
+        "darkColor": "#E92150",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.1040",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.1050",
+          "currency": "USD"
+        },
+        "titleShort": "Republican Party",
+        "ep3SyncedAt": "2026-10-14T00:13:18Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": true,
+        "politics": null
+      },
+      "payload_sha256": "c91947fe3230b7a1ad14515970f4bf589d7ebb55f7fba1b25205a98ce3975732"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "11327",
+        "question": "U.S Senate Midterm Winner",
+        "slug": "paccc-usse-midterms-2026-11-03-rep",
+        "endDate": "2027-02-02T04:59:00Z",
+        "category": "politics",
+        "startDate": "2026-04-07T14:19:26Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/event-images/republican.png",
+        "description": "\nThis market will settle to Yes if the Republican Party wins control of the United States Senate in the 2026 United States midterm election. Outcome sourced from relevant state electoral authorities, and the United States Senate.\n\nA party wins control of the United States Senate if it wins a majority of the chamber\u2019s voting seats. If no party wins a majority of voting seats, the party that wins control of the chamber is the party that wins half of the voting seats and holds the Vice Presidency. If the outcome remains ambiguous after applying the above criteria, the chamber will be deemed controlled by the party with which the first selected President Pro Tempore of the Congress that convenes after the specified election is affiliated.\n\nThe following rules govern the counting of seats for determining which party wins control of the chamber.\n\nAll regular and special Senate elections that determine representation in the upcoming 120th Congress and are scheduled to take place in November 2026 as of October 31, 2026 are included. Runoffs for qualifying elections will determine attribution of the relevant seat, even if they take place after November 2026. Vacant seats for which no election or special election to fill the seat is scheduled to take place in November 2026 as of October 31, 2026 will be treated as held by the party affiliation of the most recent member to hold that seat.\n\nFor seats contested in the specified election, seats are attributed to the party under which the member was elected. If a member-elect changes party affiliation, or vacates their seat, between election day and the formal organization of Congress, the seat is attributed to the party under which the member was elected. \n\nFor seats not contested in the specified election, seats are attributed to the party that holds the seat as of the date of the election. If a current sitting member of the U.S. Senate who is not up for election changes party affiliation or vacates their seat after the date of the election, the seat is attributed to the party under which the member was affiliated at the time of the election.\n\nSenate members elected as independents who formally caucus with, or, for newly elected members, who announce their intent to caucus with, a party are included in that party\u2019s count. If the caucus decisions of members of the Senate elected as independents cannot be determined on the date of the election, settlement may be postponed until the earlier of (i) an announcement from the relevant members of their intents to caucus, or (ii) January 4th, 11:59 PM ET of the following calendar year. If no such announcement is made by January 4th, 11:59 PM ET of the following calendar year, the member will not count towards the seat count of any party.\n",
+        "active": true,
+        "marketType": "election",
+        "closed": false,
+        "createdAt": "2026-04-07T14:20:00Z",
+        "updatedAt": "2026-10-15T23:10:21Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-11-03T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "election",
+        "marketSides": [
+          {
+            "id": "22653",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usse-midterms-2026-11-03-rep",
+            "createdAt": "2026-04-07T14:20:00Z",
+            "updatedAt": "2026-04-07T14:20:00Z",
+            "description": "Yes",
+            "price": "0.4070",
+            "marketId": 11327,
+            "long": true,
+            "quote": {
+              "value": "0.4070",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "22654",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usse-midterms-2026-11-03-rep",
+            "createdAt": "2026-04-07T14:20:00Z",
+            "updatedAt": "2026-04-07T14:20:00Z",
+            "description": "No",
+            "price": "0.594",
+            "marketId": 11327,
+            "long": false,
+            "quote": {
+              "value": "0.594",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"No\",\"Yes\"]",
+        "outcomePrices": "[\"0.4070\",\"0.594\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_UNSPECIFIED",
+        "hidden": false,
+        "tags": [],
+        "title": "Republican Party",
+        "color": "#D40132",
+        "darkColor": "#E92150",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.4060",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.4070",
+          "currency": "USD"
+        },
+        "titleShort": "Republican Party",
+        "ep3SyncedAt": "2026-10-14T00:13:19Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": true,
+        "politics": null
+      },
+      "payload_sha256": "90627c1198fb692c9fb0290e7c8b345547675f04a0a2ff75a418c467be95c082"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "11328",
+        "question": "U.S Senate Midterm Winner",
+        "slug": "paccc-usse-midterms-2026-11-03-dem",
+        "endDate": "2027-02-02T04:59:00Z",
+        "category": "politics",
+        "startDate": "2026-04-07T14:19:26Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/event-images/democratic.png",
+        "description": "\nThis market will settle to Yes if the Democratic Party wins control of the United States Senate in the 2026 United States midterm election. Outcome sourced from relevant state electoral authorities, and the United States Senate.\n\nA party wins control of the United States Senate if it wins a majority of the chamber\u2019s voting seats. If no party wins a majority of voting seats, the party that wins control of the chamber is the party that wins half of the voting seats and holds the Vice Presidency. If the outcome remains ambiguous after applying the above criteria, the chamber will be deemed controlled by the party with which the first selected President Pro Tempore of the Congress that convenes after the specified election is affiliated.\n\nThe following rules govern the counting of seats for determining which party wins control of the chamber.\n\nAll regular and special Senate elections that determine representation in the upcoming 120th Congress and are scheduled to take place in November 2026 as of October 31, 2026 are included. Runoffs for qualifying elections will determine attribution of the relevant seat, even if they take place after November 2026. Vacant seats for which no election or special election to fill the seat is scheduled to take place in November 2026 as of October 31, 2026 will be treated as held by the party affiliation of the most recent member to hold that seat.\n\nFor seats contested in the specified election, seats are attributed to the party under which the member was elected. If a member-elect changes party affiliation, or vacates their seat, between election day and the formal organization of Congress, the seat is attributed to the party under which the member was elected. \n\nFor seats not contested in the specified election, seats are attributed to the party that holds the seat as of the date of the election. If a current sitting member of the U.S. Senate who is not up for election changes party affiliation or vacates their seat after the date of the election, the seat is attributed to the party under which the member was affiliated at the time of the election.\n\nSenate members elected as independents who formally caucus with, or, for newly elected members, who announce their intent to caucus with, a party are included in that party\u2019s count. If the caucus decisions of members of the Senate elected as independents cannot be determined on the date of the election, settlement may be postponed until the earlier of (i) an announcement from the relevant members of their intents to caucus, or (ii) January 4th, 11:59 PM ET of the following calendar year. If no such announcement is made by January 4th, 11:59 PM ET of the following calendar year, the member will not count towards the seat count of any party.\n",
+        "active": true,
+        "marketType": "election",
+        "closed": false,
+        "createdAt": "2026-04-07T14:20:00Z",
+        "updatedAt": "2026-10-15T23:10:21Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-11-03T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "election",
+        "marketSides": [
+          {
+            "id": "22655",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usse-midterms-2026-11-03-dem",
+            "createdAt": "2026-04-07T14:20:00Z",
+            "updatedAt": "2026-04-07T14:20:00Z",
+            "description": "Yes",
+            "price": "0.6130",
+            "marketId": 11328,
+            "long": true,
+            "quote": {
+              "value": "0.6130",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "22656",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "paccc-usse-midterms-2026-11-03-dem",
+            "createdAt": "2026-04-07T14:20:00Z",
+            "updatedAt": "2026-04-07T14:20:00Z",
+            "description": "No",
+            "price": "0.388",
+            "marketId": 11328,
+            "long": false,
+            "quote": {
+              "value": "0.388",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.6130\",\"0.388\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_UNSPECIFIED",
+        "hidden": false,
+        "tags": [],
+        "title": "Democratic Party",
+        "color": "#2258F8",
+        "darkColor": "#0073FF",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.6120",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.6130",
+          "currency": "USD"
+        },
+        "titleShort": "Democratic Party",
+        "ep3SyncedAt": "2026-10-14T00:13:19Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": true,
+        "politics": null
+      },
+      "payload_sha256": "ab8c5208a871d992146f6887ba68fe211cafa56a65814f03c498555a53e3794f"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7909",
+        "question": "National League Champion",
+        "slug": "tec-mlb-nlchamp-2026-09-27-lad",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:23Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/us-logos/mlb/Polymarket_LAD.png",
+        "description": "Will Los Angeles Dodgers win the 2026 National League pennant, scheduled for October 23, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15817",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-nlchamp-2026-09-27-lad",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.1080",
+            "marketId": 7909,
+            "long": true,
+            "teamId": 3014,
+            "team": {
+              "id": 3014,
+              "name": "Los Angeles Dodgers",
+              "abbreviation": "lad",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "alias": "Los Angeles Dodgers",
+              "safeName": "Dodgers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#005A9C",
+              "providerId": 1,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "displayAbbreviation": "LAD",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "ef64da7f-cfaf-4300-87b0-9313386b977c"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "1"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "color": {
+                "light": "#005A9C",
+                "dark": "#005A9C"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.1080",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15818",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-nlchamp-2026-09-27-lad",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.893",
+            "marketId": 7909,
+            "long": false,
+            "teamId": 3014,
+            "team": {
+              "id": 3014,
+              "name": "Los Angeles Dodgers",
+              "abbreviation": "lad",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "alias": "Los Angeles Dodgers",
+              "safeName": "Dodgers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#005A9C",
+              "providerId": 1,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "displayAbbreviation": "LAD",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "ef64da7f-cfaf-4300-87b0-9313386b977c"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "1"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "color": {
+                "light": "#005A9C",
+                "dark": "#005A9C"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.893",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"No\",\"Yes\"]",
+        "outcomePrices": "[\"0.1080\",\"0.893\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Los Angeles Dodgers",
+        "subtitle": "",
+        "color": "#005A9C",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.1070",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.1080",
+          "currency": "USD"
+        },
+        "titleShort": "Los Angeles Dodgers",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "b7d8fc4f231a42deb72d84eb895e22e2be2e25976ee25f18fc6cbb3071f0e918"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7913",
+        "question": "National League Champion",
+        "slug": "tec-mlb-nlchamp-2026-09-27-mil",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:23Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/us-logos/mlb/Polymarket_MIL.png",
+        "description": "Will Milwaukee Brewers win the 2026 National League pennant, scheduled for October 23, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15825",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-nlchamp-2026-09-27-mil",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.8970",
+            "marketId": 7913,
+            "long": true,
+            "teamId": 3016,
+            "team": {
+              "id": 3016,
+              "name": "Milwaukee Brewers",
+              "abbreviation": "mil",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "alias": "Milwaukee Brewers",
+              "safeName": "Brewers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#BD9000",
+              "providerId": 32,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "displayAbbreviation": "MIL",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "dcfd5266-00ce-442c-bc09-264cd20cf455"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "32"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "color": {
+                "light": "#BD9000",
+                "dark": "#BD9000"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.8970",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15826",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-nlchamp-2026-09-27-mil",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.106",
+            "marketId": 7913,
+            "long": false,
+            "teamId": 3016,
+            "team": {
+              "id": 3016,
+              "name": "Milwaukee Brewers",
+              "abbreviation": "mil",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "alias": "Milwaukee Brewers",
+              "safeName": "Brewers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#BD9000",
+              "providerId": 32,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "displayAbbreviation": "MIL",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "dcfd5266-00ce-442c-bc09-264cd20cf455"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "32"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "color": {
+                "light": "#BD9000",
+                "dark": "#BD9000"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.106",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"No\",\"Yes\"]",
+        "outcomePrices": "[\"0.8970\",\"0.106\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Milwaukee Brewers",
+        "subtitle": "",
+        "color": "#BD9000",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.8940",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.8970",
+          "currency": "USD"
+        },
+        "titleShort": "Milwaukee Brewers",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "e892986fd3dca21029c9d6283085959aa9e93180fc3783805a184682e2bb3389"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7927",
+        "question": "World Series Champion",
+        "slug": "tec-mlb-champ-2026-09-27-cle",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:24Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/us-logos/mlb/Polymarket_CLE.png",
+        "description": "Will Cleveland Guardians win the 2026 MLB World Series, scheduled for October 23-November 1, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15853",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-cle",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.1970",
+            "marketId": 7927,
+            "long": true,
+            "teamId": 3007,
+            "team": {
+              "id": 3007,
+              "name": "Cleveland Guardians",
+              "abbreviation": "cle",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "alias": "Cleveland Guardians",
+              "safeName": "Guardians",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#F60017",
+              "providerId": 10,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "displayAbbreviation": "CLE",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "80715d0d-0d2a-450f-a970-1b9a3b18c7e7"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "10"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-dark-1f6e8ef04a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-dark-1f6e8ef04a.png",
+              "color": {
+                "light": "#F60017",
+                "dark": "#F60017"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.1970",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15854",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-cle",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.809",
+            "marketId": 7927,
+            "long": false,
+            "teamId": 3007,
+            "team": {
+              "id": 3007,
+              "name": "Cleveland Guardians",
+              "abbreviation": "cle",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "alias": "Cleveland Guardians",
+              "safeName": "Guardians",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#F60017",
+              "providerId": 10,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-light-41e442f801.png",
+              "displayAbbreviation": "CLE",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "80715d0d-0d2a-450f-a970-1b9a3b18c7e7"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "10"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-dark-1f6e8ef04a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/cleveland-dark-1f6e8ef04a.png",
+              "color": {
+                "light": "#F60017",
+                "dark": "#F60017"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.809",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"No\",\"Yes\"]",
+        "outcomePrices": "[\"0.1970\",\"0.809\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Cleveland Guardians",
+        "subtitle": "",
+        "color": "#F60017",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.1910",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.1970",
+          "currency": "USD"
+        },
+        "titleShort": "Cleveland Guardians",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "e935501eef76b3f601bf14a94d493a8b6885c74c7d05c01552e39870de3144cf"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7930",
+        "question": "World Series Champion",
+        "slug": "tec-mlb-champ-2026-09-27-mil",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:24Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/us-logos/mlb/Polymarket_MIL.png",
+        "description": "Will Milwaukee Brewers win the 2026 MLB World Series, scheduled for October 23-November 1, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15859",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-mil",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.5840",
+            "marketId": 7930,
+            "long": true,
+            "teamId": 3016,
+            "team": {
+              "id": 3016,
+              "name": "Milwaukee Brewers",
+              "abbreviation": "mil",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "alias": "Milwaukee Brewers",
+              "safeName": "Brewers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#BD9000",
+              "providerId": 32,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "displayAbbreviation": "MIL",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "dcfd5266-00ce-442c-bc09-264cd20cf455"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "32"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "color": {
+                "light": "#BD9000",
+                "dark": "#BD9000"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.5840",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15860",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-mil",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.417",
+            "marketId": 7930,
+            "long": false,
+            "teamId": 3016,
+            "team": {
+              "id": 3016,
+              "name": "Milwaukee Brewers",
+              "abbreviation": "mil",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "alias": "Milwaukee Brewers",
+              "safeName": "Brewers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#BD9000",
+              "providerId": 32,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-light-95f2b5f4a8.png",
+              "displayAbbreviation": "MIL",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "dcfd5266-00ce-442c-bc09-264cd20cf455"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "32"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/milwaukee-dark-df69cd6a2a.png",
+              "color": {
+                "light": "#BD9000",
+                "dark": "#BD9000"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.417",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.5840\",\"0.417\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Milwaukee Brewers",
+        "subtitle": "",
+        "color": "#BD9000",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.5830",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.5840",
+          "currency": "USD"
+        },
+        "titleShort": "Milwaukee Brewers",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "933d2e7f6f76462332c457b19ec2b8dd2824bda15602fc0e96c6d2593f241cd5"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7935",
+        "question": "World Series Champion",
+        "slug": "tec-mlb-champ-2026-09-27-lad",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:24Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/us-logos/mlb/Polymarket_LAD.png",
+        "description": "Will Los Angeles Dodgers win the 2026 MLB World Series, scheduled for October 23-November 1, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15869",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-lad",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.0780",
+            "marketId": 7935,
+            "long": true,
+            "teamId": 3014,
+            "team": {
+              "id": 3014,
+              "name": "Los Angeles Dodgers",
+              "abbreviation": "lad",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "alias": "Los Angeles Dodgers",
+              "safeName": "Dodgers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#005A9C",
+              "providerId": 1,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "displayAbbreviation": "LAD",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "ef64da7f-cfaf-4300-87b0-9313386b977c"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "1"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "color": {
+                "light": "#005A9C",
+                "dark": "#005A9C"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.0780",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15870",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-lad",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.926",
+            "marketId": 7935,
+            "long": false,
+            "teamId": 3014,
+            "team": {
+              "id": 3014,
+              "name": "Los Angeles Dodgers",
+              "abbreviation": "lad",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "alias": "Los Angeles Dodgers",
+              "safeName": "Dodgers",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#005A9C",
+              "providerId": 1,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "displayAbbreviation": "LAD",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "ef64da7f-cfaf-4300-87b0-9313386b977c"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "1"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/los-angeles-dodgers-light-c8267be279.png",
+              "color": {
+                "light": "#005A9C",
+                "dark": "#005A9C"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.926",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.0780\",\"0.926\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Los Angeles Dodgers",
+        "subtitle": "",
+        "color": "#005A9C",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.0740",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.0780",
+          "currency": "USD"
+        },
+        "titleShort": "Los Angeles Dodgers",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "c73395fc5c239bae6b5aceb24635a69637face99351b6b29c5ee56ce1c8bc854"
+    },
+    {
+      "venue": "polymarket_us",
+      "source": {
+        "url": "https://gateway.polymarket.us/v1/markets?limit=100&offset=0&active=true&closed=false",
+        "captured_at": "2026-10-15T23:15:17.323528+00:00",
+        "sha256": "3cd0bcf76ae14a70bbf8bfca6cc800a1bfd713fc1ddb270a95c3ec93fb51a32b",
+        "status": 200
+      },
+      "payload": {
+        "id": "7943",
+        "question": "World Series Champion",
+        "slug": "tec-mlb-champ-2026-09-27-tb",
+        "endDate": "2026-11-06T21:20:09Z",
+        "category": "sports",
+        "startDate": "2026-03-19T14:32:25Z",
+        "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/random-team-images/MLB/TB.png",
+        "description": "Will Tampa Bay Rays win the 2026 MLB World Series, scheduled for October 23-November 1, 2026? If the event is postponed, delayed, or rescheduled, the expiration date will be amended to align with the new event date. If the event is not rescheduled within two weeks of the originally scheduled date, the instrument may settle at last fair market prices. If the event is canceled, the instrument may settle at last fair market prices. If the team is eliminated from contention, the instrument will settle to $0.00.",
+        "active": true,
+        "marketType": "futures",
+        "closed": false,
+        "createdAt": "2026-03-19T14:41:53Z",
+        "updatedAt": "2026-10-15T23:10:27Z",
+        "archived": false,
+        "orderPriceMinTickSize": 0.001,
+        "gameStartTime": "2026-09-07T00:00:00Z",
+        "manualActivation": false,
+        "sportsMarketType": "futures",
+        "marketSides": [
+          {
+            "id": "15885",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-tb",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "Yes",
+            "price": "0.1580",
+            "marketId": 7943,
+            "long": true,
+            "teamId": 3026,
+            "team": {
+              "id": 3026,
+              "name": "Tampa Bay Rays",
+              "abbreviation": "tb",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "alias": "Tampa Bay Rays",
+              "safeName": "Rays",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#8FBCE6",
+              "providerId": 11,
+              "ordering": "away",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "displayAbbreviation": "TB",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "bdc11650-6f74-49c4-875e-778aeb7632d9"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "11"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-dark-39efa95167.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-dark-39efa95167.png",
+              "color": {
+                "light": "#8FBCE6",
+                "dark": "#8FBCE6"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.1580",
+              "currency": "USD"
+            },
+            "tradable": true
+          },
+          {
+            "id": "15886",
+            "marketSideType": "MARKET_SIDE_TYPE_INSTRUMENT",
+            "identifier": "tec-mlb-champ-2026-09-27-tb",
+            "createdAt": "2026-03-19T14:41:53Z",
+            "updatedAt": "2026-03-19T14:41:53Z",
+            "description": "No",
+            "price": "0.843",
+            "marketId": 7943,
+            "long": false,
+            "teamId": 3026,
+            "team": {
+              "id": 3026,
+              "name": "Tampa Bay Rays",
+              "abbreviation": "tb",
+              "league": "mlb",
+              "record": "",
+              "logo": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "alias": "Tampa Bay Rays",
+              "safeName": "Rays",
+              "homeIcon": "",
+              "awayIcon": "",
+              "colorPrimary": "#8FBCE6",
+              "providerId": 11,
+              "ordering": "home",
+              "longIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "shortIcon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-light-75db4bf507.png",
+              "displayAbbreviation": "TB",
+              "conference": "",
+              "providerIds": [
+                {
+                  "provider": "PROVIDER_SPORTRADAR",
+                  "providerId": "bdc11650-6f74-49c4-875e-778aeb7632d9"
+                },
+                {
+                  "provider": "PROVIDER_SPORTSDATAIO",
+                  "providerId": "11"
+                }
+              ],
+              "longIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-dark-39efa95167.png",
+              "shortIconDark": "https://polymarket-upload.s3.us-east-2.amazonaws.com/tampa-bay-dark-39efa95167.png",
+              "color": {
+                "light": "#8FBCE6",
+                "dark": "#8FBCE6"
+              },
+              "imageDisplayType": "IMAGE_DISPLAY_TYPE_LOGO"
+            },
+            "quote": {
+              "value": "0.843",
+              "currency": "USD"
+            },
+            "tradable": true
+          }
+        ],
+        "outcomes": "[\"Yes\",\"No\"]",
+        "outcomePrices": "[\"0.1580\",\"0.843\"]",
+        "ep3Status": "OPEN",
+        "status": "MARKET_STATUS_OPEN",
+        "assetPriceTerms": null,
+        "sportsMarketTypeV2": "SPORTS_MARKET_TYPE_FUTURE",
+        "hidden": false,
+        "tags": [],
+        "title": "Tampa Bay Rays",
+        "subtitle": "",
+        "color": "#8FBCE6",
+        "feeCoefficient": 0.0695,
+        "bestBidQuote": {
+          "value": "0.1570",
+          "currency": "USD"
+        },
+        "bestAskQuote": {
+          "value": "0.1580",
+          "currency": "USD"
+        },
+        "titleShort": "Tampa Bay Rays",
+        "ep3SyncedAt": "2026-10-15T11:52:02Z",
+        "minimumTradeQty": 1,
+        "comboEnabled": false,
+        "politics": null
+      },
+      "payload_sha256": "46b0770ece5e616c0bcacd815522746d4a63d03c505b3fb90ea16bf486717e54"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "942f3f85-869a-4f7a-8e5a-336365c5294b"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.0850",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9160",
+        "no_bid_dollars": "0.9150",
+        "no_sub_title": "Tampa Bay",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "2157223.07",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.1000",
+        "previous_yes_ask_dollars": "0.1000",
+        "previous_yes_bid_dollars": "0.0990",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If Tampa Bay wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-TB",
+        "title": "Will Tampa Bay win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:35:15.63415Z",
+        "volume_24h_fp": "128204.40",
+        "volume_fp": "3201978.23",
+        "yes_ask_dollars": "0.0850",
+        "yes_ask_size_fp": "18990.97",
+        "yes_bid_dollars": "0.0840",
+        "yes_bid_size_fp": "770.31",
+        "yes_sub_title": "Tampa Bay"
+      },
+      "payload_sha256": "c3227e570d58e09ee71964335ea2ea92c9ac81a3cbb592f03572007969032ff7"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "807fa239-87eb-4e89-a969-649ab2027bc4"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.1200",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.8850",
+        "no_bid_dollars": "0.8800",
+        "no_sub_title": "San Diego",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "4413870.38",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.0950",
+        "previous_yes_ask_dollars": "0.0950",
+        "previous_yes_bid_dollars": "0.0890",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If San Diego wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-SD",
+        "title": "Will San Diego win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:35:15.63415Z",
+        "volume_24h_fp": "495438.52",
+        "volume_fp": "5903338.47",
+        "yes_ask_dollars": "0.1200",
+        "yes_ask_size_fp": "20565.84",
+        "yes_bid_dollars": "0.1150",
+        "yes_bid_size_fp": "3.76",
+        "yes_sub_title": "San Diego"
+      },
+      "payload_sha256": "573ea983e7478aeabecc7fdf262d241c25e580960363fecbb4c9dfff122c1a30"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "bf277158-b28d-4a0e-aa3b-54fd3acd3009"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.0530",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.9500",
+        "no_bid_dollars": "0.9480",
+        "no_sub_title": "Philadelphia",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "2971199.89",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.0260",
+        "previous_yes_ask_dollars": "0.0250",
+        "previous_yes_bid_dollars": "0.0210",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If Philadelphia wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-PHI",
+        "title": "Will Philadelphia win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:31:32.511076Z",
+        "volume_24h_fp": "544526.68",
+        "volume_fp": "4616887.16",
+        "yes_ask_dollars": "0.0520",
+        "yes_ask_size_fp": "2743.33",
+        "yes_bid_dollars": "0.0500",
+        "yes_bid_size_fp": "4.37",
+        "yes_sub_title": "Philadelphia"
+      },
+      "payload_sha256": "832c705cfd105edf03f2652a83dda7584f228e25a190ef706de568fbf5902300"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "576dc9ee-9a05-4610-8e9d-efa2a046582d"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.1770",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.8280",
+        "no_bid_dollars": "0.8230",
+        "no_sub_title": "New York Y",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "3088861.36",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.1340",
+        "previous_yes_ask_dollars": "0.1340",
+        "previous_yes_bid_dollars": "0.1330",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If New York Y wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-NYY",
+        "title": "Will New York Y win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:35:18.782957Z",
+        "volume_24h_fp": "301202.75",
+        "volume_fp": "5218671.77",
+        "yes_ask_dollars": "0.1770",
+        "yes_ask_size_fp": "5.84",
+        "yes_bid_dollars": "0.1720",
+        "yes_bid_size_fp": "2.72",
+        "yes_sub_title": "New York Y"
+      },
+      "payload_sha256": "81fba5f3f0da92e2c49b50940cfeb4c7a417d28289268317fbcf90a562190bb9"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "087f0ae7-c231-4dcd-b7e5-f026c1769e40"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.1680",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.8340",
+        "no_bid_dollars": "0.8320",
+        "no_sub_title": "Milwaukee",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "3756187.79",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.1640",
+        "previous_yes_ask_dollars": "0.1640",
+        "previous_yes_bid_dollars": "0.1620",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If Milwaukee wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-MIL",
+        "title": "Will Milwaukee win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:31:32.511076Z",
+        "volume_24h_fp": "185064.78",
+        "volume_fp": "5749403.46",
+        "yes_ask_dollars": "0.1680",
+        "yes_ask_size_fp": "11830.12",
+        "yes_bid_dollars": "0.1660",
+        "yes_bid_size_fp": "10.66",
+        "yes_sub_title": "Milwaukee"
+      },
+      "payload_sha256": "dc335c719e84b0d4f3cf17d7bc4b2a7492b1b86ce74daf0f81f822069a60ac24"
+    },
+    {
+      "venue": "kalshi",
+      "category": "Sports",
+      "source": {
+        "file": "kalshi-catalog.json",
+        "url": "https://external-api.kalshi.com/trade-api/v2/markets?series_ticker=KXMLB&status=open&limit=100",
+        "status": 200,
+        "captured_at": "2026-10-01T06:03:39.558751+00:00",
+        "sha256": "489bc4fb8cc9b82b1025c831991043271cbef3af760316667b5a392b2739219a"
+      },
+      "payload": {
+        "can_close_early": true,
+        "close_time": "2028-10-31T04:00:00Z",
+        "created_time": "2025-12-16T23:26:57.633826Z",
+        "custom_strike": {
+          "baseball_team": "5ee3dc32-f192-4b80-ac4a-fd285f36dc1a"
+        },
+        "early_close_condition": "This market will close and expire after a title holder is declared.",
+        "event_ticker": "KXMLB-26",
+        "exchange_index": 0,
+        "expected_expiration_time": "2026-11-01T04:00:00Z",
+        "expiration_time": "2028-10-31T04:00:00Z",
+        "expiration_value": "",
+        "last_price_dollars": "0.2960",
+        "latest_expiration_time": "2028-10-31T04:00:00Z",
+        "liquidity_dollars": "0.0000",
+        "market_type": "binary",
+        "no_ask_dollars": "0.7090",
+        "no_bid_dollars": "0.7060",
+        "no_sub_title": "Los Angeles D",
+        "notional_value_dollars": "1.0000",
+        "open_interest_fp": "3628647.72",
+        "open_time": "2025-12-17T15:00:00Z",
+        "previous_price_dollars": "0.2950",
+        "previous_yes_ask_dollars": "0.2930",
+        "previous_yes_bid_dollars": "0.2830",
+        "price_level_structure": "deci_cent",
+        "price_ranges": [
+          {
+            "end": "1.0000",
+            "start": "0.0000",
+            "step": "0.0010"
+          }
+        ],
+        "result": "",
+        "rules_primary": "If Los Angeles D wins the 2026 Pro Baseball Championship, then the market resolves to Yes.",
+        "rules_secondary": "Kalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners.",
+        "settlement_timer_seconds": 300,
+        "status": "active",
+        "strike_type": "structured",
+        "ticker": "KXMLB-26-LAD",
+        "title": "Will Los Angeles D win the 2026 Pro Baseball Championship?",
+        "updated_time": "2026-07-13T21:31:32.511076Z",
+        "volume_24h_fp": "244233.81",
+        "volume_fp": "6653108.22",
+        "yes_ask_dollars": "0.2940",
+        "yes_ask_size_fp": "60.36",
+        "yes_bid_dollars": "0.2910",
+        "yes_bid_size_fp": "0.30",
+        "yes_sub_title": "Los Angeles D"
+      },
+      "payload_sha256": "5e577dcf1b12e1385156a28776cca3a8959b91cabb833fb8808b5be6646ee994"
+    }
+  ]
+}

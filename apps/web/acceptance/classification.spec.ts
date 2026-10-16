@@ -19,7 +19,7 @@ test("persistent recorded classifications expose evidence without approval", asy
   await expect(
     page.getByRole("heading", { name: "AI suggests same event" }),
   ).toBeVisible();
-  await expect(page.getByText("Candidate, not verified")).toBeVisible();
+  await expect(page.getByText("Unverified match")).toBeVisible();
   await expect(page.getByText("No review recorded")).toBeVisible();
   await expect(
     page.getByText("Recorded model response, offline replay"),

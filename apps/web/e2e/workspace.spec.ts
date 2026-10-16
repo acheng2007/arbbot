@@ -8,7 +8,10 @@ test("market evidence leads through review to an opportunity estimate", async ({
   await expect(page.getByText(/Recorded fixture data/)).toBeVisible();
   await expect(page.getByText("Simulation").first()).toBeVisible();
 
-  await page.getByRole("link", { name: "Kalshi", exact: true }).click();
+  await page
+    .getByRole("article", { name: /US CPI year-over-year/ })
+    .getByRole("link", { name: "Kalshi", exact: true })
+    .click();
   await page.getByText("Source documents", { exact: true }).click();
   await page.getByText("Extracted settlement terms", { exact: true }).click();
   await expect(page.getByText("Kalshi original terms")).toBeVisible();

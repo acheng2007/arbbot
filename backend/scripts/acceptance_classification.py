@@ -41,6 +41,8 @@ async def write_recording(database, path):
                 options = question["criteria"]
                 if key == "event":
                     choice = "same_event" if same else "different_event"
+                elif key == "orientation":
+                    choice = "aligned"
                 elif key.endswith("evidence"):
                     choice = next(
                         (

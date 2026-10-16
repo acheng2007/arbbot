@@ -85,7 +85,7 @@ export function MatchList() {
         {matches.data?.data.length === 0 ? (
           <EmptyState
             title="No proposed pairs yet"
-            description="Contract pairs appear here once discovery finds candidates across two venues. A pair is only ever shown as verified after a recorded review of its settlement terms."
+            description="Contract pairs appear here once discovery finds candidates across two venues. Source-backed automatic settlement checks determine verification; human review is optional."
           />
         ) : (
           <ul className="space-y-4">
@@ -100,7 +100,13 @@ export function MatchList() {
                     className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-ring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <MatchStatusBadge status={match.status} qualification={match.qualification} />
+                      <MatchStatusBadge
+                        status={match.status}
+                        qualification={match.qualification}
+                        relationship={match.relationship}
+                        operatorVeto={match.operator_veto}
+                        historical={match.historical}
+                      />
                       {match.comparison && (
                         <ComparisonStatusBadge
                           status={match.comparison.status}

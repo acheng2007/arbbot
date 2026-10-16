@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     classification_probability: float = Field(default=0.80, ge=0, le=1)
     classification_confidence: float = Field(default=0.80, ge=0, le=1)
     classification_recording_file: Path | None = None
+    semantic_retrieval: bool = True
+    embedding_cache: Path = Path("/tmp/arbbot-embeddings")
+    embedding_local_only: bool = False
+    exploratory_monitoring_fraction: float = Field(default=0.20, ge=0, le=0.5)
 
     database_url: SecretStr = SecretStr("postgresql+psycopg://arbbot:arbbot@localhost:55432/arbbot")
     mode: Literal["simulation", "live"] = "simulation"

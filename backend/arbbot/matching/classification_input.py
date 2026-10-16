@@ -20,7 +20,7 @@ from arbbot.storage.models import (
     SourceArtifactRecord,
 )
 
-VERSION = "counterparts-v1"
+VERSION = "counterparts-v3"
 CLAUSES = {
     "outcomes": r"yes|no|outcome|winner|win|resolve|settle",
     "resolution_source": r"source|official|agency|bureau|league|resolution",
@@ -28,6 +28,9 @@ CLAUSES = {
     "fallback": r"fallback|unavailable|fail|alternative|unable",
     "ambiguity": r"ambig|disput|discretion|exception|determination",
     "revision": r"revis|amend|initial|final|correct",
+    "jurisdiction": r"country|state|district|jurisdiction|United States|U\.S\.",
+    "deadline": r"deadline|before|after|until|through|by|close|date|time",
+    "threshold": r"at least|more than|less than|above|below|percent|threshold|\d",
 }
 EXCLUDED_LABELS = {
     "fee_policy",
@@ -181,6 +184,20 @@ def questions(spans):
             },
         }
     }
+    output["orientation"] = {
+        "type": "choice",
+        "instructions": guard + "Compare the exact YES condition, not just the event topic. "
+        "Elections, nominations, projected wins and taking office are distinct. "
+        "Different candidates are different outcomes, not necessarily inverted bets. "
+        "Media-call resolution and election seat/caucus counts are different definitions. "
+        "Do not infer logical complements merely from opposing party names.",
+        "criteria": {
+            "aligned": "YES conditions agree on event definition, outcome, method and period.",
+            "inverted": "Explicit binary complements using the SAME event definition and method.",
+            "different_outcomes": "The conditions differ without being binary complements.",
+            "insufficient_evidence": "Cannot establish outcome correspondence.",
+        },
+    }
     for side in ("left", "right"):
         options = {
             span["id"]: "This supplied span supports the event identity finding."
@@ -228,7 +245,7 @@ async def build_request(session, mode, pair, model):
         "markets": [],
         "spans": [],
         "limitations": [
-            "Bounded retrieval: 100 title counterparts plus up to 20 nearby category counterparts.",
+            "Bounded hybrid retrieval; not an exhaustive all-pairs exchange comparison.",
             "Source excerpts are bounded and may omit relevant context.",
             "Advisory only; model scores are not measured accuracy.",
         ],
@@ -271,6 +288,7 @@ async def build_request(session, mode, pair, model):
         if not valid_app:
             state["limitations"].append(f"{side}: document applicability is missing.")
         docs = [d for d in fingerprint["documents"] if d["market_id"] == mid]
+        docs.sort(key=lambda d: ("index" in d["url"], d["url"]))
         for doc in docs[:4]:
             source = await session.get(SourceArtifactRecord, doc["id"])
             if (
@@ -287,9 +305,23 @@ async def build_request(session, mode, pair, model):
             if text.status != "complete":
                 state["limitations"].append(f"{side}: source extraction {text.status}.")
             applicability = "verified" if source.id in approved and valid_app else "unverified"
-            for page in text.pages[:2]:
+            # Search every extracted page, including clauses late in a rulebook.
+            tokens = set(re.findall(r"\w+", market.title.casefold()))
+            ranked = sorted(
+                text.pages,
+                key=lambda page: (
+                    -sum(bool(re.search(pattern, page.text, re.I)) for pattern in CLAUSES.values()),
+                    -len(tokens & set(re.findall(r"\w+", page.text.casefold()))),
+                    page.page or 0,
+                ),
+            )
+            for page in ranked[:6]:
                 state["spans"].extend(
                     excerpts(page.text, side, source.id, page.page, applicability)
+                )
+            if len(text.pages) > 6:
+                state["limitations"].append(
+                    f"{side}: document pages omitted after relevance selection."
                 )
         if len(docs) > 4:
             state["limitations"].append(f"{side}: document selection limit reached.")
@@ -297,6 +329,9 @@ async def build_request(session, mode, pair, model):
     request = {"model": model, "state": state, "questions": questions(state["spans"])}
     while len(serialized(request)) > MAX_BYTES and state["spans"]:
         state["spans"].pop()
+        limitation = "Relevant evidence may be omitted by the provider input budget."
+        if limitation not in state["limitations"]:
+            state["limitations"].append(limitation)
         request["questions"] = questions(state["spans"])
     if len(serialized(request)) > MAX_BYTES:
         raise ValueError("classification_input_too_large")

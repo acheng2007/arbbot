@@ -368,6 +368,10 @@ class Repository:
         history=False,
         enabled_venues=None,
         opportunity_id=None,
+        venue=None,
+        category_group=None,
+        q=None,
+        sort="newest",
     ):
         eligible_books = []
         if not history:
@@ -386,6 +390,18 @@ class Repository:
                 if feed["status"] == "healthy" and feed["book_id"]
             ]
         query = select(OpportunityRecord).where(OpportunityRecord.mode == mode)
+        if venue is not None or category_group is not None or q is not None:
+            from arbbot.storage.catalog_queries import result_market_filter
+
+            query = query.where(
+                result_market_filter(
+                    mode,
+                    [OpportunityRecord.payload["legs"][i]["market_id"].as_string() for i in (0, 1)],
+                    venue=venue,
+                    category_group=category_group,
+                    q=q,
+                )
+            )
         if opportunity_id is not None:
             query = query.where(OpportunityRecord.id == opportunity_id)
         if not history:
@@ -416,6 +432,8 @@ class Repository:
             OpportunityRecord.net_profit.desc(),
             OpportunityRecord.id,
         )
+        if sort == "net_profit":
+            ordering = (OpportunityRecord.net_profit.desc(), *ordering)
         if not history:
             from arbbot.reviews.repository import ReviewRepository
 

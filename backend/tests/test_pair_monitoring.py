@@ -10,6 +10,44 @@ from arbbot.ingestion.monitoring import PairMonitor
 from arbbot.ingestion.pipeline import Pipeline
 
 
+async def test_exploration_reserve_prevents_verified_pair_starvation(database, fixture_market):
+    settings, _, repository = database
+    settings = settings.model_copy(update={"discovery_limit": 5})
+    originals, _, _, _ = fixture_market
+    markets, matches = [], []
+    for i in range(6):
+        pair = [
+            m.model_copy(
+                update={
+                    "id": f"{m.venue}:reserve-{i}",
+                    "external_id": f"reserve-{i}",
+                    "category": "Politics" if i == 5 else "Sports",
+                }
+            )
+            for m in originals
+        ]
+        for market in pair:
+            await repository.save_market(market)
+        markets.extend(pair)
+        matches.append(
+            Match(
+                id=f"reserve-{i}",
+                mode="simulation",
+                left_id=pair[0].id,
+                right_id=pair[1].id,
+                status="candidate" if i == 5 else "verified",
+                similarity=0.1,
+                reason="Allocation fixture only; no financial estimate is asserted.",
+            )
+        )
+    await repository.publish("simulation", matches, [])
+    selected = await PairMonitor(
+        settings, repository, [SimulationAdapter(v) for v in ("kalshi", "polymarket")]
+    ).select(markets)
+    assert len(selected) == 10
+    assert {m.venue for m in selected if m.external_id == "reserve-5"} == {"kalshi", "polymarket"}
+
+
 async def test_pairs_rotate_together_and_resume(database, fixture_market):
     settings, _, repository = database
     settings = settings.model_copy(update={"discovery_limit": 1})

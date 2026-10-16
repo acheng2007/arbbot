@@ -19,6 +19,7 @@ describe("market filters", () => {
       search: "cpi",
       offset: 50,
       category: "",
+      relationship: "" as const,
     };
     expect(
       parseFilters(new URLSearchParams(serializeFilters(filters))),
@@ -35,6 +36,7 @@ describe("market filters", () => {
       status: "",
       search: "",
       category: "",
+      relationship: "" as const,
       offset: 0,
     });
   });
@@ -48,6 +50,7 @@ describe("market filters", () => {
         search: "0x8f21a4c7",
         offset: 0,
         category: "",
+        relationship: "" as const,
       }).map((market) => market.id),
     ).toEqual(["polymarket:0x8f21"]);
   });
@@ -60,6 +63,7 @@ describe("market filters", () => {
       search: "",
       offset: 0,
       category: "",
+      relationship: "" as const,
     });
     expect(closed).toHaveLength(1);
     expect(closed[0].status).toBe("closed");

@@ -31,6 +31,7 @@ describe("generated API client", () => {
       "venue",
       "status",
       "family",
+      "category_group",
       "q",
     ]);
   });

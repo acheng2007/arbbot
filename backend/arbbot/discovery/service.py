@@ -189,6 +189,37 @@ class CatalogService:
             )
         return preferred[: self.settings.monitoring_limit(adapter.venue)] + rotated[:slots]
 
+    async def source_cohort(self, adapter, markets):
+        """Durable category rotation independent of the book-monitoring allocation."""
+        from collections import defaultdict
+        from itertools import zip_longest
+
+        from arbbot.storage.models import DiscoveryProgressRecord
+
+        groups = defaultdict(list)
+        for market in sorted(markets, key=lambda m: m.id):
+            groups[market.category_group].append(market)
+        ordered = [
+            m
+            for row in zip_longest(*(groups[k] for k in sorted(groups)))
+            for m in row
+            if m is not None
+        ]
+        key = f"{self.settings.mode}:{adapter.venue}:source-rotation"
+        async with self.repository.database.sessions.begin() as session:
+            previous = await session.get(DiscoveryProgressRecord, key, with_for_update=True)
+            offset = (previous.payload.get("offset", 0) if previous else 0) % max(1, len(ordered))
+            selected = (ordered[offset:] + ordered[:offset])[:64]
+            await session.merge(
+                DiscoveryProgressRecord(
+                    key=key,
+                    mode=self.settings.mode,
+                    venue=adapter.venue,
+                    payload={"offset": offset + len(selected)},
+                )
+            )
+        return selected
+
     async def refresh(self, adapter, *, enrich=True):
         started = utcnow()
         scan = None
@@ -236,7 +267,8 @@ class CatalogService:
                 else:
                     # At most one bounded cohort per venue; newer work replaces missed ticks.
                     markets = selected
-                    self.pending_enrichment[adapter.venue] = (adapter, tuple(selected))
+                    source_markets = await self.source_cohort(adapter, catalog_markets)
+                    self.pending_enrichment[adapter.venue] = (adapter, tuple(source_markets))
                     self.enrichment_ready.set()
                 # Family scans do not call the adapter's general-discovery method.
                 if hasattr(adapter, "stream"):

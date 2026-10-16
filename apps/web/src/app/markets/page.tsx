@@ -4,7 +4,7 @@ import { LoadingState } from "@/components/states";
 import { MarketBrowser } from "@/features/markets/market-browser";
 
 export const metadata: Metadata = {
-  title: "Markets",
+  title: "Discoveries",
   description:
     "Browse discovered markets, inspect original terms, and check quote health per venue.",
 };
@@ -14,7 +14,7 @@ export default function MarketsPage() {
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Markets
+          Discoveries
         </h1>
       </header>
       {/* useSearchParams needs a boundary so the shell can render before filters resolve. */}

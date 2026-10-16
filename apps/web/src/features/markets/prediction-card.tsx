@@ -96,13 +96,21 @@ export function PredictionCard({
     >
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <ModeBadge mode={market.mode} feedOrigin={market.feed_origin} />
-        {match && <MatchStatusBadge status={match.status} qualification={match.qualification} />}
+        {match && (
+          <MatchStatusBadge
+            status={match.status}
+            qualification={match.qualification}
+            relationship={match.relationship}
+            operatorVeto={match.operator_veto}
+            historical={match.historical}
+          />
+        )}
       </div>
       <h2 className="mb-4 text-lg font-semibold leading-6 tracking-tight">
         <Link
           href={
             match
-              ? `/matches/${encodeURIComponent(match.id)}`
+              ? `/matches/${encodeURIComponent(match.id)}${match.historical ? "?historical=true" : ""}`
               : `/markets/${encodeURIComponent(market.id)}`
           }
           className="hover:text-primary"
@@ -110,6 +118,28 @@ export function PredictionCard({
           {market.title}
         </Link>
       </h2>
+      {match && match.relationship !== "verified" && (
+        <p className="mb-3 text-xs leading-5 text-muted-foreground">
+          {match.classification?.supports_candidate
+            ? "AI suggests the same event. "
+            : "Retrieved possible counterpart. "}
+          {match.qualification?.blocked_reasons?.[0]?.replaceAll("_", " ") ??
+            "Settlement compatibility is assessed independently of prices."}
+        </p>
+      )}
+      {!match && "assessment_state" in market && (
+        <p className="mb-3 text-xs leading-5 text-muted-foreground">
+          {market.assessment_state === "assessed"
+            ? `${market.counterpart_count ?? 0} current counterparts · Assessed`
+            : market.assessment_state === "unavailable"
+              ? "Assessment unavailable; discovery continues"
+              : "Awaiting pair assessment"}
+          .
+          {market.counterpart_count === 0
+            ? " No counterpart in the current bounded scan is not proof that none exists."
+            : ""}
+        </p>
+      )}
       <VenuePrices market={market} />
       {other && other.venue !== market.venue && other.mode === market.mode ? (
         <VenuePrices
@@ -135,12 +165,12 @@ export function PredictionCard({
       )}
       {match && (
         <Link
-          href={`/matches/${encodeURIComponent(match.id)}`}
+          href={`/matches/${encodeURIComponent(match.id)}${match.historical ? "?historical=true" : ""}`}
           className="inline-block pt-2 text-xs font-medium text-primary"
         >
           {match.status === "verified"
             ? "View comparison"
-            : "Settlement review required"}{" "}
+            : "Inspect assessment"}{" "}
           →
         </Link>
       )}

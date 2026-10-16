@@ -10,7 +10,14 @@ export const metadata: Metadata = {
 
 export default async function MatchPage({
   params,
+  searchParams,
 }: PageProps<"/matches/[matchId]">) {
   const { matchId } = await params;
-  return <ComparisonDetail matchId={routeParam(matchId)} />;
+  const search = await searchParams;
+  return (
+    <ComparisonDetail
+      matchId={routeParam(matchId)}
+      historical={search.historical === "true"}
+    />
+  );
 }

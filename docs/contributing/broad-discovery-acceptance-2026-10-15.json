@@ -1,0 +1,35 @@
+{
+  "results": [
+    "API and additive migrations ready",
+    "Automatic qualified estimates without review/account setup",
+    "Zero human drafts and decision revisions",
+    "Incomplete settlement remains separate potential price gap",
+    "Qualification filtering precedes pagination",
+    "Fee outage withdraws qualified estimates",
+    "Book polling continues during public fee outage",
+    "Public fee provider recovers automatically",
+    "Source amendment invalidates qualification",
+    "Restored supported sources requalify without human action",
+    "Persistent worker restart retains automatic workflow",
+    "Low-score authentic political suggestion visible before pagination",
+    "Production Next.js connected to discovery backend",
+    "Connected production desktop/mobile discovery workflow"
+  ],
+  "completed_at_epoch": 1792108850.4742222,
+  "model_evidence": "Scripted transport; model quality measured separately.",
+  "financial_evidence": "Synthetic positives; no real arbitrage claimed.",
+  "validation": {
+    "sqlite_tests": 576,
+    "postgresql_tests": 576,
+    "frontend_unit_tests": 66,
+    "fixture_browser_tests": 70,
+    "connected_browser_tests": 2,
+    "typecheck": "passed",
+    "lint": "passed",
+    "generated_client": "passed",
+    "production_webpack_build": "passed",
+    "backend_container_build": "passed",
+    "container_embedding_without_network": "passed"
+  },
+  "scope": "Recorded integrated workflow; authentic catalog terms, scripted low-score model answer, synthetic complete financial positives."
+}

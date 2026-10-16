@@ -49,6 +49,9 @@ async def enrich_kalshi(market, repository, fetcher):
         k: series.get(k)
         for k in (
             "ticker",
+            "category",
+            "categories",
+            "tags",
             "settlement_sources",
             "contract_url",
             "contract_terms_url",
@@ -75,4 +78,10 @@ async def enrich_kalshi(market, repository, fetcher):
             collector.issues.append("missing_" + key)
     for url, label in dict.fromkeys(urls):
         await collector.get(url, label=label)
-    return collector.finish(evidence)
+    result = collector.finish(evidence)
+    # Market responses may omit category. Only the linked official series can
+    # supply it; ticker spelling and title keywords are not authoritative tags.
+    category = series.get("category")
+    if isinstance(category, str) and category.strip():
+        result = result.model_copy(update={"category": category})
+    return result

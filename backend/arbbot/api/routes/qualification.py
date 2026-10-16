@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import select
@@ -63,8 +63,21 @@ def qualification_router(repository, settings):
     async def potential_opportunities(
         limit: Annotated[int, Query(ge=1, le=200)] = 100,
         offset: Annotated[int, Query(ge=0, le=100000)] = 0,
+        venue: str | None = None,
+        category_group: str | None = None,
+        q: Annotated[str | None, Query(max_length=200)] = None,
+        sort: Literal["newest", "gross_spread"] = "gross_spread",
     ):
-        return await query(repository, settings, limit=limit, offset=offset)
+        return await query(
+            repository,
+            settings,
+            limit=limit,
+            offset=offset,
+            venue=venue,
+            category_group=category_group,
+            q=q,
+            sort=sort,
+        )
 
     @router.get("/potential-opportunities/{potential_id}", response_model=PotentialOpportunity)
     async def potential_opportunity(potential_id: str, historical: bool = False):

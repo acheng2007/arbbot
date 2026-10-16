@@ -4,8 +4,30 @@ from arbbot.domain import Market, MarketSummary, Match, restore
 from arbbot.storage.models import MarketRecord, MatchRecord
 
 
+def category_expression():
+    from arbbot.discovery.categories import ALIASES
+
+    raw = func.lower(func.coalesce(MarketRecord.payload["category"].as_string(), ""))
+    return case(
+        (raw == "", "unknown"),
+        *(
+            (or_(*(raw.ilike("%" + word + "%") for word in words)), name)
+            for name, words in ALIASES.items()
+        ),
+        else_="other",
+    )
+
+
 def market_predicates(
-    mode, *, venue=None, status=None, family=None, q=None, venues=None, category=None
+    mode,
+    *,
+    venue=None,
+    status=None,
+    family=None,
+    q=None,
+    venues=None,
+    category=None,
+    category_group=None,
 ):
     predicates = [MarketRecord.mode == mode]
     if venues is not None:
@@ -16,6 +38,8 @@ def market_predicates(
         predicates.append(MarketRecord.payload["status"].as_string() == status)
     if category is not None:
         predicates.append(MarketRecord.payload["category"].as_string() == category)
+    if category_group is not None:
+        predicates.append(category_expression() == category_group)
     if family is not None:
         predicates.append(MarketRecord.family == family)
     if q is not None:
@@ -30,6 +54,17 @@ def market_predicates(
             )
         )
     return predicates
+
+
+def result_market_filter(mode, ids, *, venue=None, category_group=None, q=None):
+    return (
+        select(MarketRecord.key)
+        .where(
+            *market_predicates(mode, venue=venue, category_group=category_group, q=q),
+            or_(*(MarketRecord.id == mid for mid in ids)),
+        )
+        .exists()
+    )
 
 
 class CatalogQueries:
@@ -48,7 +83,11 @@ class CatalogQueries:
             return [restore(Market, row.payload) for row in rows]
 
     async def summaries(self, mode, *, limit=100, offset=0, **filters):
-        fields = list(MarketSummary.model_fields)
+        fields = [
+            name
+            for name in MarketSummary.model_fields
+            if name not in ("counterpart_count", "assessment_state")
+        ]
         query = select(
             *(
                 (
@@ -68,11 +107,62 @@ class CatalogQueries:
                 .mappings()
                 .all()
             )
-        return [
+        summaries = [
             MarketSummary.model_validate(
                 {**dict(row), "ingestion_issues": row["ingestion_issues"] or ()}
             )
             for row in rows
+        ]
+        ids = [m.id for m in summaries]
+        if not ids:
+            return summaries
+        matches = await self.matches(mode, limit=None, market_ids=ids)
+        counts = {mid: 0 for mid in ids}
+        states = dict.fromkeys(ids, "pending")
+        for match in matches:
+            for mid in (match.left_id, match.right_id):
+                if mid in counts and match.relationship != "mismatch" and not match.operator_veto:
+                    counts[mid] += 1
+                if (
+                    mid in states
+                    and match.qualification
+                    and match.qualification.status not in ("pending", "stale", "unavailable")
+                ):
+                    states[mid] = "assessed"
+        from arbbot.matching.classification import summary
+        from arbbot.storage.models import ClassificationJobRecord
+
+        async with self.database.sessions() as session:
+            session.info["classification_identity_cache"] = {}
+            jobs = (
+                await session.scalars(
+                    select(ClassificationJobRecord).where(
+                        ClassificationJobRecord.mode == mode,
+                        or_(
+                            *(
+                                ClassificationJobRecord.request["state"]["markets"][i]["id"]
+                                .as_string()
+                                .in_(ids)
+                                for i in (0, 1)
+                            )
+                        ),
+                    )
+                )
+            ).all()
+            for job in jobs:
+                advice = await summary(session, job)
+                for market in job.request["state"]["markets"]:
+                    mid = market["id"]
+                    if mid in states:
+                        if advice.state == "fresh":
+                            states[mid] = "assessed"
+                        elif advice.state == "unavailable" and states[mid] != "assessed":
+                            states[mid] = "unavailable"
+        return [
+            m.model_copy(
+                update={"counterpart_count": counts[m.id], "assessment_state": states[m.id]}
+            )
+            for m in summaries
         ]
 
     async def matches(
@@ -83,6 +173,10 @@ class CatalogQueries:
         offset=0,
         status=None,
         category=None,
+        category_group=None,
+        relationship=None,
+        exclude_mismatch=False,
+        historical=False,
         same_event=None,
         market_status=None,
         exclude_rejected=False,
@@ -90,17 +184,31 @@ class CatalogQueries:
         classification=None,
         qualification=None,
         market_id=None,
+        market_ids=None,
         match_id=None,
         venue=None,
         family=None,
         q=None,
     ):
-        query = select(MatchRecord).where(MatchRecord.mode == mode, MatchRecord.current.is_(True))
+        query = select(MatchRecord).where(MatchRecord.mode == mode)
+        if not historical:
+            query = query.where(MatchRecord.current.is_(True))
+        elif match_id is None:
+            query = query.where(MatchRecord.current.is_(False))
         if market_id is not None:
             query = query.where(
                 or_(
                     MatchRecord.payload["left_id"].as_string() == market_id,
                     MatchRecord.payload["right_id"].as_string() == market_id,
+                )
+            )
+        if market_ids is not None:
+            query = query.where(
+                or_(
+                    *(
+                        MatchRecord.payload[side].as_string().in_(market_ids)
+                        for side in ("left_id", "right_id")
+                    )
                 )
             )
         if match_id is not None:
@@ -125,7 +233,10 @@ class CatalogQueries:
             )
         if evidence is not None:
             query = query.where(MatchRecord.evidence_complete.is_(evidence == "complete"))
-        if any(value is not None for value in (venue, family, q, market_status, category)):
+        if any(
+            value is not None
+            for value in (venue, family, q, market_status, category, category_group)
+        ):
             # All market-side filters must match the same leg. EXISTS avoids duplicated pairs.
             matching_leg = (
                 select(MarketRecord.key)
@@ -137,6 +248,7 @@ class CatalogQueries:
                         q=q,
                         status=market_status,
                         category=category,
+                        category_group=category_group,
                     ),
                     or_(
                         MarketRecord.id == MatchRecord.payload["left_id"].as_string(),
@@ -157,6 +269,7 @@ class CatalogQueries:
         special, included, ranks = {}, [], {0: [], 1: [], 2: [], 3: []}
         advisory = MatchRecord.payload["classification"]
         requires_validation = or_(
+            relationship is not None or exclude_mismatch or historical,
             MatchRecord.payload["status"].as_string() == "verified",
             MatchRecord.payload["qualification"]["status"].as_string().is_not(None),
             advisory["run_id"].as_string().is_not(None),
@@ -169,6 +282,30 @@ class CatalogQueries:
             # Revalidate only approvals and actual advisory results. Ordinary title
             # suggestions need no per-row evidence reads to rank or paginate.
             for row in rows:
+                if historical:
+                    match = Match.model_validate(row.payload).model_copy(
+                        update={"historical": True}
+                    )
+                    changes = {}
+                    if match.classification:
+                        changes["classification"] = match.classification.model_copy(
+                            update={"state": "stale", "supports_candidate": False}
+                        )
+                    if match.qualification:
+                        changes["qualification"] = match.qualification.model_copy(
+                            update={
+                                "status": "stale",
+                                "blocked_reasons": (
+                                    *match.qualification.blocked_reasons,
+                                    "explicit_historical_match",
+                                ),
+                            }
+                        )
+                    match = match.model_copy(update=changes)
+                    if relationship is None or relationship == "unverified":
+                        special[row.id] = match
+                        included.append(row.id)
+                    continue
                 match = await refresh_match(
                     reviews,
                     session,
@@ -185,6 +322,10 @@ class CatalogQueries:
                 match = match.model_copy(update={"classification": advice})
                 special[row.id] = match
                 if match.ai_only and (not advice or not advice.supports_candidate):
+                    continue
+                if relationship is not None and match.relationship != relationship:
+                    continue
+                if exclude_mismatch and match.relationship == "mismatch":
                     continue
                 if status is not None and match.status != status:
                     continue
@@ -249,12 +390,31 @@ class CatalogQueries:
                     *[(MatchRecord.id.in_(ids), value) for value, ids in ranks.items() if ids],
                     else_=ordinary_rank,
                 )
-                if included
+                if any(ranks.values())
                 else ordinary_rank
             )
             rows = (
                 await session.scalars(
-                    final.order_by(rank, MatchRecord.id).limit(limit).offset(offset)
+                    final.order_by(
+                        rank,
+                        case(
+                            (
+                                MatchRecord.id.in_(
+                                    [
+                                        mid
+                                        for mid, match in special.items()
+                                        if match.classification
+                                        and match.classification.state == "fresh"
+                                    ]
+                                ),
+                                advisory["event"]["confidence"].as_float(),
+                            ),
+                            else_=0,
+                        ).desc(),
+                        MatchRecord.id,
+                    )
+                    .limit(limit)
+                    .offset(offset)
                 )
             ).all()
             results = []

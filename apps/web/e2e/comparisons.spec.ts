@@ -42,10 +42,12 @@ test("a conflicting pair is never presented as the same event", async ({
 }) => {
   await page.goto("/matches/match-fed-2026-11");
 
-  await expect(page.getByText("Rejected in review")).toBeVisible();
+  await expect(page.getByText("Operator veto", { exact: true })).toBeVisible();
   await expect(page.getByText("Terms conflict")).toBeVisible();
   await expect(
-    page.getByText(/have not been established as describing the same event/),
+    page.getByText(
+      /Supported checks found an event or settlement contradiction/,
+    ),
   ).toBeVisible();
   await page.getByText("Review evidence", { exact: true }).click();
   await expect(page.getByText(/Intermeeting cuts settle these/)).toBeVisible();
@@ -56,12 +58,10 @@ test("an unreviewed candidate says so instead of implying approval", async ({
 }) => {
   await page.goto("/matches/match-payrolls-2026-10");
 
-  await expect(page.getByText("Candidate, not verified")).toBeVisible();
+  await expect(page.getByText("Unverified match")).toBeVisible();
   await expect(page.getByText("Terms incomplete")).toBeVisible();
   await expect(page.getByText("No review recorded")).toBeVisible();
-  await expect(
-    page.getByText(/cannot support an executable arbitrage opportunity/),
-  ).toBeVisible();
+  await expect(page.getByText(/Human review is optional/)).toBeVisible();
 });
 
 test("an unknown pair identifier gives a usable empty state", async ({

@@ -3,6 +3,7 @@ import { useOpportunityStream } from "@/features/opportunities/use-stream";
 import { StreamStatusBanner } from "@/features/opportunities/stream-status";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import { CoveragePanel } from "./coverage-panel";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/states";
@@ -12,6 +13,7 @@ import { QueryState } from "@/features/shared/query-state";
 import { PairedPrediction, PredictionCard } from "./prediction-card";
 import {
   PAGE_SIZE,
+  categoryQuery,
   parseFilters,
   serializeFilters,
   type MarketFilters,
@@ -45,7 +47,7 @@ export function MarketBrowser() {
       query: {
         ...common,
         ...(filters.status ? { status: filters.status } : {}),
-        ...(filters.category ? { category: filters.category } : {}),
+        ...categoryQuery(filters.category),
       },
     },
     { enabled: !paired },
@@ -55,10 +57,14 @@ export function MarketBrowser() {
     {
       query: {
         ...common,
-        same_event: true,
-        exclude_rejected: true,
+        ...(filters.relationship === "history" ? { historical: true } : {}),
+        ...(filters.relationship && filters.relationship !== "history"
+          ? { relationship: filters.relationship }
+          : {}),
+        exclude_mismatch: !filters.relationship,
+        exclude_rejected: !filters.relationship,
         ...(filters.status ? { market_status: filters.status } : {}),
-        ...(filters.category ? { category: filters.category } : {}),
+        ...categoryQuery(filters.category),
       },
     },
     { enabled: paired },
@@ -67,7 +73,11 @@ export function MarketBrowser() {
   const query = paired ? matches : markets;
   const count = query.data?.data.length ?? 0;
   const narrowed = Boolean(
-    filters.venue || filters.status || filters.category || filters.search,
+    filters.venue ||
+    filters.status ||
+    filters.category ||
+    filters.search ||
+    filters.relationship,
   );
   return (
     <div className="space-y-4">
@@ -144,7 +154,10 @@ export function MarketBrowser() {
           <SlidersHorizontal aria-hidden="true" className="size-4" />
           Filters
         </Button>
-        {(expanded || filters.status || filters.category) && (
+        {(expanded ||
+          filters.status ||
+          filters.category ||
+          filters.relationship) && (
           <div
             id="market-extra-filters"
             className="flex w-full flex-wrap items-center gap-2 rounded-lg bg-muted p-3"
@@ -170,11 +183,43 @@ export function MarketBrowser() {
             <input
               id="market-category"
               value={filters.category}
-              placeholder="Exact category"
+              placeholder="Category or venue category"
+              list="discovery-category-options"
               maxLength={100}
               onChange={(e) => update({ category: e.target.value })}
               className={`${CONTROL} min-w-0`}
             />
+            {paired && (
+              <label className="flex flex-wrap items-center gap-3 text-sm font-medium">
+                Relationship
+                <select
+                  aria-label="Relationship"
+                  className={CONTROL}
+                  value={filters.relationship}
+                  onChange={(e) =>
+                    update({
+                      relationship: e.target
+                        .value as MarketFilters["relationship"],
+                    })
+                  }
+                >
+                  <option value="">
+                    Current suggestions and verified matches
+                  </option>
+                  <option value="unverified">Unverified</option>
+                  <option value="verified">Verified</option>
+                  <option value="mismatch">Mismatch</option>
+                  <option value="history">History</option>
+                </select>
+              </label>
+            )}
+            <datalist id="discovery-category-options">
+              {["politics", "economics", "sports", "other", "unknown"].map(
+                (category) => (
+                  <option key={category} value={category} />
+                ),
+              )}
+            </datalist>
           </div>
         )}
         {narrowed && (
@@ -182,13 +227,20 @@ export function MarketBrowser() {
             variant="outline"
             type="button"
             onClick={() =>
-              update({ venue: "", status: "", category: "", search: "" })
+              update({
+                venue: "",
+                status: "",
+                category: "",
+                search: "",
+                relationship: "",
+              })
             }
           >
             Clear filters
           </Button>
         )}
       </form>
+      <CoveragePanel filters={filters} />
       {query.data && <OriginBanner origin={query.data.origin} />}
       <StreamStatusBanner state={stream} />
       <QueryState
@@ -200,7 +252,7 @@ export function MarketBrowser() {
         {count === 0 ? (
           <EmptyState
             title={paired ? "No paired markets found" : "No markets found"}
-            description="Try broader filters or browse All markets."
+            description="Try broader filters or browse All markets. Discovery and assessment continue independently of quotes. No current counterpart does not establish that none exists."
           />
         ) : (
           <ul className="grid items-start gap-4 md:grid-cols-2">

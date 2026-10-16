@@ -66,11 +66,13 @@ async def summary(session, job):
 
 
 class ClassificationService:
-    def __init__(self, settings, database, changed=None):
+    def __init__(self, settings, database, changed=None, retrieval=None):
         self.settings, self.database = settings, database
         self.changed = changed or asyncio.Event()
         self.provider = None
         self.busy = set()
+        self.retrieval = retrieval
+        self.advised_pairs = set()
 
     async def schedule(self, markets, definitions=(), reviews=()):
         if configured_state(self.settings) != "pending":
@@ -88,7 +90,12 @@ class ClassificationService:
             contracts = {
                 m.id: supplied.get(m.id) or extract_contract(m).definition for m in markets
             }
-            return retrieve_candidates(markets, contracts, reviews, supplement=20)
+            pairs, limited = retrieve_candidates(markets, contracts, reviews, supplement=20)
+            indexed = {m.id: m for m in markets}
+            keys = {tuple(sorted((a.id, b.id))) for a, b in pairs}
+            if self.retrieval:
+                keys.update(self.retrieval.current_pairs(markets))
+            return [(indexed[a], indexed[b]) for a, b in sorted(keys)], limited
 
         pairs, _ = await asyncio.to_thread(retrieve)
         if self.settings.classification_recording_file:
@@ -205,6 +212,7 @@ class ClassificationService:
 
     async def advice(self, mode):
         output = {}
+        retained = set()
         async with self.database.sessions() as session:
             session.info["classification_identity_cache"] = {}
             jobs = (
@@ -214,6 +222,9 @@ class ClassificationService:
             ).all()
             for job in jobs:
                 output[job.match_id] = await summary(session, job)
+                if output[job.match_id].supports_candidate:
+                    retained.add(tuple(sorted(m["id"] for m in job.request["state"]["markets"])))
+        self.advised_pairs = retained
         return output
 
     async def process(self, key):
@@ -265,18 +276,17 @@ class ClassificationService:
                         evidence_ids=tuple(s.id for s in evidence),
                     )
                 )
-        supported = bool(
-            event
-            and event.choice == "same_event"
-            and event.confidence >= self.settings.classification_confidence
-            and event.probabilities["same_event"] >= self.settings.classification_probability
-            and not request["state"]["reference_period_contradiction"]
-        )
+        supported = bool(event and event.choice == "same_event")
         value = ClassificationSummary(
             state="unavailable" if error else "fresh",
             run_id=run_id,
             input_hash=input_hash,
             event=event,
+            outcome_relation=finding(
+                result.answers["orientation"], tuple(s.id for s in spans if s.id in event_ids)
+            )
+            if result and "orientation" in result.answers
+            else None,
             clauses=clauses,
             evidence=tuple(spans),
             requested_model=request["model"],

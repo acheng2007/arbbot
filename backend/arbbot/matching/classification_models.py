@@ -19,6 +19,9 @@ class Finding(AdviceModel):
         "same_meaning",
         "different_meaning",
         "insufficient_evidence",
+        "aligned",
+        "inverted",
+        "different_outcomes",
     ]
     confidence: Score
     probabilities: dict[str, Score]
@@ -42,6 +45,7 @@ class ClassificationSummary(AdviceModel):
     run_id: str | None = None
     input_hash: str | None = None
     event: Finding | None = None
+    outcome_relation: Finding | None = None
     clauses: dict[str, Finding] = {}
     evidence: tuple[EvidenceSpan, ...] = ()
     requested_model: str = "typesafe/jev-1.13"

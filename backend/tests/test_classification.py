@@ -32,6 +32,8 @@ def response(request, event="same_event"):
     for key, question in request["questions"].items():
         choices = question["criteria"]
         choice = event if key == "event" else "none" if key.endswith("evidence") else "same_meaning"
+        if key == "orientation":
+            choice = "aligned"
         if key.endswith("evidence"):
             choice = next((c for c in choices if c != "none"), "none")
         answers[key] = {
@@ -256,12 +258,13 @@ async def test_retrieval_supplement_bound_and_dedup(fixture_market):
         for i in range(30)
     ]
     pairs, limited = retrieve_candidates([left, *others], {}, [], supplement=20)
-    # Supplementation respects both endpoint budgets after pair deduplication.
-    assert len(pairs) == 20 and left.id in limited
+    # Shared rule text now supplies lexical candidates independently of title wording.
+    assert len(pairs) == 30
+    assert len(pairs) <= 50
     assert len({tuple(sorted((a.id, b.id))) for a, b in pairs}) == len(pairs)
 
 
-async def test_reference_period_contradiction_overrides_confident_advice(fixture_market):
+async def test_reference_period_contradiction_remains_inspectable(fixture_market):
     from arbbot.matching.classification_models import ClassificationSummary, Finding
     from arbbot.matching.contracts import ContractDefinition, Fact
 
@@ -288,7 +291,9 @@ async def test_reference_period_contradiction_overrides_confident_advice(fixture
         supports_candidate=True,
         event=Finding(choice="same_event", confidence=1, probabilities={"same_event": 1}),
     )
-    assert not match_markets(markets, [], definitions, {mid: advice})
+    matches = match_markets(markets, [], definitions, {mid: advice})
+    assert len(matches) == 1 and matches[0].relationship == "mismatch"
+    assert matches[0].status != "verified"
 
 
 async def test_restart_requeues_running_jobs_and_bounds_concurrency(

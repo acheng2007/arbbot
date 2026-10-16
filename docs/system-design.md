@@ -21,12 +21,12 @@ No component places orders, holds funds, or transfers money.
 ## Accepted candidate-visibility direction
 
 The [candidate-visibility decision](decisions/candidate-visibility.md) is authoritative for subsequent matching and presentation work.
-Every valid, fresh Jev `same_event` suggestion should be visible as an Unverified match without minimum model-score admission thresholds.
+Every valid, fresh Jev `same_event` suggestion is visible as an Unverified match without minimum model-score admission thresholds.
 Scores rank and explain suggestions; automatic settlement evidence alone grants Verified, explicit contradictions produce Mismatch, and positive current financial checks produce a separate arbitrage estimate.
 Missing evidence and unavailable checks expose reasons without hiding the suggestion.
 Verification is independent of profitability, and no human review is required.
-The current code still gates additional candidates at both 0.80 scores; implementing the accepted visibility policy across storage, matching, API queries, monitoring, and the browser remains open.
-Descriptions of threshold behavior below record current implementation, not the future product policy.
+Matching, APIs, monitoring, and browser views implement this policy without a model-score admission cutoff.
+Historical benchmark thresholds describe prior behavior.
 
 ## Runtime architecture
 
@@ -42,7 +42,7 @@ flowchart TD
     V[Venue catalogs, books, and official sources] --> A[Registered exchange and source adapters]
     A --> W[Persistent worker with independent supervised tasks]
     W --> DB[(PostgreSQL: source generations, books, jobs, results)]
-    W --> R[Deterministic counterpart retrieval]
+    W --> R[Hybrid keyword and local embedding retrieval]
     R --> J[Jev advisory classification]
     R --> Q[Automatic evidence and settlement qualification]
     J --> R
@@ -59,8 +59,8 @@ flowchart TD
     API --> WEB[Next.js: potential, qualified, comparisons, evidence]
 ```
 
-The potential and detailed qualification browser views in the diagram are planned; their backend APIs already exist.
-The current UI includes paired markets, opportunity details, source inspection, Jev findings, and basic automatic qualification badges.
+The UI exposes Discoveries with filtered category coverage, excluded inventory, current and historical assessments, source inspection, and Jev evidence.
+Opportunities separates Potential ordinary-outcome price gaps from Qualified conditional estimates.
 There is one active ingestion worker per database, enforced by a PostgreSQL advisory lock.
 Its tasks run concurrently within that process; adding worker replicas today does not increase ingestion throughput.
 No Redis or external message broker is required for the current scheduling model.

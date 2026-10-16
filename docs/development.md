@@ -174,7 +174,14 @@ With PostgreSQL available, run the automatic backend/API harness from the reposi
 
 It runs the real persistent worker and HTTP API against explicitly synthetic complete contracts, synthetic document bindings, and recorded public fee responses.
 It checks automatic qualification without human records, potential results, invalidation, outages/recovery, and restart.
-It does not implement or verify the planned automatic qualification/potential browser screens.
+The broad-discovery harness extends this with authentic multi-category recorded catalogs and connected desktop/mobile browser checks:
+
+```sh
+.venv/bin/python backend/scripts/run_discovery_acceptance.py --output /tmp/arbbot-discovery-acceptance
+```
+
+Its low-score model response and complete financial examples are explicitly scripted test cases.
+Use `backend/scripts/benchmark_discovery.py --live` for actual provider observations.
 See [automatic qualification](automatic-qualification.md) for its configuration and evidence boundary.
 
 The separate connected harness covers the existing review-driven browser flow and optional offline Jev response replay:
@@ -233,3 +240,20 @@ Missing credentials leave deterministic discovery operational.
 The default shared attempt limit is two per second, with no daily spending cap.
 Use `ARBBOT_CLASSIFICATION_ENABLED=false` to disable classification.
 Consult the [Jev guide](jev-classification.md) before running a live benchmark; recorded test responses do not establish live model quality.
+
+## Local semantic retrieval
+
+Live workers maintain versioned local BGE-small embeddings alongside lexical retrieval.
+Provision the pinned model before an offline startup:
+
+```sh
+ARBBOT_EMBEDDING_CACHE=/tmp/arbbot-models .venv/bin/python -m arbbot.matching.retrieval
+```
+
+Set `ARBBOT_EMBEDDING_LOCAL_ONLY=true` after provisioning.
+The backend image provisions its model at build time.
+Failure is visible through discovery coverage while keyword discovery continues.
+Simulation and recorded workers do not download embeddings automatically.
+The exploratory quote allocation defaults to 20 percent and remains independent of source-evidence rotation.
+
+For an existing isolated fixture server, set `ARBBOT_E2E_BASE_URL` and `ARBBOT_E2E_NO_SERVER=true` when running `npm run test:e2e`.

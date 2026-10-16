@@ -176,3 +176,9 @@ Display valid current Jev same-event suggestions as Unverified regardless of the
 Distinguish Verified settlement relationships, explicit Mismatch, stale/history, and separately gated arbitrage estimates.
 The current score-based eligibility and established-event-only paired filtering still require implementation changes; do not document them as delivered.
 Next action: integrate the accepted policy with backend eligibility/filtering and connected desktop/mobile checks, including a low-score suggestion that remains visible while settlement evidence is incomplete.
+
+## October 15 broad discovery workflow
+
+The integrated broad-discovery implementation is on `feature/broad-discovery-workflow`.
+See [the broad-discovery handoff](broad-discovery-handoff.md) for delivered workflow, validation, model benchmark, and limitations.
+Next action: run a sustained live Kalshi/US coverage study across categories, then prioritize authentic source-applicability and settlement-language extensions from its blocker distribution.

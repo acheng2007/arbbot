@@ -57,7 +57,7 @@ Both result feeds are implemented in the backend:
 
 | Feed | Meaning | Current interface |
 | --- | --- | --- |
-| Potential price gaps | Positive ordinary-outcome spreads supported by fresh depth; settlement or financial inputs may remain unresolved, with unknown costs kept nullable | `/api/v1/potential-opportunities`; dedicated browser view planned |
+| Potential price gaps | Positive ordinary-outcome spreads supported by fresh depth; settlement or financial inputs may remain unresolved, with unknown costs kept nullable | `/api/v1/potential-opportunities`; `/opportunities?view=potential` |
 | Qualified estimates | Positive modeled worst-case net estimates supported by current automatic assessments, public fees, instrument constraints, and rechecked quotes | `/api/v1/opportunities` and existing opportunity screens |
 
 Account eligibility, prefunded balances, borrowing, and account-specific charges remain disclosed assumptions.
@@ -82,9 +82,10 @@ Assisted retrieval stayed at 8 of 9 labeled counterparts; this small sample does
 Scripted provider responses in integration tests exercise failure handling separately from these actual model results.
 The [Jev guide](docs/jev-classification.md) documents evidence constraints, configuration, the benchmark, and recovery behavior.
 
-The accepted [candidate-visibility direction](docs/decisions/candidate-visibility.md) will expose all valid current Jev same-event suggestions as Unverified, with scores used for ranking.
-Automatic settlement checks will distinguish Verified from Mismatch, while financial checks independently determine whether an arbitrage estimate exists.
-The current implementation still uses the benchmarked score cutoffs; this visibility change is planned, not yet delivered.
+The accepted [candidate-visibility direction](docs/decisions/candidate-visibility.md) exposes all valid current Jev same-event suggestions as Unverified, with scores used for ranking.
+Automatic settlement checks distinguish Verified from Mismatch, while financial checks independently determine whether an arbitrage estimate exists.
+Hybrid keyword and local embedding retrieval now supports broad category discovery without a model-score admission cutoff.
+Discoveries includes coverage and assessment history; Potential and Qualified opportunities have separate browser views.
 
 ## Architecture
 
@@ -163,7 +164,8 @@ Remaining work is explicit:
 
 - **Authentic settlement coverage:** all 30 authentic Kalshi/US benchmark pairs currently remain incomplete for automatic settlement qualification. Complete interpretation uses a closed source-language grammar; general natural-language settlement understanding is not implemented.
 - **Browser completion:** the separate potential feed and full automatic qualification inspection exist as APIs but await dedicated browser workflows.
-- **Model evaluation:** the initial 30-pair live run showed no retrieval lift at current thresholds. Broader evaluation, uncertain event labels, and confidence calibration remain open.
+- **Model evaluation:** the initial 30-pair live run showed no retrieval lift at current thresholds. The later 31-contract broad-discovery sample found all 11 labeled event counterparts with both keyword and hybrid retrieval; it establishes no incremental embedding recall benefit.
+  Broader evaluation, uncertain event labels, and confidence calibration remain open.
 - **Production operations:** production deployment, broader US streaming, measured production latency, backup/recovery rehearsal, and the forward paper study remain open.
 
 ## Explore the repository

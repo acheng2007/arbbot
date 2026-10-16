@@ -29,11 +29,10 @@ An empty qualified feed is a valid result, but persistent low coverage is a prod
 
 ## Accepted direction: visible suggestions with automatic verification
 
-The [candidate-visibility decision](decisions/candidate-visibility.md) governs future development.
+The [candidate-visibility decision](decisions/candidate-visibility.md) governs matching and presentation.
 Expose every valid current Jev same-event suggestion as Unverified, use scores for ranking rather than admission, mark complete compatible automatic settlement evidence Verified, and show explicit contradictions as Mismatch.
 Qualified arbitrage estimates additionally require positive current financial checks; verification alone does not imply profitability.
-The current threshold gate and established-event-only browser filtering have not yet been migrated to this policy.
-This documentation records an accepted direction, not newly delivered functionality.
+The broad-discovery implementation applies this policy across matching, API queries, monitoring, and browser views.
 
 ## Implemented baseline
 
@@ -57,7 +56,7 @@ Checked items describe implemented scope, not proof of live profitability or unr
 
 ## Current delivery limits
 
-The automatic backend/API exists, but the browser does not yet expose the separate potential feed or full qualification inspection workflow.
+The automatic backend/API and browser now expose separate Potential and Qualified views, full assessment inspection, and filtered category coverage.
 Complete settlement interpretation currently accepts a closed explicit source-language grammar.
 All 30 authentic Kalshi/US benchmark pairs remain incomplete because supported interpretation or applicable exceptional-settlement evidence is missing.
 Positive automatic acceptance examples are explicitly synthetic complete contracts with synthetic instrument/document bindings and recorded public fee documents.
@@ -75,21 +74,21 @@ Make the current automation useful with real source evidence and expose its resu
 The first integrated delivery is the accepted suggestion-visibility policy across matching, APIs, monitoring, and the browser.
 Continue authentic evidence/provider coverage alongside it; visible Unverified comparisons do not depend on achieving complete settlement interpretation first.
 
-- [ ] Replace score-based Jev suggestion admission across current-result storage, matching, monitoring, and APIs; retain validity, deterministic independence, contradictions, and veto handling.
-- [ ] Display all current suggested comparisons as Unverified or Verified with explicit Mismatch and stale/history inspection; use scores only for ranking and explanation, and apply status filters before pagination.
-- [ ] Prove low-score suggestion visibility, independent automatic verification/profitability, incomplete/provider states, and financial-gate preservation through connected desktop/mobile acceptance.
+- [x] Replace score-based Jev suggestion admission across current-result storage, matching, monitoring, and APIs; retain validity, deterministic independence, contradictions, and veto handling.
+- [x] Display all current suggested comparisons as Unverified or Verified with explicit Mismatch and stale/history inspection; use scores only for ranking and explanation, and apply status filters before pagination.
+- [x] Prove low-score suggestion visibility, independent automatic verification/profitability, incomplete/provider states, and financial-gate preservation through connected desktop/mobile acceptance.
 - [ ] Capture authentic instrument-to-specification relationships, rulebooks, amendments, and authoritative resolution evidence for an initial supported Kalshi/US family.
 - [ ] Extend versioned applicability providers and source-language interpretation using captured authentic wording, including changed-document and unknown-clause abstention.
-- [ ] Report qualification coverage and blocker counts over the authentic corpus, including incompatible and incomplete pairs; do not silently drop difficult cases.
-- [ ] Add separate Potential and Qualified browser views, qualification reasons, evidence/history inspection, and pending/stale/unavailable states.
-- [ ] Keep original terms and model advice accessible, with model suggestions visually distinct from automatic qualification and legacy human review.
-- [ ] Connect both feeds to snapshot refresh and server-side filtering/pagination without resetting navigation or selected comparisons.
-- [ ] Extend the recorded PostgreSQL/worker/API/Next.js browser harness to the new automatic workflow on desktop and mobile with zero required human review records.
+- [x] Report qualification coverage and blocker counts over the authentic corpus, including incompatible and incomplete pairs; do not silently drop difficult cases.
+- [x] Add separate Potential and Qualified browser views, qualification reasons, evidence/history inspection, and pending/stale/unavailable states.
+- [x] Keep original terms and model advice accessible, with model suggestions visually distinct from automatic qualification and legacy human review.
+- [x] Connect both feeds to snapshot refresh and server-side filtering/pagination without resetting navigation or selected comparisons.
+- [x] Extend the recorded PostgreSQL/worker/API/Next.js browser harness to the new automatic workflow on desktop and mobile with zero required human review records.
 - [ ] Validate source-change invalidation, fee/provider outage and recovery, quote expiry, veto clearing, and independent book polling through the rendered UI.
 
-**Exit criteria:** a reproducible authentic family is processed without per-pair human setup, every result has source-backed status and understandable blockers, and the UI faithfully separates potential from qualified results.
+**Exit criteria:** broad authentic contracts are discoverable and assessable without per-pair human setup, results expose evidence gaps and understandable blockers, and the UI faithfully separates potential from qualified results.
 Demonstrate authentic qualification when complete compatible evidence permits it; otherwise record the exact unresolved clauses and keep expansion of real coverage open.
-A synthetic positive fixture or an incompatible pair does not establish this coverage milestone.
+A synthetic positive fixture does not establish authentic qualification coverage.
 A profitable real pair is not required.
 
 ## Milestone 2: speed and coverage that can be measured
@@ -145,11 +144,11 @@ The [automatic acceptance report](contributing/automatic-qualification-acceptanc
 It also records type, lint, generated-contract, build, and recorded automatic worker/API results.
 The subsequent October 15 live Jev benchmark is separate evidence for event classification on recorded metadata; it does not extend settlement qualification coverage.
 Those checks were run for the implementation, not rerun for this documentation update.
-Connected Jev browser coverage predates the automatic backend addition; full automatic browser acceptance remains Milestone 1 work.
+The broad-discovery handoff records the subsequent connected automatic desktop/mobile acceptance and current limitations.
 
 Keep the agreed stack and a modular monolith with independently supervised worker tasks.
 Do not introduce Redis, a second generative model, or additional services without an observed coordination or throughput need.
 Historical issue scopes in the [contributor index](contributing/README.md) remain traceability records; their review-first dependencies no longer define the critical path.
 Optional review tooling and private execution-readiness work do not block public discovery.
 
-**Next action:** implement the accepted candidate-visibility decision across matching, APIs, monitoring, and browser comparisons, then demonstrate low-score Unverified suggestions alongside independently Verified matches and financially gated estimates.
+**Next action:** run a sustained live Kalshi/US coverage study across categories, using recorded blockers to prioritize authentic source-applicability and settlement-language extensions.

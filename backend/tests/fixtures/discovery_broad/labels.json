@@ -1,0 +1,159 @@
+{
+  "label_scope": "Source-reading proposition labels, not settlement equivalence or population accuracy.",
+  "pairs": [
+    {
+      "left_id": "kalshi:CONTROLH-2026-D",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-dem",
+      "event_label": "same_event",
+      "reason": "Same election topic and party, but Kalshi permits media-call resolution and otherwise uses February 1 officeholder affiliation; US uses election-seat and caucus rules. YES conditions are not established as identical.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2026-R",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-dem",
+      "event_label": "same_event",
+      "reason": "Same chamber and election year. Party outcome is checked separately; no settlement equivalence is asserted.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2028-D",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-dem",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2028-R",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-dem",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2026-D",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-rep",
+      "event_label": "same_event",
+      "reason": "Same chamber and election year. Party outcome is checked separately; no settlement equivalence is asserted.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2026-R",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-rep",
+      "event_label": "same_event",
+      "reason": "Same election topic and party, but Kalshi permits media-call resolution and otherwise uses February 1 officeholder affiliation; US uses election-seat and caucus rules. YES conditions are not established as identical.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2028-D",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-rep",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLH-2028-R",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-rep",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2026-D",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-dem",
+      "event_label": "same_event",
+      "reason": "Same election topic and party, but Kalshi permits media-call resolution and otherwise uses February 1 officeholder affiliation; US uses election-seat and caucus rules. YES conditions are not established as identical.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2026-R",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-dem",
+      "event_label": "same_event",
+      "reason": "Same chamber and election year. Party outcome is checked separately; no settlement equivalence is asserted.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2028-D",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-dem",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2028-R",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-dem",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2026-D",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-rep",
+      "event_label": "same_event",
+      "reason": "Same chamber and election year. Party outcome is checked separately; no settlement equivalence is asserted.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2026-R",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-rep",
+      "event_label": "same_event",
+      "reason": "Same election topic and party, but Kalshi permits media-call resolution and otherwise uses February 1 officeholder affiliation; US uses election-seat and caucus rules. YES conditions are not established as identical.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2028-D",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-rep",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:CONTROLS-2028-R",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-rep",
+      "event_label": "different_event",
+      "reason": "Different election years.",
+      "outcome_relation": "different_outcomes"
+    },
+    {
+      "left_id": "kalshi:KXMLB-26-LAD",
+      "right_id": "polymarket_us:tec-mlb-champ-2026-09-27-lad",
+      "event_label": "same_event",
+      "outcome_relation": "aligned",
+      "reason": "Same team and 2026 MLB World Series proposition, not proof of exceptional settlement equivalence."
+    },
+    {
+      "left_id": "kalshi:KXMLB-26-MIL",
+      "right_id": "polymarket_us:tec-mlb-champ-2026-09-27-mil",
+      "event_label": "same_event",
+      "outcome_relation": "aligned",
+      "reason": "Same team and 2026 MLB World Series proposition, not proof of exceptional settlement equivalence."
+    },
+    {
+      "left_id": "kalshi:KXMLB-26-TB",
+      "right_id": "polymarket_us:tec-mlb-champ-2026-09-27-tb",
+      "event_label": "same_event",
+      "outcome_relation": "aligned",
+      "reason": "Same team and 2026 MLB World Series proposition, not proof of exceptional settlement equivalence."
+    },
+    {
+      "left_id": "kalshi:KXCPI-26OCT-T1.0",
+      "right_id": "polymarket_us:paccc-usho-midterms-2026-11-03-dem",
+      "event_label": "different_event",
+      "outcome_relation": "different_outcomes",
+      "reason": "Different economic/weather event or different championship competition."
+    },
+    {
+      "left_id": "kalshi:KXRAINCHIM-26OCT-7",
+      "right_id": "polymarket_us:paccc-usse-midterms-2026-11-03-rep",
+      "event_label": "different_event",
+      "outcome_relation": "different_outcomes",
+      "reason": "Different economic/weather event or different championship competition."
+    },
+    {
+      "left_id": "kalshi:KXMLB-26-LAD",
+      "right_id": "polymarket_us:tec-mlb-nlchamp-2026-09-27-lad",
+      "event_label": "different_event",
+      "outcome_relation": "different_outcomes",
+      "reason": "Different economic/weather event or different championship competition."
+    }
+  ]
+}

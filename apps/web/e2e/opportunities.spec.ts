@@ -23,7 +23,9 @@ test("an estimate is presented with its costs, evidence, and caveats", async ({
 
   await expect(page.getByText(/Recorded fixture data/)).toBeVisible();
   await expect(page.getByText("Estimated net profit")).toBeVisible();
-  await expect(page.getByText(/Estimates after costs/)).toBeVisible();
+  await expect(
+    page.getByText(/Positive worst-case conditional estimates/),
+  ).toBeVisible();
 
   await page
     .getByRole("link", { name: /View calculation and assumptions/ })
@@ -134,7 +136,7 @@ test("an empty result set reads as normal rather than broken", async ({
   await page.goto("/opportunities");
   await expect(page.getByText("No opportunities right now")).toBeVisible();
   await expect(
-    page.getByText(/This is the normal state most of the time/),
+    page.getByText(/missing evidence, unavailable quotes or costs/),
   ).toBeVisible();
 });
 

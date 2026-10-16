@@ -35,8 +35,10 @@ class PairMonitor:
                     from arbbot.qualification.service import refresh_match
 
                     match = await refresh_match(session, match)
-                if match.status == "rejected" or any(
-                    mid not in indexed for mid in (match.left_id, match.right_id)
+                if (
+                    match.operator_veto
+                    or match.relationship == "mismatch"
+                    or any(mid not in indexed for mid in (match.left_id, match.right_id))
                 ):
                     continue
                 from arbbot.matching.classification import configured_state, summary
@@ -88,9 +90,21 @@ class PairMonitor:
                 tier = 2 if market.external_id in self.watchlists.get(market.venue, ()) else 5
                 tiers[tier].append((market.id,))
             selected, counts = set(), {}
-            for tier, groups in enumerate(tiers):
-                groups.sort()
-                offset = int(offsets.get(str(tier), 0)) % max(1, len(groups))
+
+            def allocate(groups, key, caps):
+                from collections import defaultdict
+                from itertools import zip_longest
+
+                categories = defaultdict(list)
+                for group in sorted(groups):
+                    categories[indexed[group[0]].category_group].append(group)
+                groups = [
+                    g
+                    for row in zip_longest(*(categories[c] for c in sorted(categories)))
+                    for g in row
+                    if g is not None
+                ]
+                offset = int(offsets.get(key, 0)) % max(1, len(groups))
                 consumed = 0
                 for group in groups[offset:] + groups[:offset]:
                     added = set(group) - selected
@@ -98,16 +112,25 @@ class PairMonitor:
                     for mid in added:
                         venue = indexed[mid].venue
                         required[venue] = required.get(venue, 0) + 1
-                    if any(
-                        counts.get(v, 0) + n > self.settings.monitoring_limit(v)
-                        for v, n in required.items()
-                    ):
+                    if any(counts.get(v, 0) + n > caps(v) for v, n in required.items()):
                         continue
                     selected.update(added)
                     for venue, count in required.items():
                         counts[venue] = counts.get(venue, 0) + count
                     consumed += 1
-                offsets[str(tier)] = offset + max(1, consumed)
+                offsets[key] = offset + max(1, consumed)
+
+            exploratory = [group for tier in tiers[3:] for group in tier if len(group) == 2]
+            allocate(
+                exploratory,
+                "exploratory",
+                lambda venue: int(
+                    self.settings.monitoring_limit(venue)
+                    * self.settings.exploratory_monitoring_fraction
+                ),
+            )
+            for tier, groups in enumerate(tiers):
+                allocate(groups, str(tier), self.settings.monitoring_limit)
             await session.merge(
                 DiscoveryProgressRecord(
                     key=key, mode=self.settings.mode, venue="kalshi", payload=offsets

@@ -40,7 +40,9 @@ test("paired dashboard keeps prices above the fold and preserves view state", as
   await page
     .getByRole("button", { name: "Paired markets", exact: true })
     .click();
-  await expect(page.getByText("No paired markets found")).toBeVisible();
+  await expect(
+    page.getByRole("article").getByText("Unverified match"),
+  ).toBeVisible();
 });
 
 test("diagnostics and extracted evidence load only on demand", async ({
@@ -91,10 +93,14 @@ test("US NO prices are labeled as short collateral", async ({ page }) => {
   });
   await page.goto("/markets");
   await expect(
-    page.getByText("NO short collateral", { exact: true }),
+    page
+      .getByRole("article", { name: /US CPI year-over-year/ })
+      .getByText("NO short collateral", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Polymarket US", exact: true }),
+    page
+      .getByRole("article", { name: /US CPI year-over-year/ })
+      .getByRole("link", { name: "Polymarket US", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -118,8 +124,16 @@ test("unverified paired prices never imply verified arbitrage", async ({
     });
   });
   await page.goto("/markets");
-  await expect(page.getByText("Settlement review required")).toBeVisible();
-  await expect(page.getByText("Candidate, not verified")).toBeVisible();
+  await expect(
+    page
+      .getByRole("article", { name: /US CPI year-over-year/ })
+      .getByText("Inspect assessment"),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("article", { name: /US CPI year-over-year/ })
+      .getByText("Unverified match"),
+  ).toBeVisible();
   await expect(page.getByText("Verified in review")).toHaveCount(0);
   await expect(page.getByText("43¢", { exact: true })).toBeVisible();
 });

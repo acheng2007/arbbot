@@ -224,13 +224,24 @@ def create_app(
         return result
 
     @app.get("/api/v1/opportunities", response_model=list[Opportunity])
-    async def opportunities(limit: PageSize = 100, offset: Offset = 0):
+    async def opportunities(
+        limit: PageSize = 100,
+        offset: Offset = 0,
+        venue: str | None = None,
+        category_group: str | None = None,
+        q: Annotated[str | None, Query(max_length=200)] = None,
+        sort: Literal["newest", "net_profit"] = "newest",
+    ):
         return await repository.opportunities(
             settings.mode,
             settings.health_timeout_seconds,
             limit,
             offset,
             enabled_venues=settings.enabled_venues,
+            venue=venue,
+            category_group=category_group,
+            q=q,
+            sort=sort,
         )
 
     @app.get("/api/v1/opportunities/history", response_model=list[Opportunity])

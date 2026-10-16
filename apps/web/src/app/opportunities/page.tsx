@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { LoadingState } from "@/components/states";
 import type { Metadata } from "next";
 import { OpportunityDashboard } from "@/features/opportunities/dashboard";
 
@@ -15,7 +17,9 @@ export default function OpportunitiesPage() {
           Opportunities
         </h1>
       </header>
-      <OpportunityDashboard />
+      <Suspense fallback={<LoadingState label="Loading opportunities" />}>
+        <OpportunityDashboard />
+      </Suspense>
     </div>
   );
 }

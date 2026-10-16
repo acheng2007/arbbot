@@ -78,3 +78,9 @@ Versioned platform capabilities, immutable assessments, durable scheduling, publ
 Historical review workflows remain readable, and explicit operator vetoes can be cleared without an approval payload.
 See [the automatic qualification handoff](automatic-qualification-handoff.md) for verification and the limited authentic source-language/applicability coverage.
 Next action: extend production applicability and source parsers using authentic captured documents to increase automatic qualification coverage.
+
+## October 15 broad discovery workflow
+
+The integrated broad-discovery implementation is on `feature/broad-discovery-workflow`.
+See [the broad-discovery handoff](broad-discovery-handoff.md) for delivered workflow, validation, model benchmark, and limitations.
+Next action: run a sustained live Kalshi/US coverage study across categories, then prioritize authentic source-applicability and settlement-language extensions from its blocker distribution.

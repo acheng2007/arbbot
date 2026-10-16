@@ -83,3 +83,43 @@ class CatalogObservation(Model):
     reason: str
     observed_at: AwareDatetime
     raw: dict
+
+
+class CoverageGroup(Model):
+    venue: str
+    category: str
+    contracts: int = 0
+    with_counterparts: int = 0
+    assessed: int = 0
+    verified: int = 0
+    incomplete: int = 0
+    mismatch: int = 0
+    fresh_books: int = 0
+    blockers: dict[str, int] = {}
+
+
+class RetrievalHealth(Model):
+    state: str = "pending"
+    model: str | None = None
+    revision: str | None = None
+    catalog: int = 0
+    indexed: int = 0
+    error: str | None = None
+    updated_at: AwareDatetime | None = None
+
+
+class DiscoveryCoverage(Model):
+    as_of: AwareDatetime
+    contracts: int
+    comparisons: int
+    unverified: int
+    verified: int
+    mismatch: int
+    pending: int
+    groups: tuple[CoverageGroup, ...]
+    retrieval: RetrievalHealth
+    catalogs: tuple[CatalogReport, ...]
+    excluded_instruments: int
+    model_state: str = "pending"
+    queued_pairs: int = 0
+    last_model_success: AwareDatetime | None = None

@@ -51,6 +51,13 @@ def digest(value: object) -> str:
 class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    @model_validator(mode="before")
+    @classmethod
+    def discard_derived_fields(cls, value):
+        if isinstance(value, dict):
+            return {k: v for k, v in value.items() if k not in cls.model_computed_fields}
+        return value
+
 
 class PriceBand(Model):
     start: Probability
@@ -105,6 +112,13 @@ class Market(Model):
 
     @computed_field
     @property
+    def category_group(self) -> str:
+        from arbbot.discovery.categories import category_group
+
+        return category_group(self.category)
+
+    @computed_field
+    @property
     def terms_hash(self) -> str:
         return digest(
             {
@@ -136,6 +150,8 @@ class Market(Model):
 
 
 class MarketSummary(Model):
+    counterpart_count: int = 0
+    assessment_state: Literal["pending", "assessed", "unavailable"] = "pending"
     ingestion_issues: tuple[str, ...] = ()
     feed_origin: Literal["exchange", "synthetic_recording", "recorded_exchange"] = "exchange"
     id: str
@@ -148,6 +164,13 @@ class MarketSummary(Model):
     settlement_asset: str
     category: str | None = None
     observed_at: AwareDatetime
+
+    @computed_field
+    @property
+    def category_group(self) -> str:
+        from arbbot.discovery.categories import category_group
+
+        return category_group(self.category)
 
 
 class Level(Model):
@@ -334,6 +357,8 @@ class Review(Model):
 
 
 class Match(Model):
+    retrieval_methods: tuple[str, ...] = ()
+    historical: bool = False
     qualification: QualificationSummary | None = None
     settlement: SettlementModel | None = None
     classification: ClassificationSummary | None = None
@@ -351,6 +376,36 @@ class Match(Model):
     review: Review | None = None
     comparison: Comparison | None = None
     review_revision_id: str | None = None
+
+    @computed_field
+    @property
+    def operator_veto(self) -> bool:
+        return (
+            bool(
+                self.qualification
+                and "explicit_operator_veto" in self.qualification.blocked_reasons
+            )
+            or self.status == "rejected"
+        )
+
+    @computed_field
+    @property
+    def relationship(self) -> Literal["unverified", "verified", "mismatch"]:
+        if self.historical:
+            return "unverified"
+        q = self.qualification
+        if q:
+            if q.status == "qualified":
+                return "verified"
+            if q.status == "incompatible" and not self.operator_veto:
+                return "mismatch"
+            return "unverified"
+        # Historical human decisions retain their own provenance and meaning.
+        if self.status == "verified":
+            return "verified"
+        if self.comparison and self.comparison.status == "conflict":
+            return "mismatch"
+        return "unverified"
 
 
 class Leg(Model):

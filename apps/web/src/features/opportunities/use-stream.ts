@@ -45,11 +45,41 @@ export function useOpportunityStream(enabled = true) {
       markCurrent();
       // Let pending reads finish when snapshots arrive faster than the API.
       // Repeated cancellation can prevent refreshed data from reaching the UI.
-      void client.invalidateQueries({ queryKey: ["arbbot", "opportunities"] }, { cancelRefetch: false });
-      void client.invalidateQueries({ queryKey: ["arbbot", "evaluations"] }, { cancelRefetch: false });
-      void client.invalidateQueries({ queryKey: ["arbbot", "history"] }, { cancelRefetch: false });
-      for (const operation of ["opportunity", "accessSummary", "markets", "marketSummaries", "market", "matches", "match", "classificationDetail", "book", "status"])
-        void client.invalidateQueries({ queryKey: ["arbbot", operation] }, { cancelRefetch: false });
+      void client.invalidateQueries(
+        { queryKey: ["arbbot", "opportunities"] },
+        { cancelRefetch: false },
+      );
+      void client.invalidateQueries(
+        { queryKey: ["arbbot", "evaluations"] },
+        { cancelRefetch: false },
+      );
+      void client.invalidateQueries(
+        { queryKey: ["arbbot", "history"] },
+        { cancelRefetch: false },
+      );
+      for (const operation of [
+        "opportunity",
+        "accessSummary",
+        "markets",
+        "marketSummaries",
+        "market",
+        "matches",
+        "match",
+        "classificationDetail",
+        "classificationHistory",
+        "discoveryCoverage",
+        "inventory",
+        "qualification",
+        "qualificationHistory",
+        "potentialOpportunities",
+        "potentialOpportunity",
+        "book",
+        "status",
+      ])
+        void client.invalidateQueries(
+          { queryKey: ["arbbot", operation] },
+          { cancelRefetch: false },
+        );
     });
 
     source.onopen = () => {

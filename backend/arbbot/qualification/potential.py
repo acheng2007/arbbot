@@ -29,6 +29,13 @@ def calculate(match, markets, books, settings, now, context=None):
     ):
         return []
     if (
+        match.classification
+        and match.classification.state == "fresh"
+        and match.classification.outcome_relation
+        and match.classification.outcome_relation.choice != "aligned"
+    ):
+        return []
+    if (
         match.qualification
         and match.qualification.status == "qualified"
         and context
@@ -195,7 +202,19 @@ async def publish(database, mode, match_ids, items):
             )
 
 
-async def query(repository, settings, *, limit=100, offset=0, item_id=None, history=False):
+async def query(
+    repository,
+    settings,
+    *,
+    limit=100,
+    offset=0,
+    item_id=None,
+    history=False,
+    venue=None,
+    category_group=None,
+    q=None,
+    sort="gross_spread",
+):
     from arbbot.matching.classification import summary as advice_summary
     from arbbot.qualification.service import refresh_match
     from arbbot.storage.models import ClassificationJobRecord
@@ -211,6 +230,18 @@ async def query(repository, settings, *, limit=100, offset=0, item_id=None, hist
         if f["status"] == "healthy" and f["book_id"]
     }
     statement = select(PotentialRecord).where(PotentialRecord.mode == settings.mode)
+    if venue is not None or category_group is not None or q is not None:
+        from arbbot.storage.catalog_queries import result_market_filter
+
+        statement = statement.where(
+            result_market_filter(
+                settings.mode,
+                [PotentialRecord.payload["market_ids"][i].as_string() for i in (0, 1)],
+                venue=venue,
+                category_group=category_group,
+                q=q,
+            )
+        )
     if item_id:
         statement = statement.where(PotentialRecord.id == item_id)
     if not history:
@@ -223,9 +254,12 @@ async def query(repository, settings, *, limit=100, offset=0, item_id=None, hist
             )
     results = []
     async with repository.database.sessions() as session:
+        ordering = (PotentialRecord.gross_spread.desc(), PotentialRecord.id)
+        if sort == "newest":
+            ordering = (PotentialRecord.evaluated_at.desc(), *ordering)
         rows = await session.stream_scalars(
             statement.order_by(
-                PotentialRecord.gross_spread.desc(), PotentialRecord.id
+                *ordering,
             ).execution_options(yield_per=200)
         )
         async for row in rows:
@@ -241,9 +275,20 @@ async def query(repository, settings, *, limit=100, offset=0, item_id=None, hist
             match = await refresh_match(session, Match.model_validate(match_row.payload))
             if match.status == "rejected" or (match.qualification.status == "incompatible"):
                 continue
-            if not (match.comparison and match.comparison.same_event):
+            from arbbot.matching.classification import configured_state
+
+            advice = None
+            if configured_state(settings) == "pending":
                 job = await session.get(ClassificationJobRecord, f"{settings.mode}:{match.id}")
                 advice = await advice_summary(session, job) if job else None
+            if (
+                advice
+                and advice.state == "fresh"
+                and advice.outcome_relation
+                and advice.outcome_relation.choice != "aligned"
+            ):
+                continue
+            if not (match.comparison and match.comparison.same_event):
                 if not advice or not advice.supports_candidate:
                     continue
             valid = True

@@ -6,6 +6,183 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v1/discovery/coverage": {
+      "get": {
+        "summary": "Discoverycoverage",
+        "operationId": "discoveryCoverage_api_v1_discovery_coverage_get",
+        "parameters": [
+          {
+            "name": "venue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "politics",
+                    "economics",
+                    "sports",
+                    "other",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "relationship",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "unverified",
+                    "verified",
+                    "mismatch"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Relationship"
+            }
+          },
+          {
+            "name": "historical",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Historical"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "exclude_mismatch",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Exclude Mismatch"
+            }
+          },
+          {
+            "name": "exclude_rejected",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Exclude Rejected"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryCoverage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/access-summary": {
       "get": {
         "summary": "Accesssummary",
@@ -84,6 +261,24 @@
                 }
               ],
               "title": "Supported"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
             }
           }
         ],
@@ -197,6 +392,29 @@
                 }
               ],
               "title": "Category"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "politics",
+                    "economics",
+                    "sports",
+                    "other",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
             }
           },
           {
@@ -328,6 +546,29 @@
                 }
               ],
               "title": "Family"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "politics",
+                    "economics",
+                    "sports",
+                    "other",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
             }
           },
           {
@@ -496,6 +737,70 @@
                 }
               ],
               "title": "Category"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "politics",
+                    "economics",
+                    "sports",
+                    "other",
+                    "unknown"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
+            }
+          },
+          {
+            "name": "relationship",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "unverified",
+                    "verified",
+                    "mismatch"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Relationship"
+            }
+          },
+          {
+            "name": "exclude_mismatch",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Exclude Mismatch"
+            }
+          },
+          {
+            "name": "historical",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Historical"
             }
           },
           {
@@ -673,6 +978,16 @@
               "type": "string",
               "title": "Match Id"
             }
+          },
+          {
+            "name": "historical",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Historical"
+            }
           }
         ],
         "responses": {
@@ -682,6 +997,73 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/matches/{match_id}/classification/history": {
+      "get": {
+        "summary": "Classificationhistory",
+        "operationId": "classificationHistory_api_v1_matches__match_id__classification_history_get",
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Match Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassificationRun"
+                  },
+                  "title": "Response Classificationhistory Api V1 Matches  Match Id  Classification History Get"
                 }
               }
             }
@@ -907,6 +1289,69 @@
               "minimum": 0,
               "default": 0,
               "title": "Offset"
+            }
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "newest",
+                "gross_spread"
+              ],
+              "type": "string",
+              "default": "gross_spread",
+              "title": "Sort"
             }
           }
         ],
@@ -1944,6 +2389,69 @@
               "default": 0,
               "title": "Offset"
             }
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue"
+            }
+          },
+          {
+            "name": "category_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category Group"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "newest",
+                "net_profit"
+              ],
+              "type": "string",
+              "default": "newest",
+              "title": "Sort"
+            }
           }
         ],
         "responses": {
@@ -2813,6 +3321,79 @@
         ],
         "title": "Citation"
       },
+      "ClassificationRun": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "match_id": {
+            "type": "string",
+            "title": "Match Id"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "input_hash": {
+            "type": "string",
+            "title": "Input Hash"
+          },
+          "request": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Request"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ClassificationSummary"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response"
+          },
+          "usage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Usage",
+            "default": {}
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "applied": {
+            "type": "boolean",
+            "title": "Applied"
+          },
+          "semantic_inputs": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Semantic Inputs",
+            "default": {}
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "match_id",
+          "mode",
+          "input_hash",
+          "request",
+          "summary",
+          "attempts",
+          "applied"
+        ],
+        "title": "ClassificationRun"
+      },
       "ClassificationSummary": {
         "properties": {
           "state": {
@@ -2850,6 +3431,16 @@
             "title": "Input Hash"
           },
           "event": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Finding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_relation": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/Finding"
@@ -3527,6 +4118,68 @@
         ],
         "title": "CostPolicy"
       },
+      "CoverageGroup": {
+        "properties": {
+          "venue": {
+            "type": "string",
+            "title": "Venue"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "contracts": {
+            "type": "integer",
+            "title": "Contracts",
+            "default": 0
+          },
+          "with_counterparts": {
+            "type": "integer",
+            "title": "With Counterparts",
+            "default": 0
+          },
+          "assessed": {
+            "type": "integer",
+            "title": "Assessed",
+            "default": 0
+          },
+          "verified": {
+            "type": "integer",
+            "title": "Verified",
+            "default": 0
+          },
+          "incomplete": {
+            "type": "integer",
+            "title": "Incomplete",
+            "default": 0
+          },
+          "mismatch": {
+            "type": "integer",
+            "title": "Mismatch",
+            "default": 0
+          },
+          "fresh_books": {
+            "type": "integer",
+            "title": "Fresh Books",
+            "default": 0
+          },
+          "blockers": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Blockers",
+            "default": {}
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "venue",
+          "category"
+        ],
+        "title": "CoverageGroup"
+      },
       "DecisionRevision": {
         "properties": {
           "applicability_revision_ids": {
@@ -3859,6 +4512,98 @@
           "right"
         ],
         "title": "Difference"
+      },
+      "DiscoveryCoverage": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          },
+          "contracts": {
+            "type": "integer",
+            "title": "Contracts"
+          },
+          "comparisons": {
+            "type": "integer",
+            "title": "Comparisons"
+          },
+          "unverified": {
+            "type": "integer",
+            "title": "Unverified"
+          },
+          "verified": {
+            "type": "integer",
+            "title": "Verified"
+          },
+          "mismatch": {
+            "type": "integer",
+            "title": "Mismatch"
+          },
+          "pending": {
+            "type": "integer",
+            "title": "Pending"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/CoverageGroup"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "retrieval": {
+            "$ref": "#/components/schemas/RetrievalHealth"
+          },
+          "catalogs": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogReport"
+            },
+            "type": "array",
+            "title": "Catalogs"
+          },
+          "excluded_instruments": {
+            "type": "integer",
+            "title": "Excluded Instruments"
+          },
+          "model_state": {
+            "type": "string",
+            "title": "Model State",
+            "default": "pending"
+          },
+          "queued_pairs": {
+            "type": "integer",
+            "title": "Queued Pairs",
+            "default": 0
+          },
+          "last_model_success": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Model Success"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "as_of",
+          "contracts",
+          "comparisons",
+          "unverified",
+          "verified",
+          "mismatch",
+          "pending",
+          "groups",
+          "retrieval",
+          "catalogs",
+          "excluded_instruments"
+        ],
+        "title": "DiscoveryCoverage"
       },
       "DiscoveryDecision": {
         "properties": {
@@ -4605,7 +5350,10 @@
               "different_event",
               "same_meaning",
               "different_meaning",
-              "insufficient_evidence"
+              "insufficient_evidence",
+              "aligned",
+              "inverted",
+              "different_outcomes"
             ],
             "title": "Choice"
           },
@@ -5091,6 +5839,11 @@
             "format": "date-time",
             "title": "Observed At"
           },
+          "category_group": {
+            "type": "string",
+            "title": "Category Group",
+            "readOnly": true
+          },
           "terms_hash": {
             "type": "string",
             "title": "Terms Hash",
@@ -5111,12 +5864,28 @@
           "settlement_asset",
           "raw",
           "observed_at",
+          "category_group",
           "terms_hash"
         ],
         "title": "Market"
       },
       "MarketSummary": {
         "properties": {
+          "counterpart_count": {
+            "type": "integer",
+            "title": "Counterpart Count",
+            "default": 0
+          },
+          "assessment_state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "assessed",
+              "unavailable"
+            ],
+            "title": "Assessment State",
+            "default": "pending"
+          },
           "ingestion_issues": {
             "items": {
               "type": "string"
@@ -5192,6 +5961,11 @@
             "type": "string",
             "format": "date-time",
             "title": "Observed At"
+          },
+          "category_group": {
+            "type": "string",
+            "title": "Category Group",
+            "readOnly": true
           }
         },
         "additionalProperties": false,
@@ -5205,12 +5979,26 @@
           "closes_at",
           "status",
           "settlement_asset",
-          "observed_at"
+          "observed_at",
+          "category_group"
         ],
         "title": "MarketSummary"
       },
       "Match": {
         "properties": {
+          "retrieval_methods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Retrieval Methods",
+            "default": []
+          },
+          "historical": {
+            "type": "boolean",
+            "title": "Historical",
+            "default": false
+          },
           "qualification": {
             "anyOf": [
               {
@@ -5339,6 +6127,21 @@
               }
             ],
             "title": "Review Revision Id"
+          },
+          "operator_veto": {
+            "type": "boolean",
+            "title": "Operator Veto",
+            "readOnly": true
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "verified",
+              "mismatch"
+            ],
+            "title": "Relationship",
+            "readOnly": true
           }
         },
         "additionalProperties": false,
@@ -5350,7 +6153,9 @@
           "right_id",
           "status",
           "similarity",
-          "reason"
+          "reason",
+          "operator_veto",
+          "relationship"
         ],
         "title": "Match"
       },
@@ -6043,6 +6848,73 @@
         "additionalProperties": false,
         "type": "object",
         "title": "QualificationSummary"
+      },
+      "RetrievalHealth": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State",
+            "default": "pending"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "catalog": {
+            "type": "integer",
+            "title": "Catalog",
+            "default": 0
+          },
+          "indexed": {
+            "type": "integer",
+            "title": "Indexed",
+            "default": 0
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RetrievalHealth"
       },
       "Review-Input": {
         "properties": {

@@ -27,7 +27,8 @@ class PolymarketUSAdapter:
         return (
             bool(item.get("slug"))
             and bool(item.get("endDate"))
-            and item.get("marketType") in {"futures", "binary", "moneyline", "spreads", "totals"}
+            and item.get("marketType")
+            in {"futures", "binary", "moneyline", "spreads", "totals", "election"}
             and not item.get("assetPriceTerms")
             and not item.get("combo")
             and not item.get("negRisk")

@@ -11,6 +11,7 @@ export type MarketFilters = {
   /** Sent to the API before pagination. */
   search: string;
   category: string;
+  relationship: "" | "unverified" | "verified" | "mismatch" | "history";
   offset: number;
 };
 
@@ -20,11 +21,21 @@ export const EMPTY_FILTERS: MarketFilters = {
   status: "",
   search: "",
   category: "",
+  relationship: "",
   offset: 0,
 };
 
 const VENUES: Market["venue"][] = ["kalshi", "polymarket", "polymarket_us"];
 const STATUSES: Market["status"][] = ["open", "closed"];
+const GROUPS = ["politics", "economics", "sports", "other", "unknown"] as const;
+
+export function categoryQuery(category: string) {
+  if (!category.trim()) return {};
+  const group = category.trim().toLowerCase() as (typeof GROUPS)[number];
+  return GROUPS.includes(group)
+    ? { category_group: group }
+    : { category: category.trim() };
+}
 
 /** Reads filters from the address bar, ignoring values the API does not accept. */
 export function parseFilters(params: URLSearchParams): MarketFilters {
@@ -41,6 +52,11 @@ export function parseFilters(params: URLSearchParams): MarketFilters {
       : "",
     search: params.get("q") ?? "",
     category: params.get("category") ?? "",
+    relationship: ["unverified", "verified", "mismatch", "history"].includes(
+      params.get("relationship") ?? "",
+    )
+      ? (params.get("relationship") as MarketFilters["relationship"])
+      : "",
     offset: Number.isFinite(offset) && offset > 0 ? offset : 0,
   };
 }
@@ -53,6 +69,7 @@ export function serializeFilters(filters: MarketFilters) {
   if (filters.status) params.set("status", filters.status);
   if (filters.search) params.set("q", filters.search);
   if (filters.category) params.set("category", filters.category);
+  if (filters.relationship) params.set("relationship", filters.relationship);
   if (filters.offset > 0) params.set("offset", String(filters.offset));
   const query = params.toString();
   return query ? `?${query}` : "";

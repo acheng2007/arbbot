@@ -14,6 +14,7 @@ def match_markets(
     definitions: list[ContractDefinition] | None = None,
     classifications=None,
     reviewed_pairs=None,
+    candidate_pairs=None,
 ) -> list[Match]:
     contracts = {d.market_id: d for d in definitions or []}
     if len(contracts) != len(definitions or []):
@@ -31,6 +32,15 @@ def match_markets(
         reviewed_pairs if reviewed_pairs is not None else reviews,
         supplement=20 if classifications else 0,
     )
+    indexed_markets = {m.id: m for m in markets}
+    proposed = {tuple(sorted((a.id, b.id))) for a, b in pairs}
+    if candidate_pairs is not None:
+        proposed.update(candidate_pairs)
+    pairs = [
+        (indexed_markets[a], indexed_markets[b])
+        for a, b in sorted(proposed)
+        if a in indexed_markets and b in indexed_markets
+    ]
     for a, b in pairs:
         if a.venue == b.venue or a.mode != b.mode:
             continue
@@ -47,22 +57,21 @@ def match_markets(
         comparison = compare_contracts(a, b, contracts.get(a.id), contracts.get(b.id))
         advice = classifications.get(digest([a.mode, *sorted((a.id, b.id))]))
         supported = bool(advice and advice.state == "fresh" and advice.supports_candidate)
-        periods = [
-            contracts.get(m.id).facts.get("reference_period") if contracts.get(m.id) else None
-            for m in (a, b)
-        ]
-        if all(periods) and periods[0].value != periods[1].value:
-            supported = False
         deterministic = bool(
             review
             or retrieved_review
             or comparison.same_event
             or (
-                similarity >= 0.65 and abs((a.closes_at - b.closes_at).total_seconds()) <= 7 * 86400
+                similarity >= 0.65
+                and (
+                    candidate_pairs is not None
+                    or abs((a.closes_at - b.closes_at).total_seconds()) <= 7 * 86400
+                )
             )
         )
         if (
             not supported
+            and not deterministic
             and not review
             and not retrieved_review
             and not comparison.same_event
@@ -71,12 +80,14 @@ def match_markets(
             continue
         status = "candidate"
         reason = (
-            "AI suggests the same event; settlement terms and costs require review."
+            "AI suggests the same event; settlement compatibility remains independently assessed."
             if supported and not deterministic
-            else "Title similarity only; settlement terms and costs require review."
+            else "Retrieved counterpart; settlement compatibility remains independently assessed."
         )
         if comparison.same_event:
-            reason = "Shared structured event; settlement terms and costs require review."
+            reason = (
+                "Shared structured event; settlement compatibility remains independently assessed."
+            )
         if review:
             if (review.left_terms_hash, review.right_terms_hash) != (a.terms_hash, b.terms_hash):
                 reason = "Settlement terms changed; previous review is invalid."
@@ -99,6 +110,15 @@ def match_markets(
                 status, reason = "candidate", "Review does not approve the current definitions."
         matches.append(
             Match(
+                retrieval_methods=tuple(
+                    dict.fromkeys(
+                        (
+                            *((candidate_pairs or {}).get(tuple(sorted((a.id, b.id))), ())),
+                            *(("structured_identity",) if comparison.same_event else ()),
+                            *(("model_suggestion",) if supported else ()),
+                        )
+                    )
+                ),
                 classification=advice,
                 ai_only=not deterministic,
                 feed_origin=a.feed_origin if a.feed_origin != "exchange" else b.feed_origin,
@@ -123,8 +143,8 @@ STOPWORDS = frozenset(
 )
 
 
-def retrieve_candidates(markets, contracts, reviews, limit=100, supplement=0):
-    """Exact structured keys first, then bounded inverted-index title hypotheses."""
+def retrieve_candidates(markets, contracts, reviews, limit=50, supplement=0):
+    """Bidirectional lexical retrieval. Categories and closing dates are not gates."""
     indexed = {market.id: market for market in markets}
     groups, postings = defaultdict(list), defaultdict(set)
     tokens_by_market = {}
@@ -140,7 +160,7 @@ def retrieve_candidates(markets, contracts, reviews, limit=100, supplement=0):
             groups[(market.mode, values)].append(market.id)
         tokens = {
             token
-            for token in re.findall(r"\w+", market.title.casefold())
+            for token in re.findall(r"\w+", (market.title + " " + market.rules[:1800]).casefold())
             if len(token) > 2 and token not in STOPWORDS
         }
         tokens_by_market[market.id] = tokens
@@ -164,18 +184,9 @@ def retrieve_candidates(markets, contracts, reviews, limit=100, supplement=0):
         for token in selected:
             for other_id in postings[(market.mode, token)]:
                 other = indexed[other_id]
-                if (
-                    other.venue == market.venue
-                    or abs((other.closes_at - market.closes_at).total_seconds()) > 7 * 86400
-                ):
+                if other.venue == market.venue:
                     continue
-                if (
-                    market.category
-                    and other.category
-                    and market.category.casefold() != other.category.casefold()
-                ):
-                    continue
-                scores[other_id] += 1
+                scores[other_id] += 1 / len(postings[(market.mode, token)])
         ordered = sorted(scores, key=lambda identifier: (-scores[identifier], identifier))
         if len(ordered) > limit:
             limited.add(market.id)
@@ -184,16 +195,11 @@ def retrieve_candidates(markets, contracts, reviews, limit=100, supplement=0):
     if supplement:
         extras = set()
         for market in sorted(markets, key=lambda m: m.id):
-            category = " ".join(re.findall(r"\w+", (market.category or "").casefold()))
             nearby = sorted(
                 (
                     other
                     for other in markets
-                    if other.venue != market.venue
-                    and other.mode == market.mode
-                    and abs((other.closes_at - market.closes_at).total_seconds()) <= 7 * 86400
-                    and category
-                    and category == " ".join(re.findall(r"\w+", (other.category or "").casefold()))
+                    if other.venue != market.venue and other.mode == market.mode
                 ),
                 key=lambda other: (
                     abs((other.closes_at - market.closes_at).total_seconds()),

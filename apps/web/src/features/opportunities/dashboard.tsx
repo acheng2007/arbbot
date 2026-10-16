@@ -1,4 +1,7 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { PotentialCard } from "./potential-card";
 import { Disclosure } from "@/components/disclosure";
 import type { Evaluation } from "@/lib/api/schema";
 import Link from "next/link";
@@ -94,63 +97,211 @@ function EvaluationRow({ evaluation }: { evaluation: Evaluation }) {
 }
 
 export function OpportunityDashboard() {
-  const opportunities = useApi("opportunities", { query: { limit: 100 } });
+  const router = useRouter();
+  const params = useSearchParams();
+  const potential = params.get("view") === "potential";
+  const offset = Math.max(0, Number(params.get("offset")) || 0);
+  const search = params.get("q") ?? "";
+  const category = params.get("category") ?? "";
+  const venue = params.get("venue") ?? "";
+  const sort = params.get("sort") === "newest" ? "newest" : "value";
+  const update = (changes: Record<string, string>) => {
+    const next = new URLSearchParams(params.toString());
+    next.delete("offset");
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    router.replace(`/opportunities?${next}`, { scroll: false });
+  };
+  const common = {
+    limit: 25,
+    offset,
+    ...(search ? { q: search } : {}),
+    ...(category ? { category_group: category } : {}),
+    ...(venue ? { venue } : {}),
+  };
+  const opportunities = useApi(
+    "opportunities",
+    { query: { ...common, sort: sort === "newest" ? "newest" : "net_profit" } },
+    { enabled: !potential },
+  );
+  const potentials = useApi(
+    "potentialOpportunities",
+    {
+      query: { ...common, sort: sort === "newest" ? "newest" : "gross_spread" },
+    },
+    { enabled: potential },
+  );
+  const query = potential ? potentials : opportunities;
+  const venues = useApi("venues");
   const { index } = useMarketIndex(
-    opportunities.data?.data.flatMap((o) =>
-      o.legs.map((leg) => leg.market_id),
-    ) ?? [],
+    potential
+      ? (potentials.data?.data.flatMap((p) => p.market_ids) ?? [])
+      : (opportunities.data?.data.flatMap((o) =>
+          o.legs.map((leg) => leg.market_id),
+        ) ?? []),
   );
   const stream = useOpportunityStream();
-  const access = useApi("accessSummary");
-
+  const controls =
+    "h-10 min-w-0 rounded-lg border border-border bg-card px-3 text-sm";
   return (
-    <div className="space-y-7">
-      {opportunities.data && (
-        <OriginBanner origin={opportunities.data.origin} />
-      )}
-      <StreamStatusBanner state={stream} />
-      {opportunities.data?.origin !== "fixtures" && (
-        <p className="rounded-lg border border-border p-4 text-sm">
-          Installation access: {access.data?.data.status ?? "unknown"}. Balances
-          and inventory remain unverified assumptions.
-        </p>
-      )}
-
-      <p className="text-xs text-muted-foreground">
-        Estimates after costs. Quotes can change and cross-venue fills are not
-        atomic.
-      </p>
-
-      <QueryState
-        isPending={opportunities.isPending}
-        error={opportunities.error}
-        loadingLabel="Loading opportunities"
-        onRetry={() => void opportunities.refetch()}
+    <div className="space-y-5">
+      <div
+        className="flex gap-6 border-b border-border"
+        aria-label="Opportunity views"
       >
-        {opportunities.data?.data.length === 0 ? (
+        {[
+          ["qualified", "Qualified"],
+          ["potential", "Potential"],
+        ].map(([view, label]) => (
+          <button
+            key={view}
+            onClick={() => update({ view })}
+            aria-pressed={(potential ? "potential" : "qualified") === view}
+            className={`border-b-2 pb-3 text-sm font-semibold ${(potential ? "potential" : "qualified") === view ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <p className="text-sm leading-6 text-muted-foreground">
+        {potential
+          ? "Ordinary-outcome price gaps. Settlement compatibility or financial inputs remain unresolved; these are not qualified profit estimates."
+          : "Positive worst-case conditional estimates after supported costs and settlement checks. Quotes can change and cross-venue fills are not atomic."}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <input
+          aria-label="Search opportunities"
+          placeholder="Search events"
+          type="search"
+          value={search}
+          maxLength={200}
+          onChange={(e) => update({ q: e.target.value })}
+          className={`${controls} w-full sm:flex-1`}
+        />
+        <select
+          aria-label="Opportunity category"
+          value={category}
+          onChange={(e) => update({ category: e.target.value })}
+          className={controls}
+        >
+          <option value="">All categories</option>
+          {["politics", "economics", "sports", "other", "unknown"].map((c) => (
+            <option value={c} key={c}>
+              {c[0].toUpperCase() + c.slice(1)}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Opportunity venue"
+          value={venue}
+          onChange={(e) => update({ venue: e.target.value })}
+          className={controls}
+        >
+          <option value="">All venues</option>
+          {venues.data?.data
+            .filter((v) => v.enabled)
+            .map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name}
+              </option>
+            ))}
+        </select>
+        <select
+          aria-label="Opportunity sort"
+          value={sort}
+          onChange={(e) => update({ sort: e.target.value })}
+          className={controls}
+        >
+          <option value="value">
+            Largest {potential ? "gross gap" : "net estimate"}
+          </option>
+          <option value="newest">Newest</option>
+        </select>
+      </div>
+      {query.data && <OriginBanner origin={query.data.origin} />}
+      <StreamStatusBanner state={stream} />
+      <QueryState
+        isPending={query.isPending}
+        error={query.error}
+        loadingLabel={
+          potential ? "Loading potential price gaps" : "Loading opportunities"
+        }
+        onRetry={() => void query.refetch()}
+      >
+        {query.data?.data.length === 0 ? (
           <EmptyState
-            title="No opportunities right now"
-            description="No verified pair currently shows a positive net result after fees, depth costs, and the slippage allowance. This is the normal state most of the time."
+            title={
+              potential
+                ? "No potential price gaps right now"
+                : "No opportunities right now"
+            }
+            description={
+              potential
+                ? "No current counterpart with aligned ordinary outcomes and fresh supported depth has a positive gross gap. Browse Discoveries to inspect suggestions and missing inputs."
+                : "No current pair passes every settlement and financial check with a positive estimate. This may reflect missing evidence, unavailable quotes or costs, or unprofitable prices. Browse Potential and Discoveries to see the difference."
+            }
           />
         ) : (
           <ul className="space-y-5">
-            {opportunities.data?.data.map((opportunity) => (
-              <li
-                key={`${opportunity.match_id}:${opportunity.legs.map((leg) => `${leg.market_id}:${leg.outcome}`).join("|")}`}
-              >
-                <OpportunityCard opportunity={opportunity} markets={index} />
-              </li>
-            ))}
+            {potential
+              ? potentials.data?.data.map((item) => (
+                  <li key={item.id}>
+                    <PotentialCard item={item} markets={index} />
+                  </li>
+                ))
+              : opportunities.data?.data.map((opportunity) => (
+                  <li
+                    key={`${opportunity.match_id}:${opportunity.legs.map((l) => `${l.market_id}:${l.outcome}`).join("|")}`}
+                  >
+                    <OpportunityCard
+                      opportunity={opportunity}
+                      markets={index}
+                    />
+                  </li>
+                ))}
           </ul>
         )}
       </QueryState>
-
-      <Disclosure title="Evaluated but not tradable">
-        <BlockedEvaluations />
-      </Disclosure>
-      <Disclosure title="Recently expired">
-        <RecentHistory />
-      </Disclosure>
+      <nav
+        aria-label="Opportunity pages"
+        className="flex items-center justify-between gap-3 border-t border-border pt-4"
+      >
+        <span className="text-xs text-muted-foreground">
+          Page {Math.floor(offset / 25) + 1}
+        </span>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            disabled={!offset}
+            onClick={() => update({ offset: String(Math.max(0, offset - 25)) })}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            disabled={query.isPending || (query.data?.data.length ?? 0) < 25}
+            onClick={() => update({ offset: String(offset + 25) })}
+          >
+            Next
+          </Button>
+        </div>
+      </nav>
+      <p className="text-xs leading-5 text-muted-foreground">
+        Account eligibility, balances, inventory, borrowing, and
+        account-specific charges remain unverified assumptions.
+      </p>
+      {!potential && (
+        <>
+          <Disclosure title="Evaluated but not tradable">
+            <BlockedEvaluations />
+          </Disclosure>
+          <Disclosure title="Recently expired">
+            <RecentHistory />
+          </Disclosure>
+        </>
+      )}
     </div>
   );
 }

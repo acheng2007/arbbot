@@ -33,7 +33,7 @@ export function ClassificationPanel({
         <ClassificationLabel advice={advice} />
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Advisory findings help identify pairs for review. Established event
+        Advisory findings identify possible counterparts. Source-backed event
         evidence, settlement verification, and executable financial checks
         remain required. Confidence is a model score, not measured accuracy.
       </p>
@@ -65,6 +65,13 @@ export function ClassificationPanel({
           Event finding: {advice.event.choice.replaceAll("_", " ")}. Model
           confidence score {advice.event.confidence.toFixed(2)}, same-event
           probability {(advice.event.probabilities.same_event ?? 0).toFixed(2)}.
+        </p>
+      )}
+      {advice?.outcome_relation && (
+        <p className="mt-2 text-sm">
+          Outcome relationship:{" "}
+          {advice.outcome_relation.choice.replaceAll("_", " ")}. This is a model
+          finding, not settlement verification.
         </p>
       )}
       {advice && (

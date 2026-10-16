@@ -56,6 +56,12 @@ class Pipeline:
         self.classifications = ClassificationService(
             settings, repository.database, catalog.changed if catalog else None
         )
+        from arbbot.matching.retrieval import HybridRetriever
+
+        self.retrieval = HybridRetriever(
+            settings, repository.database, catalog.changed if catalog else self.evaluation_ready
+        )
+        self.classifications.retrieval = self.retrieval
 
     async def ingest_venue(self, adapter, selected=None):
         mode = self.settings.mode
@@ -355,7 +361,10 @@ class Pipeline:
                     contracts.append(parse_contract(market)[0])
                 except ValueError:
                     contracts.append(extract_contract(market).definition)
-            return match_markets(markets, [], contracts, advice, retained_pairs)
+            candidates = self.retrieval.candidates(markets)
+            for pair in self.classifications.advised_pairs:
+                candidates.setdefault(pair, ("model_suggestion",))
+            return match_markets(markets, [], contracts, advice, retained_pairs, candidates)
 
         matches = await asyncio.to_thread(proposals)
         await self.qualifications.schedule(matches)
@@ -561,7 +570,12 @@ class Pipeline:
                     logger.warning("evaluation_failed", extra={"error": safe_error(exc)})
 
         async with asyncio.TaskGroup() as group:
+
+            async def retrieval():
+                await self.retrieval.refresh(await catalog_markets())
+
             tasks = [
+                group.create_task(periodic(retrieval, 5)),
                 group.create_task(periodic(quotes, self.settings.poll_seconds)),
                 group.create_task(matching_loop()),
                 group.create_task(evaluation()),

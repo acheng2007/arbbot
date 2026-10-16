@@ -92,6 +92,10 @@ function fromFixtures(
     market_id?: string | null;
     status?: string | null;
     category?: string | null;
+    category_group?: string | null;
+    relationship?: string | null;
+    historical?: boolean;
+    exclude_mismatch?: boolean;
     q?: string | null;
     classification?: string | null;
     same_event?: boolean;
@@ -130,6 +134,61 @@ function fromFixtures(
           access_note: "Simulation",
         },
       ];
+    case "inventory":
+    case "potentialOpportunities":
+    case "qualificationHistory":
+    case "classificationHistory":
+      return [];
+    case "potentialOpportunity":
+      throw new ApiError(
+        "not_found",
+        "No potential price gap fixture recorded",
+        404,
+      );
+    case "qualification":
+      return (
+        fixtures.matches.find((m) => m.id === params.match_id)
+          ?.qualification ?? {
+          status: "pending",
+          basis: "automatic_rules",
+          blocked_reasons: [],
+          evidence_ids: [],
+        }
+      );
+    case "discoveryCoverage": {
+      const rows = fixtures.markets.filter(
+        (m) =>
+          (!query.venue || m.venue === query.venue) &&
+          (!query.category_group ||
+            m.category_group === query.category_group) &&
+          (!query.status || m.status === query.status) &&
+          (!query.q ||
+            `${m.title} ${m.id} ${m.rules}`
+              .toLowerCase()
+              .includes(query.q.toLowerCase())),
+      );
+      const matches = fixtures.matches.filter(
+        (m) =>
+          (!query.relationship || m.relationship === query.relationship) &&
+            (String(query.exclude_mismatch) !== "true" || m.relationship !== "mismatch") &&
+            (String(query.exclude_rejected) !== "true" || m.status !== "rejected") &&
+          rows.some((r) => [m.left_id, m.right_id].includes(r.id)),
+      );
+      return {
+        as_of: new Date().toISOString(),
+        contracts: rows.length,
+        comparisons: matches.length,
+        unverified: matches.filter((m) => m.relationship === "unverified")
+          .length,
+        verified: matches.filter((m) => m.relationship === "verified").length,
+        mismatch: matches.filter((m) => m.relationship === "mismatch").length,
+        pending: matches.length,
+        excluded_instruments: 0,
+        catalogs: [],
+        retrieval: { state: "disabled", catalog: rows.length, indexed: 0 },
+        groups: [],
+      };
+    }
     case "marketSummaries":
     case "markets": {
       const venue = query.venue;
@@ -141,6 +200,8 @@ function fromFixtures(
           (market) =>
             (!query.status || market.status === query.status) &&
             (!query.category || market.category === query.category) &&
+            (!query.category_group ||
+              market.category_group === query.category_group) &&
             (!query.q ||
               `${market.title} ${market.id} ${market.external_id} ${market.rules}`
                 .toLowerCase()
@@ -196,6 +257,10 @@ function fromFixtures(
             (String(query.exclude_rejected) !== "true" ||
               entry.status !== "rejected") &&
             (!query.status || entry.status === query.status) &&
+            (!query.relationship ||
+              entry.relationship === query.relationship) &&
+            (String(query.exclude_mismatch) !== "true" ||
+              entry.relationship !== "mismatch") &&
             fixtures.markets.some(
               (market) =>
                 [entry.left_id, entry.right_id].includes(market.id) &&
@@ -203,6 +268,8 @@ function fromFixtures(
                 (!query.market_status ||
                   market.status === query.market_status) &&
                 (!query.category || market.category === query.category) &&
+                (!query.category_group ||
+                  market.category_group === query.category_group) &&
                 (!query.q ||
                   `${market.title} ${market.id} ${market.rules}`
                     .toLowerCase()

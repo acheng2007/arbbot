@@ -11,11 +11,10 @@ Confidence is a model score, not measured accuracy.
 
 ## Accepted visibility policy and current behavior
 
-The [accepted candidate-visibility decision](decisions/candidate-visibility.md) supersedes score-based admission as the development direction.
-Future behavior exposes every valid fresh `same_event` suggestion as Unverified, uses model scores for ranking, and derives Verified or Mismatch from automatic settlement checks.
-Verification and positive financial opportunity publication remain separate.
-The implementation described below still enforces both 0.80 candidate cutoffs; no settings or runtime behavior changed when this decision was documented.
-Treat the threshold settings and initial benchmark as current/historical implementation evidence rather than requirements for future candidate visibility.
+The [accepted candidate-visibility decision](decisions/candidate-visibility.md) is implemented.
+Every valid fresh `same_event` suggestion is visible as Unverified regardless of probability or confidence.
+Scores rank suggestions; only current automatic settlement checks establish Verified, while explicit contradictions establish Mismatch.
+Financial publication remains independent.
 
 ## Configuration
 
@@ -30,8 +29,8 @@ There is no daily spending cap.
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `ARBBOT_CLASSIFICATION_REQUESTS_PER_SECOND` | `2` | Shared limit for all attempts, including retries; may be reduced, never raised above two |
-| `ARBBOT_CLASSIFICATION_PROBABILITY` | `0.80` | Minimum same-event probability for an additional candidate |
-| `ARBBOT_CLASSIFICATION_CONFIDENCE` | `0.80` | Minimum model confidence score for an additional candidate |
+| `ARBBOT_CLASSIFICATION_PROBABILITY` | `0.80` | Legacy compatibility setting; no admission effect |
+| `ARBBOT_CLASSIFICATION_CONFIDENCE` | `0.80` | Legacy compatibility setting; no admission effect |
 | `ARBBOT_CLASSIFICATION_RECORDING_FILE` | unset | Explicit offline Decisions response fixture; never falls back to network |
 
 The worker supervises classification independently of catalog refresh, matching, fees, book polling, and evaluation.
@@ -43,19 +42,19 @@ No additional service or Redis is required.
 
 ## Retrieval and evidence
 
-Existing structured-event, title-index, and reviewed-pair retrieval remains in place.
-Classification evaluates retrieved pairs before the title similarity cutoff.
-An additional category-normalized, nearby-close supplement contributes at most 20 new counterparts per endpoint, with limits disclosed.
-Retrieval examines closing times within seven days, so distant exchange closing conventions can still prevent retrieval.
-The supplement cannot guarantee full catalog recall.
+Retrieval unions bounded bidirectional keyword and local embedding neighbors across enabled venues.
+Category labels and exchange closing dates do not exclude model candidates.
+The pinned BGE-small ONNX model runs locally with durable versioned embeddings; lexical retrieval continues during model failures.
+Native categories are preserved separately from browsing groups.
+No Gemini extraction stage is required.
 
+Jev assesses event identity, outcome orientation, and settlement clauses in one bounded pair request.
 Event choices are `same_event`, `different_event`, and `insufficient_evidence`.
-Separate questions compare outcomes, resolution sources, cancellation, fallback, ambiguity, and revision clauses.
-Clause choices are `same_meaning`, `different_meaning`, and `insufficient_evidence`.
-Numerical thresholds, dates, rounding, payout semantics, and explicit reference-period contradictions remain Python decisions.
-The current implementation only admits an otherwise excluded candidate when fresh same-event advice meets both configured thresholds; migrating this gate to the accepted visibility policy remains open.
-Monitoring preserves verified, established-event, and watchlist priorities, then fresh AI-supported suggestions, other title suggestions, and unpaired markets.
-Each priority tier rotates fairly.
+Orientation distinguishes aligned outcomes, inverted outcomes, different outcomes, and insufficient evidence.
+Evidence is selected from captured source spans, with omitted context explicitly disclosed.
+Opposing party names alone do not establish complementary payouts.
+Python retains numerical, date, rounding, payout, freshness, and publication authority.
+Monitoring reserves a rotating exploratory allocation alongside existing priorities.
 
 Inputs contain public market metadata and deterministic captured text excerpts, with source IDs, exact text offsets, applicability, and coverage limitations.
 Raw exchange payloads, account data, credentials, books, balances, and fees are excluded.
@@ -156,5 +155,5 @@ These values are provider usage fields, not an independent billing audit or a pr
 Request-level latency was not instrumented by the harness.
 All 30 pairs still lack sufficient applicable exceptional-settlement evidence.
 The smoke harness loads recorded primary market metadata without supplementary captured document artifacts, so raw clause answers cannot establish clause accuracy or automatic qualification.
-No thresholds or production behavior changed.
+That historical benchmark did not change production behavior; the subsequent broad-discovery implementation removes score-based admission.
 Next evaluation should add authentic uncertain/ambiguous identities and applicable clause evidence, measuring retrieval and ranking separately from verification under the accepted visibility policy.

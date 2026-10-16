@@ -101,12 +101,27 @@ export type Citation = {
   quotation: string;
 };
 
+export type ClassificationRun = {
+  id: string;
+  match_id: string;
+  mode: string;
+  input_hash: string;
+  request: Partial<Record<string, unknown>>;
+  summary: ClassificationSummary;
+  response?: Partial<Record<string, unknown>> | null;
+  usage?: Partial<Record<string, unknown>>;
+  attempts: number;
+  applied: boolean;
+  semantic_inputs?: Partial<Record<string, unknown>>;
+};
+
 export type ClassificationSummary = {
   state:
     "pending" | "fresh" | "stale" | "unavailable" | "unconfigured" | "disabled";
   run_id?: string | null;
   input_hash?: string | null;
   event?: Finding | null;
+  outcome_relation?: Finding | null;
   clauses?: Partial<Record<string, Finding>>;
   evidence?: Array<EvidenceSpan>;
   requested_model?: string;
@@ -249,6 +264,19 @@ export type CostPolicy = {
   evidence: string;
 };
 
+export type CoverageGroup = {
+  venue: string;
+  category: string;
+  contracts?: number;
+  with_counterparts?: number;
+  assessed?: number;
+  verified?: number;
+  incomplete?: number;
+  mismatch?: number;
+  fresh_books?: number;
+  blockers?: Partial<Record<string, number>>;
+};
+
 export type DecisionRevision = {
   applicability_revision_ids?: Array<string>;
   id: string;
@@ -300,6 +328,23 @@ export type Difference = {
   status: "equal" | "different" | "unknown";
   left: string | null;
   right: string | null;
+};
+
+export type DiscoveryCoverage = {
+  as_of: string;
+  contracts: number;
+  comparisons: number;
+  unverified: number;
+  verified: number;
+  mismatch: number;
+  pending: number;
+  groups: Array<CoverageGroup>;
+  retrieval: RetrievalHealth;
+  catalogs: Array<CatalogReport>;
+  excluded_instruments: number;
+  model_state?: string;
+  queued_pairs?: number;
+  last_model_success?: string | null;
 };
 
 export type DiscoveryDecision = {
@@ -445,7 +490,10 @@ export type Finding = {
     | "different_event"
     | "same_meaning"
     | "different_meaning"
-    | "insufficient_evidence";
+    | "insufficient_evidence"
+    | "aligned"
+    | "inverted"
+    | "different_outcomes";
   confidence: number;
   probabilities: Partial<Record<string, number>>;
   evidence_ids?: Array<string>;
@@ -525,10 +573,13 @@ export type Market = {
   settlement_details?: Partial<Record<string, unknown>>;
   raw: Partial<Record<string, unknown>>;
   observed_at: string;
+  category_group: string;
   terms_hash: string;
 };
 
 export type MarketSummary = {
+  counterpart_count?: number;
+  assessment_state?: "pending" | "assessed" | "unavailable";
   ingestion_issues?: Array<string>;
   feed_origin?: "exchange" | "synthetic_recording" | "recorded_exchange";
   id: string;
@@ -541,9 +592,12 @@ export type MarketSummary = {
   settlement_asset: string;
   category?: string | null;
   observed_at: string;
+  category_group: string;
 };
 
 export type Match = {
+  retrieval_methods?: Array<string>;
+  historical?: boolean;
   qualification?: QualificationSummary | null;
   settlement?: SettlementModel | null;
   classification?: ClassificationSummary | null;
@@ -561,6 +615,8 @@ export type Match = {
   review?: Review | null;
   comparison?: Comparison | null;
   review_revision_id?: string | null;
+  operator_veto: boolean;
+  relationship: "unverified" | "verified" | "mismatch";
 };
 
 export type Opportunity = {
@@ -661,6 +717,16 @@ export type QualificationSummary = {
   expires_at?: string | null;
   blocked_reasons?: Array<string>;
   evidence_ids?: Array<string>;
+};
+
+export type RetrievalHealth = {
+  state?: string;
+  model?: string | null;
+  revision?: string | null;
+  catalog?: number;
+  indexed?: number;
+  error?: string | null;
+  updated_at?: string | null;
 };
 
 export type ReviewInput = {
@@ -848,6 +914,25 @@ export type VenueInfo = {
 
 /** Every backend operation keyed by its OpenAPI operationId. */
 export interface ApiOperations {
+  discoveryCoverage: {
+    route: "/api/v1/discovery/coverage";
+    method: "GET";
+    body: never;
+    params: Record<string, never>;
+    query: {
+      venue?: string | null;
+      category_group?:
+        "politics" | "economics" | "sports" | "other" | "unknown" | null;
+      category?: string | null;
+      q?: string | null;
+      relationship?: "unverified" | "verified" | "mismatch" | null;
+      historical?: boolean;
+      status?: "open" | "closed" | null;
+      exclude_mismatch?: boolean;
+      exclude_rejected?: boolean;
+    };
+    response: DiscoveryCoverage;
+  };
   accessSummary: {
     route: "/api/v1/access-summary";
     method: "GET";
@@ -866,6 +951,7 @@ export interface ApiOperations {
       offset?: number;
       venue?: string | null;
       supported?: boolean | null;
+      q?: string | null;
     };
     response: Array<CatalogObservation>;
   };
@@ -880,6 +966,8 @@ export interface ApiOperations {
       venue?: string | null;
       status?: "open" | "closed" | null;
       category?: string | null;
+      category_group?:
+        "politics" | "economics" | "sports" | "other" | "unknown" | null;
       q?: string | null;
     };
     response: Array<MarketSummary>;
@@ -895,6 +983,8 @@ export interface ApiOperations {
       venue?: string | null;
       status?: "open" | "closed" | null;
       family?: string | null;
+      category_group?:
+        "politics" | "economics" | "sports" | "other" | "unknown" | null;
       q?: string | null;
     };
     response: Array<Market>;
@@ -912,6 +1002,11 @@ export interface ApiOperations {
       family?: string | null;
       q?: string | null;
       category?: string | null;
+      category_group?:
+        "politics" | "economics" | "sports" | "other" | "unknown" | null;
+      relationship?: "unverified" | "verified" | "mismatch" | null;
+      exclude_mismatch?: boolean;
+      historical?: boolean;
       same_event?: boolean | null;
       market_status?: "open" | "closed" | null;
       exclude_rejected?: boolean;
@@ -944,8 +1039,23 @@ export interface ApiOperations {
     params: {
       match_id: string;
     };
-    query: Record<string, never>;
+    query: {
+      historical?: boolean;
+    };
     response: Match;
+  };
+  classificationHistory: {
+    route: "/api/v1/matches/{match_id}/classification/history";
+    method: "GET";
+    body: never;
+    params: {
+      match_id: string;
+    };
+    query: {
+      limit?: number;
+      offset?: number;
+    };
+    response: Array<ClassificationRun>;
   };
   classificationDetail: {
     route: "/api/v1/matches/{match_id}/classification";
@@ -992,6 +1102,10 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
+      venue?: string | null;
+      category_group?: string | null;
+      q?: string | null;
+      sort?: "newest" | "gross_spread";
     };
     response: Array<PotentialOpportunity>;
   };
@@ -1230,6 +1344,10 @@ export interface ApiOperations {
     query: {
       limit?: number;
       offset?: number;
+      venue?: string | null;
+      category_group?: string | null;
+      q?: string | null;
+      sort?: "newest" | "net_profit";
     };
     response: Array<Opportunity>;
   };
@@ -1286,6 +1404,22 @@ export type ReadOperationId = {
 
 /** Route template and accepted parameter names for each operation. */
 export const API_OPERATIONS = {
+  discoveryCoverage: {
+    route: "/api/v1/discovery/coverage",
+    method: "GET",
+    params: [],
+    query: [
+      "venue",
+      "category_group",
+      "category",
+      "q",
+      "relationship",
+      "historical",
+      "status",
+      "exclude_mismatch",
+      "exclude_rejected",
+    ],
+  },
   accessSummary: {
     route: "/api/v1/access-summary",
     method: "GET",
@@ -1296,19 +1430,35 @@ export const API_OPERATIONS = {
     route: "/api/v1/catalog/inventory",
     method: "GET",
     params: [],
-    query: ["limit", "offset", "venue", "supported"],
+    query: ["limit", "offset", "venue", "supported", "q"],
   },
   marketSummaries: {
     route: "/api/v1/market-summaries",
     method: "GET",
     params: [],
-    query: ["limit", "offset", "venue", "status", "category", "q"],
+    query: [
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "category",
+      "category_group",
+      "q",
+    ],
   },
   markets: {
     route: "/api/v1/markets",
     method: "GET",
     params: [],
-    query: ["limit", "offset", "venue", "status", "family", "q"],
+    query: [
+      "limit",
+      "offset",
+      "venue",
+      "status",
+      "family",
+      "category_group",
+      "q",
+    ],
   },
   matches: {
     route: "/api/v1/matches",
@@ -1322,6 +1472,10 @@ export const API_OPERATIONS = {
       "family",
       "q",
       "category",
+      "category_group",
+      "relationship",
+      "exclude_mismatch",
+      "historical",
       "same_event",
       "market_status",
       "exclude_rejected",
@@ -1335,7 +1489,13 @@ export const API_OPERATIONS = {
     route: "/api/v1/matches/{match_id}",
     method: "GET",
     params: ["match_id"],
-    query: [],
+    query: ["historical"],
+  },
+  classificationHistory: {
+    route: "/api/v1/matches/{match_id}/classification/history",
+    method: "GET",
+    params: ["match_id"],
+    query: ["limit", "offset"],
   },
   classificationDetail: {
     route: "/api/v1/matches/{match_id}/classification",
@@ -1359,7 +1519,7 @@ export const API_OPERATIONS = {
     route: "/api/v1/potential-opportunities",
     method: "GET",
     params: [],
-    query: ["limit", "offset"],
+    query: ["limit", "offset", "venue", "category_group", "q", "sort"],
   },
   potentialOpportunity: {
     route: "/api/v1/potential-opportunities/{potential_id}",
@@ -1503,7 +1663,7 @@ export const API_OPERATIONS = {
     route: "/api/v1/opportunities",
     method: "GET",
     params: [],
-    query: ["limit", "offset"],
+    query: ["limit", "offset", "venue", "category_group", "q", "sort"],
   },
   history: {
     route: "/api/v1/opportunities/history",

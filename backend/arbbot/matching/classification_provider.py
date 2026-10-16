@@ -144,9 +144,15 @@ class RecordedDecisions:
         body = json.loads(request.content)
         pair = sorted(m["id"] for m in body["state"]["markets"])
         recording = json.loads(self.path.read_text())
-        entry = recording.get("pairs", {}).get("|".join(pair))
+        pair_key = "|".join(pair)
+        entry = recording.get("pairs", {}).get(pair_key)
         if not entry:
             return httpx.Response(503)
+        from arbbot.domain import digest
+
+        expected = recording.get("request_hashes", {}).get(pair_key)
+        if expected and digest(body) != expected:
+            return httpx.Response(422)
         status = recording.get("status", 200)
         return httpx.Response(status, json=entry, headers={"Retry-After": "1"})
 

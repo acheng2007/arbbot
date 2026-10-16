@@ -10,7 +10,7 @@ export function Navigation() {
       className="flex items-center gap-6 sm:gap-8"
     >
       {[
-        ["/markets", "Markets"],
+        ["/markets", "Discoveries"],
         ["/opportunities", "Opportunities"],
         ["/matches", "Comparisons"],
       ].map(([href, label]) => (
